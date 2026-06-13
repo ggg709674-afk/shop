@@ -128,8 +128,6 @@
     transform:translateY(0);
     transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1), height .3s ease, padding .3s ease;
   }
-  /* 렌탈일 때 대메뉴(탭)-소메뉴(브랜드) 사이 라인 제거 (탭과 iframe 브랜드메뉴가 붙어 보이게) */
-  .scroll.on-rental .head { border-bottom-color:transparent; }
   /* compact(로고 숨김) 시 렌탈 iframe을 위로 올려 탭 바로 아래에 붙임 — 휴대폰/인터넷의 sub-nav 슬라이드업(-44px)과 동일 원리 */
   .scroll.compact-mode #panel-rental { transform: translateY(-50px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
   /* 렌탈+compact: 헤더(흰 배경 89px)가 올라온 iframe 상단(브랜드메뉴)을 덮으므로, 헤더를 탭만 남게 clip.
