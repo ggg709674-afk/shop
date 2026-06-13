@@ -126,8 +126,13 @@
     height:54px;
     opacity:1;
     transform:translateY(0);
-    transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1);
+    transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1), height .3s ease, padding .3s ease;
   }
+  /* 렌탈 패널: iframe 스크롤 연동 compact — 로고행(.top) 높이 collapse (transform 기반과 달리 실제 레이아웃 축소 → iframe이 자연스럽게 위로) */
+  .scroll.rental-compact .head .top { height:0; padding-top:0; padding-bottom:0; opacity:0; overflow:hidden; pointer-events:none; }
+  .scroll.rental-compact .head { border-bottom-color:transparent; }
+  /* 렌탈일 때 대메뉴(탭)-소메뉴(브랜드) 사이 라인 제거 (탭과 iframe 브랜드메뉴가 붙어 보이게) */
+  .scroll.on-rental .head { border-bottom-color:transparent; }
   .head.compact .top {
     opacity:0;
     transform:translateY(-12px);
@@ -1405,13 +1410,36 @@
   // 샵 초기 렌더 후 렌탈 iframe 백그라운드 프리로드 → 첫 슬라이드도 매끄럽게
   setTimeout(mountRentalFrame, 1200);
 
+  // 렌탈 iframe 스크롤 → 샵 헤더 로고행 collapse (휴대폰/인터넷의 로고 숨김과 동일 효과)
+  var rPrevY = 0, rAccum = 0, rLastSign = 0;
+  function setRentalCompact(on) {
+    if (scrollEl.classList.contains('rental-compact') === on) return;
+    scrollEl.classList.toggle('rental-compact', on);
+    syncPanelsHeight();
+  }
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'msr-scroll') return;
+    if (catOrder[currentIdx] !== 'rental') return;
+    var y = e.data.y || 0;
+    var dy = y - rPrevY; rPrevY = y;
+    var sign = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
+    if (sign !== 0 && sign !== rLastSign) { rAccum = 0; rLastSign = sign; }
+    rAccum += dy;
+    var isC = scrollEl.classList.contains('rental-compact');
+    if (y < 30) { if (isC) setRentalCompact(false); rAccum = 0; }
+    else if (rAccum > 12 && !isC && y > 110) { setRentalCompact(true); rAccum = 0; }
+    else if (rAccum < -12 && isC) { setRentalCompact(false); rAccum = 0; }
+  }, false);
+
   function syncPanelsHeight() {
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
     if (!active || !panelsEl) return;
     if (catOrder[currentIdx] === 'rental') {
       // 렌탈은 iframe — 헤더 아래 공간을 꽉 채우고 내부 스크롤 (높이 동기화)
+      // compact(로고행 collapse) 시 헤더는 탭만 남아 ~35px. 트랜지션 중 offsetHeight 오독 방지 위해 목표값 사용.
       var frame = document.getElementById('rental-frame');
-      var h = scrollEl.clientHeight - (headEl ? headEl.offsetHeight : 0);
+      var hh = scrollEl.classList.contains('rental-compact') ? 35 : 89;
+      var h = scrollEl.clientHeight - hh;
       if (h < 0) h = scrollEl.clientHeight;
       if (frame) frame.style.height = h + 'px';
       panelsEl.style.height = h + 'px';
@@ -1433,6 +1461,10 @@
 
     currentIdx = newIdx;
     panelsEl.style.left = -(newIdx * 100) + '%';
+    // 렌탈 패널이면 라인 제거 클래스 on, 떠나면 compact도 해제
+    scrollEl.classList.toggle('on-rental', cat === 'rental');
+    if (cat !== 'rental') scrollEl.classList.remove('rental-compact');
+    rPrevY = 0;
     syncPanelsHeight();
 
     if (wasCompact) {

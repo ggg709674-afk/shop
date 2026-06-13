@@ -688,6 +688,13 @@
   };
   window.skmMountScrollTop();
 
+  // 임베드 시: iframe 스크롤 위치를 부모 샵에 전달 → 샵 헤더 compact(로고 숨김) 연동
+  if (document.documentElement.classList.contains('msr-embed')) {
+    window.addEventListener('scroll', function(){
+      try { parent.postMessage({ type:'msr-scroll', y: window.scrollY || document.documentElement.scrollTop || 0 }, '*'); } catch(e){}
+    }, { passive:true });
+  }
+
   document.getElementById('ic-arr1').innerHTML = ICONS.arrow();
   document.getElementById('ic-arr2').innerHTML = ICONS.arrow();
   document.getElementById('ic-arr').innerHTML = ICONS.arrow();
