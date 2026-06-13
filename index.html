@@ -8,6 +8,7 @@
 <script>
   /* 페이지 전환 슬라이드 — 렌탈에서 돌아올 때 첫 페인트 전에 화면 밖(왼쪽)에 위치시킴 (빙 도는 현상 방지) */
   try { if (sessionStorage.getItem('msrNav') === 'toShop') { document.documentElement.className += ' msr-enter-left'; sessionStorage.removeItem('msrNav'); } } catch(e){}
+  /* 위 조건이 아니면(직접 진입/새로고침) 슬라이드 없음 */
 </script>
 <!-- SK매직 화이트톤 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -1444,12 +1445,11 @@
 
   catNav.querySelectorAll('button').forEach(function(b) {
     b.addEventListener('click', function() {
-      // 렌탈 탭 → SK매직 카탈로그 페이지로 이동. 패널 carousel처럼 왼쪽으로 슬라이드 아웃 후 이동
+      // 렌탈 탭 → SK매직 카탈로그 페이지로 이동. (나가는 슬라이드는 흰 화면 사이로 '빙 도는' 느낌이라 제거 —
+      //  방향 플래그만 남기고 즉시 이동, 렌탈 페이지가 오른쪽에서 슬라이드 인)
       if (b.dataset.cat === 'rental') {
         try { sessionStorage.setItem('msrNav','toRental'); } catch(e){}
-        var sc = document.querySelector('.scroll');
-        if (sc) { sc.style.transition = 'transform .3s cubic-bezier(.32,.72,0,1)'; sc.style.transform = 'translateX(-100%)'; }
-        setTimeout(function(){ location.href = '/rental'; }, 270);
+        location.href = '/rental';
         return;
       }
       showCat(b.dataset.cat);
@@ -1473,7 +1473,7 @@
     var sc = document.querySelector('.scroll');
     if (sc && document.documentElement.classList.contains('msr-enter-left')) {
       sc.style.transition = 'transform .34s cubic-bezier(.32,.72,0,1)';
-      sc.getBoundingClientRect(); // reflow 확정
+      sc.getBoundingClientRect(); // reflow 확정 (시작 위치 -100% 커밋)
       document.documentElement.classList.remove('msr-enter-left'); // transform 규칙 사라짐 → 0으로 애니메이트
       setTimeout(function(){ sc.style.transition = ''; }, 420);
     }

@@ -685,19 +685,16 @@
     // 들어올 때: head에서 이미 화면 밖(오른쪽)에 위치시켜 둠 → 클래스 제거하며 0으로 슬라이드 인
     if (document.documentElement.classList.contains('msr-enter-right')) {
       sc.style.transition = 'transform .34s cubic-bezier(.32,.72,0,1)';
-      sc.getBoundingClientRect(); // reflow 확정 (100% 위치 커밋)
+      sc.getBoundingClientRect(); // reflow 확정 (시작 위치 100% 커밋)
       document.documentElement.classList.remove('msr-enter-right'); // transform 규칙 사라짐 → 0으로 애니메이트
       setTimeout(function(){ sc.style.transition = ''; }, 420);
     }
-    // 나갈 때(휴대폰/인터넷 탭): 오른쪽으로 슬라이드 아웃 후 이동
+    // 나갈 때(휴대폰/인터넷 탭): 방향 플래그만 남기고 즉시 이동 (샵이 왼쪽에서 슬라이드 인)
     document.querySelectorAll('.msr-cat-nav a[href^="/?cat="]').forEach(function(a){
       a.addEventListener('click', function(e){
         e.preventDefault();
-        var href = a.getAttribute('href');
         try { sessionStorage.setItem('msrNav','toShop'); } catch(err){}
-        sc.style.transition = 'transform .3s cubic-bezier(.32,.72,0,1)';
-        sc.style.transform = 'translateX(100%)';
-        setTimeout(function(){ location.href = href; }, 270);
+        location.href = a.getAttribute('href');
       });
     });
   })();
