@@ -688,11 +688,14 @@
   };
   window.skmMountScrollTop();
 
-  // 임베드 시: iframe 스크롤 위치를 부모 샵에 전달 → 샵 헤더 compact(로고 숨김) 연동
+  // 임베드 시: iframe 스크롤 위치를 부모 샵에 전달 → 샵 헤더 compact(로고 숨김) 연동.
+  // 단, 로드/라우트 직후 app.js의 scrollTo(0,0) 같은 '프로그램적 리셋'은 보내지 않도록 1초 후부터 구독 (compact 오토글 방지).
   if (document.documentElement.classList.contains('msr-embed')) {
-    window.addEventListener('scroll', function(){
-      try { parent.postMessage({ type:'msr-scroll', y: window.scrollY || document.documentElement.scrollTop || 0 }, '*'); } catch(e){}
-    }, { passive:true });
+    setTimeout(function(){
+      window.addEventListener('scroll', function(){
+        try { parent.postMessage({ type:'msr-scroll', y: window.scrollY || document.documentElement.scrollTop || 0 }, '*'); } catch(e){}
+      }, { passive:true });
+    }, 1000);
   }
 
   document.getElementById('ic-arr1').innerHTML = ICONS.arrow();

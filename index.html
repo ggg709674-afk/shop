@@ -128,11 +128,12 @@
     transform:translateY(0);
     transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1), height .3s ease, padding .3s ease;
   }
-  /* 렌탈 패널: iframe 스크롤 연동 compact — 로고행(.top) 높이 collapse (transform 기반과 달리 실제 레이아웃 축소 → iframe이 자연스럽게 위로) */
-  .scroll.rental-compact .head .top { height:0; padding-top:0; padding-bottom:0; opacity:0; overflow:hidden; pointer-events:none; }
-  .scroll.rental-compact .head { border-bottom-color:transparent; }
   /* 렌탈일 때 대메뉴(탭)-소메뉴(브랜드) 사이 라인 제거 (탭과 iframe 브랜드메뉴가 붙어 보이게) */
   .scroll.on-rental .head { border-bottom-color:transparent; }
+  /* compact(로고 숨김) 시 렌탈 iframe을 위로 올려 탭 바로 아래에 붙임 — 휴대폰/인터넷의 sub-nav 슬라이드업(-44px)과 동일 원리 */
+  .scroll.compact-mode #panel-rental { transform: translateY(-54px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
+  /* 렌탈+compact: 헤더(흰 배경 89px)가 올라온 iframe 상단(브랜드메뉴)을 덮으므로, 헤더를 탭만 남게 clip(하단 54px 잘라냄) */
+  .scroll.compact-mode.on-rental .head { clip-path: inset(0 0 54px 0); }
   .head.compact .top {
     opacity:0;
     transform:translateY(-12px);
@@ -228,7 +229,7 @@
     width:33.3333%; flex-shrink:0;
   }
   /* 렌탈 패널 = SK매직 카탈로그를 iframe으로 임베드 (carousel 슬라이드로 진입) */
-  #panel-rental { align-self:stretch; }
+  #panel-rental { align-self:stretch; overflow:visible; }
   #rental-frame { width:100%; border:0; display:block; background:#fff; }
 
   /* ───── 공통 컨테이너 ───── */
@@ -1410,39 +1411,44 @@
   // 샵 초기 렌더 후 렌탈 iframe 백그라운드 프리로드 → 첫 슬라이드도 매끄럽게
   setTimeout(mountRentalFrame, 1200);
 
-  // 렌탈 iframe 스크롤 → 샵 헤더 로고행 collapse (휴대폰/인터넷의 로고 숨김과 동일 효과)
-  var rPrevY = 0, rAccum = 0, rLastSign = 0;
-  function setRentalCompact(on) {
-    if (scrollEl.classList.contains('rental-compact') === on) return;
-    scrollEl.classList.toggle('rental-compact', on);
-    syncPanelsHeight();
+  // 렌탈 iframe 스크롤 → 샵 헤더 compact 토글 (휴대폰/인터넷과 '동일한' .head.compact 공유 상태 사용 → 탭 전환해도 유지)
+  var rPrevY = 0, rAccum = 0, rLastSign = 0, rLockUntil = 0;
+  function setCompact(on) {
+    if (headEl.classList.contains('compact') === on) return;
+    headEl.classList.toggle('compact', on);
+    scrollEl.classList.toggle('compact-mode', on);
+    if (catOrder[currentIdx] === 'rental') syncPanelsHeight(); // iframe 높이 재조정
   }
   window.addEventListener('message', function(e) {
     if (!e.data || e.data.type !== 'msr-scroll') return;
     if (catOrder[currentIdx] !== 'rental') return;
     var y = e.data.y || 0;
+    // 진입 직후 iframe 스크롤 리셋/클램프가 compact를 잘못 토글하지 않도록 lockout
+    if (performance.now() < rLockUntil) { rPrevY = y; rAccum = 0; return; }
     var dy = y - rPrevY; rPrevY = y;
+    // 큰 점프(app.js의 scrollTo(0,0) 같은 프로그램적 리셋)는 사용자 스크롤이 아니므로 무시 — compact 유지
+    if (Math.abs(dy) > 120) { rAccum = 0; return; }
     var sign = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
     if (sign !== 0 && sign !== rLastSign) { rAccum = 0; rLastSign = sign; }
     rAccum += dy;
-    var isC = scrollEl.classList.contains('rental-compact');
-    if (y < 30) { if (isC) setRentalCompact(false); rAccum = 0; }
-    else if (rAccum > 12 && !isC && y > 110) { setRentalCompact(true); rAccum = 0; }
-    else if (rAccum < -12 && isC) { setRentalCompact(false); rAccum = 0; }
+    var isC = headEl.classList.contains('compact');
+    if (y < 30) { if (isC) setCompact(false); rAccum = 0; }
+    else if (rAccum > 12 && !isC && y > 130) { setCompact(true); rAccum = 0; }
+    else if (rAccum < -12 && isC) { setCompact(false); rAccum = 0; }
   }, false);
 
   function syncPanelsHeight() {
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
     if (!active || !panelsEl) return;
     if (catOrder[currentIdx] === 'rental') {
-      // 렌탈은 iframe — 헤더 아래 공간을 꽉 채우고 내부 스크롤 (높이 동기화)
-      // compact(로고행 collapse) 시 헤더는 탭만 남아 ~35px. 트랜지션 중 offsetHeight 오독 방지 위해 목표값 사용.
+      // 렌탈 iframe — 헤더 아래 공간을 채움. compact(로고 숨김) 시 헤더 ~35px라 iframe은 그만큼 더 키우고
+      // #panel-rental를 transform으로 위로 올려(sub-nav가 올라가는 것과 동일) 탭 바로 아래에 붙임.
       var frame = document.getElementById('rental-frame');
-      var hh = scrollEl.classList.contains('rental-compact') ? 35 : 89;
-      var h = scrollEl.clientHeight - hh;
-      if (h < 0) h = scrollEl.clientHeight;
-      if (frame) frame.style.height = h + 'px';
-      panelsEl.style.height = h + 'px';
+      var compact = headEl.classList.contains('compact');
+      var fh = scrollEl.clientHeight - (compact ? 35 : 89);
+      if (fh < 0) fh = scrollEl.clientHeight;
+      if (frame) frame.style.height = fh + 'px';
+      panelsEl.style.height = (scrollEl.clientHeight - 89) + 'px'; // 패널 레이아웃은 고정(.scroll 오버플로 방지)
     } else {
       panelsEl.style.height = active.scrollHeight + 'px';
     }
@@ -1463,22 +1469,23 @@
     panelsEl.style.left = -(newIdx * 100) + '%';
 
     if (cat === 'rental') {
-      // 렌탈 진입: 휴대폰/인터넷용 transform-compact 해제(로고 보이는 상태로 시작) + 렌탈 자체 collapse off +
-      // iframe 맨 위로 → 항상 깨끗한 상단(로고+탭+소메뉴 다 보이게)부터 시작
-      headEl.classList.remove('compact');
-      scrollEl.classList.remove('compact-mode');
-      scrollEl.classList.remove('rental-compact');
+      // 렌탈도 휴대폰/인터넷과 '동일한' compact 상태(.head.compact) 유지 — 탭 전환해도 로고 숨김 유지.
       scrollEl.classList.add('on-rental');
-      rPrevY = 0; rAccum = 0; rLastSign = 0;
-      syncPanelsHeight();
+      rAccum = 0; rLastSign = 0;
       scrollEl.scrollTop = 0;
-      try { var rf = document.getElementById('rental-frame'); if (rf && rf.contentWindow) rf.contentWindow.scrollTo(0, 0); } catch(e){}
+      var ty = wasCompact ? 200 : 0;  // compact면 배너 지난 위치로 → 소메뉴가 탭 아래 붙고 로고 계속 숨김
+      rPrevY = ty;
+      rLockUntil = performance.now() + 700; // 진입 직후 iframe 스크롤 리셋이 compact 토글하지 않도록
+      syncPanelsHeight();
+      try {
+        var rf = document.getElementById('rental-frame');
+        if (rf && rf.contentWindow) rf.contentWindow.scrollTo(0, ty);
+      } catch(e){}
       return;
     }
 
     // 휴대폰/인터넷
     scrollEl.classList.remove('on-rental');
-    scrollEl.classList.remove('rental-compact');
     syncPanelsHeight();
     if (wasCompact) {
       // compact 유지 — scrollTop 변경이 방향 로직에 잡혀 un-compact 되지 않도록 lockout
@@ -1576,6 +1583,8 @@
   }
 
   scrollEl.addEventListener('scroll', function() {
+    // 렌탈 패널에선 .scroll이 스크롤되지 않음(=iframe 내부 스크롤). 진입 시 클램프(→0)가 compact를 풀지 않도록 무시.
+    if (catOrder[currentIdx] === 'rental') { prevSt = scrollEl.scrollTop; return; }
     var now = performance.now();
     var st = scrollEl.scrollTop;
     var dy = st - prevSt; // + = 아래로, - = 위로
