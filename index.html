@@ -1438,8 +1438,14 @@
 
   catNav.querySelectorAll('button').forEach(function(b) {
     b.addEventListener('click', function() {
-      // 렌탈 탭 → SK매직 카탈로그 페이지로 이동 (슬라이드 패널 아님)
-      if (b.dataset.cat === 'rental') { location.href = '/rental'; return; }
+      // 렌탈 탭 → SK매직 카탈로그 페이지로 이동. 패널 carousel처럼 왼쪽으로 슬라이드 아웃 후 이동
+      if (b.dataset.cat === 'rental') {
+        try { sessionStorage.setItem('msrNav','toRental'); } catch(e){}
+        var sc = document.querySelector('.scroll');
+        if (sc) { sc.style.transition = 'transform .3s cubic-bezier(.32,.72,0,1)'; sc.style.transform = 'translateX(-100%)'; }
+        setTimeout(function(){ location.href = '/rental'; }, 270);
+        return;
+      }
       showCat(b.dataset.cat);
     });
   });
@@ -1453,6 +1459,21 @@
       showCat(qcat);
       void panelsEl.offsetWidth; // reflow — transition:none 상태로 left 적용 확정
       panelsEl.style.transition = '';
+    }
+  })();
+
+  // 렌탈에서 휴대폰/인터넷으로 돌아올 때 — 왼쪽에서 슬라이드 인 (렌탈이 오른쪽으로 나간 방향과 연속)
+  (function(){
+    var nav = ''; try { nav = sessionStorage.getItem('msrNav') || ''; } catch(e){}
+    try { sessionStorage.removeItem('msrNav'); } catch(e){}
+    var sc = document.querySelector('.scroll');
+    if (nav === 'toShop' && sc) {
+      sc.style.transform = 'translateX(-100%)';
+      requestAnimationFrame(function(){
+        sc.style.transition = 'transform .32s cubic-bezier(.32,.72,0,1)';
+        sc.style.transform = 'translateX(0)';
+      });
+      setTimeout(function(){ sc.style.transition=''; sc.style.transform=''; }, 380);
     }
   })();
 

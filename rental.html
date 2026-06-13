@@ -65,11 +65,11 @@
   .msr-ic{ width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#222; position:relative; background:none; border:0; cursor:pointer; }
   .msr-ic svg{ width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
   .msr-ic-bd{ position:absolute; top:6px; right:6px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--primary,#DE4F41); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff; }
-  .msr-cat-nav{ display:flex; gap:22px; padding:2px 20px 8px; transition:transform .42s cubic-bezier(.4,0,.2,1); }
+  .msr-cat-nav{ display:flex; gap:22px; padding:2px 20px 10px; transition:transform .42s cubic-bezier(.4,0,.2,1); }  /* 휴대폰샵 헤더(89px)와 높이 정합 → 전환 시 위로 튐 방지 */
   .msr-cat-nav a{ font-size:17px; font-weight:300; line-height:22px; letter-spacing:-.035em; color:#9090B0; text-decoration:none; }
   .msr-cat-nav a.on{ color:#222; font-weight:600; }
   /* compact: 아래로 스크롤하면 브랜드행(.msr-top) 숨고 탭행이 위로 올라붙음 (휴대폰샵과 동일) */
-  .msr-head.compact{ border-bottom-color:transparent; clip-path:inset(0 0 54px 0); }
+  .msr-head.compact{ border-bottom-color:transparent; clip-path:inset(0 0 55px 0); }
   .msr-head.compact .msr-top{ opacity:0; transform:translateY(-12px); pointer-events:none; }
   .msr-head.compact .msr-cat-nav{ transform:translateY(-54px); }
 
@@ -78,7 +78,7 @@
   .banner-wide .banner-img{ display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
 
   /* ── 브랜드 서브메뉴 (배너 아래 · 휴대폰샵 .sub-nav 그대로: 색 스와치 + 점 구분) ── */
-  .msr-sub{ position:sticky; top:84px; z-index:290; display:flex; align-items:center; padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none;
+  .msr-sub{ position:sticky; top:88px; z-index:290; display:flex; align-items:center; padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none;
     transition:transform .42s cubic-bezier(.4,0,.2,1); }
   .msr-sub::-webkit-scrollbar{ display:none }
   .msr-sub a{ flex-shrink:0; display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:400; letter-spacing:-.012em; color:#9090B0; text-decoration:none; padding:3px 12px; }
@@ -647,7 +647,59 @@
     });
   })();
 
-  if (window.skmMountScrollTop) window.skmMountScrollTop();
+  /* ===== 맨 위로 버튼 — 폰 프레임(.device) 안에 마운트 + 내부 .scroll 컨테이너 기준으로 동작 =====
+     원본(supabase.js)은 body에 붙이고 window 스크롤을 들어서 합본(내부 스크롤)에선 안 보임/안 눌림 → 여기서 재정의 */
+  window.skmMountScrollTop = function(){
+    var scrollEl = document.querySelector('.scroll');
+    var host = document.querySelector('.device') || document.body;
+    if (!scrollEl) return;
+    var old = document.getElementById('scroll-top'); if (old) old.remove();
+    var btn = document.createElement('button');
+    btn.id = 'scroll-top'; btn.className = 'scroll-top'; btn.type = 'button'; btn.setAttribute('aria-label', '맨 위로');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+    host.appendChild(btn);
+    btn.addEventListener('click', function(){ scrollEl.scrollTo({ top:0, behavior:'smooth' }); btn.blur(); });
+    var lastY = scrollEl.scrollTop;
+    function onScroll(){
+      var y = scrollEl.scrollTop;
+      if (y < lastY) btn.classList.remove('show');      // 위로 올림 → 숨김
+      else if (y > 300) btn.classList.add('show');       // 충분히 내려옴 → 표시
+      if (y <= 0) btn.classList.remove('show');
+      lastY = y;
+    }
+    scrollEl.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+  };
+  window.skmMountScrollTop();
+
+  /* ===== 페이지 전환 슬라이드 — 휴대폰/인터넷 패널 carousel 과 같은 가로 슬라이드 느낌 =====
+     샵(/)에서 렌탈로 올 땐 오른쪽에서 슬라이드 인, 렌탈에서 휴대폰/인터넷으로 갈 땐 오른쪽으로 슬라이드 아웃. */
+  (function(){
+    var sc = document.querySelector('.scroll');
+    if (!sc) return;
+    // 들어올 때: 직전 페이지가 세팅한 방향 플래그로 슬라이드 인
+    var nav = ''; try { nav = sessionStorage.getItem('msrNav') || ''; } catch(e){}
+    try { sessionStorage.removeItem('msrNav'); } catch(e){}
+    if (nav === 'toRental') {
+      sc.style.transform = 'translateX(100%)';
+      requestAnimationFrame(function(){
+        sc.style.transition = 'transform .32s cubic-bezier(.32,.72,0,1)';
+        sc.style.transform = 'translateX(0)';
+      });
+      setTimeout(function(){ sc.style.transition=''; sc.style.transform=''; }, 380);
+    }
+    // 나갈 때(휴대폰/인터넷 탭): 오른쪽으로 슬라이드 아웃 후 이동
+    document.querySelectorAll('.msr-cat-nav a[href^="/?cat="]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        var href = a.getAttribute('href');
+        try { sessionStorage.setItem('msrNav','toShop'); } catch(err){}
+        sc.style.transition = 'transform .3s cubic-bezier(.32,.72,0,1)';
+        sc.style.transform = 'translateX(100%)';
+        setTimeout(function(){ location.href = href; }, 270);
+      });
+    });
+  })();
   document.getElementById('ic-arr1').innerHTML = ICONS.arrow();
   document.getElementById('ic-arr2').innerHTML = ICONS.arrow();
   document.getElementById('ic-arr').innerHTML = ICONS.arrow();
