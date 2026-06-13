@@ -696,6 +696,10 @@
         try { parent.postMessage({ type:'msr-scroll', y: window.scrollY || document.documentElement.scrollTop || 0 }, '*'); } catch(e){}
       }, { passive:true });
     }, 1000);
+    // 정적 안내 페이지(제휴카드/FAQ/약관/개인정보)는 iframe 안에서 열면 레이아웃이 깨짐 → 전체 창(_top)으로 열기
+    document.querySelectorAll('a[href^="/card-benefits"], a[href^="/faq"], a[href^="/terms"], a[href^="/privacy"]').forEach(function(a){
+      if (!a.getAttribute('target')) a.setAttribute('target', '_top');
+    });
   }
 
   document.getElementById('ic-arr1').innerHTML = ICONS.arrow();

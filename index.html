@@ -128,6 +128,9 @@
     transform:translateY(0);
     transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1), height .3s ease, padding .3s ease;
   }
+  /* 렌탈 패널에선 샵 FAB·맨위로 버튼 숨김 — 렌탈 iframe이 자체 FAB·맨위로를 가지므로 (빨간 버튼 두겹 방지) */
+  .scroll.on-rental ~ .fab,
+  .scroll.on-rental ~ .top-btn { display:none !important; }
   /* compact(로고 숨김) 시 렌탈 iframe을 위로 올려 탭 바로 아래에 붙임 — 휴대폰/인터넷의 sub-nav 슬라이드업(-44px)과 동일 원리 */
   .scroll.compact-mode #panel-rental { transform: translateY(-50px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
   /* 렌탈+compact: 헤더(흰 배경 89px)가 올라온 iframe 상단(브랜드메뉴)을 덮으므로, 헤더를 탭만 남게 clip.
@@ -1218,10 +1221,7 @@
 
 <!-- 맨 위로 이동 -->
 <button class="top-btn" id="top-btn" aria-label="맨 위로">
-  <svg viewBox="0 0 24 24">
-    <polyline points="6 13 12 7 18 13"/>
-    <polyline points="6 20 12 14 18 20"/>
-  </svg>
+  <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
 </div><!-- /device -->
@@ -1589,9 +1589,10 @@
     var dy = st - prevSt; // + = 아래로, - = 위로
     prevSt = st;
 
-    // 맨 위로 버튼
-    if (st > 240) topBtn.classList.add('show');
-    else topBtn.classList.remove('show');
+    // 맨 위로 버튼 — 렌탈과 동일: 아래로 스크롤 + 일정 이상이면 표시, 위로 스크롤하면 숨김
+    if (dy < 0) topBtn.classList.remove('show');
+    else if (st > 300) topBtn.classList.add('show');
+    if (st <= 0) topBtn.classList.remove('show');
 
     // 헤더 토글 직후 layout 점프 구간은 무시
     if (now < lockUntil) {
