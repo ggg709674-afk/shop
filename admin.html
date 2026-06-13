@@ -1,0 +1,3684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>우주커넥트 — 관리자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --ink:#1A1A2E; --g1:#5A5A7A; --g2:#9090B0; --g3:#BDB8D4; --g4:#DCD8EC; --g5:#EBE7F4;
+    --bg:#FAF8FE; --card:#FFFFFF; --accent:#7A6BD9; --accent-deep:#5A4DB8;
+    --danger:#D45A6F; --danger-bg:#F9E5EA; --success:#3CAA6E; --success-bg:#E6F4ED;
+    --border:rgba(220,216,236,.7);
+  }
+  *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.5; letter-spacing:-.012em;
+    -webkit-font-smoothing:antialiased;
+  }
+  button { font:inherit; cursor:pointer; }
+  input,select,textarea { font:inherit; color:inherit; }
+  a { color:var(--accent); text-decoration:none; }
+
+  /* ───── 레이아웃 ───── */
+  .wrap { max-width:1380px; margin:0 auto; padding:24px 20px 80px; }
+  .layout {
+    display:grid; grid-template-columns:430px 1fr; gap:28px;
+    align-items:flex-start;
+  }
+  .preview-col {
+    position:sticky; top:24px;
+    height:calc(100vh - 48px);
+    display:flex; flex-direction:column; gap:10px;
+    align-items:center;
+  }
+  .preview-frame {
+    flex:1; min-height:0;
+    /* 모바일 viewport(375px) 시뮬레이션 — index.html의 ≤480px 미디어쿼리가 적용돼서
+       실제 폰에서 보이는 그대로 미리보기됨 */
+    width:375px; max-width:100%;
+    margin:0 auto;
+    border-radius:18px; overflow:hidden;
+    background:#FAF8FE;
+    box-shadow:0 8px 28px rgba(122,107,217,.12), 0 2px 8px rgba(15,17,23,.06);
+    border:1px solid var(--border);
+    position:relative;
+  }
+  .preview-frame iframe {
+    width:100%; height:100%; border:0; display:block;
+    background:#FAF8FE;
+  }
+  .preview-bar {
+    width:100%; display:flex; justify-content:space-between; align-items:center;
+    font-size:11px; color:var(--g2); padding:0 4px;
+  }
+  .preview-bar b { color:var(--accent-deep); font-weight:700; font-size:12px; }
+  .form-col { min-width:0; }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns:1fr; gap:20px; }
+    .preview-col { position:static; height:auto; max-height:60vh; }
+    .preview-frame { height:60vh; }
+  }
+  .head {
+    padding:18px 0 0; border-bottom:1px solid var(--border); margin-bottom:24px;
+  }
+  .head-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  .h-l { display:flex; align-items:baseline; gap:10px; }
+  .h-l h1 { font-size:22px; font-weight:800; letter-spacing:-.03em; }
+  .h-l .sub { font-size:13px; color:var(--g2); font-weight:500; }
+  .h-r { display:flex; align-items:center; gap:14px; }
+  .h-link { font-size:12px; font-weight:600; color:var(--g1); white-space:nowrap; }
+  .h-link:hover { color:var(--accent); }
+  .acct {
+    display:flex; align-items:center; gap:8px; padding:4px 5px;
+    background:var(--card); border:1px solid var(--border); border-radius:999px;
+  }
+  .acct-dot {
+    width:27px; height:27px; border-radius:50%; flex:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
+    color:#fff; font-size:12px; font-weight:800; text-transform:uppercase;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .acct-email { font-size:12px; font-weight:600; color:var(--g1); white-space:nowrap; }
+  .acct-out {
+    padding:5px 11px; font-size:12px; font-weight:700; color:var(--g2);
+    background:var(--bg); border:0; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .acct-out:hover { color:var(--danger); background:var(--danger-bg); }
+  .head-nav { display:flex; align-items:center; gap:12px; padding:14px 0 0; }
+  .btn {
+    padding:9px 16px; border-radius:10px; border:1px solid var(--border);
+    background:var(--card); color:var(--ink); font-weight:600; font-size:13px;
+    transition:transform .1s, box-shadow .15s;
+  }
+  .btn:hover { box-shadow:0 2px 8px rgba(122,107,217,.10); }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff; border-color:transparent; }
+  .btn-primary:hover { box-shadow:0 4px 12px rgba(122,107,217,.30); }
+  .btn-danger { color:var(--danger); border-color:var(--danger-bg); }
+  .btn-danger:hover { background:var(--danger-bg); }
+  .btn-sm { padding:6px 11px; font-size:12px; border-radius:8px; }
+
+  /* ───── 탭 ───── */
+  .tabs { display:flex; gap:4px; margin-bottom:20px; border-bottom:1px solid var(--border); }
+  .tab {
+    padding:10px 18px; background:transparent; border:0;
+    color:var(--g1); font-weight:600; font-size:14px; letter-spacing:-.012em;
+    border-bottom:2px solid transparent; transition:color .15s, border-color .15s;
+  }
+  .tab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-pane { display:none; }
+  .tab-pane.on { display:block; }
+  /* 통신사(SKT/KT/LG) 패널은 display 대신 content-visibility로 숨김 —
+     공통지원금 그리드(input 수천 개)는 display:none→block 때마다 레이아웃 전체가
+     다시 돌아 수백 ms 걸림. cv:hidden은 레이아웃을 보존해 재표시가 ~15배 빠름 */
+  .tab-pane[data-pane="skt"], .tab-pane[data-pane="kt"], .tab-pane[data-pane="lg"] { display:block; }
+  .tab-pane[data-pane="skt"]:not(.on),
+  .tab-pane[data-pane="kt"]:not(.on),
+  .tab-pane[data-pane="lg"]:not(.on) { content-visibility:hidden; }
+
+  /* ───── 서브탭 (배너 안에서 휴대폰/인터넷/렌탈 분리) ───── */
+  .sub-tabs {
+    display:inline-flex; gap:4px; padding:4px;
+    background:var(--g5); border-radius:11px;
+    margin-bottom:16px;
+  }
+  .sub-tab {
+    padding:8px 16px; border:0; background:transparent;
+    border-radius:8px; font-size:13px; font-weight:600; color:var(--g1);
+    letter-spacing:-.012em; transition:background .15s, color .15s, box-shadow .15s;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .sub-tab:hover { color:var(--ink); }
+  .sub-tab.on {
+    background:#fff; color:var(--accent-deep);
+    box-shadow:0 1px 3px rgba(122,107,217,.14);
+  }
+  .sub-tab .dot {
+    width:7px; height:7px; border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    opacity:.5; transition:opacity .15s, transform .15s;
+  }
+  .sub-tab.on .dot { opacity:1; transform:scale(1.1); }
+  .sub-pane { display:none; }
+  .sub-pane.on { display:block; }
+
+  /* ───── 카드 ───── */
+  .card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:24px; margin-bottom:18px;
+    box-shadow:0 1px 3px rgba(122,107,217,.04);
+  }
+  .card-h { font-size:15px; font-weight:700; letter-spacing:-.02em; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .card-h .pill { font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; background:var(--g5); color:var(--g1); letter-spacing:0; }
+  .card-h-actions { display:flex; gap:6px; align-items:center; margin-left:auto; }
+  .btn-tpl {
+    font-size:11.5px; font-weight:600; letter-spacing:-.01em;
+    padding:5px 10px; border-radius:7px;
+    background:var(--bg-soft); color:var(--g1);
+    border:1px solid var(--border); cursor:pointer;
+    display:inline-flex; align-items:center; gap:4px;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .btn-tpl:hover { border-color:var(--accent); color:var(--accent-deep); background:#fff; }
+  .btn-tpl svg { width:13px; height:13px; stroke:currentColor; stroke-width:1.8; fill:none; }
+
+  /* 템플릿 그리드 — 카드 폭 = 배너 375px + 좌우 패딩 8px = 391px */
+  .tpl-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, 391px);
+    justify-content:center; gap:10px;
+    max-height:75vh; overflow-y:auto; padding:4px;
+    scrollbar-gutter:stable;
+  }
+  .tpl-card {
+    border:1px solid var(--border); border-radius:14px; padding:8px 8px 12px;
+    background:var(--card); cursor:pointer;
+    display:flex; flex-direction:column; gap:8px;
+    transition:border-color .15s, box-shadow .15s, transform .1s;
+    position:relative;
+  }
+  .tpl-card .tpl-name, .tpl-card .tpl-meta { padding:0 6px; }
+  .tpl-card:hover { border-color:var(--accent); box-shadow:0 6px 20px rgba(122,107,217,.14); }
+  .tpl-card:active { transform:scale(.99); }
+  .tpl-name { font-size:14px; font-weight:700; color:var(--ink); letter-spacing:-.015em; line-height:1.3; }
+  .tpl-meta { font-size:11.5px; color:var(--g2); }
+  .tpl-del {
+    position:absolute; top:8px; right:8px;
+    width:26px; height:26px; padding:0;
+    background:rgba(255,255,255,.95); color:var(--g1);
+    border:1px solid var(--border); border-radius:50%;
+    font-size:14px; line-height:1; cursor:pointer;
+    display:none; align-items:center; justify-content:center;
+    z-index:5;
+  }
+  .tpl-card:hover .tpl-del { display:flex; }
+  .tpl-del:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
+
+  /* ───── 배너에 삽입할 이미지 (KT 모델) 모달 ───── */
+  .mi-toolbar { display:flex; gap:8px; margin-bottom:14px; }
+  .mi-toolbar input {
+    flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:9px;
+    font-size:13px; outline:none;
+  }
+  .mi-toolbar input:focus { border-color:var(--accent); }
+  .mi-body { max-height:72vh; overflow-y:auto; padding:4px; scrollbar-gutter:stable; }
+  .mi-section { margin-bottom:22px; }
+  .mi-section-head {
+    display:flex; align-items:baseline; gap:8px; margin-bottom:9px;
+    font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-.015em;
+  }
+  .mi-maker {
+    font-size:11px; font-weight:600; color:var(--g2);
+    background:var(--card); border:1px solid var(--border);
+    padding:1px 7px; border-radius:999px;
+  }
+  .mi-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(116px, 1fr)); gap:8px;
+  }
+  .mi-card {
+    border:1px solid var(--border); border-radius:12px; padding:7px;
+    background:#fff; cursor:pointer; display:flex; flex-direction:column; gap:5px;
+    transition:border-color .15s, box-shadow .15s, transform .1s;
+  }
+  .mi-card:hover { border-color:var(--accent); box-shadow:0 6px 18px rgba(122,107,217,.16); }
+  .mi-card:active { transform:scale(.98); }
+  .mi-card img { width:100%; aspect-ratio:1; object-fit:contain; }
+  .mi-color { font-size:11px; color:var(--g1); text-align:center; line-height:1.3; }
+  /* 모달을 화면 상단에 고정 — 검색으로 내용 높이가 바뀌어도 위치 안 흔들림 */
+  #model-img-modal { align-items:flex-start; }
+  #model-img-modal .modal { margin-top:24px; }
+  /* 내 그룹 — 추가 타일 / 삭제 버튼 */
+  .mi-card { position:relative; }
+  .mi-add-tile {
+    align-items:center; justify-content:center;
+    border-style:dashed; min-height:120px;
+  }
+  .mi-add-tile:hover { border-color:var(--accent); }
+  .mi-add-plus { font-size:30px; font-weight:300; color:var(--g2); line-height:1; }
+  .mi-img-del {
+    position:absolute; top:4px; right:4px; width:22px; height:22px; padding:0;
+    border-radius:50%; border:1px solid var(--border); background:rgba(255,255,255,.95);
+    color:var(--g1); font-size:13px; line-height:1; cursor:pointer;
+    display:none; align-items:center; justify-content:center; z-index:5;
+  }
+  .mi-card:hover .mi-img-del { display:flex; }
+  .mi-img-del:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
+  .mi-group-del {
+    margin-left:auto; width:22px; height:22px; padding:0;
+    border-radius:50%; border:1px solid var(--border); background:#fff;
+    color:var(--g1); font-size:13px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mi-group-del:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
+  .mi-maker.mine { background:#eef0ff; color:var(--accent); border-color:#d8dcff; }
+  .mi-empty-hint { font-size:12px; color:var(--g2); padding:6px 2px; }
+
+  /* 템플릿 종류 (공유/나만의) 라디오 */
+  .scope-options { display:flex; flex-direction:column; gap:8px; }
+  .scope-opt {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
+    cursor:pointer; transition:border-color .15s, background .15s;
+  }
+  .scope-opt:hover { border-color:var(--g3); }
+  .scope-opt input[type=radio] { width:18px; height:18px; margin-top:2px; cursor:pointer; accent-color:var(--accent); }
+  .scope-opt:has(input:checked) { border-color:var(--accent); background:rgba(122,107,217,.04); }
+  .scope-body { flex:1; min-width:0; }
+  .scope-title { font-size:14px; font-weight:700; color:var(--ink); letter-spacing:-.015em; margin-bottom:2px; }
+  .scope-desc { font-size:11.5px; color:var(--g2); letter-spacing:-.012em; }
+  /* 템플릿 카드 scope 배지 */
+  .tpl-scope-badge {
+    position:absolute; top:8px; left:8px;
+    font-size:10.5px; font-weight:700; letter-spacing:-.01em;
+    padding:3px 9px; border-radius:99px;
+    z-index:4;
+  }
+  .tpl-scope-badge.shared { background:rgba(122,107,217,.92); color:#fff; }
+  .tpl-scope-badge.mine   { background:rgba(60,170,110,.92); color:#fff; }
+  /* 구운 썸네일 (저장 시 캡쳐된 이미지) */
+  .tpl-thumb-img {
+    width:375px; aspect-ratio:375/165;
+    display:block; border-radius:10px;
+    object-fit:cover; object-position:center;
+    background:#fff;
+  }
+  /* 미니 배너 렌더 (템플릿 카드 안) — 실제 모바일 배너와 동일 폭(375px) */
+  .tb-banner {
+    width:375px; aspect-ratio:375/165;
+    border-radius:10px; position:relative; overflow:hidden;
+    background:#FFFFFF;
+    background-size:cover; background-position:center;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
+  }
+  .tb-banner::before {
+    content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
+    background:linear-gradient(90deg, transparent 0%, rgba(122,107,217,.4) 50%, transparent 100%);
+    opacity:.5;
+  }
+  .tb-content {
+    padding:20px 110px 20px 22px; height:100%; box-sizing:border-box;
+    display:flex; flex-direction:column; justify-content:center; gap:10px;
+    position:relative; z-index:2;
+  }
+  .tb-chips { display:flex; gap:6px; }
+  .tb-chip {
+    font-size:10px; font-weight:700; padding:4px 10px;
+    background:rgba(255,255,255,.65); color:#191F28;
+    border-radius:99px; letter-spacing:.1em;
+    border:1px solid rgba(255,255,255,.9);
+    text-transform:uppercase;
+  }
+  .tb-chip.hot { background:linear-gradient(135deg, #FCDBCC, #FFEED2); color:#1A1A2E; }
+  .tb-eyebrow {
+    font-size:10px; font-weight:700; letter-spacing:.14em;
+    color:var(--accent); text-transform:uppercase;
+    margin-bottom:-5px;
+  }
+  .tb-title {
+    font-size:19px; font-weight:800; line-height:1.25; letter-spacing:-.034em;
+    color:#191F28;
+    overflow:hidden; text-overflow:ellipsis;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  }
+  .tb-cta {
+    font-size:12px; font-weight:600; padding:8px 14px;
+    background:rgba(255,255,255,.72); border-radius:99px;
+    display:inline-flex; align-self:flex-start; align-items:center; gap:6px;
+    color:#191F28;
+    border:1px solid rgba(255,255,255,.95);
+    box-shadow:0 4px 14px rgba(122,107,217,.14);
+    letter-spacing:-.005em;
+  }
+  .tb-cta b { color:var(--accent-deep); font-weight:800; }
+  .tb-phone {
+    position:absolute; left:50%; top:0; width:30%; height:auto; max-height:100%;
+    object-fit:cover; object-position:center center;
+    transform:translateX(-50%);
+    z-index:1;
+    /* 부드러운 다운스케일 — GPU 합성 + 기본 image-rendering */
+    image-rendering:auto;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    transform-style:preserve-3d;
+  }
+  /* 다크 프리셋 — 텍스트/CTA 색 반전 */
+  .tb-banner.mini-dark-glow .tb-title,
+  .tb-banner.mini-dark-glow .tb-eyebrow,
+  .tb-banner.mini-mono-ink .tb-title,
+  .tb-banner.mini-mono-ink .tb-eyebrow,
+  .tb-banner.mini-sunset-gradient .tb-title,
+  .tb-banner.mini-sunset-gradient .tb-eyebrow { color:#FFFFFF; }
+  .tb-banner.mini-dark-glow .tb-eyebrow,
+  .tb-banner.mini-mono-ink .tb-eyebrow { opacity:.7; }
+
+  /* ───── 폼 ───── */
+  .field { margin-bottom:14px; }
+  .color-inputs { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+  .color-inputs input[type="text"] { padding:9px 8px; text-align:center; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .field-row-chip { grid-template-columns:230px 230px auto; align-items:start; }
+  .field-row-text { grid-template-columns:1fr auto; align-items:start; }
+  .field-row-cta  { grid-template-columns:1fr 1fr auto; align-items:start; }
+
+  /* 색 컨트롤 묶음 — 인풋 우측에 인라인 배치 */
+  .chip-emph {
+    display:inline-flex; align-items:center; gap:4px;
+    margin-top:0;
+  }
+  .chip-emph .check { padding:0; gap:0; cursor:pointer; }
+  .chip-emph .check input[type=checkbox] { margin:0; cursor:pointer; }
+  .chip-emph input[type=color] {
+    width:22px; height:22px; padding:0;
+    border:1.5px solid var(--g4); border-radius:5px;
+    background:transparent; cursor:pointer;
+    transition:transform .12s, border-color .15s;
+  }
+  .chip-emph input[type=color]:hover { border-color:var(--accent); transform:scale(1.08); }
+  .chip-emph input[type=color]::-webkit-color-swatch-wrapper { padding:0; border-radius:3px; }
+  .chip-emph input[type=color]::-webkit-color-swatch { border:0; border-radius:3px; }
+  .chip-emph input[type=color]::-moz-color-swatch { border:0; border-radius:3px; }
+  .chip-emph.dim input[type=color] { pointer-events:none; opacity:.5; }
+
+  /* 인풋 + 우측 색 컨트롤 한 줄 배치 (.iwc = input-with-controls) */
+  .iwc { display:flex; align-items:center; gap:6px; }
+  .iwc > input[type="text"] { flex:1 1 auto; min-width:0; }
+  .iwc > .chip-emph { flex:0 0 auto; }
+
+  /* 배너 이미지 업로드 영역 */
+  .img-upload-row { display:flex; align-items:center; gap:10px; }
+  .img-add {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 14px; border:1.5px dashed var(--g4); border-radius:9px;
+    background:var(--bg-soft); color:var(--g1);
+    font-size:12.5px; font-weight:600; cursor:pointer;
+    transition:border-color .15s, background .15s, color .15s;
+  }
+  .img-add:hover { border-color:var(--accent); background:#fff; color:var(--accent-deep); }
+  .img-add svg { width:16px; height:16px; stroke:currentColor; stroke-width:1.8; fill:none; }
+  .img-preview {
+    position:relative; width:48px; height:48px; flex:0 0 auto;
+    border-radius:9px; overflow:hidden; border:1px solid var(--border);
+    background:repeating-linear-gradient(45deg, #F5F2FB, #F5F2FB 6px, #FFF 6px, #FFF 12px);
+  }
+  .img-preview img { width:100%; height:100%; object-fit:contain; display:block; }
+  .img-clear {
+    position:absolute; top:-6px; right:-6px;
+    width:18px; height:18px; padding:0;
+    background:var(--ink); color:#fff; border:0; border-radius:50%;
+    font-size:11px; font-weight:800; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 4px rgba(0,0,0,.2);
+  }
+  .img-clear:hover { background:var(--danger); }
+  .img-name { font-size:11.5px; color:var(--g2); }
+
+  /* 칩 가로 위치 — 드래그 슬라이더 (0~100% 미세 조정) */
+  .chip-pos {
+    display:flex; align-items:center; gap:10px;
+    width:210px; height:36px;
+  }
+  .chip-pos input[type=range] {
+    flex:1; height:6px; padding:0; border:0;
+    appearance:none; -webkit-appearance:none;
+    background:linear-gradient(to right, var(--g3) 0%, var(--g3) var(--fill,0%), var(--g5) var(--fill,0%), var(--g5) 100%);
+    border-radius:999px; outline:none; cursor:pointer;
+  }
+  .chip-pos input[type=range]::-webkit-slider-thumb {
+    appearance:none; -webkit-appearance:none;
+    width:18px; height:18px; border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    box-shadow:0 0 0 3px rgba(122,107,217,.18), 0 2px 5px rgba(122,107,217,.30);
+    border:0; cursor:grab; margin-top:0;
+    transition:transform .12s;
+  }
+  .chip-pos input[type=range]:active::-webkit-slider-thumb { cursor:grabbing; transform:scale(1.1); }
+  .chip-pos input[type=range]::-moz-range-thumb {
+    width:18px; height:18px; border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    box-shadow:0 0 0 3px rgba(122,107,217,.18), 0 2px 5px rgba(122,107,217,.30);
+    border:0; cursor:grab;
+  }
+  .chip-pos input[type=range]:active::-moz-range-thumb { cursor:grabbing; }
+  .chip-pos output {
+    font-size:11px; font-weight:700; color:var(--accent-deep);
+    min-width:34px; text-align:right; letter-spacing:-.008em;
+    font-variant-numeric:tabular-nums;
+  }
+  label {
+    display:block; font-size:12px; font-weight:600; color:var(--g1);
+    margin-bottom:6px; letter-spacing:-.005em;
+  }
+  input[type="text"], input[type="url"], textarea, select {
+    width:100%; padding:10px 12px; border-radius:9px;
+    border:1px solid var(--border); background:#fff;
+    font-size:14px; transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline:none; border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(122,107,217,.12);
+  }
+  /* 세그먼트 토글 (정렬 등) */
+  .seg { display:inline-flex; background:var(--g5); border-radius:9px; padding:3px; gap:2px; }
+  .seg button {
+    padding:7px 14px; border:0; background:transparent; border-radius:7px;
+    font-size:12.5px; font-weight:600; color:var(--g1); cursor:pointer;
+    transition:background .12s, color .12s;
+  }
+  .seg button:hover { color:var(--ink); }
+  .seg button.on { background:#fff; color:var(--accent-deep); box-shadow:0 1px 3px rgba(122,107,217,.12); }
+
+  .check { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--g1); cursor:pointer; }
+  .check input { margin:0; }
+  .hint { font-size:11px; color:var(--g3); margin-top:4px; letter-spacing:-.005em; }
+
+  /* ───── 배경 픽커 ───── */
+  .bg-picker { display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:10px; margin-top:6px; }
+  .bg-tile {
+    position:relative; border-radius:10px; overflow:hidden;
+    aspect-ratio:1.6/1; cursor:pointer;
+    border:2px solid transparent; transition:transform .12s, border-color .15s, box-shadow .15s;
+    background:#FFF;
+  }
+  .bg-tile:hover { transform:translateY(-2px); box-shadow:0 4px 14px rgba(122,107,217,.12); }
+  .bg-tile.on {
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(122,107,217,.15), 0 4px 14px rgba(122,107,217,.18);
+  }
+  .bg-tile.on::after {
+    content:'✓'; position:absolute; top:6px; right:6px;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--accent); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:800;
+  }
+  .bg-tile-label { position:absolute; left:6px; bottom:6px; font-size:10.5px; font-weight:700; color:#1A1A2E; background:rgba(255,255,255,.85); padding:2px 6px; border-radius:4px; }
+  .bg-tile-label.dark { color:#FFF; background:rgba(0,0,0,.42); }
+
+  /* 미니어처 — index.html의 bg-preset-* 시각 모방 */
+  .mini-lavender-pastel { background:linear-gradient(135deg, #E8DEFF 0%, #DDEEFF 30%, #DEFAEC 60%, #FFE0EC 100%); }
+  .mini-sky-pastel      { background:linear-gradient(135deg, #E1F0F9 0%, #E8DEFF 50%, #DEFAEC 100%); }
+  .mini-mint-pastel     { background:linear-gradient(135deg, #DDF2E8 0%, #E1F0F9 50%, #FCE8DA 100%); }
+  .mini-rose-warm       { background:linear-gradient(135deg, #FFE4E8 0%, #FCDBCC 50%, #FFEED2 100%); }
+  .mini-sunset-gradient { background:linear-gradient(135deg, #FFCBA4 0%, #FFA1B0 55%, #C19EE0 100%); }
+  .mini-aurora          { background:linear-gradient(135deg, #E8DEFF 0%, #DDEEFF 25%, #DEFAEC 50%, #FFEEDA 75%, #FFE0EC 100%); }
+  .mini-dark-glow       { background:linear-gradient(135deg, #1A1A2E 0%, #2A1F4F 100%); }
+  .mini-mono-clean      { background:#FFFFFF; border:1px solid var(--border); }
+  .mini-mono-ink        { background:#1A1A2E; }
+  .mini-mesh-pastel     {
+    background:
+      radial-gradient(at 0% 0%, rgba(181,168,244,.7), transparent 50%),
+      radial-gradient(at 100% 0%, rgba(157,201,232,.7), transparent 50%),
+      radial-gradient(at 100% 100%, rgba(136,212,181,.7), transparent 50%),
+      radial-gradient(at 0% 100%, rgba(244,165,186,.7), transparent 50%),
+      #FFFFFF;
+  }
+  /* 단색 10 */
+  .mini-solid-lavender  { background:#EDE7FF; }
+  .mini-solid-sky       { background:#E8F1FF; }
+  .mini-solid-mint      { background:#DDF4EC; }
+  .mini-solid-coral     { background:#FCE2DE; }
+  .mini-solid-beige     { background:#F4E8DA; }
+  .mini-solid-slate     { background:#F1F5F9; }
+  .mini-solid-lilac     { background:#EDE2F8; }
+  .mini-solid-cream     { background:#FFF4D6; }
+  .mini-solid-pink      { background:#FCDFE6; }
+  .mini-solid-sage      { background:#E8F0E0; }
+  /* 패턴 */
+  .mini-pattern-dots {
+    background:
+      radial-gradient(circle, rgba(122,107,217,.22) 1.2px, transparent 1.5px) 0 0 / 10px 10px,
+      #FFFFFF;
+  }
+  .mini-pattern-stripes {
+    background:
+      repeating-linear-gradient(45deg,
+        #FFFFFF, #FFFFFF 5px,
+        rgba(122,107,217,.10) 5px, rgba(122,107,217,.10) 10px);
+  }
+
+  /* 업로드 타일 */
+  .bg-tile-upload {
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:4px;
+    background:repeating-linear-gradient(45deg, #F5F2FB, #F5F2FB 6px, #FFF 6px, #FFF 12px);
+    color:var(--g1); font-size:11px; font-weight:600;
+  }
+  .bg-tile-upload svg { width:22px; height:22px; stroke:var(--g1); stroke-width:1.8; fill:none; }
+  .bg-tile-custom { background-size:cover; background-position:center; }
+  .bg-tile-custom .bg-tile-label { background:rgba(255,255,255,.9); }
+
+  /* ───── 상품 테이블 ───── */
+  .cat-tabs {
+    display:flex; gap:4px; margin-bottom:16px; flex-wrap:wrap;
+    border-bottom:1px solid var(--border); padding-bottom:0;
+  }
+  .cat-tab {
+    padding:8px 14px; background:transparent; border:0;
+    color:var(--g2); font-weight:600; font-size:13px; letter-spacing:-.012em;
+    border-bottom:2px solid transparent; cursor:pointer;
+    transition:color .15s, border-color .15s;
+    display:inline-flex; align-items:center; gap:5px;
+    margin-bottom:-1px;
+  }
+  .cat-tab:hover { color:var(--ink); }
+  .cat-tab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .cat-tab .cat-dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+  .cat-tab .cat-dot.skt { background:var(--skt); }
+  .cat-tab .cat-dot.kt  { background:var(--kt); }
+  .cat-tab .cat-dot.lg  { background:var(--lg); }
+  .cat-tab.featured-tab svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; }
+  .cat-tab-add {
+    padding:6px 10px; font-size:13px; font-weight:600; color:var(--g2);
+    background:transparent; border:1px dashed var(--g4); border-radius:6px;
+    cursor:pointer; margin-left:6px;
+  }
+  .cat-tab-add:hover { color:var(--accent-deep); border-color:var(--accent); }
+  .cat-tab-del {
+    margin-left:4px; opacity:.5; font-size:13px; line-height:1;
+    background:transparent; border:0; color:currentColor; cursor:pointer;
+    padding:0 2px; display:none;
+  }
+  .cat-tab:hover .cat-tab-del { display:inline; }
+  .cat-tab-del:hover { opacity:1; color:var(--danger); }
+  /* 카테고리 관리 모달 */
+  #cat-manage-list { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; max-height:50vh; overflow-y:auto; }
+  .cat-row {
+    display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center;
+    padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:#fff;
+  }
+  .cat-row.hidden-row { opacity:.55; background:var(--bg-soft); }
+  .cat-row input.cat-row-label {
+    width:100%; padding:7px 10px; border:1px solid transparent; border-radius:6px;
+    font-size:13.5px; font-weight:600; background:transparent;
+  }
+  .cat-row input.cat-row-label:hover { border-color:var(--border); background:#fff; }
+  .cat-row input.cat-row-label:focus { border-color:var(--accent); outline:0; background:#fff; }
+  /* 토글 스위치 */
+  .switch {
+    position:relative; width:38px; height:22px; flex-shrink:0;
+    background:var(--g4); border-radius:999px; cursor:pointer;
+    transition:background .2s;
+  }
+  .switch::after {
+    content:''; position:absolute; top:2px; left:2px;
+    width:18px; height:18px; border-radius:50%; background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.18);
+    transition:left .2s;
+  }
+  .switch.on { background:var(--accent); }
+  .switch.on::after { left:18px; }
+  .cat-row .cat-row-del {
+    padding:5px 9px; font-size:12px; font-weight:600;
+    background:transparent; border:1px solid var(--border); border-radius:6px;
+    color:var(--g2); cursor:pointer;
+  }
+  .cat-row .cat-row-del:hover { color:var(--danger); border-color:var(--danger); }
+  .cat-new-row {
+    display:flex; gap:8px; align-items:center;
+    padding:10px; border:1px dashed var(--g4); border-radius:8px; background:var(--bg-soft);
+  }
+  .cat-new-row input { flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
+  .product-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .product-toolbar select { width:auto; padding:7px 10px; font-size:13px; }
+  .product-list { display:flex; flex-direction:column; gap:6px; }
+  .product-item {
+    background:#fff; border:1px solid var(--border); border-radius:10px;
+    padding:8px 14px; display:grid; grid-template-columns:auto 1fr auto auto auto auto;
+    gap:12px; align-items:center;
+  }
+  .product-item .pi-handle { color:var(--g3); cursor:grab; user-select:none; font-size:18px; }
+  .product-item .pi-name { font-weight:700; font-size:14px; min-width:0; }
+  .product-item .pi-name .pi-tag {
+    display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.04em;
+    padding:2px 7px; border-radius:4px; background:var(--g5); color:var(--g1);
+    margin-right:6px; vertical-align:1px;
+  }
+  .product-item .pi-name .pi-tag.skt { background:#FCDFE6; color:#D45A6F; }
+  .product-item .pi-name .pi-tag.kt { background:#E5E5EE; color:#5A5A7A; }
+  .product-item .pi-name .pi-tag.lg { background:#F5DCE6; color:#C56B8A; }
+  .product-item .pi-meta { font-size:12px; color:var(--g2); }
+  .product-item button { padding:6px 10px; font-size:11px; border-radius:6px; }
+  /* 액션 버튼들을 한 그리드 칸에 묶어 줄바꿈 방지 */
+  .product-item .pi-actions { display:flex; gap:6px; align-items:center; }
+
+  /* ───── 모달 ───── */
+  .modal-bg {
+    position:fixed; inset:0; background:rgba(15,17,23,.4); backdrop-filter:blur(8px);
+    display:none; align-items:center; justify-content:center; z-index:100;
+    padding:20px;
+  }
+  .modal-bg.on { display:flex; }
+  .modal {
+    background:#fff; border-radius:16px; padding:28px; max-width:560px; width:100%;
+    max-height:90vh; overflow-y:auto;
+    box-shadow:0 30px 80px rgba(15,17,23,.20);
+  }
+  .modal h2 { font-size:18px; font-weight:800; margin-bottom:18px; letter-spacing:-.025em; }
+  .modal-foot { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; }
+
+  /* ───── 토스트 ───── */
+  .toast {
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:11px 22px; border-radius:999px;
+    font-size:13px; font-weight:600; opacity:0; pointer-events:none;
+    transition:opacity .2s, transform .2s; z-index:200;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.error { background:var(--danger); }
+
+  /* ───── 작은 액션 영역 ───── */
+  .save-bar {
+    position:sticky; bottom:0; background:rgba(250,248,254,.92);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    margin:-24px -20px -80px; padding:14px 20px;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    z-index:10;
+  }
+  .save-bar-l { font-size:12px; color:var(--g2); }
+  .save-bar-l b { color:var(--accent-deep); font-weight:700; }
+  .save-bar-r { display:flex; gap:8px; }
+
+  @media (max-width:640px) {
+    .field-row, .field-row-3 { grid-template-columns:1fr; }
+    .product-item { grid-template-columns:1fr auto; gap:8px; }
+    .product-item .pi-handle, .product-item .pi-meta { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───── 로그인 게이트 (인증 전까지 관리자 화면 가림) ───── -->
+<style>
+  .login-gate {
+    position:fixed; inset:0; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg); padding:24px;
+  }
+  .login-card {
+    width:100%; max-width:360px; background:var(--card);
+    border:1px solid var(--border); border-radius:16px;
+    padding:36px 32px; box-shadow:0 12px 40px rgba(90,77,184,.12);
+  }
+  .login-brand { font-size:13px; font-weight:800; color:var(--accent); letter-spacing:.04em; }
+  .login-title { font-size:21px; font-weight:800; margin:6px 0 22px; letter-spacing:-.02em; }
+  .login-field { display:block; margin-bottom:14px; }
+  .login-field span { display:block; font-size:12px; font-weight:700; color:var(--g1); margin-bottom:6px; }
+  .login-field input {
+    width:100%; padding:11px 13px; border:1px solid var(--g4); border-radius:9px;
+    background:var(--bg); font-size:14px; outline:none;
+  }
+  .login-field input:focus { border-color:var(--accent); }
+  .login-btn {
+    width:100%; padding:12px; margin-top:6px; border:0; border-radius:9px;
+    background:var(--accent); color:#fff; font-size:14px; font-weight:700;
+  }
+  .login-btn:disabled { opacity:.6; cursor:default; }
+  .login-err {
+    margin:4px 0 12px; padding:9px 11px; border-radius:8px;
+    background:var(--danger-bg); color:var(--danger);
+    font-size:12px; font-weight:600;
+  }
+  .login-checking { font-size:13px; color:var(--g2); text-align:center; }
+  .login-denied-msg { font-size:13px; color:var(--g1); line-height:1.6; margin-bottom:18px; }
+  .acct-chip { font-size:12px; font-weight:600; color:var(--g2); margin-right:2px; }
+</style>
+<div class="login-gate" id="login-gate">
+  <div class="login-card">
+    <div class="login-checking" id="login-checking">로그인 상태 확인 중…</div>
+
+    <form id="login-form" hidden>
+      <div class="login-brand">우주커넥트</div>
+      <div class="login-title">관리자 로그인</div>
+      <label class="login-field">
+        <span>이메일</span>
+        <input type="email" id="login-email" autocomplete="username" required>
+      </label>
+      <label class="login-field">
+        <span>비밀번호</span>
+        <input type="password" id="login-pw" autocomplete="current-password" required>
+      </label>
+      <div class="login-err" id="login-err" hidden></div>
+      <button type="submit" class="login-btn" id="login-submit">로그인</button>
+    </form>
+
+    <div id="login-denied" hidden>
+      <div class="login-brand">우주커넥트</div>
+      <div class="login-title">접근 권한 없음</div>
+      <div class="login-denied-msg">
+        이 계정은 모바일샵 관리자 권한이 없습니다.<br>
+        다른 계정으로 로그인하세요.
+      </div>
+      <button type="button" class="login-btn" id="login-denied-out">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <header class="head">
+    <div class="head-top">
+      <div class="h-l">
+        <h1>관리자</h1>
+        <span class="sub">우주커넥트 · 매장 콘텐츠 편집</span>
+      </div>
+      <div class="h-r">
+        <a href="index.html" target="_blank" class="h-link">사이트 미리보기 ↗</a>
+        <div class="acct">
+          <span class="acct-dot" id="acct-initial"></span>
+          <span class="acct-email" id="acct-email"></span>
+          <button class="acct-out" id="btn-logout">로그아웃</button>
+        </div>
+      </div>
+    </div>
+    <div class="head-nav">
+      <div class="master-bar">
+        <button class="m-tab on" id="site-edit-btn">사이트 편집</button>
+        <span class="mb-div"></span>
+        <span class="master-bar-label">본사 관리</span>
+        <button class="m-tab" data-tab="skt">SKT</button>
+        <button class="m-tab" data-tab="kt">KT</button>
+        <button class="m-tab" data-tab="lg">LG U+</button>
+      </div>
+    </div>
+  </header>
+
+  <style>
+    .master-bar { display:flex; align-items:center; gap:4px; }
+    .master-bar-label { font-size:10px; font-weight:800; color:var(--g3); letter-spacing:.06em; text-transform:uppercase; margin:0 6px 0 2px; }
+    .m-tab { padding:8px 16px; font-size:13px; font-weight:700; color:var(--g2); background:transparent; border:0; border-radius:9px; cursor:pointer; font-family:inherit; }
+    .m-tab:hover { color:var(--ink); background:var(--g5); }
+    .m-tab.on { background:var(--accent); color:#fff; }
+    .m-tab.on:hover { color:#fff; }
+    .mb-div { width:1px; height:18px; background:var(--g4); margin:0 8px; }
+    .layout.master-mode { grid-template-columns:1fr; }
+    .layout.master-mode .preview-col { display:none; }
+    .layout.master-mode #tabs { display:none; }
+    /* 본사 관리에선 하단 저장바 숨김 — 저장은 통신사 서브탭 줄의 버튼 사용 */
+    .layout.master-mode ~ .save-bar { display:none; }
+    .c-subnav { display:flex; gap:2px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+  .c-save { margin-left:auto; align-self:center; display:flex; gap:6px; align-items:center; }
+  .c-status { font-size:11px; font-weight:600; color:var(--g3); }
+    .c-sub { padding:9px 16px; background:transparent; border:0; border-bottom:2px solid transparent; color:var(--g2); font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; margin-bottom:-1px; }
+    .c-sub:hover { color:var(--ink); }
+    .c-sub.on { color:var(--accent); border-bottom-color:var(--accent); }
+    .c-pane { display:none; }
+    .c-pane.on { display:block; }
+    /* 공통지원금 서브탭도 동일 — cv:hidden으로 레이아웃 보존 (서브탭 전환도 빠르게) */
+    .c-pane[data-sub="support"] { display:block; }
+    .c-pane[data-sub="support"]:not(.on) { content-visibility:hidden; }
+    /* 모델 표 */
+    .m-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .m-table th { text-align:left; font-size:11px; font-weight:700; color:var(--g2); padding:8px 10px; border-bottom:1.5px solid var(--border); white-space:nowrap; }
+    .m-table td { padding:7px 10px; border-bottom:1px solid var(--border); }
+    /* 화면 밖 행은 레이아웃 건너뜀 — 모델 많은 통신사(LG 240행) 탭 전환 시 끊김 제거 */
+    .m-table tbody tr { content-visibility:auto; contain-intrinsic-size:auto 46px; }
+    .m-table tbody tr:hover { background:var(--bg-soft); }
+    .m-table .m-num { width:38px; text-align:center; color:var(--g3); font-size:12px; }
+    .m-table .m-name { font-weight:700; }
+    .m-table .m-price { white-space:nowrap; }
+    .m-table .m-colors { color:var(--g2); font-size:12px; }
+    .m-table .m-dim { color:var(--g3); }
+    .m-table .m-vis { white-space:nowrap; font-size:12px; color:var(--g2); }
+    .m-table tr.is-hidden td { opacity:.5; }
+    .m-table .m-hidden-tag { font-size:10px; font-weight:700; color:var(--g3); background:var(--bg-soft); padding:1px 6px; border-radius:4px; }
+    .m-table .m-act { white-space:nowrap; text-align:right; }
+    .m-table .m-act .btn { padding:5px 9px; font-size:11px; margin-left:4px; }
+  </style>
+
+  <!-- 좌:프리뷰 / 우:폼 -->
+  <div class="layout">
+
+  <aside class="preview-col">
+    <nav class="tabs">
+      <button class="tab on" type="button" tabindex="-1" style="cursor:default">실시간 미리보기</button>
+    </nav>
+    <div class="preview-frame">
+      <iframe id="preview-iframe" src="index.html?preview=1" title="미리보기"></iframe>
+    </div>
+  </aside>
+
+  <div class="form-col">
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-tab="banners">배너</button>
+    <button class="tab" data-tab="products">상품 (휴대폰)</button>
+  </nav>
+
+  <!-- 배너 탭 -->
+  <section class="tab-pane on" data-pane="banners">
+    <nav class="sub-tabs" id="banner-sub-tabs">
+      <button class="sub-tab on" type="button" data-sub="phone"><span class="dot"></span>휴대폰 배너</button>
+      <button class="sub-tab" type="button" data-sub="internet"><span class="dot"></span>인터넷 배너</button>
+      <button class="sub-tab" type="button" data-sub="rental"><span class="dot"></span>렌탈 배너</button>
+    </nav>
+
+    <div class="sub-pane on" data-sub-pane="phone">
+    <div class="card" data-banner="phone">
+      <div class="card-h">휴대폰 배너
+        <div class="card-h-actions">
+          <button type="button" class="btn-tpl" data-tpl-load="phone"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>배너템플릿</button>
+          <button type="button" class="btn-tpl" data-tpl-save="phone"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>현재배너저장</button>
+          <span class="pill">PHONE</span>
+        </div>
+      </div>
+      <div class="field-row field-row-chip">
+        <div class="field">
+          <label>칩 1</label>
+          <div class="iwc">
+            <input type="text" data-field="tag0"/>
+            <div class="chip-emph">
+              <label class="check" title="강조"><input type="checkbox" data-field="tag0hot"/></label>
+              <input type="color" data-field="tag0bg" value="#FCDFE6" title="칩 1 배경 색"/>
+              <input type="color" data-field="tag0fg" value="#5A4DB8" title="칩 1 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>칩 2</label>
+          <div class="iwc">
+            <input type="text" data-field="tag1"/>
+            <div class="chip-emph">
+              <label class="check" title="강조"><input type="checkbox" data-field="tag1hot"/></label>
+              <input type="color" data-field="tag1bg" value="#FCDFE6" title="칩 2 배경 색"/>
+              <input type="color" data-field="tag1fg" value="#5A4DB8" title="칩 2 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="chipAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="칩 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-text">
+        <div class="field">
+          <label>윗글 (eyebrow)</label>
+          <div class="iwc">
+            <input type="text" data-field="eyebrow"/>
+            <div class="chip-emph">
+              <input type="color" data-field="eyebrowColor" value="#7A6BD9" title="윗글 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="eyebrowAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="윗글 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-text">
+        <div class="field">
+          <label>타이틀</label>
+          <div class="iwc">
+            <input type="text" data-field="title"/>
+            <div class="chip-emph">
+              <input type="color" data-field="titleColor" value="#1A1A2E" title="타이틀 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="titleAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="타이틀 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-cta">
+        <div class="field">
+          <label>CTA 버튼 텍스트</label>
+          <div class="iwc">
+            <input type="text" data-field="ctaText"/>
+            <div class="chip-emph">
+              <input type="color" data-field="ctaTextColor" value="#1A1A2E" title="CTA 버튼 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>CTA 강조</label>
+          <div class="iwc">
+            <input type="text" data-field="ctaHighlight"/>
+            <div class="chip-emph">
+              <input type="color" data-field="ctaHlStart" value="#7A6BD9" title="강조 시작 색"/>
+              <input type="color" data-field="ctaHlEnd" value="#F4A5BA" title="강조 끝 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="ctaAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="CTA 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>배너에 삽입할 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 기본 SVG 폰)</span></label>
+        <div class="img-upload-row">
+          <div class="img-preview" data-img-preview style="display:none">
+            <img alt=""/>
+            <button type="button" class="img-clear" data-img-clear title="이미지 제거">×</button>
+          </div>
+          <button type="button" class="img-add" data-img-pick>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            이미지 선택
+          </button>
+          <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>회전</label>
+          <div class="chip-pos" data-field="imageRotate" data-suffix="°">
+            <input type="range" min="-180" max="180" value="0" step="1" aria-label="이미지 회전"/>
+            <output>0°</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>크기</label>
+          <div class="chip-pos" data-field="imageScale" data-suffix="%">
+            <input type="range" min="30" max="200" value="100" step="1" aria-label="이미지 크기"/>
+            <output>100%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>좌우 위치</label>
+          <div class="chip-pos" data-field="imageOffsetX" data-suffix="px">
+            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 좌우 위치"/>
+            <output>0px</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>상하 위치</label>
+          <div class="chip-pos" data-field="imageOffsetY" data-suffix="px">
+            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 상하 위치"/>
+            <output>0px</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>그림자</label>
+          <div class="chip-pos" data-field="imageShadow" data-suffix="">
+            <input type="range" min="0" max="60" value="0" step="1" aria-label="그림자 강도"/>
+            <output>0</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>외부광선</label>
+          <div class="chip-pos" data-field="imageGlow" data-suffix="">
+            <input type="range" min="0" max="40" value="0" step="1" aria-label="외부광선 강도"/>
+            <output>0</output>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>배경 (샘플 선택 또는 직접 업로드)</label>
+        <div class="bg-picker" data-field="bg-picker"></div>
+        <input type="file" accept="image/*" data-field="bg-upload" style="display:none"/>
+      </div>
+    </div>
+    </div><!-- /sub-pane phone -->
+
+    <div class="sub-pane" data-sub-pane="internet">
+    <div class="card" data-banner="internet">
+      <div class="card-h">인터넷 배너
+        <div class="card-h-actions">
+          <button type="button" class="btn-tpl" data-tpl-load="internet"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>배너템플릿</button>
+          <button type="button" class="btn-tpl" data-tpl-save="internet"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>현재배너저장</button>
+          <span class="pill">INTERNET</span>
+        </div>
+      </div>
+      <div class="field-row field-row-chip">
+        <div class="field">
+          <label>칩 1</label>
+          <div class="iwc">
+            <input type="text" data-field="tag0"/>
+            <div class="chip-emph">
+              <label class="check" title="강조"><input type="checkbox" data-field="tag0hot"/></label>
+              <input type="color" data-field="tag0bg" value="#FCDFE6" title="칩 1 배경 색"/>
+              <input type="color" data-field="tag0fg" value="#5A4DB8" title="칩 1 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>칩 2</label>
+          <div class="iwc">
+            <input type="text" data-field="tag1"/>
+            <div class="chip-emph">
+              <label class="check" title="강조"><input type="checkbox" data-field="tag1hot"/></label>
+              <input type="color" data-field="tag1bg" value="#FCDFE6" title="칩 2 배경 색"/>
+              <input type="color" data-field="tag1fg" value="#5A4DB8" title="칩 2 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="chipAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="칩 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-text">
+        <div class="field">
+          <label>윗글 (eyebrow)</label>
+          <div class="iwc">
+            <input type="text" data-field="eyebrow"/>
+            <div class="chip-emph">
+              <input type="color" data-field="eyebrowColor" value="#7A6BD9" title="윗글 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="eyebrowAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="윗글 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-text">
+        <div class="field">
+          <label>타이틀</label>
+          <div class="iwc">
+            <input type="text" data-field="title"/>
+            <div class="chip-emph">
+              <input type="color" data-field="titleColor" value="#1A1A2E" title="타이틀 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="titleAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="타이틀 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-cta">
+        <div class="field">
+          <label>CTA 버튼 텍스트</label>
+          <div class="iwc">
+            <input type="text" data-field="ctaText"/>
+            <div class="chip-emph">
+              <input type="color" data-field="ctaTextColor" value="#1A1A2E" title="CTA 버튼 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>CTA 강조</label>
+          <div class="iwc">
+            <input type="text" data-field="ctaHighlight"/>
+            <div class="chip-emph">
+              <input type="color" data-field="ctaHlStart" value="#7A6BD9" title="강조 시작 색"/>
+              <input type="color" data-field="ctaHlEnd" value="#F4A5BA" title="강조 끝 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="ctaAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="CTA 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>배너 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 기본 SVG)</span></label>
+        <div class="img-upload-row">
+          <div class="img-preview" data-img-preview style="display:none">
+            <img alt=""/>
+            <button type="button" class="img-clear" data-img-clear title="이미지 제거">×</button>
+          </div>
+          <button type="button" class="img-add" data-img-add>
+            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+            이미지 업로드
+          </button>
+          <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>회전</label>
+          <div class="chip-pos" data-field="imageRotate" data-suffix="°">
+            <input type="range" min="-180" max="180" value="0" step="1" aria-label="이미지 회전"/>
+            <output>0°</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>크기</label>
+          <div class="chip-pos" data-field="imageScale" data-suffix="%">
+            <input type="range" min="30" max="200" value="100" step="1" aria-label="이미지 크기"/>
+            <output>100%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>좌우 위치</label>
+          <div class="chip-pos" data-field="imageOffsetX" data-suffix="px">
+            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 좌우 위치"/>
+            <output>0px</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>상하 위치</label>
+          <div class="chip-pos" data-field="imageOffsetY" data-suffix="px">
+            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 상하 위치"/>
+            <output>0px</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>그림자</label>
+          <div class="chip-pos" data-field="imageShadow" data-suffix="">
+            <input type="range" min="0" max="60" value="0" step="1" aria-label="그림자 강도"/>
+            <output>0</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>외부광선</label>
+          <div class="chip-pos" data-field="imageGlow" data-suffix="">
+            <input type="range" min="0" max="40" value="0" step="1" aria-label="외부광선 강도"/>
+            <output>0</output>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>배경 (샘플 선택 또는 직접 업로드)</label>
+        <div class="bg-picker" data-field="bg-picker"></div>
+        <input type="file" accept="image/*" data-field="bg-upload" style="display:none"/>
+      </div>
+    </div>
+    </div><!-- /sub-pane internet -->
+
+    <div class="sub-pane" data-sub-pane="rental">
+    <div class="card" data-banner="rental">
+      <div class="card-h">렌탈 배너
+        <div class="card-h-actions">
+          <button type="button" class="btn-tpl" data-tpl-load="rental"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>배너템플릿</button>
+          <button type="button" class="btn-tpl" data-tpl-save="rental"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>현재배너저장</button>
+          <span class="pill">RENTAL</span>
+        </div>
+      </div>
+      <div class="field-row field-row-chip">
+        <div class="field">
+          <label>칩 1</label>
+          <div class="iwc">
+            <input type="text" data-field="tag0"/>
+            <div class="chip-emph">
+              <label class="check" title="강조"><input type="checkbox" data-field="tag0hot"/></label>
+              <input type="color" data-field="tag0bg" value="#FCDFE6" title="칩 1 배경 색"/>
+              <input type="color" data-field="tag0fg" value="#5A4DB8" title="칩 1 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>칩 2</label>
+          <div class="iwc">
+            <input type="text" data-field="tag1"/>
+            <div class="chip-emph">
+              <label class="check" title="강조"><input type="checkbox" data-field="tag1hot"/></label>
+              <input type="color" data-field="tag1bg" value="#FCDFE6" title="칩 2 배경 색"/>
+              <input type="color" data-field="tag1fg" value="#5A4DB8" title="칩 2 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="chipAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="칩 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-text">
+        <div class="field">
+          <label>윗글 (eyebrow)</label>
+          <div class="iwc">
+            <input type="text" data-field="eyebrow"/>
+            <div class="chip-emph">
+              <input type="color" data-field="eyebrowColor" value="#7A6BD9" title="윗글 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="eyebrowAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="윗글 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-text">
+        <div class="field">
+          <label>타이틀</label>
+          <div class="iwc">
+            <input type="text" data-field="title"/>
+            <div class="chip-emph">
+              <input type="color" data-field="titleColor" value="#1A1A2E" title="타이틀 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="titleAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="타이틀 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row field-row-cta">
+        <div class="field">
+          <label>CTA 버튼 텍스트</label>
+          <div class="iwc">
+            <input type="text" data-field="ctaText"/>
+            <div class="chip-emph">
+              <input type="color" data-field="ctaTextColor" value="#1A1A2E" title="CTA 버튼 글자 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>CTA 강조</label>
+          <div class="iwc">
+            <input type="text" data-field="ctaHighlight"/>
+            <div class="chip-emph">
+              <input type="color" data-field="ctaHlStart" value="#7A6BD9" title="강조 시작 색"/>
+              <input type="color" data-field="ctaHlEnd" value="#F4A5BA" title="강조 끝 색"/>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>가로 위치</label>
+          <div class="chip-pos" data-field="ctaAlign">
+            <input type="range" min="0" max="100" value="0" step="1" aria-label="CTA 가로 위치"/>
+            <output>0%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>배너 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 기본 SVG)</span></label>
+        <div class="img-upload-row">
+          <div class="img-preview" data-img-preview style="display:none">
+            <img alt=""/>
+            <button type="button" class="img-clear" data-img-clear title="이미지 제거">×</button>
+          </div>
+          <button type="button" class="img-add" data-img-add>
+            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+            이미지 업로드
+          </button>
+          <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>회전</label>
+          <div class="chip-pos" data-field="imageRotate" data-suffix="°">
+            <input type="range" min="-180" max="180" value="0" step="1" aria-label="이미지 회전"/>
+            <output>0°</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>크기</label>
+          <div class="chip-pos" data-field="imageScale" data-suffix="%">
+            <input type="range" min="30" max="200" value="100" step="1" aria-label="이미지 크기"/>
+            <output>100%</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>좌우 위치</label>
+          <div class="chip-pos" data-field="imageOffsetX" data-suffix="px">
+            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 좌우 위치"/>
+            <output>0px</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>상하 위치</label>
+          <div class="chip-pos" data-field="imageOffsetY" data-suffix="px">
+            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 상하 위치"/>
+            <output>0px</output>
+          </div>
+        </div>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="field">
+          <label>그림자</label>
+          <div class="chip-pos" data-field="imageShadow" data-suffix="">
+            <input type="range" min="0" max="60" value="0" step="1" aria-label="그림자 강도"/>
+            <output>0</output>
+          </div>
+        </div>
+        <div class="field">
+          <label>외부광선</label>
+          <div class="chip-pos" data-field="imageGlow" data-suffix="">
+            <input type="range" min="0" max="40" value="0" step="1" aria-label="외부광선 강도"/>
+            <output>0</output>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>배경 (샘플 선택 또는 직접 업로드)</label>
+        <div class="bg-picker" data-field="bg-picker"></div>
+        <input type="file" accept="image/*" data-field="bg-upload" style="display:none"/>
+      </div>
+    </div>
+    </div><!-- /sub-pane rental -->
+  </section>
+
+  <!-- 상품 탭 -->
+  <section class="tab-pane" data-pane="products">
+    <div class="card">
+      <div class="card-h">
+        휴대폰 상품
+        <button class="btn btn-primary btn-sm" id="btn-add-product">+ 상품 추가</button>
+      </div>
+      <nav class="cat-tabs" id="cat-tabs">
+        <!-- JS로 동적 렌더 (전체 / 통신사별 인기단말 / 카테고리들 / + 추가) -->
+      </nav>
+      <div class="product-list" id="product-list"></div>
+    </div>
+  </section>
+
+  <!-- 본사 관리: 통신사별 (SKT / KT / LG U+) -->
+  <style>
+    .ms-card-sub { font-size:11px; font-weight:600; color:var(--g3); margin-left:6px; }
+    /* 공통지원금 표 — 표 안에서 상하·좌우 스크롤, 헤더/첫열 고정 */
+    .ms-table-scroll { max-height:70vh; overflow:auto; border:1px solid var(--border); border-radius:8px; }
+    /* table-layout:fixed — 열 너비를 내용과 무관하게 고정.
+       auto면 셀 하나 건드려도(텍스트→input) 표 전체 수천 칸 열 너비가 재계산돼 멈춤.
+       fixed면 열이 thead 너비로 고정 → 셀 편집이 그 칸만 리플로우 */
+    .ms-table { table-layout:fixed; border-collapse:separate; border-spacing:0; font-size:12.5px; }
+    .ms-table th { font-size:11px; font-weight:700; color:var(--g2); padding:6px 8px; text-align:center; border-bottom:1px solid var(--border); white-space:nowrap; background:#fff; width:120px; overflow:hidden; text-overflow:ellipsis; }
+    .ms-table td { padding:5px 8px; text-align:center; border-bottom:1px solid var(--bg-soft); background:#fff; width:120px; }
+    .ms-table tr:last-child td { border-bottom:0; }
+    /* 스크롤 밖 행은 레이아웃 건너뜀 — 통신사 탭 전환 시 공통지원금 표(수천 셀) 끊김 제거 */
+    .ms-table tbody tr { content-visibility:auto; contain-intrinsic-size:auto 36px; }
+    /* 헤더 행 고정 (상하 스크롤 시) */
+    .ms-table thead th { position:sticky; top:0; z-index:2; }
+    /* 첫 열(모델명) 고정 (좌우 스크롤 시) */
+    .ms-table .ms-plan, .ms-table .ms-corner { position:sticky; left:0; width:180px; font-weight:600; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-right:1px solid var(--border); }
+    .ms-table td.ms-plan { z-index:1; }
+    .ms-table thead .ms-corner { z-index:3; }
+    /* 공시일 열 — 읽기전용(모델별 가장 최근 공시일). 모델명 다음 일반 열 */
+    .ms-table .ms-notice { width:92px; font-size:11px; color:var(--g2); white-space:nowrap; }
+    /* 공통지원금 셀 — woozoo 방식: 모든 칸이 항상 input(클릭해도 DOM 변형 0).
+       평소엔 테두리 없이 텍스트처럼 보이고, 포커스 때만 배경 강조 */
+    .ms-table input.ms-sup { width:100%; box-sizing:border-box; padding:5px 7px; border:0; background:transparent; font-size:12.5px; text-align:right; font-family:inherit; cursor:text; }
+    .ms-table input.ms-sup:focus { background:var(--bg-soft); outline:1px solid var(--accent); }
+    .ms-empty { padding:18px; text-align:center; }
+    /* 숨김 처리된 모델 — 흐리게 + 태그 */
+    .product-item.is-hidden { opacity:.5; }
+    .pi-hidden-tag { font-size:10px; font-weight:700; color:var(--g3); background:var(--bg-soft); padding:1px 5px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+    /* 모델 드래그 정렬 */
+    .product-item[draggable=true] { cursor:default; }
+    .product-item.dragging { opacity:.4; }
+    .product-item.drag-over { box-shadow:0 -3px 0 -1px var(--accent); }
+  </style>
+
+  <section class="tab-pane" data-pane="skt">
+    <nav class="c-subnav">
+      <button class="c-sub on" data-sub="model">모델 · 출고가</button>
+      <button class="c-sub" data-sub="plan">요금제 · 기본요금</button>
+      <button class="c-sub" data-sub="support">공통지원금</button>
+      <div class="c-save">
+        <span class="c-status"></span>
+        <button class="btn btn-primary btn-sm" data-master-save>저장</button>
+      </div>
+    </nav>
+    <div class="c-pane on" data-sub="model">
+      <div class="card">
+        <div class="card-h">SKT 모델 <span class="ms-card-sub">엑셀 행 순서 = 표시 순서</span>
+          <div class="card-h-actions">
+            <button class="btn btn-sm" data-xls-down="skt">엑셀 다운로드</button>
+            <button class="btn btn-sm" data-xls-up="skt">엑셀 업로드</button>
+            <button class="btn btn-primary btn-sm" data-add-model="skt">+ 모델 추가</button>
+          </div>
+        </div>
+        <div class="product-list" data-model-list="skt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="plan">
+      <div class="card">
+        <div class="card-h">SKT 요금제
+          <button class="btn btn-primary btn-sm" data-add-plan="skt">+ 요금제 추가</button>
+        </div>
+        <div class="product-list" data-plan-list="skt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="support">
+      <div class="card">
+        <div class="card-h">SKT 공통지원금 <span class="ms-card-sub">모델 × 요금제별 공시지원금</span></div>
+        <div data-support-wrap="skt"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-pane" data-pane="kt">
+    <nav class="c-subnav">
+      <button class="c-sub on" data-sub="model">모델 · 출고가</button>
+      <button class="c-sub" data-sub="plan">요금제 · 기본요금</button>
+      <button class="c-sub" data-sub="support">공통지원금</button>
+      <div class="c-save">
+        <span class="c-status"></span>
+        <button class="btn btn-primary btn-sm" data-master-save>저장</button>
+      </div>
+    </nav>
+    <div class="c-pane on" data-sub="model">
+      <div class="card">
+        <div class="card-h">KT 모델 <span class="ms-card-sub">엑셀 행 순서 = 표시 순서</span>
+          <div class="card-h-actions">
+            <button class="btn btn-sm" data-xls-down="kt">엑셀 다운로드</button>
+            <button class="btn btn-sm" data-xls-up="kt">엑셀 업로드</button>
+            <button class="btn btn-primary btn-sm" data-add-model="kt">+ 모델 추가</button>
+          </div>
+        </div>
+        <div class="product-list" data-model-list="kt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="plan">
+      <div class="card">
+        <div class="card-h">KT 요금제
+          <button class="btn btn-primary btn-sm" data-add-plan="kt">+ 요금제 추가</button>
+        </div>
+        <div class="product-list" data-plan-list="kt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="support">
+      <div class="card">
+        <div class="card-h">KT 공통지원금 <span class="ms-card-sub">모델 × 요금제별 공시지원금</span></div>
+        <div data-support-wrap="kt"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-pane" data-pane="lg">
+    <nav class="c-subnav">
+      <button class="c-sub on" data-sub="model">모델 · 출고가</button>
+      <button class="c-sub" data-sub="plan">요금제 · 기본요금</button>
+      <button class="c-sub" data-sub="support">공통지원금</button>
+      <div class="c-save">
+        <span class="c-status"></span>
+        <button class="btn btn-primary btn-sm" data-master-save>저장</button>
+      </div>
+    </nav>
+    <div class="c-pane on" data-sub="model">
+      <div class="card">
+        <div class="card-h">LG U+ 모델 <span class="ms-card-sub">엑셀 행 순서 = 표시 순서</span>
+          <div class="card-h-actions">
+            <button class="btn btn-sm" data-xls-down="lg">엑셀 다운로드</button>
+            <button class="btn btn-sm" data-xls-up="lg">엑셀 업로드</button>
+            <button class="btn btn-primary btn-sm" data-add-model="lg">+ 모델 추가</button>
+          </div>
+        </div>
+        <div class="product-list" data-model-list="lg"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="plan">
+      <div class="card">
+        <div class="card-h">LG U+ 요금제
+          <button class="btn btn-primary btn-sm" data-add-plan="lg">+ 요금제 추가</button>
+        </div>
+        <div class="product-list" data-plan-list="lg"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="support">
+      <div class="card">
+        <div class="card-h">LG U+ 공통지원금 <span class="ms-card-sub">모델 × 요금제별 공시지원금</span></div>
+        <div data-support-wrap="lg"></div>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- /form-col -->
+  </div><!-- /layout -->
+  <input type="file" id="xls-file" accept=".xlsx,.xls" style="display:none"/>
+
+  <!-- 저장 바 -->
+  <div class="save-bar">
+    <div class="save-bar-l"><b id="status">대기 중</b> · 저장 시 미리보기 탭 자동 갱신</div>
+    <div class="save-bar-r">
+      <button class="btn" id="btn-revert">되돌리기</button>
+      <button class="btn btn-primary" id="btn-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 상품 편집 모달 -->
+<div class="modal-bg" id="product-modal">
+  <div class="modal">
+    <h2 id="product-modal-title">상품 추가</h2>
+    <input type="hidden" id="pm-id"/>
+    <div class="field-row">
+      <div class="field">
+        <label>통신사</label>
+        <select id="pm-carrier">
+          <option value="skt">SKT</option>
+          <option value="kt">KT</option>
+          <option value="lg">LG U+</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>모델</label>
+        <select id="pm-model"></select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>요금제</label>
+        <select id="pm-plan"></select>
+      </div>
+      <div class="field">
+        <label>출고가 <span class="hint" style="display:inline; margin-left:4px">자동</span></label>
+        <input type="text" id="pm-release" readonly style="background:var(--bg-soft)"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>공통지원금 <span class="hint" style="display:inline; margin-left:4px">모델+요금제 선택 시 자동</span></label>
+      <input type="text" id="pm-common" readonly style="background:var(--bg-soft)"/>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>추가할인 (번호이동)</label><input type="text" id="pm-addMnp" placeholder="0" inputmode="numeric"/></div>
+      <div class="field"><label>최종가 (번호이동) <span class="hint" style="display:inline; margin-left:4px">자동</span></label><input type="text" id="pm-finalMnp" readonly style="background:var(--bg-soft)"/></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>추가할인 (기기변경)</label><input type="text" id="pm-addChg" placeholder="0" inputmode="numeric"/></div>
+      <div class="field"><label>최종가 (기기변경) <span class="hint" style="display:inline; margin-left:4px">자동</span></label><input type="text" id="pm-finalChg" readonly style="background:var(--bg-soft)"/></div>
+    </div>
+    <div class="field" style="display:flex; align-items:center; gap:8px; margin-bottom:14px">
+      <input type="checkbox" id="pm-featured" style="width:18px; height:18px; cursor:pointer"/>
+      <label for="pm-featured" style="cursor:pointer; margin:0">통신사별 인기단말로 노출</label>
+    </div>
+    <div class="field"><label>안내사항</label><input type="text" id="pm-notice" placeholder="예: 사은품 6종 증정 / 매장 방문 상담"/></div>
+    <div class="field">
+      <label>상품 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 카드에 이미지 없음)</span></label>
+      <div class="img-upload-row">
+        <div class="img-preview" id="pm-img-preview" style="display:none">
+          <img alt=""/>
+          <button type="button" class="img-clear" id="pm-img-clear" title="이미지 제거">×</button>
+        </div>
+        <button type="button" class="img-add" id="pm-img-add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+          이미지 업로드
+        </button>
+        <input type="file" accept="image/*" id="pm-img-file" style="display:none"/>
+      </div>
+      <input type="hidden" id="pm-imageUrl"/>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger btn-sm" id="pm-delete" style="margin-right:auto; display:none">삭제</button>
+      <button class="btn" id="pm-cancel">취소</button>
+      <button class="btn btn-primary" id="pm-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 모델 편집 모달 -->
+<div class="modal-bg" id="model-modal">
+  <div class="modal">
+    <h2 id="model-modal-title">모델 추가</h2>
+    <input type="hidden" id="mm-id"/>
+    <div class="field"><label>모델명 + 용량</label><input type="text" id="mm-name" placeholder="iPhone 17 Pro 256GB"/></div>
+    <div class="field"><label>출고가</label><input type="text" id="mm-price" placeholder="1,550,000" inputmode="numeric"/></div>
+    <div class="field">
+      <label>색상 <span class="hint" style="display:inline; margin-left:4px">최대 5개</span></label>
+      <div class="color-inputs">
+        <input type="text" class="mm-color" placeholder="블랙"/>
+        <input type="text" class="mm-color" placeholder="화이트"/>
+        <input type="text" class="mm-color" placeholder="블루"/>
+        <input type="text" class="mm-color" placeholder="실버"/>
+        <input type="text" class="mm-color" placeholder="그린"/>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger btn-sm" id="mm-delete" style="margin-right:auto; display:none">삭제</button>
+      <button class="btn" id="mm-cancel">취소</button>
+      <button class="btn btn-primary" id="mm-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 요금제 편집 모달 -->
+<div class="modal-bg" id="plan-modal">
+  <div class="modal">
+    <h2 id="plan-modal-title">요금제 추가</h2>
+    <input type="hidden" id="plm-id"/>
+    <div class="field"><label>요금제명</label><input type="text" id="plm-name" placeholder="5GX 프라임"/></div>
+    <div class="field"><label>월 요금 <span class="hint" style="display:inline; margin-left:4px">선택</span></label><input type="text" id="plm-fee" placeholder="89,000" inputmode="numeric"/></div>
+    <div class="modal-foot">
+      <button class="btn btn-danger btn-sm" id="plm-delete" style="margin-right:auto; display:none">삭제</button>
+      <button class="btn" id="plm-cancel">취소</button>
+      <button class="btn btn-primary" id="plm-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 템플릿 불러오기 모달 -->
+<div class="modal-bg" id="tpl-browse-modal">
+  <div class="modal" style="max-width:1320px; width:95vw">
+    <h2 id="tpl-browse-title">템플릿에서 가져오기</h2>
+    <p class="hint" style="margin:-4px 0 14px">선택하면 현재 배너에 덮어씁니다 (저장 누르기 전까진 미적용).</p>
+    <div id="tpl-grid" class="tpl-grid"><div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0">불러오는 중…</div></div>
+    <div class="modal-foot">
+      <button class="btn" id="tpl-browse-cancel">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 배너에 삽입할 이미지 (KT 모델) 모달 -->
+<div class="modal-bg" id="model-img-modal">
+  <div class="modal" style="max-width:1080px; width:94vw">
+    <h2>배너에 삽입할 이미지</h2>
+    <p class="hint" style="margin:-4px 0 14px">이미지를 골라 휴대폰 배너에 넣습니다. 내 그룹을 만들어 직접 올린 이미지도 쓸 수 있어요.</p>
+    <div class="mi-toolbar">
+      <input type="text" id="mi-search" placeholder="이름 검색 (예: S26, 아이폰)" autocomplete="off"/>
+      <button type="button" class="btn btn-sm" id="mi-add-group">+ 새 그룹</button>
+    </div>
+    <div id="mi-body" class="mi-body"><div class="hint" style="text-align:center; padding:40px 0">불러오는 중…</div></div>
+    <div class="modal-foot">
+      <button class="btn" id="mi-cancel">닫기</button>
+    </div>
+  </div>
+  <input type="file" accept="image/*" id="mi-file-input" multiple style="display:none"/>
+</div>
+
+<!-- 카테고리 관리 모달 -->
+<div class="modal-bg" id="cat-manage-modal">
+  <div class="modal" style="max-width:560px">
+    <h2>카테고리 관리</h2>
+    <p class="hint" style="margin:-4px 0 14px">라벨 직접 수정 가능 · 노출 끄면 탭/모바일에서 숨김 (상품은 유지) · 삭제는 영구</p>
+    <div id="cat-manage-list"></div>
+    <div class="cat-new-row">
+      <input type="text" id="cat-new-label" placeholder="새 카테고리 이름 (예: 헬로모바일)" autocomplete="off"/>
+      <button class="btn btn-primary btn-sm" id="cat-new-add">+ 추가</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="cat-manage-close">취소</button>
+      <button class="btn btn-primary" id="cat-manage-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 템플릿 저장 모달 -->
+<div class="modal-bg" id="tpl-save-modal">
+  <div class="modal" style="max-width:460px">
+    <h2>현재 배너를 템플릿으로 저장</h2>
+    <p class="hint" style="margin:-4px 0 14px">저장 후 다른 곳에서 가져다 적용할 수 있는 보관함.</p>
+    <div class="field">
+      <label>템플릿 이름</label>
+      <input type="text" id="tpl-save-name" placeholder="예: 갤럭시 사전예약 다크"/>
+    </div>
+    <div class="field">
+      <label style="margin-bottom:8px; display:block">템플릿 종류</label>
+      <div class="scope-options">
+        <label class="scope-opt">
+          <input type="radio" name="tpl-scope" value="shared" checked/>
+          <div class="scope-body">
+            <div class="scope-title">공유 템플릿</div>
+            <div class="scope-desc">본사 보관함. 모든 매장이 가져다 쓸 수 있음.</div>
+          </div>
+        </label>
+        <label class="scope-opt">
+          <input type="radio" name="tpl-scope" value="mine"/>
+          <div class="scope-body">
+            <div class="scope-title">나만의 템플릿</div>
+            <div class="scope-desc">내 매장에서만 보이는 개인 보관함.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+    <input type="hidden" id="tpl-save-category"/>
+    <div class="modal-foot">
+      <button class="btn" id="tpl-save-cancel">취소</button>
+      <button class="btn btn-primary" id="tpl-save-confirm">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="data-store.js"></script>
+<script>
+  // ─────────────────────────────────────────────────
+  // 작업 데이터 (저장 전 메모리 상태) — init 이후 채워짐
+  let workingData = { banners: {}, productsPhone: [] };
+  let dirty = false;
+  // 본사 표 지연 렌더 플래그 — restoreUI(파싱 시점)가 ensureMasterRendered를 부르므로
+  // 반드시 그 전에 초기화돼 있어야 함 (TDZ 에러 방지)
+  let masterRendered = false;
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  function setStatus(text, isDirty) {
+    $('#status').textContent = text;
+    dirty = !!isDirty;
+    $('#status').style.color = isDirty ? 'var(--danger)' : 'var(--g2)';
+    // 본사 관리 서브탭 줄의 상태 표시도 동기화
+    $$('.c-status').forEach(el => {
+      el.textContent = isDirty ? text : '';
+      el.style.color = isDirty ? 'var(--danger)' : 'var(--g3)';
+    });
+  }
+
+  // ───── 미리보기 iframe 푸시 (60ms 디바운스 — 빠른 타이핑에도 부드럽게) ─────
+  let previewReady = false;
+  let previewTimer = null;
+  function _pushPreviewNow() {
+    const iframe = $('#preview-iframe');
+    if (!iframe || !iframe.contentWindow || !previewReady) return;
+    readBannersFromForm();
+    // 손님 미리보기는 배너/상품/카테고리만 씀 — master(support 2만행)는 빼고 보냄.
+    // workingData 통째로 postMessage하면 구조화 복제 비용 때문에 셀 1칸 저장도 버벅임.
+    const slim = {
+      banners: workingData.banners,
+      productsPhone: workingData.productsPhone,
+      categories: workingData.categories
+    };
+    iframe.contentWindow.postMessage({ type: 'mobileshop:preview', data: slim }, '*');
+  }
+  function pushPreview() {
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(_pushPreviewNow, 60);
+  }
+  // iframe이 준비 완료 알리면 초기 데이터 푸시
+  window.addEventListener('message', e => {
+    if (e.data && e.data.type === 'mobileshop:preview-ready') {
+      previewReady = true;
+      pushPreview();
+    }
+  });
+  // preview-ready 메시지를 놓친 경우(스크립트 로드 순서 레이스) 대비 —
+  // iframe load 이벤트 / 이미 로드된 상태로도 ready 처리. 안 그러면 미리보기가
+  // 갱신 안 돼서 저장+새로고침해야만 반영되는 증상이 생김.
+  (function ensurePreviewReady() {
+    const iframe = $('#preview-iframe');
+    if (!iframe) return;
+    iframe.addEventListener('load', () => { previewReady = true; pushPreview(); });
+    try {
+      if (iframe.contentWindow && iframe.contentDocument &&
+          iframe.contentDocument.readyState === 'complete') {
+        previewReady = true;
+      }
+    } catch (e) { /* 무시 */ }
+  })();
+
+  function toast(msg, isError) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.toggle('error', !!isError);
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // ───── 탭 상태 저장/복원 (새로고침해도 현재 탭 유지) ─────
+  const UI_KEY = 'mobileshop_admin_ui_v1';
+  function saveUI(patch) {
+    let s = {};
+    try { s = JSON.parse(localStorage.getItem(UI_KEY)) || {}; } catch (e) {}
+    Object.assign(s, patch);
+    try { localStorage.setItem(UI_KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  function loadUI() {
+    try { return JSON.parse(localStorage.getItem(UI_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  // ───── 탭 (메인 + 본사관리 통합) ─────
+  function activateTab(target) {
+    const isMaster = ['skt', 'kt', 'lg'].includes(target);
+    if (isMaster) ensureMasterRendered(); // 본사 표는 처음 진입 때 생성 (클래스 토글 전에 채움)
+    $$('#tabs .tab, .master-bar .m-tab').forEach(b => b.classList.toggle('on', b.dataset.tab === target));
+    // 사이트 편집 버튼은 배너/상품 어느 쪽이든 활성
+    const siteBtn = document.getElementById('site-edit-btn');
+    if (siteBtn) siteBtn.classList.toggle('on', !isMaster);
+    $$('.tab-pane').forEach(p => p.classList.toggle('on', p.dataset.pane === target));
+    // 본사 관리(SKT/KT/LG) 탭이면 미리보기·배너상품줄 숨기고 폼 전체폭
+    const layout = document.querySelector('.layout');
+    if (layout) layout.classList.toggle('master-mode', isMaster);
+    saveUI({ tab: target });
+  }
+  $$('#tabs .tab, .master-bar .m-tab[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+  });
+  const _siteBtn = document.getElementById('site-edit-btn');
+  if (_siteBtn) _siteBtn.addEventListener('click', () => activateTab('banners'));
+
+  // 통신사 탭 안 서브탭 (모델 / 요금제 / 공통지원금)
+  function activateCsub(sub) {
+    $$('section[data-pane]').forEach(section => {
+      section.querySelectorAll('.c-sub').forEach(b => b.classList.toggle('on', b.dataset.sub === sub));
+      section.querySelectorAll('.c-pane').forEach(p => p.classList.toggle('on', p.dataset.sub === sub));
+    });
+  }
+  $$('section[data-pane] .c-sub').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activateCsub(btn.dataset.sub);
+      saveUI({ csub: btn.dataset.sub });
+    });
+  });
+
+  // ───── 배너 서브탭 (휴대폰/인터넷/렌탈) ─────
+  $$('#banner-sub-tabs .sub-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('#banner-sub-tabs .sub-tab').forEach(b => b.classList.toggle('on', b === btn));
+      const target = btn.dataset.sub;
+      $$('.sub-pane').forEach(p => p.classList.toggle('on', p.dataset.subPane === target));
+      saveUI({ bsub: target });
+      // 미리보기 iframe도 해당 패널로 전환
+      const iframe = $('#preview-iframe');
+      if (iframe && iframe.contentWindow && previewReady) {
+        iframe.contentWindow.postMessage({ type: 'mobileshop:preview-panel', panel: target }, '*');
+      }
+    });
+  });
+
+  // ───── 새로고침 후 마지막 탭 상태 복원 ─────
+  (function restoreUI() {
+    const s = loadUI();
+    if (s.csub) activateCsub(s.csub);
+    if (s.bsub) {
+      $$('#banner-sub-tabs .sub-tab').forEach(b => b.classList.toggle('on', b.dataset.sub === s.bsub));
+      $$('.sub-pane').forEach(p => p.classList.toggle('on', p.dataset.subPane === s.bsub));
+    }
+    if (s.tab && document.querySelector(`.tab-pane[data-pane="${s.tab}"]`)) activateTab(s.tab);
+  })();
+
+  // ───── 배너 ─────
+  function loadBannersToForm() {
+    ['phone', 'internet', 'rental'].forEach(key => {
+      const card = $(`[data-banner="${key}"]`);
+      if (!card) return;
+      const b = workingData.banners[key] || {};
+      const tags = b.tags || [];
+      card.querySelector('[data-field="tag0"]').value = tags[0]?.text || '';
+      card.querySelector('[data-field="tag1"]').value = tags[1]?.text || '';
+      card.querySelector('[data-field="tag0hot"]').checked = !!(tags[0]?.hot);
+      card.querySelector('[data-field="tag1hot"]').checked = !!(tags[1]?.hot);
+      // 색 picker는 데이터에 명시값이 있을 때만 덮어씀 (없으면 HTML 기본값 유지)
+      if (tags[0]?.bg) card.querySelector('[data-field="tag0bg"]').value = tags[0].bg;
+      if (tags[0]?.fg) card.querySelector('[data-field="tag0fg"]').value = tags[0].fg;
+      if (tags[1]?.bg) card.querySelector('[data-field="tag1bg"]').value = tags[1].bg;
+      if (tags[1]?.fg) card.querySelector('[data-field="tag1fg"]').value = tags[1].fg;
+      // 강조 체크 해제 상태면 색 picker 흐리게 (CTA 강조 chip-emph엔 체크박스 없음 → 건너뜀)
+      card.querySelectorAll('.chip-emph').forEach(emph => {
+        const c = emph.querySelector('input[type=checkbox]');
+        if (!c) return;
+        emph.classList.toggle('dim', !c.checked);
+      });
+      card.querySelector('[data-field="eyebrow"]').value = b.eyebrow || '';
+      card.querySelector('[data-field="title"]').value = b.title || '';
+      card.querySelector('[data-field="ctaText"]').value = b.ctaText || '';
+      card.querySelector('[data-field="ctaHighlight"]').value = b.ctaHighlight || '';
+      if (b.eyebrowColor)  card.querySelector('[data-field="eyebrowColor"]').value = b.eyebrowColor;
+      if (b.titleColor)    card.querySelector('[data-field="titleColor"]').value = b.titleColor;
+      if (b.ctaTextColor)  card.querySelector('[data-field="ctaTextColor"]').value = b.ctaTextColor;
+      if (b.ctaHlStart)    card.querySelector('[data-field="ctaHlStart"]').value = b.ctaHlStart;
+      if (b.ctaHlEnd)      card.querySelector('[data-field="ctaHlEnd"]').value = b.ctaHlEnd;
+      // 배너 이미지 미리보기 (data URL이면 썸네일 표시)
+      updateImagePreview(key);
+      // 슬라이더 9종 (가로 위치 4 + 이미지 5) — 모두 .chip-pos[data-field=*] 컨벤션
+      ['chipAlign', 'eyebrowAlign', 'titleAlign', 'ctaAlign',
+       'imageRotate', 'imageScale', 'imageOffsetX', 'imageOffsetY', 'imageShadow', 'imageGlow'].forEach(f => {
+        const wrap = card.querySelector(`.chip-pos[data-field="${f}"]`);
+        if (!wrap) return;
+        const slider = wrap.querySelector('input[type=range]');
+        let v = b[f];
+        if (typeof v === 'string') v = v === 'right' ? 100 : v === 'center' ? 50 : 0;
+        if (typeof v !== 'number' || isNaN(v)) v = +slider.value; // HTML 기본값 사용
+        slider.value = v;
+        const min = +slider.min || 0;
+        const max = +slider.max || 100;
+        const pct = max > min ? ((v - min) / (max - min)) * 100 : 0;
+        slider.style.setProperty('--fill', pct + '%');
+        const suffix = wrap.dataset.suffix !== undefined ? wrap.dataset.suffix : '%';
+        const out = wrap.querySelector('output');
+        if (out) out.textContent = v + suffix;
+      });
+      renderBgPicker(key);
+    });
+  }
+
+  function readBannersFromForm() {
+    ['phone', 'internet', 'rental'].forEach(key => {
+      const card = $(`[data-banner="${key}"]`);
+      if (!card) return;
+      const existing = workingData.banners[key] || {};
+      const readAlign = (f) => {
+        const slider = card.querySelector(`.chip-pos[data-field="${f}"] input[type=range]`);
+        return slider ? parseInt(slider.value, 10)
+          : (typeof existing[f] === 'number' ? existing[f] : 0);
+      };
+      workingData.banners[key] = {
+        tags: [
+          {
+            text: card.querySelector('[data-field="tag0"]').value,
+            hot: card.querySelector('[data-field="tag0hot"]').checked,
+            bg: card.querySelector('[data-field="tag0bg"]').value,
+            fg: card.querySelector('[data-field="tag0fg"]').value
+          },
+          {
+            text: card.querySelector('[data-field="tag1"]').value,
+            hot: card.querySelector('[data-field="tag1hot"]').checked,
+            bg: card.querySelector('[data-field="tag1bg"]').value,
+            fg: card.querySelector('[data-field="tag1fg"]').value
+          }
+        ].filter(t => t.text),
+        eyebrow: card.querySelector('[data-field="eyebrow"]').value,
+        eyebrowColor: card.querySelector('[data-field="eyebrowColor"]').value,
+        title: card.querySelector('[data-field="title"]').value,
+        titleColor: card.querySelector('[data-field="titleColor"]').value,
+        ctaText: card.querySelector('[data-field="ctaText"]').value,
+        ctaTextColor: card.querySelector('[data-field="ctaTextColor"]').value,
+        ctaHighlight: card.querySelector('[data-field="ctaHighlight"]').value,
+        ctaHlStart: card.querySelector('[data-field="ctaHlStart"]').value,
+        ctaHlEnd: card.querySelector('[data-field="ctaHlEnd"]').value,
+        imageUrl: existing.imageUrl || '',
+        imageRotate:  readAlign('imageRotate'),
+        imageScale:   readAlign('imageScale'),
+        imageOffsetX: readAlign('imageOffsetX'),
+        imageOffsetY: readAlign('imageOffsetY'),
+        imageShadow:  readAlign('imageShadow'),
+        imageGlow:    readAlign('imageGlow'),
+        chipAlign: readAlign('chipAlign'),
+        eyebrowAlign: readAlign('eyebrowAlign'),
+        titleAlign: readAlign('titleAlign'),
+        ctaAlign: readAlign('ctaAlign'),
+        background: existing.background || { type: 'preset', presetId: 'lavender-pastel' }
+      };
+    });
+  }
+
+  // ───── 배경 픽커 ─────
+  const DARK_PRESETS = new Set(['dark-glow', 'mono-ink', 'sunset-gradient']);
+
+  function renderBgPicker(key) {
+    const card = $(`[data-banner="${key}"]`);
+    if (!card) return;
+    const picker = card.querySelector('[data-field="bg-picker"]');
+    if (!picker) return;
+    const bg = (workingData.banners[key] && workingData.banners[key].background) || { type: 'preset', presetId: 'lavender-pastel' };
+    const presets = (typeof BACKGROUND_PRESETS !== 'undefined') ? BACKGROUND_PRESETS : [];
+
+    let html = '';
+    presets.forEach(p => {
+      const active = bg.type === 'preset' && bg.presetId === p.id;
+      const labelDark = DARK_PRESETS.has(p.id) ? ' dark' : '';
+      html += `<div class="bg-tile mini-${p.id}${active ? ' on' : ''}" data-preset="${p.id}" title="${escapeHtml(p.desc || '')}">
+        <span class="bg-tile-label${labelDark}">${escapeHtml(p.label)}</span>
+      </div>`;
+    });
+    // 사용자 업로드 미리보기 (있으면)
+    if (bg.type === 'image' && bg.imageUrl) {
+      html += `<div class="bg-tile bg-tile-custom on" data-custom="1" style="background-image:url('${bg.imageUrl.replace(/'/g, "\\'")}')">
+        <span class="bg-tile-label">내 이미지 ✓</span>
+      </div>`;
+    }
+    // 업로드 타일 (항상 마지막)
+    html += `<div class="bg-tile bg-tile-upload" data-upload="1">
+      <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+      <span>이미지 업로드</span>
+    </div>`;
+    picker.innerHTML = html;
+
+    // 클릭 핸들러
+    picker.querySelectorAll('.bg-tile[data-preset]').forEach(tile => {
+      tile.addEventListener('click', () => {
+        workingData.banners[key].background = { type: 'preset', presetId: tile.dataset.preset, imageUrl: '' };
+        renderBgPicker(key);
+        setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+      });
+    });
+    picker.querySelector('[data-upload]')?.addEventListener('click', () => {
+      card.querySelector('[data-field="bg-upload"]').click();
+    });
+    picker.querySelector('[data-custom]')?.addEventListener('click', () => {
+      // 이미 선택된 상태 — 삭제 옵션
+      if (confirm('업로드한 배경 이미지를 제거하고 기본 프리셋(라벤더)으로 돌릴까요?')) {
+        workingData.banners[key].background = { type: 'preset', presetId: 'lavender-pastel', imageUrl: '' };
+        renderBgPicker(key);
+        setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+      }
+    });
+  }
+
+  // 파일 업로드 핸들러 (3개 배너 공통) — Supabase Storage 업로드
+  ['phone', 'internet', 'rental'].forEach(key => {
+    const card = $(`[data-banner="${key}"]`);
+    const fileInput = card?.querySelector('[data-field="bg-upload"]');
+    if (!fileInput) return;
+    fileInput.addEventListener('change', async e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      e.target.value = '';
+      if (file.size > 5 * 1024 * 1024) {
+        toast(`이미지가 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하로.`, true);
+        return;
+      }
+      toast('업로드 중...');
+      try {
+        const url = await DataStore.uploadImage(file, `bg/${key}`);
+        workingData.banners[key].background = { type: 'image', presetId: '', imageUrl: url };
+        renderBgPicker(key);
+        setStatus('수정 중 (저장 안 됨)', true);
+        pushPreview();
+        toast('업로드 완료');
+      } catch (err) {
+        console.error(err);
+        toast('업로드 실패: ' + (err?.message || err), true);
+      }
+    });
+  });
+
+  // 배너 폼 입력 변경 시 dirty 체크 (range 제외 — 슬라이더는 별도 핸들러)
+  $$('[data-banner] input').forEach(input => {
+    if (input.type === 'range') return;
+    input.addEventListener('input', () => { setStatus('수정 중 (저장 안 됨)', true); pushPreview(); });
+    input.addEventListener('change', () => { setStatus('수정 중 (저장 안 됨)', true); pushPreview(); });
+  });
+
+  // 강조 체크박스 토글 → 같은 chip-emph의 색 picker 흐리게/선명하게
+  $$('[data-banner] .chip-emph input[type=checkbox]').forEach(check => {
+    check.addEventListener('change', () => {
+      check.closest('.chip-emph').classList.toggle('dim', !check.checked);
+    });
+  });
+
+  // 슬라이더 8종 — 드래그 중 surgical(메시지 1줄), 떼면 전체 동기화
+  const ALIGN_MSG = {
+    chipAlign: 'chip-pos',
+    eyebrowAlign: 'eyebrow-pos',
+    titleAlign: 'title-pos',
+    ctaAlign: 'cta-pos',
+    imageRotate:  'img-rotate',
+    imageScale:   'img-scale',
+    imageOffsetX: 'img-offset-x',
+    imageOffsetY: 'img-offset-y',
+    imageShadow:  'img-shadow',
+    imageGlow:    'img-glow',
+  };
+  $$('[data-banner] .chip-pos input[type=range]').forEach(slider => {
+    const wrap = slider.closest('.chip-pos');
+    const field = wrap.dataset.field;
+    const msgType = ALIGN_MSG[field];
+    const card = wrap.closest('[data-banner]');
+    const key = card.dataset.banner;
+    const out = wrap.querySelector('output');
+    const min = +slider.min || 0;
+    const max = +slider.max || 100;
+    const suffix = wrap.dataset.suffix !== undefined ? wrap.dataset.suffix : '%';
+    slider.addEventListener('input', () => {
+      const v = +slider.value;
+      const pct = max > min ? ((v - min) / (max - min)) * 100 : 0;
+      slider.style.setProperty('--fill', pct + '%');
+      if (out) out.textContent = v + suffix;
+      setStatus('수정 중 (저장 안 됨)', true);
+      const iframe = $('#preview-iframe');
+      if (iframe && iframe.contentWindow && previewReady && msgType) {
+        iframe.contentWindow.postMessage({ type: 'mobileshop:' + msgType, panel: key, value: v }, '*');
+      }
+    });
+    slider.addEventListener('change', () => pushPreview());
+  });
+
+  // 배너 이미지 — 업로드 / 제거
+  function updateImagePreview(key) {
+    const card = $(`[data-banner="${key}"]`);
+    if (!card) return;
+    const url = workingData.banners[key] && workingData.banners[key].imageUrl;
+    const preview = card.querySelector('[data-img-preview]');
+    // 휴대폰 배너는 data-img-pick(모달), 인터넷/렌탈은 data-img-add(파일업로드)
+    const add = card.querySelector('[data-img-add], [data-img-pick]');
+    // 모달 버튼(data-img-pick)은 이미지가 있어도 계속 노출 — 다시 눌러 교체 가능해야 함
+    const keepBtn = add.hasAttribute('data-img-pick');
+    if (url) {
+      preview.style.display = '';
+      preview.querySelector('img').src = url;
+      add.style.display = keepBtn ? '' : 'none';
+    } else {
+      preview.style.display = 'none';
+      preview.querySelector('img').src = '';
+      add.style.display = '';
+    }
+  }
+  $$('[data-banner] [data-img-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('[data-banner]').querySelector('[data-field="imageUpload"]').click();
+    });
+  });
+  $$('[data-banner] [data-img-clear]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('[data-banner]');
+      const key = card.dataset.banner;
+      workingData.banners[key].imageUrl = '';
+      updateImagePreview(key);
+      setStatus('수정 중 (저장 안 됨)', true);
+      pushPreview();
+    });
+  });
+  $$('[data-banner] [data-field="imageUpload"]').forEach(input => {
+    const card = input.closest('[data-banner]');
+    const key = card.dataset.banner;
+    input.addEventListener('change', async e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      e.target.value = '';
+      if (file.size > 5 * 1024 * 1024) {
+        toast(`이미지가 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하로.`, true);
+        return;
+      }
+      toast('업로드 중...');
+      try {
+        const url = await DataStore.uploadImage(file, `phone/${key}`);
+        if (!workingData.banners[key]) workingData.banners[key] = {};
+        workingData.banners[key].imageUrl = url;
+        // 새 사진은 깨끗하게 시작 — 회전/그림자/광선/크기/좌우 위치 리셋
+        Object.assign(workingData.banners[key], {
+          imageRotate: 0, imageScale: 100, imageOffsetX: 0, imageOffsetY: 0,
+          imageShadow: 0, imageGlow: 0
+        });
+        // 슬라이더 UI 동기화 (load 함수가 이미 이 9종 다 처리해줌)
+        loadBannersToForm();
+        updateImagePreview(key);
+        setStatus('수정 중 (저장 안 됨)', true);
+        pushPreview();
+        toast('업로드 완료');
+      } catch (err) {
+        console.error(err);
+        toast('업로드 실패: ' + (err?.message || err), true);
+      }
+    });
+  });
+
+  // ───── 배너에 삽입할 이미지 (KT 모델) 모달 — 휴대폰 배너 전용 ─────
+  const modelImgModal = $('#model-img-modal');
+  let _ktCatalog = null;
+
+  async function loadKtCatalog() {
+    if (_ktCatalog) return _ktCatalog;
+    const res = await fetch('kt-models.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('카탈로그 로드 실패 (' + res.status + ')');
+    _ktCatalog = await res.json();
+    return _ktCatalog;
+  }
+
+  // 모델명 정규화 — 소문자 + 제조사 접두어 제거 + 공백 제거 (한글/영문 혼용 매칭용)
+  // products.do는 "삼성 폼폼푸린…", 본사관리는 "폼폼푸린…" 처럼 표기가 달라서 접두어 제거
+  function normModelName(s) {
+    return String(s == null ? '' : s).trim().toLowerCase()
+      .replace(/^(삼성|애플|apple)\s+/, '')
+      .replace(/\s+/g, '');
+  }
+  // 끝의 용량 토큰 제거 (예: "갤럭시 S26 256GB" → "갤럭시 S26")
+  function stripCapacity(name) {
+    return String(name == null ? '' : name).trim()
+      .replace(/\s*\d+\s*(gb|tb|g|t)\s*$/i, '');
+  }
+  // 본사관리 KT 모델 등장 순서 → {정규화 base 이름: 첫 인덱스}
+  function ktMasterOrder() {
+    const map = new Map();
+    const all = (typeof DataStore !== 'undefined' && DataStore.load)
+      ? (DataStore.load().models || []) : [];
+    const list = all.filter(m => m.carrier === 'kt');
+    list.forEach((m, i) => {
+      const b = normModelName(stripCapacity(m.name));
+      if (b && !map.has(b)) map.set(b, i);
+    });
+    return map;
+  }
+
+  // ───── 배너 이미지 — 내가 올린 그룹/이미지 (mobileshop_banner_images) ─────
+  let _customRows = [];       // DB 행 [{id, group_name, label, image_url, sort_order}]
+  let _extraGroupNames = [];  // 모델이 아닌 독립 그룹 이름 (메모리 — 빈 그룹 포함)
+  let _uploadTarget = null;   // + 타일 클릭 시 업로드 대상 그룹명
+
+  async function loadCustomGroups() {
+    try { _customRows = await DataStore.listBannerImages(); }
+    catch (e) {
+      console.warn('[banner-images] 로드 실패(테이블 미생성 가능)', e);
+      _customRows = [];
+    }
+  }
+
+  // displayLabel = 카드에 보일 짧은 라벨, altLabel = 확인창용 전체 이름
+  function miCardHtml(imgPath, displayLabel, altLabel, delId) {
+    return `<div class="mi-card" data-img="${escapeHtml(imgPath)}">
+      ${delId ? `<button class="mi-img-del" data-img-del="${escapeHtml(delId)}" title="이미지 삭제">×</button>` : ''}
+      <img src="${escapeHtml(imgPath)}" alt="${escapeHtml(altLabel)}" loading="lazy"/>
+      ${displayLabel ? `<div class="mi-color">${escapeHtml(displayLabel)}</div>` : ''}
+    </div>`;
+  }
+
+  // 한 그룹 섹션 — 기본이미지(삭제X) + 내이미지(삭제O) + 끝에 + 추가 타일
+  function miSectionHtml(opts) {
+    const baseCards = (opts.baseImages || [])
+      .map(c => miCardHtml(c.image, c.display, c.alt, null)).join('');
+    const customCards = (opts.customImages || [])
+      .map(r => miCardHtml(r.image_url, r.label || '',
+        `${opts.name} ${r.label || ''}`.trim(), r.id)).join('');
+    const addTile = `<div class="mi-card mi-add-tile" data-add-to="${escapeHtml(opts.name)}" title="이미지 추가"><div class="mi-add-plus">+</div></div>`;
+    const delBtn = opts.canDeleteGroup
+      ? `<button class="mi-group-del" data-group-del="${escapeHtml(opts.name)}" title="그룹 삭제">×</button>` : '';
+    return `<div class="mi-section">
+      <div class="mi-section-head">${escapeHtml(opts.name)}<span class="mi-maker${opts.mine ? ' mine' : ''}">${escapeHtml(opts.badge)}</span>${delBtn}</div>
+      <div class="mi-grid">${baseCards}${customCards}${addTile}</div>
+    </div>`;
+  }
+
+  function renderModelImgGrid(filter) {
+    const body = $('#mi-body');
+    const f = (filter || '').toLowerCase();
+
+    const baseModels = _ktCatalog?.models || [];
+    const modelNames = new Set(baseModels.map(m => m.name));
+
+    // 그룹별 내 이미지
+    const customByGroup = new Map();
+    _customRows.forEach(r => {
+      if (!customByGroup.has(r.group_name)) customByGroup.set(r.group_name, []);
+      customByGroup.get(r.group_name).push(r);
+    });
+
+    // 독립 그룹 = 모델명 아닌 group_name + 메모리상 빈 그룹
+    const standalone = [];
+    const seen = new Set();
+    customByGroup.forEach((rows, name) => {
+      if (!modelNames.has(name)) { standalone.push(name); seen.add(name); }
+    });
+    _extraGroupNames.forEach(n => {
+      if (!modelNames.has(n) && !seen.has(n)) { standalone.push(n); seen.add(n); }
+    });
+
+    // 내 그룹 (위쪽)
+    const customHtml = standalone
+      .filter(n => !f || n.toLowerCase().includes(f))
+      .map(name => miSectionHtml({
+        name, badge: '내 그룹', mine: true,
+        baseImages: [],
+        customImages: customByGroup.get(name) || [],
+        canDeleteGroup: true
+      })).join('');
+
+    // 기본 모델 그룹 (아래쪽) — 본사관리 KT 모델 순서대로 정렬
+    const order = ktMasterOrder();
+    const rank = m => {
+      const i = order.get(normModelName(m.name));
+      return i == null ? 99999 : i;
+    };
+    const models = baseModels
+      .filter(m => !f || (m.name || '').toLowerCase().includes(f))
+      .slice()
+      .sort((a, b) => rank(a) - rank(b));
+    const baseHtml = models.map(m => miSectionHtml({
+      name: m.name, badge: m.maker || '', mine: false,
+      baseImages: (m.colors || []).map(c => ({
+        image: c.image, display: c.color, alt: `${m.name} ${c.color}`
+      })),
+      customImages: customByGroup.get(m.name) || [],
+      canDeleteGroup: false
+    })).join('');
+
+    if (!customHtml && !baseHtml) {
+      body.innerHTML = '<div class="hint" style="text-align:center; padding:40px 0">검색 결과가 없습니다.</div>';
+      return;
+    }
+    body.innerHTML = customHtml + baseHtml;
+
+    // 이미지 선택 (추가 타일 제외)
+    body.querySelectorAll('.mi-card:not(.mi-add-tile)').forEach(card => {
+      card.addEventListener('click', e => {
+        if (e.target.closest('[data-img-del]')) return;
+        const label = card.querySelector('img')?.alt || '선택한';
+        applyModelImg(card.dataset.img, label);
+      });
+    });
+    // + 타일 → 해당 그룹에 이미지 업로드
+    body.querySelectorAll('.mi-add-tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        _uploadTarget = tile.dataset.addTo;
+        $('#mi-file-input').click();
+      });
+    });
+    // 내 이미지 삭제
+    body.querySelectorAll('[data-img-del]').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        if (!confirm('이 이미지를 삭제할까요?')) return;
+        try {
+          await DataStore.deleteBannerImage(btn.dataset.imgDel);
+          _customRows = _customRows.filter(r => r.id !== btn.dataset.imgDel);
+          renderModelImgGrid($('#mi-search').value.trim());
+          toast('이미지 삭제됨');
+        } catch (err) { toast('삭제 실패: ' + (err?.message || err), true); }
+      });
+    });
+    // 내 그룹 삭제 (독립 그룹만)
+    body.querySelectorAll('[data-group-del]').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const name = btn.dataset.groupDel;
+        if (!confirm(`'${name}' 그룹과 그 안의 이미지를 모두 삭제할까요?`)) return;
+        try {
+          await DataStore.deleteBannerImageGroup(name);
+          _customRows = _customRows.filter(r => r.group_name !== name);
+          _extraGroupNames = _extraGroupNames.filter(n => n !== name);
+          renderModelImgGrid($('#mi-search').value.trim());
+          toast('그룹 삭제됨');
+        } catch (err) { toast('삭제 실패: ' + (err?.message || err), true); }
+      });
+    });
+  }
+
+  function applyModelImg(imgPath, label) {
+    if (!confirm(`'${label}' 이미지로 배너 이미지를 변경할까요?`)) return;
+    if (!workingData.banners.phone) workingData.banners.phone = {};
+    workingData.banners.phone.imageUrl = imgPath;
+    // 새 사진은 깨끗하게 시작 — 업로드 핸들러와 동일하게 변형값 리셋
+    Object.assign(workingData.banners.phone, {
+      imageRotate: 0, imageScale: 100, imageOffsetX: 0, imageOffsetY: 0,
+      imageShadow: 0, imageGlow: 0
+    });
+    loadBannersToForm();
+    updateImagePreview('phone');
+    setStatus('수정 중 (저장 안 됨)', true);
+    pushPreview();
+    modelImgModal.classList.remove('on');
+    toast('이미지 적용됨');
+  }
+
+  function openModelImgModal() {
+    modelImgModal.classList.add('on');
+    $('#mi-search').value = '';
+    $('#mi-body').innerHTML = '<div class="hint" style="text-align:center; padding:40px 0">불러오는 중…</div>';
+    Promise.all([loadKtCatalog(), loadCustomGroups()])
+      .then(() => renderModelImgGrid(''))
+      .catch(err => {
+        $('#mi-body').innerHTML = `<div class="hint" style="text-align:center; padding:40px 0; color:var(--danger)">로드 실패: ${escapeHtml(err?.message || String(err))}</div>`;
+      });
+  }
+
+  // + 새 그룹 (독립 그룹)
+  function addCustomGroup() {
+    const name = (prompt('새 그룹 이름을 입력하세요 (예: 5월 프로모션)') || '').trim();
+    if (!name) return;
+    const modelNames = new Set((_ktCatalog?.models || []).map(m => m.name));
+    if (modelNames.has(name) || _extraGroupNames.includes(name)
+        || _customRows.some(r => r.group_name === name)) {
+      toast('같은 이름의 그룹이 이미 있습니다', true);
+      return;
+    }
+    _extraGroupNames.unshift(name);
+    $('#mi-search').value = '';
+    renderModelImgGrid('');
+    $('#mi-body').scrollTop = 0;
+  }
+
+  // 파일 선택 → _uploadTarget 그룹에 업로드 + DB 저장
+  $('#mi-file-input')?.addEventListener('change', async e => {
+    const files = [...(e.target.files || [])];
+    e.target.value = '';
+    const groupName = _uploadTarget;
+    _uploadTarget = null;
+    if (!groupName || !files.length) return;
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast(`${file.name}: 5MB 초과 — 건너뜀`, true);
+        continue;
+      }
+      toast('업로드 중…');
+      try {
+        const url = await DataStore.uploadImage(file, 'banner-custom');
+        const label = (file.name || '이미지').replace(/\.[^.]+$/, '').slice(0, 30);
+        const sort = _customRows.filter(r => r.group_name === groupName).length;
+        const id = await DataStore.addBannerImage({
+          group_name: groupName, label, image_url: url, sort_order: sort
+        });
+        _customRows.push({ id, group_name: groupName, label, image_url: url, sort_order: sort });
+        renderModelImgGrid($('#mi-search').value.trim());
+        toast('업로드 완료');
+      } catch (err) {
+        toast('업로드 실패: ' + (err?.message || err), true);
+      }
+    }
+  });
+
+  $('[data-banner="phone"] [data-img-pick]')?.addEventListener('click', openModelImgModal);
+  $('#mi-cancel')?.addEventListener('click', () => modelImgModal.classList.remove('on'));
+  modelImgModal?.addEventListener('click', e => {
+    if (e.target === modelImgModal) modelImgModal.classList.remove('on');
+  });
+  $('#mi-search')?.addEventListener('input', e => renderModelImgGrid(e.target.value.trim()));
+  $('#mi-add-group')?.addEventListener('click', addCustomGroup);
+
+  // 정렬 세그먼트 클릭 (칩/타이틀/CTA 공통)
+  $$('[data-banner] .seg button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const seg = btn.closest('.seg');
+      seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+      setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+    });
+  });
+
+  // ───── 상품 ─────
+  const CARRIER_LABEL = { skt: 'SKT', kt: 'KT', lg: 'LG U+', mvno: '알뜰폰' };
+
+  // 현재 선택된 탭 ('all' | 'featured' | '<categoryId>')
+  let currentCatTab = 'all';
+
+  function getCategories() {
+    return (workingData.categories && workingData.categories.length > 0)
+      ? workingData.categories
+      : DEFAULT_CATEGORIES;
+  }
+  function getCategoryLabel(id) {
+    const c = getCategories().find(x => x.id === id);
+    return c ? c.label : id;
+  }
+  function renderCatTabs() {
+    const nav = $('#cat-tabs');
+    if (!nav) return;
+    // 탭은 visible 카테고리만 표시 (관리 모달에서 visible=false 끈 건 숨김)
+    const cats = getCategories().filter(c => c.visible !== false);
+    nav.innerHTML = `
+      <button class="cat-tab${currentCatTab === 'all' ? ' on' : ''}" data-cat="all">전체</button>
+      <button class="cat-tab featured-tab${currentCatTab === 'featured' ? ' on' : ''}" data-cat="featured">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        통신사별 인기단말
+      </button>
+      ${cats.map(c => `
+        <button class="cat-tab${currentCatTab === c.id ? ' on' : ''}" data-cat="${escapeHtml(c.id)}">
+          ${c.swatch ? `<span class="cat-dot ${escapeHtml(c.swatch)}"></span>` : ''}
+          ${escapeHtml(c.label)}
+        </button>
+      `).join('')}
+      <button class="cat-tab-add" id="cat-manage-open-btn">⚙ 카테고리 관리</button>
+    `;
+    nav.querySelectorAll('.cat-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentCatTab = btn.dataset.cat;
+        renderCatTabs();
+        renderProductList();
+      });
+    });
+    $('#cat-manage-open-btn').addEventListener('click', openCatManage);
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]
+    );
+  }
+
+  // 상품 — 마스터(모델/요금제/공통지원금) 조회 헬퍼
+  function prodInt(v) { const n = parseInt(String(v == null ? '' : v).replace(/[^0-9-]/g, ''), 10); return isNaN(n) ? 0 : n; }
+  function prodFmt(n) { return (n == null || n === '' || isNaN(n)) ? '' : Number(n).toLocaleString(); }
+  function prodModel(id) { return (workingData.models || []).find(m => m.id === id); }
+  function prodSupportAmt(modelId, planId, carrier) {
+    const s = (workingData.support || []).find(x => x.modelId === modelId && x.planId === planId && x.carrier === carrier);
+    return s ? prodInt(s.amount) : 0;
+  }
+
+  function renderProductList() {
+    const list = $('#product-list');
+    const all = workingData.productsPhone || [];
+    let items;
+    if (currentCatTab === 'all') items = all.slice();
+    else if (currentCatTab === 'featured') items = all.filter(p => p.featured);
+    else items = all.filter(p => p.carrier === currentCatTab);
+
+    if (!items.length) {
+      list.innerHTML = '<div class="hint" style="padding:20px; text-align:center">상품이 없습니다.</div>';
+      return;
+    }
+    list.innerHTML = items.map(p => {
+      const m = prodModel(p.modelId);
+      const rel = m ? prodInt(m.releasePrice) : 0;
+      const common = prodSupportAmt(p.modelId, p.planId, p.carrier);
+      const fMnp = rel ? rel - common - prodInt(p.addMnp) : null;
+      const fChg = rel ? rel - common - prodInt(p.addChg) : null;
+      return `
+      <div class="product-item" data-id="${escapeHtml(p.id)}">
+        <span class="pi-handle">≡</span>
+        <div class="pi-name">
+          <span class="pi-tag ${escapeHtml(p.carrier || '')}">${escapeHtml(getCategoryLabel(p.carrier))}</span>
+          ${p.featured ? '<span class="pi-tag" style="background:#FFE0EC; color:#A52555">★ 인기</span>' : ''}
+          ${escapeHtml(m ? m.name : '(모델 없음)')}
+        </div>
+        <div class="pi-meta">번이 ${fMnp != null ? prodFmt(fMnp) + '원' : '-'}</div>
+        <div class="pi-meta">기변 ${fChg != null ? prodFmt(fChg) + '원' : '-'}</div>
+        <button class="btn btn-sm" data-act="edit">편집</button>
+        <button class="btn btn-sm btn-danger" data-act="delete">삭제</button>
+      </div>`;
+    }).join('');
+
+    $$('.product-item button[data-act="edit"]').forEach(btn => {
+      btn.addEventListener('click', () => openProductModal(btn.closest('.product-item').dataset.id));
+    });
+    $$('.product-item button[data-act="delete"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.closest('.product-item').dataset.id;
+        if (!confirm('이 상품을 삭제할까요?')) return;
+        workingData.productsPhone = workingData.productsPhone.filter(p => p.id !== id);
+        renderProductList();
+        setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+      });
+    });
+  }
+
+  // ───── 상품 모달 ─────
+  const modal = $('#product-modal');
+  function updatePmImagePreview() {
+    const url = $('#pm-imageUrl').value;
+    const preview = $('#pm-img-preview');
+    const addBtn = $('#pm-img-add');
+    if (url) {
+      preview.querySelector('img').src = url;
+      preview.style.display = '';
+      addBtn.textContent = '이미지 변경';
+    } else {
+      preview.querySelector('img').src = '';
+      preview.style.display = 'none';
+      addBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg> 이미지 업로드';
+    }
+  }
+  function pmFillModelSelect(selId, carrier) {
+    $('#pm-model').innerHTML = '<option value="">— 모델 선택 —</option>' +
+      (workingData.models || [])
+        .filter(m => (m.carrier || 'skt') === carrier)
+        .map(m => `<option value="${escapeHtml(m.id)}"${m.id === selId ? ' selected' : ''}>${escapeHtml(m.name)}</option>`).join('');
+  }
+  function pmFillPlanSelect(carrier, selId) {
+    const plans = msPlansByCarrier(carrier);
+    $('#pm-plan').innerHTML = '<option value="">— 요금제 선택 —</option>' +
+      plans.map(p => `<option value="${escapeHtml(p.id)}"${p.id === selId ? ' selected' : ''}>${escapeHtml(p.name)}</option>`).join('');
+  }
+  function pmRecalc() {
+    const modelId = $('#pm-model').value, planId = $('#pm-plan').value, carrier = $('#pm-carrier').value;
+    const m = prodModel(modelId);
+    const rel = m ? prodInt(m.releasePrice) : 0;
+    const common = prodSupportAmt(modelId, planId, carrier);
+    $('#pm-release').value = rel ? prodFmt(rel) + '원' : '';
+    $('#pm-common').value = (modelId && planId) ? prodFmt(common) + '원' : '';
+    const calc = (addId, outId) => {
+      $(outId).value = rel ? prodFmt(rel - common - prodInt($(addId).value)) + '원' : '';
+    };
+    calc('#pm-addMnp', '#pm-finalMnp');
+    calc('#pm-addChg', '#pm-finalChg');
+  }
+  function openProductModal(id) {
+    const p = id ? (workingData.productsPhone.find(x => x.id === id) || {}) : {};
+    $('#product-modal-title').textContent = id ? '상품 편집' : '상품 추가';
+    $('#pm-id').value = p.id || '';
+    $('#pm-carrier').value = p.carrier || 'skt';
+    pmFillModelSelect(p.modelId || '', p.carrier || 'skt');
+    pmFillPlanSelect(p.carrier || 'skt', p.planId || '');
+    $('#pm-addMnp').value = (p.addMnp != null && p.addMnp !== '') ? p.addMnp : '';
+    $('#pm-addChg').value = (p.addChg != null && p.addChg !== '') ? p.addChg : '';
+    $('#pm-notice').value = p.notice || '';
+    $('#pm-imageUrl').value = p.imageUrl || '';
+    $('#pm-featured').checked = !!p.featured;
+    updatePmImagePreview();
+    pmRecalc();
+    $('#pm-delete').style.display = id ? 'inline-block' : 'none';
+    modal.classList.add('on');
+  }
+  function closeProductModal() { modal.classList.remove('on'); }
+  $('#pm-cancel').addEventListener('click', closeProductModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeProductModal(); });
+  $('#pm-carrier').addEventListener('change', () => {
+    const car = $('#pm-carrier').value;
+    pmFillModelSelect('', car);
+    pmFillPlanSelect(car, '');
+    pmRecalc();
+  });
+  $('#pm-model').addEventListener('change', pmRecalc);
+  $('#pm-plan').addEventListener('change', pmRecalc);
+  $('#pm-addMnp').addEventListener('input', pmRecalc);
+  $('#pm-addChg').addEventListener('input', pmRecalc);
+
+  // 상품 이미지 업로드 / 제거
+  $('#pm-img-add').addEventListener('click', () => $('#pm-img-file').click());
+  $('#pm-img-clear').addEventListener('click', () => {
+    $('#pm-imageUrl').value = '';
+    $('#pm-img-file').value = '';
+    updatePmImagePreview();
+  });
+  $('#pm-img-file').addEventListener('change', async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    if (file.size > 5 * 1024 * 1024) {
+      toast(`이미지가 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하로.`, true);
+      return;
+    }
+    toast('업로드 중...');
+    try {
+      const url = await DataStore.uploadImage(file, 'product');
+      $('#pm-imageUrl').value = url;
+      updatePmImagePreview();
+      toast('업로드 완료');
+    } catch (err) {
+      console.error(err);
+      toast('업로드 실패: ' + (err?.message || err), true);
+    }
+  });
+
+  $('#pm-save').addEventListener('click', () => {
+    const id = $('#pm-id').value || DataStore.newId();
+    if (!$('#pm-model').value) { toast('모델을 선택해주세요', true); return; }
+    const data = {
+      id,
+      carrier: $('#pm-carrier').value,
+      modelId: $('#pm-model').value,
+      planId: $('#pm-plan').value,
+      addMnp: prodInt($('#pm-addMnp').value) || '',
+      addChg: prodInt($('#pm-addChg').value) || '',
+      notice: $('#pm-notice').value.trim(),
+      imageUrl: $('#pm-imageUrl').value.trim(),
+      featured: $('#pm-featured').checked
+    };
+    const idx = workingData.productsPhone.findIndex(p => p.id === id);
+    if (idx >= 0) workingData.productsPhone[idx] = data;
+    else workingData.productsPhone.push(data);
+    closeProductModal();
+    renderProductList();
+    setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+  });
+
+  $('#pm-delete').addEventListener('click', () => {
+    const id = $('#pm-id').value;
+    if (!id || !confirm('이 상품을 삭제할까요?')) return;
+    workingData.productsPhone = workingData.productsPhone.filter(p => p.id !== id);
+    closeProductModal();
+    renderProductList();
+    setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+  });
+
+  $('#btn-add-product').addEventListener('click', () => openProductModal(null));
+
+  // ───── 카테고리 관리 모달 ─────
+  const catManageModal = $('#cat-manage-modal');
+
+  function renderCatManageList() {
+    const list = $('#cat-manage-list');
+    const cats = getCategories();
+    if (!cats.length) {
+      list.innerHTML = '<div class="hint" style="padding:20px; text-align:center">카테고리가 없습니다. 아래에서 추가하세요.</div>';
+      return;
+    }
+    list.innerHTML = cats.map(c => `
+      <div class="cat-row${c.visible === false ? ' hidden-row' : ''}" data-cat-id="${escapeHtml(c.id)}">
+        <input type="text" class="cat-row-label" data-label="${escapeHtml(c.id)}" value="${escapeHtml(c.label)}"/>
+        <div class="switch${c.visible === false ? '' : ' on'}" data-vis="${escapeHtml(c.id)}" title="${c.visible === false ? '노출 켜기' : '숨기기'}"></div>
+        <button class="cat-row-del" data-del="${escapeHtml(c.id)}">삭제</button>
+      </div>
+    `).join('');
+
+    // 노출 토글
+    list.querySelectorAll('[data-vis]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.vis;
+        const cat = workingData.categories.find(c => c.id === id);
+        const newVis = cat.visible === false ? true : false;
+        try {
+          await DataStore.updateCategory(id, { visible: newVis });
+          cat.visible = newVis;
+          renderCatManageList();
+          renderCatTabs();
+          renderProductList();
+          pushPreview();
+          toast(newVis ? '노출 켰음' : '숨김');
+        } catch (err) {
+          toast('실패: ' + (err?.message || err), true);
+        }
+      });
+    });
+
+    // 라벨 인풋은 저장 버튼 클릭 시 일괄 반영 (자동저장 X)
+
+    // 삭제
+    list.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.del;
+        const cat = workingData.categories.find(c => c.id === id);
+        const usedBy = (workingData.productsPhone || []).filter(p => p.carrier === id).length;
+        const warn = usedBy > 0 ? `\n\n주의: 이 카테고리를 쓰는 상품이 ${usedBy}개 있습니다. 삭제 후에도 상품은 남지만 탭에서 안 보이게 됩니다.` : '';
+        if (!confirm(`"${cat?.label || id}" 카테고리를 영구 삭제할까요?${warn}\n\n숨기고 싶다면 눈 아이콘으로 끄세요.`)) return;
+        try {
+          await DataStore.deleteCategory(id);
+          workingData.categories = workingData.categories.filter(c => c.id !== id);
+          if (currentCatTab === id) currentCatTab = 'all';
+          renderCatManageList();
+          renderCatTabs();
+          renderProductList();
+          pushPreview();
+          toast('카테고리 삭제됨');
+        } catch (err) {
+          toast('삭제 실패: ' + (err?.message || err), true);
+        }
+      });
+    });
+  }
+
+  function openCatManage() {
+    renderCatManageList();
+    catManageModal.classList.add('on');
+  }
+  $('#cat-manage-close').addEventListener('click', () => catManageModal.classList.remove('on'));
+  catManageModal.addEventListener('click', e => { if (e.target === catManageModal) catManageModal.classList.remove('on'); });
+
+  // 라벨 변경분 일괄 저장
+  $('#cat-manage-save').addEventListener('click', async () => {
+    const inputs = $('#cat-manage-list').querySelectorAll('input.cat-row-label');
+    const btn = $('#cat-manage-save');
+    btn.disabled = true;
+    let changeCount = 0;
+    let errorMsg = null;
+    // 입력값 스냅샷 먼저 수집 (DOM이 사라져도 OK)
+    const updates = [];
+    inputs.forEach(input => {
+      const id = input.dataset.label;
+      const newLabel = input.value.trim();
+      if (!id || !newLabel) return;
+      updates.push({ id, newLabel });
+    });
+    console.log('[cat save] updates payload:', updates);
+    try {
+      for (const u of updates) {
+        const cat = (workingData.categories || []).find(c => c.id === u.id);
+        if (!cat) { console.warn('[cat save] no local cat for id', u.id); continue; }
+        if (u.newLabel === (cat.label || '').trim()) continue;
+        console.log('[cat save] DB update', u.id, cat.label, '→', u.newLabel);
+        await DataStore.updateCategory(u.id, { label: u.newLabel });
+        changeCount++;
+      }
+    } catch (err) {
+      console.error('[cat save] error', err);
+      errorMsg = err?.message || String(err);
+    } finally {
+      btn.disabled = false;
+    }
+    // workingData.categories를 _cache의 최신 참조로 강제 동기화
+    const latest = DataStore.load();
+    if (latest && Array.isArray(latest.categories)) {
+      workingData.categories = latest.categories;
+    }
+    renderCatTabs();
+    renderProductList();
+    pushPreview(); // iframe도 즉시 반영
+    catManageModal.classList.remove('on');
+    if (errorMsg) toast('저장 실패: ' + errorMsg, true);
+    else if (changeCount > 0) toast(`이름 ${changeCount}개 변경됨`);
+    else toast('변경사항 없음');
+  });
+
+  // 새 카테고리 추가 (모달 내부) — 라벨만 입력, ID 자동 생성
+  function genCatId() {
+    return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  }
+  async function addNewCategoryFromInput() {
+    const label = $('#cat-new-label').value.trim();
+    if (!label) { toast('카테고리 이름을 입력해주세요', true); return; }
+    const id = genCatId();
+    const btn = $('#cat-new-add');
+    btn.disabled = true;
+    try {
+      const maxOrder = Math.max(0, ...(workingData.categories || []).map(c => c.sort_order || 0));
+      await DataStore.addCategory({ id, label, swatch: '', sort_order: maxOrder + 10, visible: true });
+      workingData.categories = workingData.categories || [];
+      workingData.categories.push({ id, label, swatch: '', sort_order: maxOrder + 10, visible: true });
+      workingData.categories.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      $('#cat-new-label').value = '';
+      renderCatManageList();
+      renderCatTabs();
+      pushPreview();
+      toast('카테고리 추가됨');
+    } catch (err) {
+      console.error(err);
+      toast('추가 실패: ' + (err?.message || err), true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+  $('#cat-new-add').addEventListener('click', addNewCategoryFromInput);
+  $('#cat-new-label').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addNewCategoryFromInput();
+  });
+
+  // ───── 배너 템플릿 (불러오기 / 저장) ─────
+  const tplBrowseModal = $('#tpl-browse-modal');
+  const tplSaveModal = $('#tpl-save-modal');
+  const CATEGORY_LABEL = { phone: '휴대폰', internet: '인터넷', rental: '렌탈' };
+
+  function openTplBrowse(category) {
+    $('#tpl-browse-title').textContent = `${CATEGORY_LABEL[category]} 배너 템플릿`;
+    const grid = $('#tpl-grid');
+    grid.innerHTML = '<div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0">불러오는 중…</div>';
+    tplBrowseModal.classList.add('on');
+    DataStore.listTemplates(category).then(list => {
+      if (list.length === 0) {
+        grid.innerHTML = `<div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0">${CATEGORY_LABEL[category]} 카테고리 템플릿이 없습니다.<br/>현재 배너에서 "저장" 버튼을 눌러 첫 템플릿을 만들어보세요.</div>`;
+        return;
+      }
+      // 실제 모바일 배너 기준 폭 (offsetX/Y 값들이 저장된 기준)
+      const REF_WIDTH = 375;
+      grid.innerHTML = list.map(t => {
+        const d = t.data || {};
+        const date = t.created_at ? new Date(t.created_at).toLocaleDateString('ko-KR') : '';
+
+        const scope = t.scope || 'shared';
+        const scopeBadge = `<span class="tpl-scope-badge ${scope}">${scope === 'mine' ? '나만의' : '공유'}</span>`;
+
+        // 썸네일 굽혔으면 그 이미지만 보여주기 (픽셀 정확 + 가벼움)
+        if (t.thumbnail_url) {
+          return `<div class="tpl-card" data-tpl-id="${t.id}">
+            ${scopeBadge}
+            <button class="tpl-del" data-tpl-del="${t.id}" title="템플릿 삭제">×</button>
+            <img class="tpl-thumb-img" src="${escapeHtml(t.thumbnail_url)}" alt="${escapeHtml(t.name)}" loading="lazy"/>
+            <div class="tpl-name">${escapeHtml(t.name)}</div>
+            <div class="tpl-meta">${date}</div>
+          </div>`;
+        }
+
+        // 폴백: 썸네일 없는 옛 템플릿은 미니 렌더 (예전 방식)
+        const bg = d.background || {};
+        let bannerClass = '';
+        let bannerStyle = '';
+        if (bg.type === 'image' && bg.imageUrl) {
+          bannerStyle = `background-image:url('${bg.imageUrl.replace(/'/g, "\\'")}')`;
+        } else if (bg.presetId) {
+          bannerClass = ` mini-${bg.presetId}`;
+        }
+        const chips = (d.tags || []).slice(0, 3).map(tag => {
+          // 강조(hot) 켜진 칩만 색 적용 (index.html 동작과 일치)
+          const chipBg = (tag.hot && tag.bg) ? `background:${tag.bg};` : '';
+          const chipFg = (tag.hot && tag.fg) ? `color:${tag.fg};` : '';
+          return `<span class="tb-chip${tag.hot ? ' hot' : ''}" style="${chipBg}${chipFg}">${escapeHtml(tag.text || '')}</span>`;
+        }).join('');
+        const phoneImg = d.imageUrl
+          ? `<img class="tb-phone" src="${escapeHtml(d.imageUrl)}" alt=""/>`
+          : '';
+        const eyebrowStyle = d.eyebrowColor ? `color:${d.eyebrowColor}` : '';
+        const titleStyle = d.titleColor ? `color:${d.titleColor}` : '';
+        const ctaTextStyle = d.ctaTextColor ? `color:${d.ctaTextColor}` : '';
+        const ctaHlStyle = (d.ctaHighlight && d.ctaHlStart && d.ctaHlEnd)
+          ? `background:linear-gradient(135deg, ${d.ctaHlStart}, ${d.ctaHlEnd}); -webkit-background-clip:text; background-clip:text; color:transparent;`
+          : '';
+        return `<div class="tpl-card" data-tpl-id="${t.id}">
+          ${scopeBadge}
+          <button class="tpl-del" data-tpl-del="${t.id}" title="템플릿 삭제">×</button>
+          <div class="tb-banner${bannerClass}" style="${bannerStyle}">
+            ${phoneImg}
+            <div class="tb-content">
+              ${chips ? `<div class="tb-chips">${chips}</div>` : ''}
+              ${d.eyebrow ? `<div class="tb-eyebrow" style="${eyebrowStyle}">${escapeHtml(d.eyebrow)}</div>` : ''}
+              ${d.title ? `<div class="tb-title" style="${titleStyle}">${escapeHtml(d.title)}</div>` : ''}
+              ${(d.ctaText || d.ctaHighlight) ? `<div class="tb-cta"><span style="${ctaTextStyle}">${escapeHtml(d.ctaText || '')}</span>${d.ctaHighlight ? ` <b style="${ctaHlStyle}">${escapeHtml(d.ctaHighlight)}</b>` : ''}</div>` : ''}
+            </div>
+          </div>
+          <div class="tpl-name">${escapeHtml(t.name)}</div>
+          <div class="tpl-meta">${date}</div>
+        </div>`;
+      }).join('');
+
+      // 카드 렌더 직후 — 실제 배너 폭 측정해서 폰 transform 동적 적용 (px 오프셋이 미니 카드 폭에 비례)
+      requestAnimationFrame(() => {
+        grid.querySelectorAll('.tpl-card').forEach(card => {
+          const id = card.dataset.tplId;
+          const t = list.find(x => x.id === id);
+          if (!t) return;
+          const banner = card.querySelector('.tb-banner');
+          const phone = card.querySelector('.tb-phone');
+          if (!banner || !phone) return;
+          const ratio = banner.offsetWidth / REF_WIDTH;
+          const d = t.data || {};
+          const imgScale = (d.imageScale ?? 100) / 100;
+          const imgOffX = (d.imageOffsetX ?? 0) * ratio;
+          const imgOffY = (d.imageOffsetY ?? 0) * ratio;
+          const imgRot = d.imageRotate ?? 0;
+          phone.style.transform = `translateX(-50%) translate(${imgOffX}px, ${imgOffY}px) rotate(${imgRot}deg) scale(${imgScale})`;
+        });
+      });
+      // 카드 클릭 → 적용
+      grid.querySelectorAll('.tpl-card').forEach(card => {
+        card.addEventListener('click', e => {
+          if (e.target.closest('[data-tpl-del]')) return;
+          const id = card.dataset.tplId;
+          const tpl = list.find(t => t.id === id);
+          if (!tpl) return;
+          if (!confirm(`"${tpl.name}" 템플릿을 ${CATEGORY_LABEL[category]} 배너에 적용할까요?\n현재 ${CATEGORY_LABEL[category]} 배너 내용은 사라집니다 (저장 누르기 전까진 되돌릴 수 있음).`)) return;
+          workingData.banners[category] = JSON.parse(JSON.stringify(tpl.data));
+          loadBannersToForm();
+          tplBrowseModal.classList.remove('on');
+          setStatus('수정 중 (저장 안 됨)', true);
+          pushPreview();
+          toast('템플릿 적용됨');
+        });
+      });
+      // 삭제 버튼
+      grid.querySelectorAll('[data-tpl-del]').forEach(btn => {
+        btn.addEventListener('click', async e => {
+          e.stopPropagation();
+          const id = btn.dataset.tplDel;
+          const tpl = list.find(t => t.id === id);
+          if (!tpl) return;
+          if (!confirm(`"${tpl.name}" 템플릿을 삭제할까요? (되돌릴 수 없음)`)) return;
+          try {
+            await DataStore.deleteTemplate(id);
+            toast('템플릿 삭제됨');
+            openTplBrowse(category); // 새로고침
+          } catch (err) {
+            toast('삭제 실패: ' + (err?.message || err), true);
+          }
+        });
+      });
+    }).catch(err => {
+      grid.innerHTML = `<div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0; color:var(--danger)">로드 실패: ${escapeHtml(err?.message || String(err))}</div>`;
+    });
+  }
+  function openTplSave(category) {
+    readBannersFromForm();
+    $('#tpl-save-category').value = category;
+    $('#tpl-save-name').value = '';
+    // scope 기본값: 공유 (멀티테넌트 단계에서 본사 여부에 따라 disabled 처리 예정)
+    const sharedRadio = document.querySelector('input[name="tpl-scope"][value="shared"]');
+    if (sharedRadio) sharedRadio.checked = true;
+    tplSaveModal.classList.add('on');
+    setTimeout(() => $('#tpl-save-name').focus(), 50);
+  }
+
+  // 카드 헤더 버튼 위임 핸들러
+  document.addEventListener('click', e => {
+    const loadBtn = e.target.closest('[data-tpl-load]');
+    if (loadBtn) { openTplBrowse(loadBtn.dataset.tplLoad); return; }
+    const saveBtn = e.target.closest('[data-tpl-save]');
+    if (saveBtn) { openTplSave(saveBtn.dataset.tplSave); return; }
+  });
+
+  // 모달 닫기
+  $('#tpl-browse-cancel').addEventListener('click', () => tplBrowseModal.classList.remove('on'));
+  tplBrowseModal.addEventListener('click', e => { if (e.target === tplBrowseModal) tplBrowseModal.classList.remove('on'); });
+  $('#tpl-save-cancel').addEventListener('click', () => tplSaveModal.classList.remove('on'));
+  tplSaveModal.addEventListener('click', e => { if (e.target === tplSaveModal) tplSaveModal.classList.remove('on'); });
+
+  // 미리보기 iframe의 배너를 캡쳐해서 썸네일 굽기 (html2canvas)
+  async function bakeBannerThumb(category) {
+    const iframe = $('#preview-iframe');
+    if (!iframe || !iframe.contentDocument) throw new Error('iframe 없음 (file://에선 안 됨)');
+    iframe.contentWindow.postMessage({ type: 'mobileshop:preview', data: workingData }, '*');
+    iframe.contentWindow.postMessage({ type: 'mobileshop:preview-panel', panel: category }, '*');
+    await new Promise(r => setTimeout(r, 800));
+
+    const idoc = iframe.contentDocument;
+    const bannerEl = idoc.querySelector(`#panel-${category} .banner-wide`);
+    if (!bannerEl) throw new Error('iframe에서 배너 못 찾음');
+    if (typeof html2canvas !== 'function') throw new Error('html2canvas 로드 안 됨');
+
+    // html2canvas는 background-clip:text 와 -webkit-mask 를 못 그림.
+    // (1) CTA 하이라이트(.bw-cta b) — 캔버스에 직접 그라디언트 텍스트를 그려서 PNG로 박음
+    //     → background-clip:text 결과를 픽셀로 미리 베이크. 원본 그라디언트 색 그대로 보존.
+    // (2) 화살표(::after mask) — 일반 글자 → 로 임시 오버라이드.
+    // 캡처가 끝나면 원본 DOM/스타일 원복.
+    const banner = (workingData.banners && workingData.banners[category]) || {};
+    const hlStart = banner.ctaHlStart || '#7A6BD9';
+    const hlEnd   = banner.ctaHlEnd   || '#F4A5BA';
+
+    // (2) 화살표만 CSS 오버라이드
+    const overrideStyle = idoc.createElement('style');
+    overrideStyle.id = '__h2c_capture_override';
+    overrideStyle.textContent = `
+      .bw-cta::after {
+        content: '\\2192' !important;
+        width: auto !important; height: auto !important;
+        background: none !important;
+        -webkit-mask: none !important; mask: none !important;
+        font-size: 13px !important; opacity: .55 !important;
+        color: currentColor;
+      }
+    `;
+    idoc.head.appendChild(overrideStyle);
+
+    // (1) 하이라이트 텍스트 → 그라디언트 PNG 로 일시 치환
+    const bEl = bannerEl.querySelector('.bw-cta b');
+    if (bEl && bEl.textContent.trim()) {
+      const cs = idoc.defaultView.getComputedStyle(bEl);
+      const text = bEl.textContent;
+      const fontSize = parseFloat(cs.fontSize) || 12;
+      const fontStr = `${cs.fontStyle || 'normal'} ${cs.fontWeight || '800'} ${fontSize}px ${cs.fontFamily || 'sans-serif'}`;
+      const dpr = 2;
+      const meas = idoc.createElement('canvas').getContext('2d');
+      meas.font = fontStr;
+      const w = Math.ceil(meas.measureText(text).width) + 6;
+      const h = Math.ceil(fontSize * 1.4);
+      const cv = idoc.createElement('canvas');
+      cv.width = w * dpr; cv.height = h * dpr;
+      const ctx = cv.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.font = fontStr;
+      ctx.textBaseline = 'middle';
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, hlStart);
+      grad.addColorStop(1, hlEnd);
+      ctx.fillStyle = grad;
+      ctx.fillText(text, 3, h / 2);
+
+      bEl.dataset.h2cOriginalHtml = bEl.innerHTML;
+      bEl.dataset.h2cOriginalStyle = bEl.getAttribute('style') || '';
+      bEl.innerHTML = '';
+      const gImg = idoc.createElement('img');
+      gImg.src = cv.toDataURL('image/png');
+      gImg.style.cssText = `height:${h}px; width:auto; vertical-align:middle; display:inline-block;`;
+      bEl.appendChild(gImg);
+      // <b>의 background-clip:text / color:transparent 가 캡처에 잔재로 깔리지 않게 비활성
+      bEl.style.background = 'none';
+      bEl.style.webkitBackgroundClip = 'initial';
+      bEl.style.backgroundClip = 'initial';
+      bEl.style.color = 'inherit';
+    }
+
+    function restoreCapture() {
+      const b = bannerEl.querySelector('.bw-cta b');
+      if (b && 'h2cOriginalHtml' in b.dataset) {
+        b.innerHTML = b.dataset.h2cOriginalHtml;
+        b.setAttribute('style', b.dataset.h2cOriginalStyle || '');
+        delete b.dataset.h2cOriginalHtml;
+        delete b.dataset.h2cOriginalStyle;
+      }
+    }
+
+    try {
+      // 모든 이미지(img + CSS background-image)를 CORS 모드로 명시적 preload
+      const win = iframe.contentWindow;
+      const urls = new Set();
+      bannerEl.querySelectorAll('img').forEach(img => { if (img.src) urls.add(img.src); });
+      [bannerEl, ...bannerEl.querySelectorAll('*')].forEach(el => {
+        const bg = win.getComputedStyle(el).backgroundImage || '';
+        const re = /url\(["']?(https?:[^"')]+)["']?\)/g;
+        let m;
+        while ((m = re.exec(bg)) !== null) urls.add(m[1]);
+      });
+      await Promise.all(Array.from(urls).map(url => new Promise(resolve => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // 실패해도 진행
+        img.src = url;
+      })));
+      await new Promise(r => setTimeout(r, 200)); // 안정화 대기
+
+      const canvas = await html2canvas(bannerEl, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: '#FFFFFF',
+        logging: false,
+        imageTimeout: 8000
+      });
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+      if (!blob) throw new Error('canvas → blob 실패');
+      const file = new File([blob], `tpl-thumb-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      return await DataStore.uploadImage(file, 'tpl-thumb');
+    } finally {
+      restoreCapture();
+      overrideStyle.remove();
+    }
+  }
+
+  // 저장 확정
+  $('#tpl-save-confirm').addEventListener('click', async () => {
+    const name = $('#tpl-save-name').value.trim();
+    const category = $('#tpl-save-category').value;
+    if (!name) { toast('템플릿 이름을 입력해주세요', true); return; }
+    if (!workingData.banners[category]) { toast('배너 데이터 없음', true); return; }
+    const btn = $('#tpl-save-confirm');
+    btn.disabled = true;
+    let thumbnail_url = null;
+    try {
+      toast('썸네일 생성 중...');
+      thumbnail_url = await bakeBannerThumb(category);
+    } catch (err) {
+      console.warn('[tpl thumb] 썸네일 굽기 실패, 썸네일 없이 저장:', err);
+      // 썸네일 실패해도 템플릿은 저장 진행
+    }
+    const scope = document.querySelector('input[name="tpl-scope"]:checked')?.value || 'shared';
+    try {
+      toast(thumbnail_url ? '저장 중...' : '썸네일 없이 저장 중...');
+      await DataStore.saveTemplate({
+        name,
+        category,
+        data: JSON.parse(JSON.stringify(workingData.banners[category])),
+        thumbnail_url,
+        scope
+      });
+      tplSaveModal.classList.remove('on');
+      toast(thumbnail_url ? '템플릿 저장됨' : '템플릿 저장됨 (썸네일 실패 — 폴백 렌더 사용)');
+    } catch (err) {
+      console.error('[tpl save]', err);
+      toast('템플릿 저장 실패: ' + (err?.message || err), true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ───── 저장 / 되돌리기 / 리셋 ─────
+  async function doSave() {
+    readBannersFromForm();
+    const btns = $$('#btn-save, [data-master-save]');
+    btns.forEach(b => b.disabled = true);
+    setStatus('저장 중...', true);
+    try {
+      const ok = await DataStore.save(workingData);
+      if (ok) {
+        setStatus('저장됨', false);
+        toast('저장 완료');
+        pushPreview();
+      } else {
+        setStatus('저장 실패', true);
+      }
+    } finally {
+      btns.forEach(b => b.disabled = false);
+    }
+  }
+
+  // 핀포인트 저장 래퍼 — 단일 행 저장 시 상태표시·토스트·에러처리
+  async function quickSave(fn, okMsg) {
+    setStatus('저장 중...', true);
+    try {
+      await fn();
+      setStatus('저장됨', false);
+      toast(okMsg || '저장 완료');
+      pushPreview();
+    } catch (e) {
+      setStatus('저장 실패', true);
+      toast('저장 실패: ' + (e && e.message ? e.message : e), true);
+    }
+  }
+
+  function doRevert() {
+    if (dirty && !confirm('수정 내용을 버리고 마지막 저장 상태로 되돌릴까요?')) return;
+    workingData = DataStore.load();
+    loadBannersToForm();
+    renderProductList();
+    renderMaster();
+    setStatus('대기 중', false);
+    toast('되돌렸습니다');
+    pushPreview();
+  }
+
+  $('#btn-save').addEventListener('click', doSave);
+  $('#btn-revert').addEventListener('click', doRevert);
+  $$('[data-master-save]').forEach(b => b.addEventListener('click', doSave));
+  $$('[data-master-revert]').forEach(b => b.addEventListener('click', doRevert));
+
+
+  // 페이지 떠날 때 저장 안 된 변경 경고
+  window.addEventListener('beforeunload', e => {
+    if (dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ───── 본사 관리: 모델 / 통신사별 요금제·공통지원금 ─────
+  const MS_CARRIERS = [
+    { id: 'skt', label: 'SKT' },
+    { id: 'kt',  label: 'KT' },
+    { id: 'lg',  label: 'LG U+' }
+  ];
+  function msInt(v) {
+    const n = parseInt(String(v == null ? '' : v).replace(/[^0-9-]/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  }
+  function msFmt(n) {
+    return (n == null || n === '' || isNaN(n)) ? '' : Number(n).toLocaleString();
+  }
+  function msNewId(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+  function getMSModels()  { if (!Array.isArray(workingData.models))  workingData.models  = []; return workingData.models; }
+  function getMSPlans()   { if (!Array.isArray(workingData.plans))   workingData.plans   = []; return workingData.plans; }
+  function getMSSupport() { if (!Array.isArray(workingData.support)) workingData.support = []; return workingData.support; }
+  // 통신사별 요금제 — 기본요금 높은 순 정렬
+  function msPlansByCarrier(carrier) {
+    return getMSPlans().filter(p => p.carrier === carrier).sort((a, b) => msInt(b.monthlyFee) - msInt(a.monthlyFee));
+  }
+
+  function renderMaster() { renderMSModels(); renderMSPlans(); renderMSSupport(); }
+
+  // 본사 관리(SKT/KT/LG) 표는 무겁다(공통지원금만 입력칸 수천 개) — 첫 진입 때 1회만 생성.
+  // 사이트 편집만 쓰는 동안엔 이 표들이 아예 DOM에 없어서 가벼움.
+  // (masterRendered 플래그는 스크립트 상단에서 선언 — restoreUI보다 먼저 초기화돼야 함)
+  function ensureMasterRendered() {
+    if (masterRendered) return;
+    if (!workingData || !workingData.models) return; // 데이터 로드 전이면 startAdmin이 처리
+    masterRendered = true;
+    renderMaster();
+  }
+
+  // 통신사별 모델 — 숨김(visible:false) 모델은 목록 아래로 (그룹 내 순서는 유지)
+  function msModelsByCarrier(carrier) {
+    return getMSModels()
+      .filter(m => (m.carrier || 'skt') === carrier)
+      .sort((a, b) => Number(a.visible === false) - Number(b.visible === false));
+  }
+
+  function renderMSModels() {
+    MS_CARRIERS.forEach(c => {
+      const el = document.querySelector(`[data-model-list="${c.id}"]`);
+      if (!el) return;
+      const models = msModelsByCarrier(c.id);
+      el.innerHTML = models.length
+        ? `<table class="m-table">
+            <thead><tr><th class="m-num">#</th><th>모델명</th><th>출고가</th><th>색상</th><th>상태</th><th class="m-act">관리</th></tr></thead>
+            <tbody>${models.map((m, i) => `
+              <tr data-id="${escapeHtml(m.id)}"${m.visible === false ? ' class="is-hidden"' : ''}>
+                <td class="m-num">${i + 1}</td>
+                <td class="m-name">${escapeHtml(m.name || '(이름 없음)')}</td>
+                <td class="m-price">${m.releasePrice !== '' && m.releasePrice != null ? msFmt(msInt(m.releasePrice)) + '원' : '-'}</td>
+                <td class="m-colors">${Array.isArray(m.colors) && m.colors.length ? escapeHtml(m.colors.join(', ')) : '<span class="m-dim">미지정</span>'}</td>
+                <td class="m-vis">${m.visible === false ? '<span class="m-hidden-tag">숨김</span>' : '노출'}</td>
+                <td class="m-act">
+                  <button class="btn btn-sm" data-act="mtoggle">${m.visible === false ? '노출' : '숨기기'}</button>
+                  <button class="btn btn-sm" data-act="medit">편집</button>
+                  <button class="btn btn-sm btn-danger" data-act="mdel">삭제</button>
+                </td>
+              </tr>`).join('')}</tbody>
+          </table>`
+        : '<div class="hint ms-empty">등록된 모델이 없습니다. [+ 모델 추가] 또는 [엑셀 업로드]로 시작하세요.</div>';
+    });
+    $$('[data-model-list] button[data-act="mtoggle"]').forEach(b => b.addEventListener('click', async () => {
+      const id = b.closest('[data-id]').dataset.id;
+      const m = getMSModels().find(x => x.id === id);
+      if (!m) return;
+      m.visible = m.visible === false;   // 숨김 ↔ 노출 토글
+      renderMSModels();
+      await quickSave(() => DataStore.saveModel(m, null), m.visible === false ? '숨김 처리됨' : '노출됨');
+    }));
+    $$('[data-model-list] button[data-act="medit"]').forEach(b => b.addEventListener('click', () => openModelModal(b.closest('[data-id]').dataset.id)));
+    $$('[data-model-list] button[data-act="mdel"]').forEach(b => b.addEventListener('click', async () => {
+      const id = b.closest('[data-id]').dataset.id;
+      if (!confirm('이 모델을 삭제할까요? 공통지원금 데이터도 같이 사라집니다.')) return;
+      workingData.models = getMSModels().filter(m => m.id !== id);
+      workingData.support = getMSSupport().filter(s => s.modelId !== id);
+      renderMaster();
+      await quickSave(() => DataStore.deleteModel(id), '모델 삭제됨');
+    }));
+  }
+
+  function renderMSPlans() {
+    MS_CARRIERS.forEach(c => {
+      const el = document.querySelector(`[data-plan-list="${c.id}"]`);
+      if (!el) return;
+      const plans = msPlansByCarrier(c.id);
+      el.innerHTML = plans.length
+        ? plans.map(p => `
+          <div class="product-item" data-id="${escapeHtml(p.id)}">
+            <span class="pi-handle">≡</span>
+            <div class="pi-name">${escapeHtml(p.name || '(이름 없음)')}</div>
+            <div class="pi-meta">${p.monthlyFee !== '' && p.monthlyFee != null ? '월 ' + msFmt(msInt(p.monthlyFee)) + '원' : '월요금 미지정'}</div>
+            <button class="btn btn-sm" data-act="pedit">편집</button>
+            <button class="btn btn-sm btn-danger" data-act="pdel">삭제</button>
+          </div>`).join('')
+        : '<div class="hint ms-empty">등록된 요금제가 없습니다.</div>';
+    });
+    $$('[data-plan-list] button[data-act="pedit"]').forEach(b => b.addEventListener('click', () => openPlanModal(b.closest('.product-item').dataset.id)));
+    $$('[data-plan-list] button[data-act="pdel"]').forEach(b => b.addEventListener('click', async () => {
+      const id = b.closest('.product-item').dataset.id;
+      if (!confirm('이 요금제를 삭제할까요? 공통지원금 데이터도 같이 사라집니다.')) return;
+      workingData.plans = getMSPlans().filter(p => p.id !== id);
+      workingData.support = getMSSupport().filter(s => s.planId !== id);
+      renderMaster();
+      await quickSave(() => DataStore.deletePlan(id), '요금제 삭제됨');
+    }));
+  }
+
+  // 공통지원금 표 — woozoo 방식: 모든 칸이 항상 <input>.
+  // 클릭해도 DOM 변형이 없어(이미 input이 있으니) 리플로우가 안 터짐.
+  // 3사 그리드를 모두 만들어 둠 — 통신사 전환은 CSS(content-visibility:hidden)가 처리.
+  // 비활성 패널은 cv:hidden이라 레이아웃이 보존돼 재표시가 빠름(재렌더 안 함).
+  function renderMSSupport() {
+    const support = getMSSupport();
+    // (carrier|model|plan) → amount 맵 — 셀마다 find() 하던 O(n²) 제거
+    const amtMap = {};
+    support.forEach(s => { amtMap[s.carrier + '|' + s.modelId + '|' + s.planId] = s.amount; });
+    const fmtAmt = v => (v != null && v !== '') ? msFmt(msInt(v)) : '';
+    MS_CARRIERS.forEach(c => {
+      const wrap = document.querySelector(`[data-support-wrap="${c.id}"]`);
+      if (!wrap) return;
+      const plans = msPlansByCarrier(c.id);
+      // 공통지원금 표는 노출 모델만 — 숨김 모델은 사이트에 안 나오고, 표가 무거워짐
+      const cModels = msModelsByCarrier(c.id).filter(m => m.visible !== false);
+      if (!cModels.length || !plans.length) {
+        wrap.innerHTML = `<div class="hint ms-empty">${c.label} 모델과 요금제를 먼저 등록하세요.</div>`;
+        return;
+      }
+      // table-layout:fixed라 표 너비를 명시 — 첫열 180 + 공시일 92 + 요금제열 120씩
+      const tableW = 180 + 92 + plans.length * 120;
+      wrap.innerHTML = `<div class="ms-table-scroll"><table class="ms-table" style="width:${tableW}px">
+        <thead><tr><th class="ms-corner">모델 \\ 요금제</th><th class="ms-notice">공시일</th>${plans.map(p => `<th title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</th>`).join('')}</tr></thead>
+        <tbody>${cModels.map(m => `<tr data-model="${escapeHtml(m.id)}">
+          <td class="ms-plan" title="${escapeHtml(m.name)}">${escapeHtml(m.name)}</td>
+          <td class="ms-notice">${m.noticeDate ? escapeHtml(m.noticeDate) : '-'}</td>
+          ${plans.map(p => `<td><input class="ms-sup" data-plan="${escapeHtml(p.id)}" data-carrier="${c.id}" value="${fmtAmt(amtMap[c.id + '|' + m.id + '|' + p.id])}" placeholder="-" inputmode="numeric"></td>`).join('')}
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+      // 위임 핸들러 1세트 — 셀(input)마다 리스너 안 붙임. wrap은 innerHTML 갈려도 유지됨
+      if (!wrap.dataset.supBound) {
+        wrap.dataset.supBound = '1';
+        wrap.addEventListener('focusin', onMSSupportFocus);
+        wrap.addEventListener('focusout', onMSSupportBlur);
+        wrap.addEventListener('keydown', e => {
+          if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('ms-sup')) e.target.blur();
+        });
+      }
+    });
+  }
+
+  // 포커스 — 쉼표 빼고 raw 숫자로(편집 쉽게), 원래값 기억
+  function onMSSupportFocus(e) {
+    const inp = e.target;
+    if (!inp.classList || !inp.classList.contains('ms-sup')) return;
+    inp.dataset.orig = inp.value.replace(/[^0-9-]/g, '');
+    inp.value = inp.dataset.orig;
+    inp.select();
+  }
+
+  // 블러 — 값 다시 포맷, 바뀐 칸만 DB에 행 1개 저장 (woozoo saveSupportCell 방식)
+  function onMSSupportBlur(e) {
+    const inp = e.target;
+    if (!inp.classList || !inp.classList.contains('ms-sup')) return;
+    const raw = inp.value.replace(/[^0-9-]/g, '');
+    const orig = inp.dataset.orig || '';
+    inp.value = raw === '' ? '' : (parseInt(raw, 10) || 0).toLocaleString();
+    if (raw === orig) return;   // 변경 없음 — 저장 스킵
+    const tr = inp.closest('tr');
+    const modelId = tr.dataset.model, planId = inp.dataset.plan, carrier = inp.dataset.carrier;
+    const support = getMSSupport();
+    const idx = support.findIndex(x => x.modelId === modelId && x.planId === planId && x.carrier === carrier);
+    setStatus('저장 중...', true);
+    const done = () => setStatus('저장됨', false);
+    const fail = err => { setStatus('저장 실패', true); toast('저장 실패: ' + (err && err.message || err), true); };
+    if (raw === '') {
+      if (idx >= 0) support.splice(idx, 1);
+      DataStore.deleteSupport(modelId, planId, carrier).then(done).catch(fail);
+    } else {
+      const amt = parseInt(raw, 10) || 0;
+      let entry;
+      if (idx >= 0) { support[idx].amount = amt; entry = support[idx]; }
+      else { entry = { id: msNewId('s'), modelId, planId, carrier, amount: amt }; support.push(entry); }
+      DataStore.saveSupport(entry).then(done).catch(fail);
+    }
+  }
+
+  // ───── 모델 모달 ─────
+  const modelModal = $('#model-modal');
+  let modelModalCarrier = 'skt';
+  function openModelModal(id, carrier) {
+    const m = id ? (getMSModels().find(x => x.id === id) || {}) : {};
+    modelModalCarrier = id ? (m.carrier || 'skt') : (carrier || 'skt');
+    const cLabel = (MS_CARRIERS.find(c => c.id === modelModalCarrier) || {}).label || '';
+    $('#model-modal-title').textContent = (id ? '모델 편집' : '모델 추가') + (cLabel ? ` · ${cLabel}` : '');
+    $('#mm-id').value = m.id || '';
+    $('#mm-name').value = m.name || '';
+    $('#mm-price').value = (m.releasePrice !== '' && m.releasePrice != null) ? msFmt(msInt(m.releasePrice)) : '';
+    $$('.mm-color').forEach((inp, i) => {
+      inp.value = (Array.isArray(m.colors) && m.colors[i]) ? m.colors[i] : '';
+    });
+    $('#mm-delete').style.display = id ? 'inline-block' : 'none';
+    modelModal.classList.add('on');
+  }
+  function closeModelModal() { modelModal.classList.remove('on'); }
+  $('#mm-cancel').addEventListener('click', closeModelModal);
+  modelModal.addEventListener('click', e => { if (e.target === modelModal) closeModelModal(); });
+  $$('[data-add-model]').forEach(b => b.addEventListener('click', () => openModelModal(null, b.dataset.addModel)));
+
+  // ───── 엑셀 내보내기 / 가져오기 (모델, 통신사별) ─────
+  const XLS_HEADER = ['id(수정금지)', '모델명', '출고가', '색상1', '색상2', '색상3', '색상4', '색상5', '숨김(Y)'];
+  function exportModelsXlsx(carrier) {
+    if (typeof XLSX === 'undefined') { toast('엑셀 라이브러리 로딩 중 — 잠시 후 다시', true); return; }
+    const cLabel = (MS_CARRIERS.find(c => c.id === carrier) || {}).label || carrier;
+    const aoa = [XLS_HEADER];
+    msModelsByCarrier(carrier).forEach(m => {
+      const cols = Array.isArray(m.colors) ? m.colors : [];
+      aoa.push([
+        m.id, m.name || '', msInt(m.releasePrice) || '',
+        cols[0] || '', cols[1] || '', cols[2] || '', cols[3] || '', cols[4] || '',
+        m.visible === false ? 'Y' : ''
+      ]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{ wch: 18 }, { wch: 26 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 9 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, cLabel);
+    XLSX.writeFile(wb, `모델_${cLabel}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  let xlsUploadCarrier = null;
+  function importModelsXlsx(carrier, file) {
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const wb = XLSX.read(ev.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false });
+        const list = [];
+        rows.slice(1).forEach(r => {
+          const name = String(r[1] == null ? '' : r[1]).trim();
+          if (!name) return;
+          const colors = [r[3], r[4], r[5], r[6], r[7]]
+            .map(x => String(x == null ? '' : x).trim()).filter(Boolean);
+          list.push({
+            id: String(r[0] == null ? '' : r[0]).trim() || msNewId('m'),
+            name, carrier,
+            releasePrice: msInt(r[2]) || '',
+            colors,
+            visible: String(r[8] == null ? '' : r[8]).trim().toUpperCase() !== 'Y'
+          });
+        });
+        if (!list.length) { toast('엑셀에서 읽을 모델이 없습니다', true); return; }
+        const cLabel = (MS_CARRIERS.find(c => c.id === carrier) || {}).label || carrier;
+        if (!confirm(`${cLabel} 모델을 엑셀의 ${list.length}건으로 전체 교체할까요?\n현재 목록은 사라집니다.`)) return;
+        workingData.models = getMSModels().filter(m => (m.carrier || 'skt') !== carrier).concat(list);
+        renderMaster();
+        await quickSave(() => DataStore.replaceCarrierModels(carrier, list), `${cLabel} 모델 ${list.length}건 교체됨`);
+      } catch (err) {
+        console.error('[xls import]', err);
+        toast('엑셀 처리 실패: ' + (err && err.message ? err.message : err), true);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+  $$('[data-xls-down]').forEach(b => b.addEventListener('click', () => exportModelsXlsx(b.dataset.xlsDown)));
+  $$('[data-xls-up]').forEach(b => b.addEventListener('click', () => {
+    if (typeof XLSX === 'undefined') { toast('엑셀 라이브러리 로딩 중 — 잠시 후 다시', true); return; }
+    xlsUploadCarrier = b.dataset.xlsUp;
+    $('#xls-file').value = '';
+    $('#xls-file').click();
+  }));
+  $('#xls-file').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if (file && xlsUploadCarrier) importModelsXlsx(xlsUploadCarrier, file);
+  });
+  $('#mm-price').addEventListener('input', e => { const n = msInt(e.target.value); e.target.value = n ? n.toLocaleString() : ''; });
+  $('#mm-save').addEventListener('click', async () => {
+    const id = $('#mm-id').value || msNewId('m');
+    const name = $('#mm-name').value.trim();
+    if (!name) { toast('모델명을 입력해주세요', true); return; }
+    const idx = getMSModels().findIndex(x => x.id === id);
+    const prev = idx >= 0 ? getMSModels()[idx] : null;
+    const data = {
+      id, name,
+      carrier: modelModalCarrier,
+      releasePrice: msInt($('#mm-price').value) || '',
+      colors: $$('.mm-color').map(inp => inp.value.trim()).filter(Boolean),
+      noticeDate: prev ? prev.noticeDate : '',   // 공시일은 크롤러 관리값 — 편집 시 보존
+      visible: true
+    };
+    const isNew = idx < 0;
+    if (isNew) workingData.models.push(data); else workingData.models[idx] = data;
+    renderMSModels();
+    await quickSave(() => DataStore.saveModel(data, isNew ? Date.now() : null), '모델 저장됨');
+    closeModelModal();
+  });
+  $('#mm-delete').addEventListener('click', async () => {
+    const id = $('#mm-id').value;
+    if (!id || !confirm('이 모델을 삭제할까요?')) return;
+    workingData.models = getMSModels().filter(m => m.id !== id);
+    workingData.support = getMSSupport().filter(s => s.modelId !== id);
+    renderMaster();
+    await quickSave(() => DataStore.deleteModel(id), '모델 삭제됨');
+    closeModelModal();
+  });
+
+  // ───── 요금제 모달 ─────
+  const planModal = $('#plan-modal');
+  let planModalCarrier = 'skt';
+  function openPlanModal(id, carrier) {
+    const p = id ? (getMSPlans().find(x => x.id === id) || {}) : {};
+    planModalCarrier = id ? (p.carrier || carrier || 'skt') : (carrier || 'skt');
+    const cl = (MS_CARRIERS.find(c => c.id === planModalCarrier) || {}).label || '';
+    $('#plan-modal-title').textContent = (id ? '요금제 편집' : '요금제 추가') + ' — ' + cl;
+    $('#plm-id').value = p.id || '';
+    $('#plm-name').value = p.name || '';
+    $('#plm-fee').value = (p.monthlyFee !== '' && p.monthlyFee != null) ? msFmt(msInt(p.monthlyFee)) : '';
+    $('#plm-delete').style.display = id ? 'inline-block' : 'none';
+    planModal.classList.add('on');
+  }
+  function closePlanModal() { planModal.classList.remove('on'); }
+  $('#plm-cancel').addEventListener('click', closePlanModal);
+  planModal.addEventListener('click', e => { if (e.target === planModal) closePlanModal(); });
+  $$('[data-add-plan]').forEach(b => b.addEventListener('click', () => openPlanModal(null, b.dataset.addPlan)));
+  $('#plm-fee').addEventListener('input', e => { const n = msInt(e.target.value); e.target.value = n ? n.toLocaleString() : ''; });
+  $('#plm-save').addEventListener('click', async () => {
+    const id = $('#plm-id').value || msNewId('pl');
+    const name = $('#plm-name').value.trim();
+    if (!name) { toast('요금제명을 입력해주세요', true); return; }
+    const data = { id, name, monthlyFee: msInt($('#plm-fee').value) || '', carrier: planModalCarrier };
+    const idx = getMSPlans().findIndex(x => x.id === id);
+    const isNew = idx < 0;
+    if (isNew) workingData.plans.push(data); else workingData.plans[idx] = data;
+    renderMSPlans();
+    renderMSSupport();
+    await quickSave(() => DataStore.savePlan(data, isNew ? Date.now() : null), '요금제 저장됨');
+    closePlanModal();
+  });
+  $('#plm-delete').addEventListener('click', async () => {
+    const id = $('#plm-id').value;
+    if (!id || !confirm('이 요금제를 삭제할까요?')) return;
+    workingData.plans = getMSPlans().filter(p => p.id !== id);
+    workingData.support = getMSSupport().filter(s => s.planId !== id);
+    renderMaster();
+    await quickSave(() => DataStore.deletePlan(id), '요금제 삭제됨');
+    closePlanModal();
+  });
+
+  // ─────────────────────────────────────────────────
+  // 인증 게이트 — 로그인 + mobileshop_store_id 태그 확인 후에만 관리자 화면 진입
+  // ─────────────────────────────────────────────────
+  let _adminStarted = false;
+
+  // 관리자 데이터 로드 (인증 통과 후 1회 실행)
+  function startAdmin() {
+    if (_adminStarted) return;
+    _adminStarted = true;
+    $('#login-gate').style.display = 'none';
+    setStatus('불러오는 중...', false);
+    DataStore.init().then(() => {
+      workingData = DataStore.load();
+      if (!workingData.categories) workingData.categories = DEFAULT_CATEGORIES.slice();
+      loadBannersToForm();
+      renderCatTabs();
+      renderProductList();
+      // 본사 관리 표는 지연 렌더 — 시작 탭이 통신사일 때만 즉시 생성
+      if (['skt', 'kt', 'lg'].includes(loadUI().tab)) ensureMasterRendered();
+      setStatus('대기 중', false);
+      pushPreview(); // iframe이 먼저 ready 보냈을 경우 대비
+    }).catch(err => {
+      console.error('[admin init]', err);
+      setStatus('로드 실패', true);
+      toast('데이터 로드 실패 — 콘솔 확인', true);
+    });
+  }
+
+  // 게이트 화면 전환
+  function showGate(view) { // 'checking' | 'login' | 'denied'
+    $('#login-checking').hidden = view !== 'checking';
+    $('#login-form').hidden     = view !== 'login';
+    $('#login-denied').hidden   = view !== 'denied';
+  }
+
+  // 세션 → 태그 확인 → 진입 또는 거부
+  async function gateBySession(session) {
+    if (!session || !session.user) { showGate('login'); return; }
+    const tag = session.user.app_metadata && session.user.app_metadata.mobileshop_store_id;
+    if (!tag) { showGate('denied'); return; }
+    const email = session.user.email || '';
+    $('#acct-email').textContent = email;
+    $('#acct-initial').textContent = email.charAt(0) || '?';
+    startAdmin();
+  }
+
+  // 로그인 폼 제출
+  $('#login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $('#login-email').value.trim();
+    const pw = $('#login-pw').value;
+    const errEl = $('#login-err');
+    const btn = $('#login-submit');
+    errEl.hidden = true;
+    btn.disabled = true; btn.textContent = '로그인 중…';
+    try {
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password: pw });
+      if (error) throw error;
+      await gateBySession(data.session);
+    } catch (err) {
+      errEl.textContent = (err && /invalid/i.test(err.message || ''))
+        ? '이메일 또는 비밀번호가 올바르지 않습니다.'
+        : '로그인 실패: ' + ((err && err.message) || err);
+      errEl.hidden = false;
+    } finally {
+      btn.disabled = false; btn.textContent = '로그인';
+    }
+  });
+
+  // 로그아웃 (헤더 + 거부 화면 공용)
+  async function doLogout() {
+    try { await window.supabaseClient.auth.signOut(); } catch (e) {}
+    location.reload();
+  }
+  $('#btn-logout').addEventListener('click', doLogout);
+  $('#login-denied-out').addEventListener('click', doLogout);
+
+  // 부트 — 기존 세션 확인 (타임아웃: getSession이 매달려도 4초 뒤 로그인 화면으로)
+  (async () => {
+    showGate('checking');
+    try {
+      const sessionP = window.supabaseClient.auth.getSession();
+      const timeoutP = new Promise((_, rej) =>
+        setTimeout(() => rej(new Error('세션 확인 시간 초과')), 4000));
+      const { data } = await Promise.race([sessionP, timeoutP]);
+      await gateBySession(data.session);
+    } catch (err) {
+      console.warn('[admin auth] 세션 확인 지연/실패 — 로그인 화면 표시:', err);
+      showGate('login');
+    }
+  })();
+</script>
+
+</body>
+</html>

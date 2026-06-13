@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공시 변동 리포트</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Malgun Gothic',-apple-system,Arial,sans-serif;margin:0;padding:14px;background:#f4f5f7;color:#222;font-size:14px}
+h1{font-size:19px;margin:0 0 2px}
+.sub{color:#777;font-size:12px;margin-bottom:12px}
+.cards{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.card{flex:1;min-width:80px;background:#fff;border:1px solid #e3e5ea;border-radius:10px;padding:10px 12px;text-align:center}
+.card .n{font-size:22px;font-weight:800}
+.card .l{font-size:11px;color:#777}
+.n.price{color:#d9534f}.n.new{color:#7c3aed}.n.gone{color:#c8881e}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tabs button{padding:6px 12px;border:1px solid #ccc;border-radius:18px;background:#fff;font-size:12px}
+.tabs button.on{background:#2563eb;color:#fff;border-color:#2563eb}
+.item{background:#fff;border:1px solid #e3e5ea;border-radius:10px;padding:10px 12px;margin-bottom:7px}
+.item .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.badge{font-size:10px;font-weight:700;color:#fff;border-radius:9px;padding:2px 8px;white-space:nowrap}
+.b-price{background:#d9534f}.b-new{background:#7c3aed}.b-gone{background:#c8881e}
+.scope{font-size:10px;color:#888;border:1px solid #ddd;border-radius:6px;padding:1px 6px}
+.model{font-weight:700;margin:3px 0}
+.plan{font-size:12px;color:#666}
+.amt{font-family:Consolas,monospace;font-size:13px}
+.amt .old{color:#aaa;text-decoration:line-through;margin-right:6px}
+.amt .arrow{color:#d9534f;font-weight:700}
+.detail{font-size:11px;color:#999;margin-top:3px}
+.empty{padding:30px;text-align:center;color:#888;background:#fff;border-radius:10px}
+.warn{background:#fff7e6;border:1px solid #f0d98a;border-radius:8px;padding:10px;font-size:12px;color:#7a5b00;margin-top:14px}
+</style>
+</head>
+<body>
+<h1>📊 공시 변동 리포트</h1>
+<div class="sub" id="meta">불러오는 중…</div>
+
+<div class="cards" id="cards"></div>
+<div class="tabs" id="tabs">
+  <button data-f="all" class="on">전체</button>
+  <button data-f="금액변동">금액변동</button>
+  <button data-f="새모델">새모델</button>
+  <button data-f="사라짐">사라짐</button>
+</div>
+<div id="list"></div>
+
+<div class="warn">
+  ⚠ 이 화면은 <b>리포트(보기 전용)</b>입니다. 우주 공통지원금은 정산 때문에 <b>접수일(공시일) 기준</b>으로 반영돼야 하니,
+  반영은 내용 확인 후 결정하세요. (반영 기능은 추후 추가)
+</div>
+
+<script>
+const SB_URL = "https://qpexfvwrlwkpjyihlnwz.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwZXhmdndybHdrcGp5aWhsbnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTAwMTIsImV4cCI6MjA5MzQ2NjAxMn0.Aq1b2i5UpQ2Y48nWlnygkkxrw-h8GufAkl8L8K8e0kY";
+const sb = supabase.createClient(SB_URL, SB_KEY);
+let CHANGES = [], MODE = 'all';
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function num(n){return (n==null)?'-':Number(n).toLocaleString();}
+
+async function load(){
+  const { data, error } = await sb.from('crawl_runs').select('*').order('run_at',{ascending:false}).limit(1);
+  if(error){ document.getElementById('meta').textContent='로드 실패: '+error.message; return; }
+  if(!data || !data.length){ document.getElementById('meta').textContent='아직 리포트가 없습니다 (자동 크롤 1회 실행 후 표시).'; return; }
+  const run = data[0];
+  const s = run.summary||{};
+  document.getElementById('meta').textContent = `최근 실행: ${new Date(run.run_at).toLocaleString('ko-KR')} · 총 ${s.total||0}건`;
+  document.getElementById('cards').innerHTML = `
+    <div class="card"><div class="n price">${s.price||0}</div><div class="l">금액변동</div></div>
+    <div class="card"><div class="n new">${s.new||0}</div><div class="l">새모델</div></div>
+    <div class="card"><div class="n gone">${s.gone||0}</div><div class="l">사라짐</div></div>`;
+  CHANGES = run.changes||[];
+  render();
+}
+
+function render(){
+  const arr = MODE==='all'?CHANGES:CHANGES.filter(c=>c.type===MODE);
+  if(!arr.length){ document.getElementById('list').innerHTML='<div class="empty">해당 항목 없음 ✓</div>'; return; }
+  document.getElementById('list').innerHTML = arr.map(c=>{
+    const cls = c.type==='금액변동'?'price':c.type==='새모델'?'new':'gone';
+    let amt='';
+    if(c.type==='금액변동') amt=`<div class="amt"><span class="old">${num(c.old)}</span><span class="arrow">→ ${num(c.new)}</span></div>`;
+    else if(c.type==='새모델') amt=`<div class="amt"><span class="arrow">${num(c.new)}</span></div>`;
+    return `<div class="item">
+      <div class="top">
+        <span class="scope">${esc(c.scope)}</span>
+        <span class="badge b-${cls}">${esc(c.type)}</span>
+      </div>
+      <div class="model">${esc(c.model)}</div>
+      ${c.plan?`<div class="plan">${esc(c.plan)}</div>`:''}
+      ${amt}
+      ${c.detail?`<div class="detail">${esc(c.detail)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  MODE=b.dataset.f;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  render();
+});
+load();
+</script>
+</body>
+</html>

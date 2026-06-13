@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#FAFBFC"/>
+<title>우주모바일 — 이번 주 가장 합리적인 폰</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    /* Toss palette */
+    --blue:#3182F6;
+    --blue-light:#E8F2FF;
+    --blue-dark:#1B64DA;
+    --ink:#191F28;
+    --g1:#4E5968;
+    --g2:#8B95A1;
+    --g3:#B0B8C1;
+    --g4:#D1D6DB;
+    --g5:#E5E8EB;
+    --bg:#FAFBFC;
+    --bg-soft:#F4F6F8;
+    --w:#FFFFFF;
+    --success:#00C73C;
+    --success-bg:#E5F8EA;
+    --danger:#F04452;
+    --danger-bg:#FCEBEC;
+    --warning:#FF9500;
+    --warning-bg:#FFF4E0;
+    /* 통신사/브랜드 — 미세하게만 사용 (카드 코너 점만) */
+    --skt:#EA002C;
+    --kt:#191F28;
+    --lg:#A50034;
+    --sk:#EA002C;
+    --skm:#E6007E;
+    --cw:#0061B0;
+  }
+  *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  body {
+    font-family:'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+    background:#E6E8EC; color:var(--ink);
+    line-height:1.5; letter-spacing:-.012em;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 0;
+  }
+  button { font:inherit; cursor:pointer; border:0; background:none; color:inherit; -webkit-tap-highlight-color:transparent; }
+  a { color:inherit; text-decoration:none; }
+  .num { font-variant-numeric:tabular-nums; letter-spacing:-.025em; }
+
+  /* ───── 데스크톱 폰 프레임 ───── */
+  .device {
+    width:390px; height:844px;
+    background:var(--bg);
+    border-radius:48px;
+    border:11px solid #0A0A0F;
+    box-shadow:0 30px 80px rgba(15,17,23,.25), 0 12px 30px rgba(15,17,23,.12);
+    position:relative; overflow:hidden; isolation:isolate;
+  }
+  .device::before {
+    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:118px; height:33px; background:#0A0A0F; border-radius:0 0 22px 22px; z-index:60;
+  }
+  .scroll {
+    position:absolute; inset:0;
+    overflow-y:auto; overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:24px;
+    background:var(--bg);
+  }
+  .scroll::-webkit-scrollbar { width:0; }
+  @media (max-width: 480px) {
+    body { padding:0; background:var(--bg); display:block; }
+    .device {
+      width:100vw; height:100vh; height:100dvh;
+      border-radius:0; border:none; box-shadow:none;
+    }
+    .device::before { display:none; }
+    .scroll { padding-top:env(safe-area-inset-top); padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
+  }
+
+  /* ───── 헤더 (sticky, 카테고리 + 소분류 통째로 박힘) ───── */
+  .head {
+    position:sticky; top:0; z-index:31;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:saturate(180%) blur(24px);
+    -webkit-backdrop-filter:saturate(180%) blur(24px);
+  }
+  @media (max-width: 480px) { .head { padding-top:env(safe-area-inset-top); } }
+  .top {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 20px 4px;
+  }
+  .brand {
+    font-size:18px; font-weight:800; letter-spacing:-.04em; color:var(--ink);
+  }
+  .brand span { color:var(--blue); }
+  .top-r { display:flex; gap:2px; }
+  .ic {
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink); position:relative; transition:background .15s;
+  }
+  .ic:active { background:var(--g5); }
+  .ic svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .ic-bd {
+    position:absolute; top:6px; right:6px;
+    min-width:16px; height:16px; padding:0 4px; border-radius:8px;
+    background:var(--danger); color:#fff;
+    font-size:10px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--bg);
+  }
+
+  /* ───── 카테고리 탭 ───── */
+  .cat-nav {
+    display:flex; gap:22px;
+    padding:2px 20px 8px;
+  }
+  .cat-nav button {
+    font-size:17px; font-weight:300;
+    letter-spacing:-.035em; color:var(--g2);
+    transition:color .25s, font-weight .25s;
+    padding:0;
+  }
+  .cat-nav button.on { color:var(--ink); font-weight:600; }
+
+  /* ───── 서브 nav (배너 아래, 스크롤 시 헤더 바닥에 stick) ───── */
+  .sub-nav {
+    position:sticky; top:77px; z-index:32;
+    display:flex; align-items:center;
+    padding:13px 20px 11px;
+    background:rgba(255,255,255,.85);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--g5);
+    overflow-x:auto; scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  @media (max-width: 480px) {
+    .sub-nav { top:calc(77px + env(safe-area-inset-top)); }
+  }
+  .sub-nav.on { display:flex; }
+  .sub-nav::-webkit-scrollbar { display:none; }
+  .sub-nav button {
+    flex-shrink:0;
+    font-size:13px; font-weight:400; letter-spacing:-.012em;
+    color:var(--g2);
+    padding:3px 12px;
+    transition:color .15s, font-weight .15s;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .sub-nav button:first-child { padding-left:0; }
+  .sub-nav button.on { color:var(--ink); font-weight:600; }
+  .sub-dot {
+    flex-shrink:0;
+    width:3px; height:3px; border-radius:50%; background:var(--g4);
+  }
+  .sub-nav .swatch {
+    width:6px; height:6px; border-radius:50%; flex-shrink:0;
+  }
+  .swatch.skt { background:var(--skt); }
+  .swatch.kt  { background:var(--kt); }
+  .swatch.lg  { background:var(--lg); }
+  .swatch.sk  { background:var(--sk); }
+  .swatch.skm { background:var(--skm); }
+  .swatch.cw  { background:var(--cw); }
+
+  /* ───── 패널 (가로 캐러셀, left 방식 — transform이 sticky 깨므로) ───── */
+  .panels {
+    position:relative; left:0;
+    display:flex; align-items:flex-start;
+    width:400%;
+    transition:left .35s cubic-bezier(.32,.72,0,1), height .3s ease;
+  }
+  .panel {
+    width:25%; flex-shrink:0;
+  }
+
+  /* ───── 공통 컨테이너 ───── */
+  .pad { padding:0 20px; }
+
+  /* ───── 가로 와이드 배너 (사전예약, full-bleed) ───── */
+  .banner-wide {
+    position:relative; overflow:hidden;
+    border-radius:0;
+    background:radial-gradient(ellipse at 80% 18%, #1E2A55 0%, #0A0A0F 65%);
+    color:#fff;
+    min-height:128px;
+    padding:18px 110px 18px 20px;
+    display:flex; flex-direction:column; justify-content:center; gap:10px;
+  }
+  .banner-wide::before {
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 10% 90%, rgba(139,92,246,0.32) 0%, transparent 45%),
+      radial-gradient(circle at 92% 8%, rgba(59,91,255,0.38) 0%, transparent 40%);
+    pointer-events:none;
+  }
+  /* 인터넷 — 시안/파랑 글로우 */
+  .banner-wide.bw-internet {
+    background:radial-gradient(ellipse at 80% 18%, #0F2748 0%, #060B18 65%);
+  }
+  .banner-wide.bw-internet::before {
+    background:
+      radial-gradient(circle at 8% 88%, rgba(0,200,255,0.30) 0%, transparent 45%),
+      radial-gradient(circle at 92% 12%, rgba(59,91,255,0.42) 0%, transparent 40%);
+  }
+  /* 렌탈 — 민트/청록 글로우 */
+  .banner-wide.bw-rental {
+    background:radial-gradient(ellipse at 80% 18%, #0E2A2D 0%, #050E12 65%);
+  }
+  .banner-wide.bw-rental::before {
+    background:
+      radial-gradient(circle at 12% 90%, rgba(0,199,60,0.26) 0%, transparent 45%),
+      radial-gradient(circle at 92% 10%, rgba(0,194,180,0.36) 0%, transparent 42%);
+  }
+  .banner-wide::after {
+    content:''; position:absolute; inset:0;
+    background-image:
+      radial-gradient(1px 1px at 14% 22%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 38% 78%, rgba(255,255,255,0.45), transparent),
+      radial-gradient(1.5px 1.5px at 62% 14%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 88% 56%, rgba(255,255,255,0.5), transparent);
+    pointer-events:none;
+  }
+  .bw-phone {
+    position:absolute; right:-8px; bottom:-14px;
+    width:96px; height:auto; z-index:1;
+    transform:rotate(10deg);
+    filter:drop-shadow(0 12px 22px rgba(0,0,0,0.55));
+  }
+  .bw-tags { display:flex; gap:5px; position:relative; z-index:2; }
+  .bw-tag {
+    font-size:10px; font-weight:800; letter-spacing:0.05em;
+    padding:3px 9px; border-radius:999px;
+    background:rgba(255,255,255,0.16); backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:#fff;
+  }
+  .bw-tag.hot { background:#FF3B5C; }
+  .bw-title {
+    font-size:18px; font-weight:800;
+    line-height:1.25; letter-spacing:-0.4px;
+    position:relative; z-index:2;
+  }
+  .bw-title small {
+    display:block; font-size:10.5px; font-weight:700;
+    opacity:0.7; letter-spacing:0.06em; margin-bottom:3px;
+  }
+  .bw-cta {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:12px; font-weight:700;
+    background:rgba(255,255,255,0.18); backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:#fff;
+    padding:7px 13px; border-radius:999px;
+    align-self:flex-start;
+    position:relative; z-index:2;
+    border:1px solid rgba(255,255,255,0.12);
+  }
+  .bw-cta b { color:#FFD66B; font-weight:800; }
+  .bw-cta::after { content:'›'; opacity:0.7; margin-left:1px; }
+
+  /* ───── 배너 변형 (테스트 패널) ───── */
+  /* 카드형 배너 — 라운드 + 그라데이션 */
+  .banner-card {
+    background:linear-gradient(135deg, #3182F6 0%, #1B64DA 100%);
+    color:#fff;
+    border-radius:20px;
+    padding:24px 22px;
+    position:relative; overflow:hidden;
+  }
+  .banner-card::after {
+    content:''; position:absolute; right:-30px; top:-30px;
+    width:160px; height:160px; border-radius:50%;
+    background:rgba(255,255,255,.12);
+  }
+  .banner-card-eye {
+    font-size:12px; font-weight:600;
+    background:rgba(255,255,255,.18);
+    padding:4px 10px; border-radius:999px;
+    display:inline-block; margin-bottom:12px;
+    position:relative;
+  }
+  .banner-card-h {
+    font-size:22px; font-weight:700; line-height:1.35;
+    letter-spacing:-.025em; margin-bottom:16px;
+    position:relative;
+  }
+  .banner-card-h b { font-weight:800; color:#FFD66B; }
+  .banner-card-cta {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:13px; font-weight:700;
+    background:rgba(255,255,255,.20);
+    padding:9px 16px; border-radius:999px;
+    position:relative;
+    border:1px solid rgba(255,255,255,.14);
+  }
+  .banner-card-cta::after { content:'›'; opacity:0.8; margin-left:2px; }
+
+  /* 슬림 가로 띠 배너 — 시간 압박/공지 */
+  .banner-slim {
+    display:flex; align-items:center; gap:10px;
+    background:#FFF4E0; color:#7A4A00;
+    padding:14px 16px; border-radius:14px;
+    border:1px solid #FFD9A0;
+  }
+  .banner-slim-tag {
+    font-size:10px; font-weight:800; letter-spacing:.05em;
+    background:#FF9500; color:#fff;
+    padding:3px 8px; border-radius:5px;
+    flex-shrink:0;
+  }
+  .banner-slim-t {
+    flex:1;
+    font-size:13px; font-weight:600; letter-spacing:-.012em;
+  }
+  .banner-slim-arrow {
+    font-size:20px; color:#A07A30; font-weight:600;
+    line-height:1;
+  }
+
+  /* ───── HERO 카드 (큰 숫자) ───── */
+  .hero {
+    background:var(--w); border-radius:20px;
+    padding:24px 22px; margin-top:8px;
+  }
+  .hero-eye {
+    font-size:13px; color:var(--blue); font-weight:600;
+    margin-bottom:8px;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .hero-eye::before {
+    content:''; width:6px; height:6px; border-radius:50%; background:var(--blue);
+  }
+  .hero-title {
+    font-size:22px; font-weight:700;
+    line-height:1.35; letter-spacing:-.025em;
+    margin-bottom:18px;
+  }
+  .hero-title b { color:var(--blue); font-weight:700; }
+  .hero-num {
+    font-size:48px; font-weight:800;
+    color:var(--ink); line-height:1.05;
+    letter-spacing:-.04em; margin-bottom:6px;
+  }
+  .hero-num .minus { color:var(--blue); }
+  .hero-num .unit { font-size:24px; font-weight:700; color:var(--g1); margin-left:2px; }
+  .hero-cap {
+    font-size:13px; color:var(--g1);
+    margin-bottom:20px;
+  }
+  .hero-cta {
+    display:block; width:100%;
+    background:var(--blue); color:#fff;
+    padding:16px; border-radius:12px;
+    font-size:16px; font-weight:700; letter-spacing:-.015em;
+    text-align:center; transition:background .15s;
+  }
+  .hero-cta:active { background:var(--blue-dark); }
+
+  /* ───── 통계 행 ───── */
+  .stats {
+    background:var(--w); border-radius:20px;
+    padding:18px;
+    display:grid; grid-template-columns:repeat(3,1fr);
+  }
+  .st { text-align:center; position:relative; }
+  .st + .st::before {
+    content:''; position:absolute; left:0; top:50%;
+    transform:translateY(-50%);
+    width:1px; height:32px; background:var(--g5);
+  }
+  .st-v { font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-.025em; }
+  .st-v small { font-size:13px; color:var(--g2); font-weight:600; margin-left:1px; }
+  .st-l { font-size:11px; color:var(--g2); margin-top:2px; font-weight:500; }
+
+  /* ───── 보상판매 dark card ───── */
+  .trade {
+    background:var(--ink); color:#fff;
+    border-radius:20px; padding:22px;
+    position:relative; overflow:hidden;
+  }
+  .trade::after {
+    content:''; position:absolute; right:-40px; bottom:-40px;
+    width:200px; height:200px; border-radius:50%;
+    background:radial-gradient(circle, rgba(49,130,246,.4), transparent 65%);
+  }
+  .trade-eye {
+    font-size:12px; color:#7DB3FF; font-weight:600;
+    margin-bottom:6px;
+    display:inline-block;
+    background:rgba(49,130,246,.18);
+    padding:3px 9px; border-radius:999px;
+    position:relative;
+  }
+  .trade-h {
+    font-size:18px; font-weight:700; line-height:1.4;
+    letter-spacing:-.02em; margin-bottom:10px;
+    position:relative;
+  }
+  .trade-h b { color:#7DB3FF; }
+  .trade-num {
+    font-size:32px; font-weight:800; color:#fff;
+    letter-spacing:-.035em; line-height:1.05;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .trade-num small { font-size:14px; color:#7DB3FF; font-weight:700; margin-right:4px; }
+  .trade-num .w { font-size:18px; font-weight:700; color:#B0B8C1; margin-left:2px; }
+  .trade-cta {
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,.08); border-radius:12px;
+    padding:14px 16px; color:#fff; font-size:15px; font-weight:600;
+    border:1px solid rgba(255,255,255,.12);
+    position:relative;
+  }
+  .trade-cta::after { content:'›'; font-size:20px; color:#B0B8C1; }
+
+  /* ───── 프로모 (블루 그라데이션) ───── */
+  .promo {
+    background:linear-gradient(135deg, #3182F6 0%, #1B64DA 100%);
+    color:#fff; border-radius:20px;
+    padding:22px; position:relative; overflow:hidden;
+  }
+  .promo::after {
+    content:''; position:absolute; right:-30px; top:-30px;
+    width:160px; height:160px; border-radius:50%;
+    background:rgba(255,255,255,.1);
+  }
+  .promo-eye {
+    font-size:12px; color:rgba(255,255,255,.78);
+    font-weight:600; margin-bottom:6px;
+    display:inline-block;
+    background:rgba(255,255,255,.15);
+    padding:3px 10px; border-radius:999px;
+    position:relative;
+  }
+  .promo-h {
+    font-size:18px; font-weight:700; line-height:1.45;
+    letter-spacing:-.02em; margin-bottom:14px; position:relative;
+  }
+  .promo-h b { font-weight:800; }
+  .promo-cta {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#fff; color:var(--blue);
+    padding:11px 18px; border-radius:10px;
+    font-size:14px; font-weight:700;
+    position:relative;
+  }
+  .promo-cta::after { content:'→'; }
+
+  /* ───── 섹션 헤더 ───── */
+  .sec { padding:24px 20px 8px; }
+  .sec-t {
+    font-size:18px; font-weight:700; letter-spacing:-.02em;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .sec-t .more { font-size:13px; color:var(--g2); font-weight:500; }
+  .sec-s { font-size:13px; color:var(--g2); margin-top:2px; }
+
+  /* ───── 상품 리스트 (수평) ───── */
+  .pl { padding:8px 20px 0; }
+  /* 통신사 그룹 헤더 (sec-t보다 한 단계 작게) */
+  .tel-h {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px 6px;
+  }
+  .tel-h-l {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:15px; font-weight:700; letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .tel-h-l .swatch { width:8px; height:8px; border-radius:50%; }
+  .tel-h-r {
+    font-size:12px; color:var(--g2); font-weight:500;
+  }
+  .tel-pl { padding:0 20px; }
+  .item {
+    background:var(--w); border-radius:16px;
+    padding:16px;
+    display:grid; grid-template-columns:80px 1fr; gap:14px;
+    align-items:center;
+    margin-bottom:8px;
+    transition:background .15s;
+  }
+  .item:active { background:var(--bg-soft); }
+  .item-img {
+    width:80px; height:80px; border-radius:12px;
+    background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .item-img svg { width:54px; height:64px; }
+  .item-info { min-width:0; }
+  .item-tags {
+    display:flex; gap:5px; margin-bottom:4px; flex-wrap:wrap;
+    align-items:center;
+  }
+  .item-tag {
+    font-size:11px; font-weight:600; letter-spacing:-.005em;
+    background:var(--bg); color:var(--g1);
+    padding:2px 7px; border-radius:5px;
+    display:inline-flex; align-items:center; gap:4px;
+  }
+  .item-tag .swatch { width:6px; height:6px; border-radius:50%; }
+  .item-tag.b { background:var(--blue-light); color:var(--blue); }
+  .item-name {
+    font-size:15px; font-weight:700; letter-spacing:-.02em;
+    color:var(--ink); margin-bottom:2px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .item-c { font-size:12px; color:var(--g2); margin-bottom:8px; }
+  .item-row {
+    display:flex; justify-content:space-between; align-items:flex-end; gap:8px;
+  }
+  .item-month { font-size:11px; color:var(--g2); font-weight:500; }
+  .item-month b {
+    color:var(--ink); font-weight:800; font-size:16px;
+    display:block; letter-spacing:-.025em; line-height:1.1;
+  }
+  .item-month b .w { font-size:11px; color:var(--g1); font-weight:600; margin-left:1px; }
+  .item-disc {
+    font-size:12px; font-weight:700; letter-spacing:-.01em;
+    color:var(--blue); background:var(--blue-light);
+    padding:3px 7px; border-radius:6px;
+  }
+  .item-disc.zero { color:var(--danger); background:var(--danger-bg); }
+
+  /* 모델명 + 용량 한 줄 */
+  .item-name-row {
+    display:flex; align-items:baseline; gap:8px;
+    margin-bottom:8px; min-width:0;
+  }
+  .item-name-row .item-name { margin-bottom:0; flex:1; min-width:0; }
+  .item-cap {
+    font-size:12px; color:var(--g2); font-weight:500;
+    letter-spacing:-.005em; flex-shrink:0;
+  }
+  /* 번호이동/기기변경 가격 두 줄 */
+  .item-prices {
+    margin-top:8px;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .price-row {
+    display:flex; align-items:center; gap:10px;
+    font-size:12px;
+  }
+  .price-label {
+    color:var(--g2); font-weight:500;
+    min-width:48px; letter-spacing:-.01em;
+  }
+  .price-val {
+    font-weight:800; color:var(--ink);
+    font-size:14px; letter-spacing:-.025em;
+    font-variant-numeric:tabular-nums;
+  }
+  .price-arrow {
+    display:inline-flex; align-items:center; justify-content:center; gap:3px;
+    margin-left:auto; flex-shrink:0;
+    width:56px;
+    background:var(--danger-bg); color:var(--danger);
+    padding:3px 0; border-radius:6px;
+    font-size:11px; font-weight:800;
+    letter-spacing:-.005em;
+    font-variant-numeric:tabular-nums;
+  }
+  .price-arrow svg {
+    width:11px; height:11px;
+    fill:currentColor;
+  }
+  .item-gift {
+    margin-top:8px;
+    font-size:11px; font-weight:600;
+    color:var(--blue); background:var(--blue-light);
+    padding:4px 8px; border-radius:6px;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .item-gift svg { width:12px; height:12px; flex-shrink:0; stroke-width:2.2; }
+
+  /* ───── 빠른액션 4셀 ───── */
+  .quick {
+    background:var(--w); border-radius:20px;
+    padding:18px 8px; margin:8px 20px 0;
+    display:grid; grid-template-columns:repeat(4,1fr);
+  }
+  .qa {
+    text-align:center; padding:8px 4px;
+    border-radius:12px;
+    transition:background .15s;
+  }
+  .qa:active { background:var(--bg-soft); }
+  .qa-ic {
+    width:44px; height:44px; border-radius:14px;
+    margin:0 auto 6px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .qa-ic svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .qa-ic.b { background:var(--blue-light); color:var(--blue); }
+  .qa-ic.g { background:var(--success-bg); color:var(--success); }
+  .qa-ic.o { background:var(--warning-bg); color:var(--warning); }
+  .qa-ic.r { background:var(--danger-bg); color:var(--danger); }
+  .qa-l { font-size:12px; color:var(--ink); font-weight:600; letter-spacing:-.015em; }
+
+  /* ───── 비교표 ───── */
+  .cmp {
+    background:var(--w); border-radius:20px;
+    padding:20px; margin:8px 20px 0;
+  }
+  .cmp-h {
+    font-size:16px; font-weight:700; letter-spacing:-.02em;
+    margin-bottom:14px;
+  }
+  .cmp-row {
+    display:grid; grid-template-columns:1fr auto; gap:8px;
+    padding:12px 0; border-bottom:1px solid var(--g5);
+    align-items:center;
+  }
+  .cmp-row:last-of-type { border-bottom:none; }
+  .cmp-l { font-size:13px; color:var(--g1); font-weight:500; }
+  .cmp-v { font-size:14px; color:var(--ink); font-weight:700; letter-spacing:-.02em; }
+  .cmp-v.down { color:var(--success); }
+  .cmp-foot {
+    margin-top:14px; padding-top:14px; border-top:2px solid var(--g5);
+    display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .cmp-foot-l { font-size:13px; color:var(--ink); font-weight:600; }
+  .cmp-foot-v { font-size:24px; color:var(--blue); font-weight:800; letter-spacing:-.03em; }
+
+  /* ───── 후기 ───── */
+  .rv-stat {
+    background:var(--w); border-radius:20px;
+    padding:18px; margin:8px 20px 0;
+    display:flex; align-items:center; gap:14px;
+  }
+  .rv-stat-num {
+    font-size:36px; font-weight:800; letter-spacing:-.035em; line-height:1;
+    color:var(--ink);
+  }
+  .rv-stat-num span { color:var(--warning); font-size:24px; margin-left:2px; }
+  .rv-stat-r { flex:1; }
+  .rv-stat-stars { color:var(--warning); font-size:14px; letter-spacing:1.5px; }
+  .rv-stat-cap { font-size:12px; color:var(--g2); margin-top:2px; font-weight:500; }
+  .rv-stat-cap b { color:var(--blue); font-weight:700; }
+  .rv-list { padding:0 20px; margin-top:8px; }
+  .rv {
+    background:var(--w); border-radius:16px;
+    padding:16px; margin-bottom:8px;
+  }
+  .rv-top {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:8px;
+  }
+  .rv-stars { color:var(--warning); font-size:13px; letter-spacing:1px; }
+  .rv-prod {
+    font-size:11px; color:var(--blue); font-weight:600;
+    background:var(--blue-light); padding:3px 8px; border-radius:5px;
+  }
+  .rv-tx { font-size:14px; color:var(--ink); line-height:1.65; margin-bottom:10px; }
+  .rv-tx b { font-weight:700; }
+  .rv-meta { font-size:12px; color:var(--g2); font-weight:500; }
+  .rv-meta b { color:var(--ink); font-weight:600; }
+
+  /* ───── 푸터 ───── */
+  .ft {
+    padding:24px 20px 16px;
+    font-size:11px; color:var(--g2); line-height:1.7;
+  }
+  .ft b { color:var(--g1); font-weight:600; }
+  .ft-row {
+    display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;
+  }
+  .ft-row a { color:var(--g1); font-weight:500; font-size:12px; }
+  .ft-c { color:var(--g3); }
+
+  /* ───── 플로팅 액션 버튼 (FAB, 클릭 시 펼침) ───── */
+  .fab {
+    position:absolute; right:16px; bottom:20px;
+    z-index:50;
+    display:flex; flex-direction:column; gap:10px;
+    align-items:flex-end;
+  }
+  @media (max-width: 480px) {
+    .fab { bottom:calc(20px + env(safe-area-inset-bottom)); right:16px; }
+  }
+  /* 펼쳐지는 버튼 리스트 */
+  .fab-list {
+    display:flex; flex-direction:column; gap:8px;
+    align-items:flex-end;
+    opacity:0; transform:translateY(8px) scale(.96);
+    pointer-events:none;
+    transition:opacity .18s ease-out, transform .2s ease-out;
+  }
+  .fab.open .fab-list {
+    opacity:1; transform:translateY(0) scale(1);
+    pointer-events:auto;
+  }
+  .fab-btn {
+    display:inline-flex; align-items:center; gap:7px;
+    height:42px; padding:0 16px 0 14px;
+    border-radius:21px;
+    font-size:13px; font-weight:700; letter-spacing:-.012em;
+    box-shadow:0 8px 20px rgba(15,17,23,.18), 0 2px 6px rgba(15,17,23,.08);
+    transition:transform .12s;
+    white-space:nowrap;
+    transform:translateY(6px); opacity:0;
+    transition:transform .2s ease-out, opacity .2s ease-out;
+  }
+  .fab.open .fab-btn { transform:translateY(0); opacity:1; }
+  .fab.open .fab-btn:nth-child(1) { transition-delay:.04s; }
+  .fab.open .fab-btn:nth-child(2) { transition-delay:.10s; }
+  .fab-btn:active { transform:scale(.96) !important; }
+  .fab-btn svg { width:18px; height:18px; flex-shrink:0; }
+  .fab-talk { background:#FEE500; color:#191600; }
+  .fab-call { background:var(--blue); color:#fff; }
+
+  /* ───── 맨 위로 버튼 (스크롤 시 등장) ───── */
+  .top-btn {
+    position:absolute; right:18px; bottom:80px;
+    z-index:49;
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 16px rgba(15,17,23,.14), 0 2px 6px rgba(15,17,23,.06);
+    border:1px solid var(--g5);
+    opacity:0; transform:translateY(8px);
+    pointer-events:none;
+    transition:opacity .2s, transform .2s;
+  }
+  .top-btn.show { opacity:1; transform:translateY(0); pointer-events:auto; }
+  .top-btn:active { transform:scale(.94); }
+  .top-btn { color:var(--g2); }
+  .top-btn svg {
+    width:18px; height:18px; fill:none;
+    stroke:currentColor; stroke-width:1.6;
+    stroke-linecap:round; stroke-linejoin:round;
+  }
+  /* FAB 펼치면 맨위로 버튼 자동 숨김 */
+  .fab.open ~ .top-btn {
+    opacity:0; transform:translateY(8px); pointer-events:none;
+  }
+  @media (max-width: 480px) {
+    .top-btn { bottom:calc(80px + env(safe-area-inset-bottom)); right:18px; }
+  }
+  /* 메인 트리거 버튼 (항상 표시) */
+  .fab-trigger {
+    width:48px; height:48px; border-radius:50%;
+    background:var(--blue); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 22px rgba(49,130,246,.38), 0 3px 8px rgba(15,17,23,.10);
+    transition:transform .2s, box-shadow .2s;
+    position:relative;
+  }
+  .fab-trigger:active { transform:scale(.94); }
+  .fab-trigger .ic-msg, .fab-trigger .ic-x {
+    position:absolute; width:21px; height:21px;
+    fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
+    transition:opacity .15s;
+  }
+  .fab-trigger .ic-x { opacity:0; }
+  .fab.open .fab-trigger .ic-msg { opacity:0; }
+  .fab.open .fab-trigger .ic-x { opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="device">
+<div class="scroll">
+
+  <!-- ╔═══════ 헤더 (sticky, glass + mask fade) ═══════╗ -->
+  <header class="head">
+    <div class="top">
+      <div class="brand">우주<span>.</span></div>
+      <div class="top-r">
+        <button class="ic" aria-label="검색">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </button>
+        <button class="ic" aria-label="알림">
+          <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 21a2 2 0 0 0 4 0"/></svg>
+        </button>
+        <button class="ic" aria-label="장바구니">
+          <svg viewBox="0 0 24 24"><path d="M5 7h14l-1.5 11H6.5L5 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+          <span class="ic-bd">2</span>
+        </button>
+      </div>
+    </div>
+    <nav class="cat-nav" id="cat-nav">
+      <button class="on" data-cat="phone">휴대폰</button>
+      <button data-cat="internet">인터넷</button>
+      <button data-cat="rental">렌탈</button>
+      <button data-cat="test">테스트</button>
+    </nav>
+  </header>
+
+
+  <div class="panels" id="panels">
+
+  <!-- ╔═══════ 패널: 휴대폰 ═══════╗ -->
+  <div class="panel" id="panel-phone">
+
+    <!-- 가로 와이드 사전예약 배너 (화면 끝까지 풀블리드) -->
+    <section>
+      <div class="banner-wide">
+        <svg class="bw-phone" viewBox="0 0 100 144">
+          <defs>
+            <linearGradient id="bwBody" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3a3d4a"/>
+              <stop offset="50%" stop-color="#1c1e26"/>
+              <stop offset="100%" stop-color="#0f1015"/>
+            </linearGradient>
+            <linearGradient id="bwScreen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1a2748"/>
+              <stop offset="100%" stop-color="#0a0f24"/>
+            </linearGradient>
+          </defs>
+          <rect x="4" y="4" width="92" height="136" rx="16" fill="url(#bwBody)"/>
+          <rect x="6" y="6" width="88" height="132" rx="14" fill="#0a0a0f"/>
+          <rect x="10" y="10" width="80" height="124" rx="11" fill="url(#bwScreen)"/>
+          <circle cx="50" cy="17" r="2.2" fill="#0a0a0f"/>
+          <circle cx="50" cy="17" r="1" fill="#1a2540"/>
+          <ellipse cx="92" cy="34" rx="4" ry="10" fill="rgba(0,0,0,0.4)"/>
+          <text x="50" y="80" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.16)" font-family="Pretendard, sans-serif">S26</text>
+          <text x="50" y="94" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.22)" font-family="Pretendard, sans-serif">ULTRA</text>
+        </svg>
+        <div class="bw-tags">
+          <span class="bw-tag hot">사전예약</span>
+          <span class="bw-tag">D-3</span>
+        </div>
+        <div class="bw-title"><small>SAMSUNG GALAXY</small>S26 Ultra · 5월 신상</div>
+        <button class="bw-cta">예약 혜택 <b>−730,000원</b></button>
+      </div>
+    </section>
+
+    <!-- 휴대폰 소분류 (sticky) -->
+    <nav class="sub-nav">
+      <button class="on">전체</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch skt"></span>SKT</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch kt"></span>KT</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch lg"></span>LG U+</button>
+      <span class="sub-dot"></span>
+      <button>알뜰폰</button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="pad">
+      <div class="hero">
+        <div class="hero-eye">이번 주 BEST</div>
+        <div class="hero-title">이번 주 가장 <b>많이 빠진</b> 모델</div>
+        <div class="hero-num num"><span class="minus">−</span>325,000<span class="unit">원</span></div>
+        <div class="hero-cap">Galaxy S26 Ultra · KT · 5월 한정 혜택</div>
+        <a class="hero-cta">혜택 자세히 보기</a>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="pad" style="margin-top:8px">
+      <div class="stats">
+        <div class="st">
+          <div class="st-v num">14,238<small>건</small></div>
+          <div class="st-l">누적 개통</div>
+        </div>
+        <div class="st">
+          <div class="st-v num">4.97<small>★</small></div>
+          <div class="st-l">평균 만족도</div>
+        </div>
+        <div class="st">
+          <div class="st-v num">1<small>분</small> 27<small>초</small></div>
+          <div class="st-l">평균 응대</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 보상판매 다크 카드 -->
+    <section class="pad" style="margin-top:8px">
+      <div class="trade">
+        <div class="trade-eye">중고 보상판매</div>
+        <div class="trade-h">쓰던 폰 시세,<br><b>지금 바로</b> 조회해요</div>
+        <div class="trade-num num">최대 <small>₩</small>750,000<span class="w">원</span></div>
+        <div class="trade-cta">iPhone 15 Pro · 256GB 시세 보기</div>
+      </div>
+    </section>
+
+    <!-- 통신사별 인기 단말 -->
+    <div class="sec">
+      <div class="sec-t">통신사별 인기 단말</div>
+      <div class="sec-s">5월 1주차 · 통신사별 BEST 3종</div>
+    </div>
+
+    <!-- ── SKT ── -->
+    <div class="tel-h">
+      <span class="tel-h-l"><span class="swatch skt"></span>SKT</span>
+      <a class="tel-h-r">SKT 전체 →</a>
+    </div>
+    <div class="pl" style="padding-top:0">
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#2C2C2E"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <rect x="22" y="6" width="16" height="4" rx="2" fill="#1a1a22"/>
+            <rect x="38" y="14" width="12" height="14" rx="3" fill="#1a1a22"/>
+            <circle cx="42" cy="18" r="1.7" fill="#3a3a40"/>
+            <circle cx="42" cy="24" r="1.7" fill="#3a3a40"/>
+            <circle cx="46" cy="21" r="1.7" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch skt"></span>SKT</span>
+          </div>
+          <div class="item-name">iPhone 17 Pro 256GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">27,750원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>18%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">33,900원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>6%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            사은품 6종 증정
+          </div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#3D5A80"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <circle cx="30" cy="9" r="1.5" fill="#222"/>
+            <circle cx="14" cy="14" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="14" r="1.4" fill="#3a3a40"/>
+            <circle cx="14" cy="22" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="22" r="1.4" fill="#3a3a40"/>
+            <circle cx="14" cy="30" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="30" r="1.4" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch skt"></span>SKT</span>
+          </div>
+          <div class="item-name">Galaxy S26 Ultra 512GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">24,900원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>21%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">31,500원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>7%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            갤럭시 버즈4 증정
+          </div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#C9A878"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <line x1="8" y1="36" x2="52" y2="36" stroke="#222" stroke-width="0.6"/>
+            <circle cx="30" cy="9" r="1.5" fill="#222"/>
+            <rect x="20" y="14" width="20" height="14" rx="2.5" fill="#1a1a22"/>
+            <circle cx="26" cy="21" r="2" fill="#3a3a40"/>
+            <circle cx="34" cy="21" r="2" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch skt"></span>SKT</span>
+          </div>
+          <div class="item-name">Galaxy Z Flip 7 256GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">19,800원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>21%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">25,200원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>8%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            케이스 + 보호필름
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── KT ── -->
+    <div class="tel-h">
+      <span class="tel-h-l"><span class="swatch kt"></span>KT</span>
+      <a class="tel-h-r">KT 전체 →</a>
+    </div>
+    <div class="pl" style="padding-top:0">
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#3D5A80"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <circle cx="30" cy="9" r="1.5" fill="#222"/>
+            <circle cx="14" cy="14" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="14" r="1.4" fill="#3a3a40"/>
+            <circle cx="14" cy="22" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="22" r="1.4" fill="#3a3a40"/>
+            <circle cx="14" cy="30" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="30" r="1.4" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch kt"></span>KT</span>
+          </div>
+          <div class="item-name">Galaxy S26 Ultra 512GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">22,400원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>25%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">29,800원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>9%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            버즈4 + 워치 8 증정
+          </div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#2C2C2E"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <rect x="22" y="6" width="16" height="4" rx="2" fill="#1a1a22"/>
+            <rect x="38" y="14" width="12" height="14" rx="3" fill="#1a1a22"/>
+            <circle cx="42" cy="18" r="1.7" fill="#3a3a40"/>
+            <circle cx="42" cy="24" r="1.7" fill="#3a3a40"/>
+            <circle cx="46" cy="21" r="1.7" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch kt"></span>KT</span>
+          </div>
+          <div class="item-name">iPhone 17 Pro 256GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">28,900원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>16%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">34,400원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>4%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            사은품 5종 증정
+          </div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#E8EAEE"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <circle cx="30" cy="9" r="1.5" fill="#222"/>
+            <circle cx="14" cy="14" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="14" r="1.4" fill="#3a3a40"/>
+            <circle cx="14" cy="22" r="3.2" fill="#1a1a22"/>
+            <circle cx="14" cy="22" r="1.4" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch kt"></span>KT</span>
+          </div>
+          <div class="item-name">Galaxy S26+ 256GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">18,200원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>25%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">24,300원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>8%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            충전기 + 케이스
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LG U+ ── -->
+    <div class="tel-h">
+      <span class="tel-h-l"><span class="swatch lg"></span>LG U+</span>
+      <a class="tel-h-r">LG U+ 전체 →</a>
+    </div>
+    <div class="pl" style="padding-top:0">
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#C9A878"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <line x1="8" y1="36" x2="52" y2="36" stroke="#222" stroke-width="0.6"/>
+            <circle cx="30" cy="9" r="1.5" fill="#222"/>
+            <rect x="20" y="14" width="20" height="14" rx="2.5" fill="#1a1a22"/>
+            <circle cx="26" cy="21" r="2" fill="#3a3a40"/>
+            <circle cx="34" cy="21" r="2" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch lg"></span>LG U+</span>
+          </div>
+          <div class="item-name">Galaxy Z Flip 7 256GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">18,900원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>29%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">26,800원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>10%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            케이스 + 보호필름
+          </div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#1A1A1F"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <rect x="22" y="6" width="16" height="4" rx="2" fill="#1a1a22"/>
+            <rect x="38" y="14" width="10" height="10" rx="2.5" fill="#1a1a22"/>
+            <circle cx="42" cy="17" r="1.4" fill="#3a3a40"/>
+            <circle cx="42" cy="22" r="1.4" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch lg"></span>LG U+</span>
+          </div>
+          <div class="item-name">iPhone 17 128GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">20,400원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>17%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">24,600원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>5%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            무선 충전기
+          </div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="6" y="2" width="48" height="68" rx="9" fill="#B7A6CE"/>
+            <rect x="8" y="4" width="44" height="64" rx="7" fill="#0a0a0f"/>
+            <circle cx="30" cy="9" r="1.5" fill="#222"/>
+            <circle cx="14" cy="14" r="2.8" fill="#1a1a22"/>
+            <circle cx="14" cy="14" r="1.2" fill="#3a3a40"/>
+            <circle cx="14" cy="22" r="2.8" fill="#1a1a22"/>
+            <circle cx="14" cy="22" r="1.2" fill="#3a3a40"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch lg"></span>LG U+</span>
+          </div>
+          <div class="item-name">Galaxy A55 128GB</div>
+          <div class="item-prices">
+            <div class="price-row">
+              <span class="price-label">번호이동</span>
+              <span class="price-val num">9,900원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>30%</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">기기변경</span>
+              <span class="price-val num">14,200원</span>
+              <span class="price-arrow"><svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>12%</span>
+            </div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            사은품 4종 증정
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 빠른액션 -->
+    <section style="margin-top:8px">
+      <div class="quick">
+        <button class="qa">
+          <div class="qa-ic b"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="5" width="3" height="13"/></svg></div>
+          <div class="qa-l">요금제<br>비교</div>
+        </button>
+        <button class="qa">
+          <div class="qa-ic g"><svg viewBox="0 0 24 24"><path d="M21 12V8a2 2 0 0 0-2-2H5a2 2 0 1 1 0-4h13"/><path d="M3 6v12a2 2 0 0 0 2 2h16v-5"/><path d="M22 12h-5a2 2 0 0 0 0 4h5z"/></svg></div>
+          <div class="qa-l">보상<br>판매</div>
+        </button>
+        <button class="qa">
+          <div class="qa-ic o"><svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+          <div class="qa-l">사은품<br>안내</div>
+        </button>
+        <button class="qa">
+          <div class="qa-ic r"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="qa-l">매장<br>방문</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- 비교표 -->
+    <section style="margin-top:8px">
+      <div class="cmp">
+        <div class="cmp-h">iPhone 17 Pro · 36개월 부담금 비교</div>
+        <div class="cmp-row">
+          <span class="cmp-l">출고가</span>
+          <span class="cmp-v num">1,650,000원</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">공시지원금 / 약정 할인</span>
+          <span class="cmp-v down num">−297,000원</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">중고 보상판매 (iPhone 15 Pro)</span>
+          <span class="cmp-v down num">−750,000원</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">사은품 환산가</span>
+          <span class="cmp-v down num">−145,000원</span>
+        </div>
+        <div class="cmp-foot">
+          <span class="cmp-foot-l">실제 부담 금액</span>
+          <span class="cmp-foot-v num">458,000원</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 후기 통계 -->
+    <div class="sec">
+      <div class="sec-t">실사용자 후기 <a class="more">전체 →</a></div>
+      <div class="sec-s">실명 · 모델 · 통신사 모두 표기</div>
+    </div>
+
+    <section>
+      <div class="rv-stat">
+        <div class="rv-stat-num num">4.97<span>★</span></div>
+        <div class="rv-stat-r">
+          <div class="rv-stat-stars">★★★★★</div>
+          <div class="rv-stat-cap">총 <b>14,238건</b> · 최근 30일 +1,128</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rv-list">
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">iPhone 17 Pro · SKT</span>
+        </div>
+        <p class="rv-tx">통신사 매장 세 군데 돌고 마지막에 왔는데, <b>여기가 시뮬레이션 표를 정확히 보여주는 유일한 곳</b>이었어요. 결국 자급제로 결정. 결정이 빨랐고 후회 없습니다.</p>
+        <div class="rv-meta"><b>김** · 송파구</b> · 2026.04.28</div>
+      </div>
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">Galaxy S26 Ultra · KT</span>
+        </div>
+        <p class="rv-tx">통신비 월 1.9만원 절감 확정. <b>중고 보상가도 가장 높게 쳐주셨고</b>, 사은품 정품 인증서까지 박스 봉인. 신뢰도 200%.</p>
+        <div class="rv-meta"><b>이** · 분당구</b> · 2026.04.25</div>
+      </div>
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">Z Flip 7 · LG U+</span>
+        </div>
+        <p class="rv-tx">영업 압박 없는 상담이 진짜였어요. <b>"이건 권 안 드린다"는 말까지 해주셔서</b> 오히려 안심하고 결제. 다음에 부모님 폰도 여기서 바꿉니다.</p>
+        <div class="rv-meta"><b>박** · 강남구</b> · 2026.04.20</div>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="ft">
+      <div class="ft-row">
+        <a>이용약관</a>·<a>개인정보처리방침</a>·<a>판매자 정보</a>·<a>고객센터</a>
+      </div>
+      <div>
+        <b>(주)우주커넥트</b> · 대표 김** · 1577-0000<br>
+        서울 강남구 테헤란로 152 · Mon–Sat 10:00–20:00<br>
+        사업자번호 123-45-67890 · 통신판매업신고 제2026-서울강남-1234호<br>
+        <span class="ft-c">© 2026 우주모바일. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>
+      </div>
+    </footer>
+
+  </div><!-- /panel-phone -->
+
+
+  <!-- ╔═══════ 패널: 인터넷 ═══════╗ -->
+  <div class="panel" id="panel-internet">
+
+    <!-- 가로 와이드 배너 (인터넷 결합) -->
+    <section>
+      <div class="banner-wide bw-internet">
+        <svg class="bw-phone" viewBox="0 0 100 144" style="width:104px; right:-6px; bottom:-6px; transform:rotate(8deg)">
+          <defs>
+            <linearGradient id="rtBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2C2F3A"/>
+              <stop offset="100%" stop-color="#0F1117"/>
+            </linearGradient>
+          </defs>
+          <!-- WiFi waves -->
+          <path d="M50 70 Q34 54 18 70" stroke="#3DD8E8" fill="none" stroke-width="2.4" stroke-linecap="round" opacity="0.9"/>
+          <path d="M50 56 Q26 28 2 56" stroke="#3DD8E8" fill="none" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+          <path d="M50 42 Q18 4 -14 42" stroke="#3DD8E8" fill="none" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
+          <circle cx="50" cy="76" r="2.5" fill="#3DD8E8"/>
+          <!-- antennas -->
+          <line x1="22" y1="86" x2="14" y2="60" stroke="#1a1a1f" stroke-width="3.2" stroke-linecap="round"/>
+          <line x1="78" y1="86" x2="86" y2="60" stroke="#1a1a1f" stroke-width="3.2" stroke-linecap="round"/>
+          <!-- router body -->
+          <rect x="6" y="86" width="88" height="44" rx="8" fill="url(#rtBody)"/>
+          <rect x="6" y="86" width="88" height="44" rx="8" fill="none" stroke="#1f2024" stroke-width="0.6"/>
+          <!-- LED indicators -->
+          <circle cx="20" cy="108" r="2.2" fill="#00C73C"/>
+          <circle cx="30" cy="108" r="2.2" fill="#00C73C"/>
+          <circle cx="40" cy="108" r="2.2" fill="#3DD8E8"/>
+          <circle cx="50" cy="108" r="2.2" fill="#3DD8E8"/>
+          <text x="76" y="113" text-anchor="middle" font-size="10" font-weight="800" fill="rgba(255,255,255,0.4)" font-family="Pretendard, sans-serif">1G</text>
+        </svg>
+        <div class="bw-tags">
+          <span class="bw-tag hot">결합특가</span>
+          <span class="bw-tag">5월 한정</span>
+        </div>
+        <div class="bw-title"><small>SK · KT · LG U+ INTERNET</small>1G + IPTV · 평생 할인</div>
+        <button class="bw-cta">현금 사은품 <b>최대 35만원</b></button>
+      </div>
+    </section>
+
+    <!-- 인터넷 소분류 (sticky) -->
+    <nav class="sub-nav">
+      <button class="on">전체</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch sk"></span>SK</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch kt"></span>KT</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch lg"></span>LG U+</button>
+      <span class="sub-dot"></span>
+      <button>셀프설치</button>
+    </nav>
+
+    <!-- HERO (인터넷) -->
+    <section class="pad">
+      <div class="hero">
+        <div class="hero-eye">결합 시뮬레이션</div>
+        <div class="hero-title">휴대폰 + 인터넷 묶으면<br><b>월 22%</b> 평생 할인</div>
+        <div class="hero-num num"><span class="minus">−</span>9,460<span class="unit">원</span></div>
+        <div class="hero-cap">평균 가구당 절감액 · 24개월 환산 시 227,040원</div>
+        <a class="hero-cta">결합 견적 받기</a>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="pad" style="margin-top:8px">
+      <div class="stats">
+        <div class="st">
+          <div class="st-v num">3,287<small>건</small></div>
+          <div class="st-l">결합 개통</div>
+        </div>
+        <div class="st">
+          <div class="st-v num">+35<small>만원</small></div>
+          <div class="st-l">평균 사은품</div>
+        </div>
+        <div class="st">
+          <div class="st-v num">3<small>일</small></div>
+          <div class="st-l">평균 설치</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 인터넷 상품 -->
+    <div class="sec">
+      <div class="sec-t">인터넷 + IPTV <a class="more">전체 →</a></div>
+      <div class="sec-s">3년 약정 · 현금 사은품 포함</div>
+    </div>
+
+    <div class="pl">
+
+      <!-- SK 1G -->
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <line x1="14" y1="20" x2="10" y2="8" stroke="#191F28" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="46" y1="20" x2="50" y2="8" stroke="#191F28" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="6" y="22" width="48" height="28" rx="6" fill="#2C2C2E"/>
+            <rect x="6" y="22" width="48" height="28" rx="6" fill="none" stroke="#1f2024" stroke-width="0.5"/>
+            <circle cx="14" cy="36" r="1.6" fill="#00C73C"/>
+            <circle cx="20" cy="36" r="1.6" fill="#00C73C"/>
+            <circle cx="26" cy="36" r="1.6" fill="#3182F6"/>
+            <text x="44" y="40" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.4)" font-family="Pretendard">1G</text>
+            <path d="M30 18 Q22 12 14 18" stroke="#3182F6" fill="none" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch sk"></span>SK</span>
+            <span class="item-tag">기가라이트</span>
+          </div>
+          <div class="item-name">SK 1G + Btv</div>
+          <div class="item-c">3년 약정 · 셋탑포함</div>
+          <div class="item-row">
+            <div class="item-month">월 결합가<b class="num">38,500<span class="w">원</span></b></div>
+            <div class="item-disc num">−22%</div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            현금 사은품 30만원
+          </div>
+        </div>
+      </div>
+
+      <!-- KT 1G -->
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <line x1="14" y1="20" x2="10" y2="8" stroke="#191F28" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="46" y1="20" x2="50" y2="8" stroke="#191F28" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="6" y="22" width="48" height="28" rx="6" fill="#1A1A22"/>
+            <circle cx="14" cy="36" r="1.6" fill="#00C73C"/>
+            <circle cx="20" cy="36" r="1.6" fill="#EA002C"/>
+            <circle cx="26" cy="36" r="1.6" fill="#00C73C"/>
+            <text x="44" y="40" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.4)" font-family="Pretendard">1G</text>
+            <path d="M30 18 Q22 12 14 18" stroke="#EA002C" fill="none" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch kt"></span>KT</span>
+            <span class="item-tag">기가콤팩트</span>
+          </div>
+          <div class="item-name">KT 1G + 지니TV</div>
+          <div class="item-c">3년 약정 · 셋탑포함</div>
+          <div class="item-row">
+            <div class="item-month">월 결합가<b class="num">41,800<span class="w">원</span></b></div>
+            <div class="item-disc num">−18%</div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            현금 사은품 35만원
+          </div>
+        </div>
+      </div>
+
+      <!-- LG U+ 1G -->
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <line x1="14" y1="20" x2="10" y2="8" stroke="#191F28" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="46" y1="20" x2="50" y2="8" stroke="#191F28" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="6" y="22" width="48" height="28" rx="6" fill="#2A1B30"/>
+            <circle cx="14" cy="36" r="1.6" fill="#A50034"/>
+            <circle cx="20" cy="36" r="1.6" fill="#00C73C"/>
+            <circle cx="26" cy="36" r="1.6" fill="#00C73C"/>
+            <text x="44" y="40" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.4)" font-family="Pretendard">1G</text>
+            <path d="M30 18 Q22 12 14 18" stroke="#A50034" fill="none" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch lg"></span>LG U+</span>
+            <span class="item-tag">스마트1G</span>
+          </div>
+          <div class="item-name">LG U+ 1G + IPTV</div>
+          <div class="item-c">3년 약정 · 셋탑포함</div>
+          <div class="item-row">
+            <div class="item-month">월 결합가<b class="num">39,600<span class="w">원</span></b></div>
+            <div class="item-disc num">−20%</div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            현금 사은품 32만원
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 결합 비교표 -->
+    <section style="margin-top:8px">
+      <div class="cmp">
+        <div class="cmp-h">결합 시 24개월 절감액 (4인 가구 기준)</div>
+        <div class="cmp-row">
+          <span class="cmp-l">휴대폰 4회선</span>
+          <span class="cmp-v down num">−7,200원/월</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">인터넷 1G + IPTV</span>
+          <span class="cmp-v down num">−2,260원/월</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">사은품 환산 (인터넷)</span>
+          <span class="cmp-v down num">−14,580원/월</span>
+        </div>
+        <div class="cmp-foot">
+          <span class="cmp-foot-l">월 평균 절감</span>
+          <span class="cmp-foot-v num">−24,040원</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 후기 -->
+    <div class="sec">
+      <div class="sec-t">결합 후기 <a class="more">전체 →</a></div>
+      <div class="sec-s">실명 · 통신사 · 가구원 수 표기</div>
+    </div>
+
+    <section>
+      <div class="rv-stat">
+        <div class="rv-stat-num num">4.94<span>★</span></div>
+        <div class="rv-stat-r">
+          <div class="rv-stat-stars">★★★★★</div>
+          <div class="rv-stat-cap">결합 후기 <b>3,287건</b> · 최근 30일 +218</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rv-list">
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">SK 1G + Btv · 4인가구</span>
+        </div>
+        <p class="rv-tx">휴대폰 4회선 + 인터넷 결합으로 <b>월 2.4만원 절감</b>. 사은품 30만원도 입금 빨랐고, 설치기사님이 친절하셨어요.</p>
+        <div class="rv-meta"><b>최** · 마포구</b> · 2026.04.30</div>
+      </div>
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">KT 1G + 지니TV · 3인가구</span>
+        </div>
+        <p class="rv-tx">기존 인터넷 위약금까지 <b>대납</b>해주셔서 부담 없이 갈아탔습니다. 신청 후 이틀 만에 설치 완료.</p>
+        <div class="rv-meta"><b>윤** · 용산구</b> · 2026.04.27</div>
+      </div>
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">LG U+ 1G + IPTV · 5인가구</span>
+        </div>
+        <p class="rv-tx">통신사 직영보다 사은품 8만원 더 받았어요. <b>약정 끝나기 6개월 전에 미리 연락</b>주신 것도 인상 깊습니다.</p>
+        <div class="rv-meta"><b>한** · 노원구</b> · 2026.04.22</div>
+      </div>
+    </div>
+
+    <footer class="ft">
+      <div class="ft-c">결합 사은품은 통신사 정책에 따라 변동될 수 있습니다. 정확한 견적은 매장 문의.</div>
+    </footer>
+
+  </div><!-- /panel-internet -->
+
+
+  <!-- ╔═══════ 패널: 렌탈 ═══════╗ -->
+  <div class="panel" id="panel-rental">
+
+    <!-- 가로 와이드 배너 (렌탈) -->
+    <section>
+      <div class="banner-wide bw-rental">
+        <svg class="bw-phone" viewBox="0 0 100 144" style="width:78px; right:0; bottom:-4px; transform:rotate(6deg)">
+          <!-- 정수기 body -->
+          <rect x="22" y="6" width="56" height="132" rx="8" fill="#F2F3F6"/>
+          <rect x="22" y="6" width="56" height="132" rx="8" fill="none" stroke="#D5D7DC" stroke-width="0.6"/>
+          <!-- top display -->
+          <rect x="32" y="18" width="36" height="22" rx="3" fill="#0a1530"/>
+          <text x="50" y="32" text-anchor="middle" font-size="9" font-weight="900" fill="#3DD8E8" font-family="Pretendard, sans-serif">PURE</text>
+          <!-- buttons -->
+          <circle cx="34" cy="56" r="3" fill="#3DD8E8"/>
+          <circle cx="50" cy="56" r="3" fill="#00C73C"/>
+          <circle cx="66" cy="56" r="3" fill="#F04452"/>
+          <!-- water spout -->
+          <rect x="44" y="76" width="12" height="22" rx="2.5" fill="#A0A4AD"/>
+          <rect x="44" y="76" width="12" height="5" fill="#7A7E87"/>
+          <!-- water drop -->
+          <ellipse cx="50" cy="106" rx="3" ry="4.5" fill="#3DD8E8" opacity="0.65"/>
+          <!-- glass cup hint -->
+          <path d="M36 110 L33 132 L67 132 L64 110 Z" fill="rgba(140,220,230,0.18)" stroke="#88C0CC" stroke-width="0.5"/>
+          <!-- brand mark -->
+          <text x="50" y="128" text-anchor="middle" font-size="6.5" font-weight="800" fill="#999" font-family="Pretendard, sans-serif">SK magic</text>
+        </svg>
+        <div class="bw-tags">
+          <span class="bw-tag hot">신상</span>
+          <span class="bw-tag">4개월 무료</span>
+        </div>
+        <div class="bw-title"><small>SK매직 · 코웨이 RENTAL</small>정수기 · 청정기 · 식세기</div>
+        <button class="bw-cta">설치비 <b>0원</b> + 무료체험</button>
+      </div>
+    </section>
+
+    <!-- 렌탈 소분류 (sticky) -->
+    <nav class="sub-nav">
+      <button class="on">전체</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch skm"></span>SK매직</button>
+      <span class="sub-dot"></span>
+      <button><span class="swatch cw"></span>코웨이</button>
+      <span class="sub-dot"></span>
+      <button>청호나이스</button>
+    </nav>
+
+    <!-- HERO (렌탈) -->
+    <section class="pad">
+      <div class="hero">
+        <div class="hero-eye">통신요금 합산 청구</div>
+        <div class="hero-title">정수기·청정기,<br><b>통신비에 묶어서</b> 한 번에</div>
+        <div class="hero-num num"><span class="minus">−</span>5,400<span class="unit">원</span></div>
+        <div class="hero-cap">결합 시 월 할인 · 설치비 0원 · 4개월 무료체험</div>
+        <a class="hero-cta">렌탈 상담 신청</a>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="pad" style="margin-top:8px">
+      <div class="stats">
+        <div class="st">
+          <div class="st-v num">2,164<small>건</small></div>
+          <div class="st-l">렌탈 누적</div>
+        </div>
+        <div class="st">
+          <div class="st-v num">4<small>개월</small></div>
+          <div class="st-l">평균 무료체험</div>
+        </div>
+        <div class="st">
+          <div class="st-v num">24<small>시간</small></div>
+          <div class="st-l">AS 응대</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 렌탈 상품 -->
+    <div class="sec">
+      <div class="sec-t">인기 렌탈 상품 <a class="more">전체 →</a></div>
+      <div class="sec-s">설치비 무료 · 약정 만료 시 소유권 이전</div>
+    </div>
+
+    <div class="pl">
+
+      <!-- SK매직 슈퍼정수기 -->
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="18" y="4" width="24" height="64" rx="5" fill="#F2F3F6"/>
+            <rect x="18" y="4" width="24" height="64" rx="5" fill="none" stroke="#D5D7DC" stroke-width="0.6"/>
+            <rect x="22" y="10" width="16" height="12" rx="2" fill="#0a1530"/>
+            <text x="30" y="18" text-anchor="middle" font-size="5" font-weight="900" fill="#3182F6" font-family="Pretendard">PURE</text>
+            <rect x="26" y="36" width="8" height="12" rx="2" fill="#A0A4AD"/>
+            <path d="M22 52 L20 66 L40 66 L38 52 Z" fill="rgba(140,180,255,0.25)" stroke="#B8C0CC" stroke-width="0.5"/>
+            <circle cx="22" cy="28" r="1.5" fill="#3182F6"/>
+            <circle cx="30" cy="28" r="1.5" fill="#00C73C"/>
+            <circle cx="38" cy="28" r="1.5" fill="#F04452"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch skm"></span>SK매직</span>
+            <span class="item-tag">직수형</span>
+          </div>
+          <div class="item-name">슈퍼정수기 100C</div>
+          <div class="item-c">5년 약정 · 4개월 무료체험</div>
+          <div class="item-row">
+            <div class="item-month">월 렌탈료<b class="num">26,900<span class="w">원</span></b></div>
+            <div class="item-disc zero num">설치비 0원</div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            첫 4개월 무료 + 통신요금 합산
+          </div>
+        </div>
+      </div>
+
+      <!-- 코웨이 아이콘 정수기 -->
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="20" y="4" width="20" height="64" rx="7" fill="#FFFFFF"/>
+            <rect x="20" y="4" width="20" height="64" rx="7" fill="none" stroke="#C8CCD3" stroke-width="0.6"/>
+            <rect x="24" y="10" width="12" height="9" rx="2" fill="#0061B0"/>
+            <circle cx="30" cy="14" r="0.9" fill="#00C73C"/>
+            <rect x="27" y="34" width="6" height="14" rx="1.5" fill="#88909C"/>
+            <ellipse cx="30" cy="52" rx="2" ry="3" fill="#3182F6" opacity="0.4"/>
+            <rect x="20" y="26" width="2" height="34" fill="#0061B0"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch cw"></span>코웨이</span>
+            <span class="item-tag">냉온정</span>
+          </div>
+          <div class="item-name">아이콘 정수기2</div>
+          <div class="item-c">6년 약정 · 2개월 방문관리</div>
+          <div class="item-row">
+            <div class="item-month">월 렌탈료<b class="num">29,900<span class="w">원</span></b></div>
+            <div class="item-disc zero num">설치비 0원</div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            카드 결제 시 5% 할인
+          </div>
+        </div>
+      </div>
+
+      <!-- SK매직 식세기 -->
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="8" y="6" width="44" height="60" rx="4" fill="#EFF1F4"/>
+            <rect x="8" y="6" width="44" height="60" rx="4" fill="none" stroke="#C8CCD3" stroke-width="0.6"/>
+            <rect x="11" y="10" width="38" height="44" rx="2.5" fill="none" stroke="#B8BDC5" stroke-width="0.6"/>
+            <rect x="13" y="32" width="34" height="2.5" rx="1.2" fill="#9CA0AA"/>
+            <rect x="36" y="14" width="11" height="5" rx="1" fill="#1A1A2A"/>
+            <ellipse cx="30" cy="40" rx="13" ry="8" fill="rgba(49,130,246,0.1)"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch skm"></span>SK매직</span>
+            <span class="item-tag">12인용</span>
+          </div>
+          <div class="item-name">트리플케어 식세기</div>
+          <div class="item-c">5년 약정 · 신상</div>
+          <div class="item-row">
+            <div class="item-month">월 렌탈료<b class="num">35,900<span class="w">원</span></b></div>
+            <div class="item-disc zero num">설치비 0원</div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            세제 1년치 + 설치비 면제
+          </div>
+        </div>
+      </div>
+
+      <!-- 코웨이 노블 공기청정기 -->
+      <div class="item">
+        <div class="item-img">
+          <svg viewBox="0 0 60 72">
+            <rect x="14" y="4" width="32" height="64" rx="7" fill="#F5F6F9"/>
+            <rect x="14" y="4" width="32" height="64" rx="7" fill="none" stroke="#C8CCD3" stroke-width="0.6"/>
+            <line x1="18" y1="12" x2="42" y2="12" stroke="#C0C5CC" stroke-width="0.5"/>
+            <line x1="18" y1="16" x2="42" y2="16" stroke="#C0C5CC" stroke-width="0.5"/>
+            <line x1="18" y1="20" x2="42" y2="20" stroke="#C0C5CC" stroke-width="0.5"/>
+            <circle cx="30" cy="38" r="11" fill="#fff" stroke="#D0D5DC" stroke-width="0.7"/>
+            <circle cx="30" cy="38" r="7" fill="none" stroke="#E0E5EC" stroke-width="0.5"/>
+            <circle cx="30" cy="38" r="3" fill="#00C73C"/>
+            <rect x="14" y="58" width="32" height="10" rx="3" fill="#E5E7EB"/>
+          </svg>
+        </div>
+        <div class="item-info">
+          <div class="item-tags">
+            <span class="item-tag"><span class="swatch cw"></span>코웨이</span>
+            <span class="item-tag">28평형</span>
+          </div>
+          <div class="item-name">노블 공기청정기</div>
+          <div class="item-c">5년 약정 · 4개월 방문관리</div>
+          <div class="item-row">
+            <div class="item-month">월 렌탈료<b class="num">32,900<span class="w">원</span></b></div>
+            <div class="item-disc zero num">필터 무료</div>
+          </div>
+          <div class="item-gift">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            전 필터 5년간 무상 교체
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 렌탈 비교표 -->
+    <section style="margin-top:8px">
+      <div class="cmp">
+        <div class="cmp-h">SK매직 슈퍼정수기 · 60개월 총비용</div>
+        <div class="cmp-row">
+          <span class="cmp-l">월 렌탈료</span>
+          <span class="cmp-v num">26,900원</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">4개월 무료체험</span>
+          <span class="cmp-v down num">−107,600원</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">통신비 결합 할인</span>
+          <span class="cmp-v down num">−5,400원/월</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-l">설치비 / 방문관리</span>
+          <span class="cmp-v down num">0원 (포함)</span>
+        </div>
+        <div class="cmp-foot">
+          <span class="cmp-foot-l">실 부담 (60개월)</span>
+          <span class="cmp-foot-v num">1,182,400원</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 후기 -->
+    <div class="sec">
+      <div class="sec-t">렌탈 후기 <a class="more">전체 →</a></div>
+      <div class="sec-s">설치 후 60일 이내 작성 후기만</div>
+    </div>
+
+    <section>
+      <div class="rv-stat">
+        <div class="rv-stat-num num">4.92<span>★</span></div>
+        <div class="rv-stat-r">
+          <div class="rv-stat-stars">★★★★★</div>
+          <div class="rv-stat-cap">렌탈 후기 <b>2,164건</b> · AS 만족도 4.95★</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rv-list">
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">SK매직 슈퍼정수기 · 통신결합</span>
+        </div>
+        <p class="rv-tx"><b>4개월 무료체험</b>이라 부담 없이 시작. 통신비랑 같이 청구되니 잊을 일도 없고, 설치 다음 날 바로 사용 가능했어요.</p>
+        <div class="rv-meta"><b>정** · 송파구</b> · 2026.05.02</div>
+      </div>
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">코웨이 노블 공기청정기</span>
+        </div>
+        <p class="rv-tx">방문관리 기사님이 <b>필터 교체 주기까지 캘린더에 알림</b> 등록해주셨어요. 잔고장 0회, 5년 보증도 신뢰 갑니다.</p>
+        <div class="rv-meta"><b>장** · 서초구</b> · 2026.04.18</div>
+      </div>
+      <div class="rv">
+        <div class="rv-top">
+          <span class="rv-stars">★★★★★</span>
+          <span class="rv-prod">SK매직 트리플케어 식세기</span>
+        </div>
+        <p class="rv-tx">설치비 0원에 세제 1년치까지. 대형 가전인데 설치기사 두 분이 <b>주방 동선 맞춰 위치 조정</b>까지. 만족.</p>
+        <div class="rv-meta"><b>오** · 분당구</b> · 2026.04.14</div>
+      </div>
+    </div>
+
+    <footer class="ft">
+      <div class="ft-c">렌탈 상품은 통신요금과 합산 청구 가능. 약정 중도해지 시 위약금 발생.</div>
+    </footer>
+
+  </div><!-- /panel-rental -->
+
+
+  <!-- ╔═══════ 패널: 테스트 ═══════╗ -->
+  <div class="panel" id="panel-test">
+
+    <!-- 배너 1 — STYLE A: 와이드 풀블리드 (다크 글로우) -->
+    <section>
+      <div class="banner-wide" style="background:radial-gradient(ellipse at 80% 18%, #2A1838 0%, #0E0814 65%); min-height:108px;">
+        <div class="bw-tags">
+          <span class="bw-tag hot">STYLE A</span>
+          <span class="bw-tag">WIDE</span>
+        </div>
+        <div class="bw-title"><small>FULL-BLEED · 다크 글로우</small>가로 풀블리드 배너</div>
+        <button class="bw-cta">자세히 보기 <b>›</b></button>
+      </div>
+    </section>
+
+    <!-- 배너 2 — STYLE B: 카드형 (블루 그라데이션) -->
+    <section class="pad" style="margin-top:14px">
+      <div class="banner-card">
+        <div class="banner-card-eye">STYLE B · CARD</div>
+        <div class="banner-card-h">전체 모델 <b>최대 35%</b><br>특별 할인 진행 중</div>
+        <button class="banner-card-cta">혜택 자세히 보기</button>
+      </div>
+    </section>
+
+    <!-- 배너 3 — STYLE C: 슬림 가로 띠 -->
+    <section class="pad" style="margin-top:14px">
+      <a class="banner-slim">
+        <span class="banner-slim-tag">STYLE C</span>
+        <span class="banner-slim-t">오늘 자정까지 · 추가 5% 할인 코드</span>
+        <span class="banner-slim-arrow">›</span>
+      </a>
+    </section>
+
+    <div style="height:80px"></div>
+
+  </div><!-- /panel-test -->
+
+  </div><!-- /panels -->
+
+</div><!-- /scroll -->
+
+<!-- 플로팅 상담 FAB (클릭 시 카톡/전화 펼침) -->
+<div class="fab" id="fab">
+  <div class="fab-list">
+    <a class="fab-btn fab-talk" href="#" aria-label="카톡상담">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 3.2C6.6 3.2 2.2 6.7 2.2 11c0 2.7 1.7 5.1 4.4 6.5l-.9 3.3c-.1.4.3.7.7.5l3.9-2.6c.6.1 1.2.1 1.7.1 5.4 0 9.8-3.5 9.8-7.8S17.4 3.2 12 3.2z"/>
+      </svg>
+      <span>카톡상담</span>
+    </a>
+    <a class="fab-btn fab-call" href="tel:1577-0000" aria-label="전화상담">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      <span>전화상담</span>
+    </a>
+  </div>
+  <button class="fab-trigger" id="fab-trigger" aria-label="상담">
+    <svg class="ic-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <svg class="ic-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+
+<!-- 맨 위로 이동 -->
+<button class="top-btn" id="top-btn" aria-label="맨 위로">
+  <svg viewBox="0 0 24 24">
+    <polyline points="6 13 12 7 18 13"/>
+    <polyline points="6 20 12 14 18 20"/>
+  </svg>
+</button>
+
+</div><!-- /device -->
+
+<script>
+  var catNav = document.getElementById('cat-nav');
+  var scrollEl = document.querySelector('.scroll');
+  var panelsEl = document.getElementById('panels');
+  var catOrder = ['phone', 'internet', 'rental', 'test'];
+  var currentIdx = 0;
+
+  function syncPanelsHeight() {
+    var active = document.getElementById('panel-' + catOrder[currentIdx]);
+    if (active && panelsEl) {
+      panelsEl.style.height = active.scrollHeight + 'px';
+    }
+  }
+
+  function showCat(cat) {
+    var newIdx = catOrder.indexOf(cat);
+    if (newIdx === currentIdx) return;
+
+    catNav.querySelectorAll('button').forEach(function(b) {
+      b.classList.toggle('on', b.dataset.cat === cat);
+    });
+
+    currentIdx = newIdx;
+    panelsEl.style.left = -(newIdx * 100) + '%';
+    syncPanelsHeight();
+
+    if (scrollEl) {
+      scrollEl.scrollTop = 0;
+      requestAnimationFrame(function(){ scrollEl.scrollTop = 0; });
+    }
+    window.scrollTo(0, 0);
+  }
+
+  // 초기 높이 설정
+  window.addEventListener('load', syncPanelsHeight);
+  window.addEventListener('resize', syncPanelsHeight);
+
+  catNav.querySelectorAll('button').forEach(function(b) {
+    b.addEventListener('click', function() { showCat(b.dataset.cat); });
+  });
+
+  // 각 패널의 sub-nav — 클릭 시 active 토글
+  document.querySelectorAll('.sub-nav').forEach(function(nav) {
+    nav.querySelectorAll('button').forEach(function(b) {
+      b.addEventListener('click', function() {
+        nav.querySelectorAll('button').forEach(function(x) { x.classList.remove('on'); });
+        b.classList.add('on');
+      });
+    });
+  });
+
+  // FAB 토글 (메시지 → 카톡/전화 펼침)
+  var fab = document.getElementById('fab');
+  var fabTrigger = document.getElementById('fab-trigger');
+  fabTrigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    fab.classList.toggle('open');
+  });
+  // 외부 클릭 시 닫힘
+  document.addEventListener('click', function(e) {
+    if (fab.classList.contains('open') && !fab.contains(e.target)) {
+      fab.classList.remove('open');
+    }
+  });
+
+  // 맨 위로 버튼 — 스크롤 240px 넘으면 등장
+  var topBtn = document.getElementById('top-btn');
+  topBtn.addEventListener('click', function() {
+    scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // 스크롤 시 맨 위로 버튼 토글
+  scrollEl.addEventListener('scroll', function() {
+    if (scrollEl.scrollTop > 240) topBtn.classList.add('show');
+    else topBtn.classList.remove('show');
+  });
+</script>
+
+</body>
+</html>

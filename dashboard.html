@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우성 대리점 본점 · 판매 대시보드</title>
+<style>
+  :root{
+    --primary:#DE4F41;
+    --primary-soft:#fdecea;
+    --bg:#f4f5f7;
+    --card:#ffffff;
+    --ink:#1f2430;
+    --muted:#8a93a3;
+    --line:#eceef2;
+    --good:#1faa6c;
+    --bad:#e0483b;
+    --shadow:0 1px 3px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1200px;margin:0 auto;padding:28px 22px 60px}
+
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:42px;height:42px;border-radius:12px;background:var(--primary);display:grid;place-items:center;color:#fff;box-shadow:0 6px 16px rgba(222,79,65,.35)}
+  .logo svg{width:22px;height:22px}
+  .brand h1{font-size:19px;font-weight:700;letter-spacing:-.3px}
+  .brand p{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .head-right{display:flex;align-items:center;gap:14px}
+  .badge{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .badge b{color:var(--primary)}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ffb199,#ff6a5b);display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+  .kpi{background:var(--card);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+  .kpi .ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:var(--primary-soft);margin-bottom:14px}
+  .kpi .ico svg{width:21px;height:21px;stroke:var(--primary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .kpi .label{font-size:12.5px;color:var(--muted);font-weight:600}
+  .kpi .val{font-size:25px;font-weight:800;letter-spacing:-.5px;margin-top:3px}
+  .kpi .note{font-size:12px;font-weight:600;margin-top:8px;color:var(--muted)}
+  .kpi .note b{color:var(--good)}
+
+  .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px}
+  .panel{background:var(--card);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+  .panel h2{font-size:15px;font-weight:700;margin-bottom:2px}
+  .panel .sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+  .panel-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:9px;height:9px;border-radius:50%}
+
+  /* line/bar chart */
+  .chart{height:220px;position:relative;padding-top:6px}
+  .chart .bars{display:flex;align-items:flex-end;gap:3px;height:185px}
+  .chart .cw{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;height:100%}
+  .chart .bar{width:100%;max-width:26px;border-radius:5px 5px 2px 2px;background:var(--primary);transition:height .9s cubic-bezier(.2,.8,.2,1);position:relative}
+  .chart .bar:hover{background:#c43c30}
+  .chart .bar .tip{position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10.5px;padding:2px 6px;border-radius:5px;opacity:0;white-space:nowrap;pointer-events:none}
+  .chart .bar:hover .tip{opacity:1}
+  .chart .xl{font-size:9.5px;color:var(--muted);white-space:nowrap}
+
+  /* donut */
+  .donut-wrap{display:flex;align-items:center;gap:20px}
+  .donut{width:150px;height:150px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;position:relative}
+  .donut::after{content:'';width:96px;height:96px;background:var(--card);border-radius:50%}
+  .donut .ctr{position:absolute;text-align:center}
+  .donut .ctr b{font-size:24px;font-weight:800;display:block}
+  .donut .ctr small{font-size:11px;color:var(--muted)}
+  .brk{flex:1;display:flex;flex-direction:column;gap:12px}
+  .brk-row{display:flex;align-items:center;gap:9px;font-size:13px}
+  .brk-row .nm{flex:1;color:#444}
+  .brk-row .pc{font-weight:700}
+
+  /* horizontal bars */
+  .hbar{display:flex;flex-direction:column;gap:14px}
+  .hrow{display:grid;grid-template-columns:120px 1fr 38px;align-items:center;gap:12px;font-size:13px}
+  .hrow .hn{font-weight:600}
+  .htrack{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+  .htrack i{display:block;height:100%;background:var(--primary);border-radius:6px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .hrow .hv{text-align:right;font-weight:700;color:#555}
+
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11.5px;color:var(--muted);font-weight:600;padding:0 8px 12px;letter-spacing:.4px}
+  td{padding:12px 8px;border-top:1px solid var(--line);font-size:13.5px}
+  .prod{display:flex;align-items:center;gap:11px;font-weight:600}
+  .thumb{width:36px;height:36px;border-radius:9px;background:var(--primary-soft);display:grid;place-items:center;font-size:17px}
+  .rank{width:22px;height:22px;border-radius:6px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0}
+  .rank.g{background:var(--primary)}
+  .barmini{height:6px;border-radius:4px;background:var(--line);overflow:hidden;width:80px;display:inline-block;vertical-align:middle;margin-right:8px}
+  .barmini i{display:block;height:100%;background:var(--primary);border-radius:4px}
+
+  .two{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+  .chip{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px}
+  .chip:first-of-type{border-top:0}
+  .chip .cn{display:flex;align-items:center;gap:10px;font-weight:600}
+  .chip .cc{font-size:13px;font-weight:700;color:var(--primary)}
+  .sw{width:14px;height:14px;border-radius:4px}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+
+  @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid,.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg></div>
+      <div>
+        <h1>우성 대리점 본점 · 판매 대시보드</h1>
+        <p>SKT(T) 판매관리 · 2026년 5월 실적</p>
+      </div>
+    </div>
+    <div class="head-right">
+      <div class="badge">개통기간 <b>05.01 ~ 05.29</b></div>
+      <div class="avatar">우</div>
+    </div>
+  </header>
+
+  <!-- KPI -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg></div>
+      <div class="label">총 개통 건수</div>
+      <div class="val" id="k-total">0건</div>
+      <div class="note">영업일 <b id="k-days">0</b>일 · 일평균 <b id="k-avg">0</b>건</div>
+    </div>
+    <div class="kpi">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 2s4 4 4 8a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3.5C9 8 12 6 12 2z"/><path d="M12 22a6 6 0 0 0 6-6c0-2-1-3.5-2-5 0 3-2 4-2 4"/></svg></div>
+      <div class="label">최다 개통일</div>
+      <div class="val">05.16</div>
+      <div class="note"><b>19건</b> 집중 개통</div>
+    </div>
+    <div class="kpi">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M5 13a9 9 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><line x1="12" y1="20" x2="12" y2="20.5"/><path d="M2 10a13 13 0 0 1 20 0"/></svg></div>
+      <div class="label">5G 비중</div>
+      <div class="val">90%</div>
+      <div class="note">87건 / LTE 10건</div>
+    </div>
+    <div class="kpi">
+      <div class="ico"><svg viewBox="0 0 24 24"><polygon points="6 3 18 3 22 9 12 22 2 9"/><line x1="2" y1="9" x2="22" y2="9"/><polyline points="6 3 12 9 18 3"/><line x1="12" y1="9" x2="12" y2="22"/></svg></div>
+      <div class="label">프리미엄 요금제</div>
+      <div class="val">80%</div>
+      <div class="note">고가 요금제 가입 비율</div>
+    </div>
+  </section>
+
+  <!-- main grid -->
+  <div class="grid">
+    <!-- daily bar chart -->
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>일자별 개통 추이</h2>
+          <div class="sub">2026년 5월 · 단위: 건</div>
+        </div>
+        <div class="legend"><span><i class="dot" style="background:var(--primary)"></i>개통 건수</span></div>
+      </div>
+      <div class="chart"><div class="bars" id="daily"></div></div>
+    </div>
+
+    <!-- subscribe donut -->
+    <div class="panel">
+      <h2>가입 유형</h2>
+      <div class="sub">신규 / 기변 / 번호이동</div>
+      <div class="donut-wrap">
+        <div class="donut" id="donut">
+          <div class="ctr"><b id="d-total">0</b><small>총 개통</small></div>
+        </div>
+        <div class="brk" id="brk"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- model + brand/network -->
+  <div class="two">
+    <!-- top models -->
+    <div class="panel">
+      <h2>인기 모델 TOP 6</h2>
+      <div class="sub">개통 수량 기준</div>
+      <table>
+        <thead><tr><th>순위 / 모델</th><th>제조사</th><th style="text-align:right">개통</th></tr></thead>
+        <tbody id="models"></tbody>
+      </table>
+    </div>
+
+    <!-- right column -->
+    <div class="panel">
+      <h2>제조사 점유율</h2>
+      <div class="sub">삼성 vs 애플</div>
+      <div class="hbar" id="brand" style="margin-bottom:24px"></div>
+      <h2>인기 색상 TOP 5</h2>
+      <div class="sub">선택 비율</div>
+      <div id="colors"></div>
+    </div>
+  </div>
+
+  <footer id="foot">데이터 출처: T판매관리 (D15328GFPHVX) · 우성 대리점 본점</footer>
+</div>
+
+<script>
+const DATA = {
+  total:97, days:21,
+  daily:[{date:"05.01",cnt:3},{date:"05.02",cnt:3},{date:"05.05",cnt:1},{date:"05.06",cnt:1},{date:"05.07",cnt:2},{date:"05.08",cnt:4},{date:"05.09",cnt:4},{date:"05.12",cnt:2},{date:"05.13",cnt:7},{date:"05.14",cnt:3},{date:"05.15",cnt:11},{date:"05.16",cnt:19},{date:"05.18",cnt:1},{date:"05.19",cnt:1},{date:"05.20",cnt:4},{date:"05.21",cnt:7},{date:"05.22",cnt:11},{date:"05.26",cnt:1},{date:"05.27",cnt:4},{date:"05.28",cnt:3},{date:"05.29",cnt:5}],
+  subscribe:[{name:"기기변경",cnt:52,color:"#DE4F41"},{name:"번호이동",cnt:40,color:"#ff8a7d"},{name:"신규가입",cnt:5,color:"#ffc4bc"}],
+  models:[{name:"갤럭시 S25",brand:"삼성",cnt:25},{name:"갤럭시 S25 Ultra",brand:"삼성",cnt:18},{name:"아이폰 17",brand:"애플",cnt:14},{name:"아이폰 17 Pro",brand:"애플",cnt:12},{name:"갤럭시 A17",brand:"삼성",cnt:10},{name:"갤럭시 S25 엣지",brand:"삼성",cnt:5}],
+  brand:[{name:"삼성",cnt:69},{name:"애플",cnt:28}],
+  color:[{name:"검정",cnt:24,sw:"#222"},{name:"화이트",cnt:22,sw:"#e8e8e8"},{name:"바이올렛",cnt:16,sw:"#8a6fd6"},{name:"회색",cnt:12,sw:"#9aa0a8"},{name:"라이트블루",cnt:11,sw:"#acd2f0"}]
+};
+
+// KPI
+document.getElementById('k-total').textContent = DATA.total+'건';
+document.getElementById('k-days').textContent = DATA.days;
+document.getElementById('k-avg').textContent = (DATA.total/DATA.days).toFixed(1);
+document.getElementById('d-total').textContent = DATA.total;
+
+// daily bars
+const dmax = Math.max(...DATA.daily.map(d=>d.cnt));
+const dailyEl = document.getElementById('daily');
+DATA.daily.forEach(d=>{
+  const cw=document.createElement('div'); cw.className='cw';
+  cw.innerHTML=`<div class="bar"><div class="tip">${d.date} · ${d.cnt}건</div></div><div class="xl">${d.date.slice(3)}</div>`;
+  dailyEl.appendChild(cw);
+  requestAnimationFrame(()=>{cw.querySelector('.bar').style.height=(d.cnt/dmax*100)+'%';});
+});
+
+// donut
+const subTotal=DATA.subscribe.reduce((a,b)=>a+b.cnt,0);
+let acc=0, segs=[];
+DATA.subscribe.forEach(s=>{
+  const start=acc/subTotal*100; acc+=s.cnt; const end=acc/subTotal*100;
+  segs.push(`${s.color} ${start}% ${end}%`);
+});
+document.getElementById('donut').style.background=`conic-gradient(${segs.join(',')})`;
+document.getElementById('brk').innerHTML=DATA.subscribe.map(s=>
+  `<div class="brk-row"><i class="dot" style="background:${s.color}"></i><span class="nm">${s.name}</span><span class="pc">${Math.round(s.cnt/subTotal*100)}%</span></div>`
+).join('');
+
+// models table
+const mmax=DATA.models[0].cnt;
+document.getElementById('models').innerHTML=DATA.models.map((m,i)=>`
+  <tr>
+    <td><div class="prod"><div class="rank ${i===0?'g':''}">${i+1}</div>${m.name}</div></td>
+    <td>${m.brand}</td>
+    <td style="text-align:right;font-weight:700"><div class="barmini"><i style="width:${m.cnt/mmax*100}%"></i></div>${m.cnt}</td>
+  </tr>`).join('');
+
+// brand
+const btotal=DATA.brand.reduce((a,b)=>a+b.cnt,0);
+document.getElementById('brand').innerHTML=DATA.brand.map(b=>`
+  <div class="hrow"><span class="hn">${b.name}</span>
+  <div class="htrack"><i style="width:0%" data-w="${Math.round(b.cnt/btotal*100)}"></i></div>
+  <span class="hv">${Math.round(b.cnt/btotal*100)}%</span></div>`).join('');
+requestAnimationFrame(()=>document.querySelectorAll('.htrack i').forEach(i=>i.style.width=i.dataset.w+'%'));
+
+// colors
+const cmax=DATA.color[0].cnt;
+document.getElementById('colors').innerHTML=DATA.color.map(c=>`
+  <div class="chip"><span class="cn"><span class="sw" style="background:${c.sw};border:1px solid #00000015"></span>${c.name}</span><span class="cc">${c.cnt}건</span></div>`).join('');
+</script>
+</body>
+</html>
