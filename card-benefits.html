@@ -35,8 +35,8 @@
     box-shadow:0 10px 30px rgba(222,79,65,.4);transition:.18s}
   .cb-back-btn:hover{background:var(--primary-dark,#c33f33);box-shadow:0 12px 34px rgba(222,79,65,.5);transform:translateY(-1px)}
   @media (max-width:860px){
-    .cb-back{left:16px;right:84px;bottom:16px;transform:none}  /* 우하단 상담 FAB 자리(약 68px) 비워 겹침 방지 */
-    .cb-back-btn{width:100%;justify-content:center;font-size:14.5px;padding:14px}
+    .cb-back{left:50%;right:auto;bottom:18px;transform:translateX(-50%)}  /* 가운데 정렬 */
+    .cb-back-btn{width:auto;justify-content:center;font-size:14px;padding:12px 22px}  /* 내용 폭 — FAB와 안 겹침 */
   }
 
   /* ===== 임베드(샵 iframe) 모드: 자체 유틸바/헤더 숨기고 브랜드 소메뉴만 — 샵 탭이 위에 있으므로 메뉴 보존 ===== */
@@ -47,7 +47,7 @@
   .msr-embed-sub{ display:none; }
   html.msr-embed .msr-embed-sub{
     display:flex; align-items:center; position:sticky; top:0; z-index:50;
-    padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none;
+    padding:6px 20px 10px; background:#fff; overflow-x:auto; scrollbar-width:none;
   }
   html.msr-embed .msr-embed-sub::-webkit-scrollbar{ display:none; }
   .msr-embed-sub a{ flex-shrink:0; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:400; line-height:1.5; letter-spacing:-.012em; color:#9090B0; text-decoration:none; padding:3px 12px; }

@@ -94,6 +94,9 @@
   /* 카테고리/상세 뷰에선 배너 숨김 — 홈에서만 노출 (상세페이지에 배너 안 나오게) */
   body:has(main[data-view="category"]:not([hidden])) .banner-wide,
   body:has(main[data-view="detail"]:not([hidden])) .banner-wide { display:none; }
+  /* 카테고리/상세 뷰에선 메뉴 라인 제거 (홈에서만 라인) — 상세페이지 메뉴 아래 라인 없애기 */
+  body:has(main[data-view="category"]:not([hidden])) .msr-sub,
+  body:has(main[data-view="detail"]:not([hidden])) .msr-sub { border-bottom-color:transparent; }
 
   /* ── 브랜드 서브메뉴 (배너 아래 · 휴대폰샵 .sub-nav 그대로: 색 스와치 + 점 구분) ── */
   .msr-sub{ position:sticky; top:88px; z-index:290; display:flex; align-items:center; padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none;
@@ -705,6 +708,14 @@
     document.querySelectorAll('a[href^="/faq"], a[href^="/terms"], a[href^="/privacy"]').forEach(function(a){
       if (!a.getAttribute('target')) a.setAttribute('target', '_top');
     });
+    // 현재 뷰(home/category/detail)를 부모 샵에 전달 → 상세/카테고리에선 샵 헤더(탭) 아래 라인 제거
+    (function(){
+      function curView(){ var v='home'; document.querySelectorAll('main[data-view]').forEach(function(m){ if(!m.hidden) v=m.dataset.view; }); return v; }
+      function postView(){ try{ parent.postMessage({ type:'msr-view', view:curView() }, '*'); }catch(e){} }
+      var mo = new MutationObserver(postView);
+      document.querySelectorAll('main[data-view]').forEach(function(m){ mo.observe(m, { attributes:true, attributeFilter:['hidden'] }); });
+      postView();
+    })();
   }
 
   document.getElementById('ic-arr1').innerHTML = ICONS.arrow();

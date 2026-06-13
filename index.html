@@ -130,6 +130,8 @@
   }
   /* 렌탈 패널: 상담 FAB는 샵 공통 FAB(카톡/전화 펼침형)로 통일해 표시. 맨위로 버튼만 숨김(렌탈 iframe이 자체 맨위로 보유) */
   .scroll.on-rental ~ .top-btn { display:none !important; }
+  /* 렌탈 상세/카테고리 뷰에선 샵 헤더(탭) 아래 라인 제거 (홈에선 유지) — iframe이 msr-view 메시지로 알림 */
+  .scroll.rental-subview .head { border-bottom-color:transparent; }
   /* compact(로고 숨김) 시 렌탈 iframe을 위로 올려 탭 바로 아래에 붙임 — 휴대폰/인터넷의 sub-nav 슬라이드업(-44px)과 동일 원리 */
   .scroll.compact-mode #panel-rental { transform: translateY(-50px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
   /* 렌탈+compact: 헤더(흰 배경 89px)가 올라온 iframe 상단(브랜드메뉴)을 덮으므로, 헤더를 탭만 남게 clip.
@@ -710,9 +712,9 @@
 
   /* ───── 맨 위로 버튼 (스크롤 시 등장) ───── */
   .top-btn {
-    position:absolute; right:18px; bottom:80px;
+    position:absolute; right:16px; bottom:80px;
     z-index:49;
-    width:44px; height:44px; border-radius:50%;
+    width:50px; height:50px; border-radius:50%;
     background:#FFFFFF;
     color:var(--ink);
     display:flex; align-items:center; justify-content:center;
@@ -1435,6 +1437,12 @@
     else if (rAccum < -12 && isC) { setCompact(false); rAccum = 0; }
   }, false);
 
+  // 렌탈 iframe의 현재 뷰 알림 → 상세/카테고리면 샵 헤더 라인 제거 (홈이면 유지)
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'msr-view') return;
+    scrollEl.classList.toggle('rental-subview', catOrder[currentIdx] === 'rental' && e.data.view !== 'home');
+  }, false);
+
   function syncPanelsHeight() {
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
     if (!active || !panelsEl) return;
@@ -1465,6 +1473,7 @@
 
     currentIdx = newIdx;
     panelsEl.style.left = -(newIdx * 100) + '%';
+    scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화 (iframe이 곧 실제 뷰를 알림)
 
     if (cat === 'rental') {
       // 렌탈도 휴대폰/인터넷과 '동일한' compact 상태(.head.compact) 유지 — 탭 전환해도 로고 숨김 유지.

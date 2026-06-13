@@ -838,8 +838,8 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 /* ===== 맨 위로 버튼 (우하단, 상담 FAB 위에 쌓기) ===== */
 .scroll-top{
-  position:fixed;right:24px;bottom:88px;z-index:98;
-  width:46px;height:46px;border-radius:50%;
+  position:fixed;right:16px;bottom:88px;z-index:98;
+  width:50px;height:50px;border-radius:50%;
   background:#fff;border:1px solid var(--line);color:var(--ink-2);
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;
@@ -851,7 +851,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .scroll-top:focus{outline:none}
 @media (hover:hover){ .scroll-top:hover{box-shadow:0 7px 20px rgba(0,0,0,.22)} }
 .scroll-top svg{width:20px;height:20px}
-@media (max-width:560px){ .scroll-top{right:16px;bottom:76px;width:48px;height:48px} }
+@media (max-width:560px){ .scroll-top{right:16px;bottom:76px;width:50px;height:50px} }
 
 /* PC popup */
 .fab-popup{
