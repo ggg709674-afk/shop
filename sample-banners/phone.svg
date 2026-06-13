@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 260" width="750" height="260" font-family="'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FBF3F2"/>
+    </linearGradient>
+  </defs>
+  <rect width="750" height="260" fill="url(#bg)"/>
+  <!-- 우측 장식: 폰 실루엣 -->
+  <g transform="translate(560,38)" opacity="0.9">
+    <rect x="0" y="0" width="120" height="184" rx="22" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="2"/>
+    <rect x="10" y="12" width="100" height="160" rx="14" fill="#FCEEEC"/>
+    <circle cx="60" cy="22" r="3.5" fill="#E8E8E8"/>
+    <rect x="34" y="150" width="52" height="6" rx="3" fill="#F0CFC9"/>
+  </g>
+  <!-- 좌측 텍스트 -->
+  <g transform="translate(48,46)">
+    <rect x="0" y="0" width="148" height="30" rx="15" fill="#DE4F41"/>
+    <text x="74" y="20" text-anchor="middle" fill="#FFFFFF" font-size="15" font-weight="700">5월 신상 · 사전예약</text>
+    <text x="2" y="84" fill="#222222" font-size="38" font-weight="800">Galaxy S26 Ultra</text>
+    <text x="2" y="122" fill="#555555" font-size="19" font-weight="500">사전예약 혜택 <tspan fill="#DE4F41" font-weight="800">최대 73만원</tspan> 할인</text>
+    <g transform="translate(2,142)">
+      <rect x="0" y="0" width="168" height="40" rx="20" fill="#222222"/>
+      <text x="84" y="26" text-anchor="middle" fill="#FFFFFF" font-size="16" font-weight="700">예약 혜택 보기 →</text>
+    </g>
+  </g>
+</svg>

@@ -226,16 +226,21 @@
   /* ───── 공통 컨테이너 ───── */
   .pad { padding:0 20px; }
 
-  /* ───── 가로 와이드 배너 — 등록 이미지 전용 (없으면 숨김) ───── */
+  /* ───── 가로 와이드 배너 — 등록 이미지 전용 (없으면 샘플) ─────
+     어떤 비율의 이미지가 올라와도 가로 띠로 보이도록 고정 비율 + cover.
+     (세로로 긴 이미지가 화면을 통째로 덮던 문제 방지) */
   .banner-wide {
     display:block; overflow:hidden;
     border-radius:0;
     background:#FFFFFF;
     border-bottom:1px solid var(--line);
+    width:100%;
+    aspect-ratio:750 / 260;
   }
   .banner-wide[hidden] { display:none; }
   .banner-wide .banner-img {
-    display:block; width:100%; height:auto;
+    display:block; width:100%; height:100%;
+    object-fit:cover; object-position:center;
   }
 
   /* ───── HERO 카드 (화이트) ───── */
@@ -767,7 +772,9 @@
       if (!cache || !cache.banners) return;
       ['phone', 'internet'].forEach(function(k) {
         var b = cache.banners[k];
-        if (b) addPreload(b.imageUrl);
+        // 옛 합성배너 데이터(누끼 PNG 등)는 표시에 안 쓰이므로 preload하지 않음 (renderBanner와 동일 규칙)
+        var isLegacy = b && (b.background || b.eyebrow || b.tags || ('imageScale' in b));
+        if (b && !isLegacy && b.imageUrl) addPreload(b.imageUrl);
       });
     } catch (e) { /* 무시 */ }
   })();
@@ -1230,11 +1237,25 @@
 
   // 배너 — 등록된 이미지(imageUrl)만 풀폭 표시, 없으면 영역 숨김.
   // (기존에 저장된 복합 배너 데이터도 imageUrl 필드만 사용)
+  // 카테고리별 샘플 배너 (관리자가 이미지를 등록하기 전 기본 표시)
+  var SAMPLE_BANNERS = {
+    phone: '/sample-banners/phone.svg',
+    internet: '/sample-banners/internet.svg'
+  };
+
+  function bannerImageUrl(banner, key) {
+    // 옛 합성배너 데이터(텍스트/그라데이션/폰누끼 합성용)는 "이미지 등록" 방식과 호환 안 됨
+    // → 그 imageUrl(투명 누끼 PNG 등)은 무시하고 샘플로 대체. 관리자가 새로 저장하면 {imageUrl}만 남아 정상 표시됨.
+    var isLegacy = banner && (banner.background || banner.eyebrow || banner.tags || ('imageScale' in banner));
+    if (!isLegacy && banner && typeof banner.imageUrl === 'string' && banner.imageUrl) return banner.imageUrl;
+    return SAMPLE_BANNERS[key] || '';
+  }
+
   function renderBanner(key, banner) {
     var $b = document.querySelector('[data-banner="' + key + '"]');
     if (!$b) return; // 대상 엘리먼트 없으면 조용히 skip
     var $img = $b.querySelector('img.banner-img');
-    var url = (banner && typeof banner.imageUrl === 'string') ? banner.imageUrl : '';
+    var url = bannerImageUrl(banner, key);
     if (url && $img) {
       $img.crossOrigin = 'anonymous'; // preload(crossorigin)와 모드 일치 — 중복 다운로드 방지
       if ($img.getAttribute('src') !== url) {
