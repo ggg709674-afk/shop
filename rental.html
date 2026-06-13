@@ -89,6 +89,9 @@
   /* ── 배너 (휴대폰/인터넷과 동일: 고정 비율 가로 띠 + cover) ── */
   .banner-wide{ display:block; overflow:hidden; width:100%; aspect-ratio:750/260; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
   .banner-wide .banner-img{ display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
+  /* 카테고리/상세 뷰에선 배너 숨김 — 홈에서만 노출 (상세페이지에 배너 안 나오게) */
+  body:has(main[data-view="category"]:not([hidden])) .banner-wide,
+  body:has(main[data-view="detail"]:not([hidden])) .banner-wide { display:none; }
 
   /* ── 브랜드 서브메뉴 (배너 아래 · 휴대폰샵 .sub-nav 그대로: 색 스와치 + 점 구분) ── */
   .msr-sub{ position:sticky; top:88px; z-index:290; display:flex; align-items:center; padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none;
@@ -696,8 +699,8 @@
         try { parent.postMessage({ type:'msr-scroll', y: window.scrollY || document.documentElement.scrollTop || 0 }, '*'); } catch(e){}
       }, { passive:true });
     }, 1000);
-    // 정적 안내 페이지(제휴카드/FAQ/약관/개인정보)는 iframe 안에서 열면 레이아웃이 깨짐 → 전체 창(_top)으로 열기
-    document.querySelectorAll('a[href^="/card-benefits"], a[href^="/faq"], a[href^="/terms"], a[href^="/privacy"]').forEach(function(a){
+    // FAQ/약관/개인정보는 iframe 안에서 열면 깨짐 → 전체 창(_top). (제휴카드는 임베드 대응되어 있어 iframe 유지 → 메뉴 보존)
+    document.querySelectorAll('a[href^="/faq"], a[href^="/terms"], a[href^="/privacy"]').forEach(function(a){
       if (!a.getAttribute('target')) a.setAttribute('target', '_top');
     });
   }

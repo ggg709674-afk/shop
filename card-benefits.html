@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="/rental-assets/style.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png">
 <meta name="theme-color" content="#DE4F41">
+<script>try{ if(window.self!==window.top) document.documentElement.classList.add('msr-embed'); }catch(e){}</script>
 <style>
   /* ===== 제휴카드 히어로 배너 ===== */
   .cb-hero{position:relative;overflow:hidden;border-radius:18px;min-height:300px;display:flex;align-items:center;margin:24px 0 8px;
@@ -34,9 +35,28 @@
     box-shadow:0 10px 30px rgba(222,79,65,.4);transition:.18s}
   .cb-back-btn:hover{background:var(--primary-dark,#c33f33);box-shadow:0 12px 34px rgba(222,79,65,.5);transform:translateY(-1px)}
   @media (max-width:860px){
-    .cb-back{left:16px;right:16px;bottom:16px;transform:none}
-    .cb-back-btn{width:100%;justify-content:center;font-size:15px;padding:15px}
+    .cb-back{left:16px;right:84px;bottom:16px;transform:none}  /* 우하단 상담 FAB 자리(약 68px) 비워 겹침 방지 */
+    .cb-back-btn{width:100%;justify-content:center;font-size:14.5px;padding:14px}
   }
+
+  /* ===== 임베드(샵 iframe) 모드: 자체 유틸바/헤더 숨기고 브랜드 소메뉴만 — 샵 탭이 위에 있으므로 메뉴 보존 ===== */
+  html.msr-embed .util-bar, html.msr-embed .site-header{ display:none; }
+  html.msr-embed body{ background:#fff; }
+  .msr-embed-sub{ display:none; }
+  html.msr-embed .msr-embed-sub{
+    display:flex; align-items:center; position:sticky; top:0; z-index:50;
+    padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none;
+  }
+  html.msr-embed .msr-embed-sub::-webkit-scrollbar{ display:none; }
+  .msr-embed-sub a{ flex-shrink:0; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:400; line-height:1.5; letter-spacing:-.012em; color:#9090B0; text-decoration:none; padding:3px 12px; }
+  .msr-embed-sub a:first-of-type{ padding-left:0; }
+  .msr-embed-sub a.active{ color:#222; font-weight:600; }
+  .msr-embed-sub a.soon{ color:#BFBFC8; pointer-events:none; }
+  .msr-embed-sub .dot{ flex-shrink:0; width:3px; height:3px; border-radius:50%; background:#CFCFD8; }
+  .msr-embed-sub .sw{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .msr-embed-sub .sw.skm{ background:#11A8A0; }
+  .msr-embed-sub .sw.cho{ background:#2E6FD0; }
+  .msr-embed-sub .sw.coway{ background:#1C4E8A; }
 
   /* ===== 카드 그리드 ===== */
   .cb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:60px}
@@ -97,6 +117,15 @@
     <div class="header-actions"></div>
   </div>
 </header>
+
+<!-- 임베드(샵 iframe) 모드에서만 표시되는 브랜드 소메뉴 — 렌탈과 동일 톤 -->
+<nav class="msr-embed-sub">
+  <a href="/rental" class="active"><span class="sw skm"></span>SK매직</a>
+  <span class="dot"></span>
+  <a href="#" class="soon"><span class="sw cho"></span>청호나이스</a>
+  <span class="dot"></span>
+  <a href="#" class="soon"><span class="sw coway"></span>코웨이</a>
+</nav>
 
 <main class="container">
   <!-- 히어로 배너 -->
