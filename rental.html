@@ -124,6 +124,14 @@
   .footer-grid ul:not(.ft-info){ display:flex !important; flex-wrap:wrap !important; gap:6px 18px !important; margin:0 !important; padding:0 !important; }
   .biz-info .biz-grid{ grid-template-columns:1fr !important; gap:8px 0 !important; }
 
+  /* 반값 배지·지원금 스티커 — 좁은 2열 카드(~163px)에서 이미지를 가리지 않게 축소 (PC·모바일 동일) */
+  .product-card .half-badge{ width:38px !important; height:38px !important; left:8px !important; top:8px !important; }
+  .product-card .half-badge .m{ font-size:7.5px !important; letter-spacing:-0.5px !important; margin:0 !important; }
+  .product-card .half-badge .t{ font-size:12px !important; margin-top:1px !important; }
+  .product-card .thumb .cust-support{ width:44px !important; height:44px !important; right:6px !important; bottom:6px !important; }
+  .product-card .thumb .cust-support .cs-l{ font-size:7px !important; margin-bottom:0 !important; }
+  .product-card .thumb .cust-support strong{ font-size:10.5px !important; }
+
   /* 카탈로그 카테고리 뷰의 자체 칩 네비(.filter-bar)는 상단 서브메뉴(.msr-sub)와 중복 → 숨김 */
   #filter-bar{ display:none !important; }
 </style>
