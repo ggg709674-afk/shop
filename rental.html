@@ -17,92 +17,111 @@
 <link rel="shortcut icon" href="/rental-assets/brand/favicon.ico">
 <meta name="theme-color" content="#DE4F41">
 <style>
-  /* ===== 합본 전용 오버라이드 (rental.html 한정) =====
-     1) 모바일샵 공통 상단 메뉴(msr-*) — mobile-shop index.html 의 .head/.cat-nav 톤을
-        msr- 프리픽스로 복제 (skmagic style.css 가 글로벌이라 클래스 충돌 방지).
-     2) skmagic 자체 헤더 슬림화 — 이중 헤더 답답함 완화. 화이트톤 유지. */
-  .msr-head{
-    position:sticky;top:0;z-index:300;
-    background:rgba(255,255,255,.94);
-    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-    border-bottom:1px solid rgba(220,216,236,.6);
+  /* ===== 합본 전용 — 렌탈을 휴대폰샵과 동일한 폰 프레임 + 흰톤 메뉴로 통일 =====
+     mobile-shop index.html 의 .device(폰 프레임) / .head(상단 메뉴) / .sub-nav(서브바)를
+     그대로 옮김. 클래스 충돌 방지 위해 메뉴는 msr- 프리픽스. */
+
+  /* ── 데스크톱 폰 프레임 (≤480px 풀스크린) ── */
+  body{
+    min-height:100vh; margin:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 0; background:#EFEFF2;
   }
-  .msr-in{
-    max-width:var(--container,1200px);margin:0 auto;padding:0 20px;
-    height:52px;display:flex;align-items:center;gap:28px;
+  .device{
+    width:390px; height:844px; background:#fff; flex-shrink:0;
+    border-radius:48px; border:11px solid #2A2A2A;
+    box-shadow:0 40px 90px rgba(34,34,34,.16),0 8px 20px rgba(34,34,34,.10);
+    position:relative; overflow:hidden; isolation:isolate;
+    /* transform → position:fixed 자식(상담 FAB·모달)이 '창'이 아닌 이 '프레임' 기준이 되게 함 */
+    transform:translateZ(0);
   }
-  .msr-brand{
-    font-size:18px;font-weight:800;letter-spacing:-.04em;color:#1A1A2E;
-    text-decoration:none;flex-shrink:0;
+  .device::before{
+    content:''; position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:11px; height:11px; background:#050508; border-radius:50%; z-index:600;
+    box-shadow:0 0 0 1px rgba(60,60,80,.5);
   }
-  .msr-brand span{
-    background:linear-gradient(90deg,#B5A8F4,#9DC9E8,#88D4B5,#F4B89A,#F4A5BA);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+  .scroll{
+    position:absolute; inset:0; overflow-y:auto; overflow-x:hidden;
+    -webkit-overflow-scrolling:touch; overflow-anchor:none; background:#fff;
   }
-  .msr-cat-nav{display:flex;gap:22px;align-items:center}
-  .msr-cat-nav a{
-    font-size:16px;font-weight:400;line-height:22px;letter-spacing:-.035em;
-    color:#9090B0;text-decoration:none;padding:14px 0;position:relative;
-    transition:color .2s;
+  .scroll::-webkit-scrollbar{ width:0 }
+  @media (max-width:480px){
+    body{ padding:0; display:block; background:#fff; }
+    .device{
+      width:100vw; height:100vh; height:100dvh;
+      border-radius:0; border:none; box-shadow:none;
+    }
+    .device::before{ display:none }
   }
-  .msr-cat-nav a:hover{color:#1A1A2E}
-  .msr-cat-nav a.on{color:#1A1A2E;font-weight:700}
-  .msr-cat-nav a.on::after{
-    content:'';position:absolute;left:0;right:0;bottom:0;
-    height:2px;background:var(--primary);border-radius:1px;
-  }
-  @media (max-width:560px){
-    .msr-in{height:46px;gap:18px;padding:0 16px}
-    .msr-brand{font-size:16px}
-    .msr-cat-nav{gap:16px}
-    .msr-cat-nav a{font-size:15px;padding:11px 0}
-  }
-  /* skmagic 헤더 슬림화 — 위 메뉴바와 한 덩어리처럼 보이게 (로고+카테고리만, 낮게) */
-  .site-header .container{height:58px}
-  .site-header .brand-logo{height:30px}
-  .site-header .partner-label{font-size:13px;padding-left:11px}
-  @media (max-width:560px){
-    .site-header .container{height:50px}
-    .site-header .brand-logo{height:26px}
-  }
-  /* 상세 탭바 sticky 기준점 — msr 메뉴바(52px) 아래에 붙도록 */
-  .detail-tabs .tabbar{top:52px}
-  @media (max-width:560px){ .detail-tabs .tabbar{top:46px} }
+
+  /* ── 상단 메뉴 (휴대폰샵 .head 복제: 브랜드행 + 탭행) ── */
+  .msr-head{ position:sticky; top:0; z-index:300; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
+  .msr-top{ display:flex; align-items:center; justify-content:space-between; padding:10px 20px 4px; height:54px; box-sizing:border-box; }
+  .msr-brand{ font-size:18px; font-weight:800; letter-spacing:-.04em; color:#222; text-decoration:none; }
+  .msr-brand span{ color:var(--primary,#DE4F41); }
+  .msr-top-r{ display:flex; gap:2px; }
+  .msr-ic{ width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#222; position:relative; background:none; border:0; cursor:pointer; }
+  .msr-ic svg{ width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .msr-ic-bd{ position:absolute; top:6px; right:6px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--primary,#DE4F41); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff; }
+  .msr-cat-nav{ display:flex; gap:22px; padding:2px 20px 8px; }
+  .msr-cat-nav a{ font-size:17px; font-weight:300; line-height:22px; letter-spacing:-.035em; color:#9090B0; text-decoration:none; }
+  .msr-cat-nav a.on{ color:#222; font-weight:600; }
+
+  /* ── 카테고리 서브바 (휴대폰샵 .sub-nav 톤: SK매직 로고 + 카테고리) ── */
+  .msr-sub{ position:sticky; top:84px; z-index:290; display:flex; align-items:center; gap:16px; padding:7px 20px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none; }
+  .msr-sub::-webkit-scrollbar{ display:none }
+  .msr-sub-logo{ height:17px; width:auto; flex-shrink:0; opacity:.92; }
+  .msr-sub a{ flex-shrink:0; font-size:13px; font-weight:500; letter-spacing:-.012em; color:#666; text-decoration:none; }
+  .msr-sub a.active{ color:#222; font-weight:700; }
+
+  /* 상세 탭바 sticky 기준 — 메뉴(84) + 서브바(약 33) 아래 */
+  .detail-tabs .tabbar{ top:117px; }
+
+  /* ── 폰 프레임(~390px) 안에서는 항상 모바일 레이아웃으로 강제 ──
+     미디어쿼리는 '실제 창 폭' 기준이라, 넓은 데스크톱 창의 폰 프레임 안에서도
+     모바일 레이아웃이 되도록 핵심 그리드를 무조건 적용 (안 그러면 4열이 390px에 욱여넣어짐). */
+  .product-grid{ grid-template-columns:repeat(2,1fr) !important; gap:12px !important; }
+  .product-grid:empty{ min-height:620px !important; }
+  .cat-grid{ grid-template-columns:repeat(4,1fr) !important; gap:6px !important; }
+  .hero .container{ grid-template-columns:1fr !important; }
+  .why-grid{ grid-template-columns:1fr !important; }
+  .detail-top{ grid-template-columns:1fr !important; gap:24px !important; }
+  .gallery .thumbs{ grid-template-columns:repeat(5,1fr) !important; }
+  .footer-grid{ grid-template-columns:1fr !important; gap:18px !important; }
+  .biz-info .biz-grid{ grid-template-columns:1fr !important; }
 </style>
 </head>
 <body>
+<!-- 휴대폰샵과 동일한 폰 프레임 — 데스크톱에선 가운데 폰, 모바일에선 풀스크린 -->
+<div class="device">
+<div class="scroll">
 
-<!-- ===== 모바일샵 공통 상단 메뉴 (sticky) =====
-     mobile-shop index.html 의 .head(로고)+.cat-nav(휴대폰|인터넷|렌탈) 구조를 msr- 프리픽스로 복제.
+<!-- ===== 모바일샵 공통 상단 메뉴 (휴대폰샵 .head 복제: 브랜드행 + 휴대폰|인터넷|렌탈 탭) =====
      휴대폰/인터넷 탭은 모바일샵 손님페이지(/)의 ?cat= 딥링크로 이동, 렌탈 탭이 현재(active). -->
 <header class="msr-head">
-  <div class="msr-in">
+  <div class="msr-top">
     <a class="msr-brand" href="/">우주<span>커넥트</span></a>
-    <nav class="msr-cat-nav">
-      <a href="/?cat=phone">휴대폰</a>
-      <a href="/?cat=internet">인터넷</a>
-      <a class="on" href="/rental">렌탈</a>
-    </nav>
+    <div class="msr-top-r">
+      <button class="msr-ic" type="button" aria-label="검색"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+      <button class="msr-ic" type="button" aria-label="알림"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 21a2 2 0 0 0 4 0"/></svg></button>
+      <button class="msr-ic" type="button" aria-label="장바구니"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1.5 11H6.5L5 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg><span class="msr-ic-bd">2</span></button>
+    </div>
   </div>
+  <nav class="msr-cat-nav">
+    <a href="/?cat=phone">휴대폰</a>
+    <a href="/?cat=internet">인터넷</a>
+    <a class="on" href="/rental">렌탈</a>
+  </nav>
 </header>
 
-<!-- ===== Header (skmagic — 슬림) ===== -->
-<header class="site-header">
-  <div class="container">
-    <a class="brand" href="/rental">
-      <img class="brand-logo" src="/rental-assets/brand/logo.png" alt="SK magic">
-      <span class="partner-label">인증파트너점</span>
-    </a>
-    <nav class="gnb">
-      <a href="/rental?cls=100000005">정수기</a>
-      <a href="/rental?cls=100000010">공기청정기</a>
-      <a href="/rental?cls=100000024">비데</a>
-      <a href="/rental?cls=1000000245">매트리스</a>
-    </nav>
-    <!-- 헤더 우측 액션 영역 제거됨 (검색·장바구니·계정·상담신청) — 상담은 우하단 FAB로 대체 -->
-    <div class="header-actions"></div>
-  </div>
-</header>
+<!-- ===== 카테고리 서브바 (SK매직 로고 + 카테고리 / app.js updateGnbActive 가 active 표시) ===== -->
+<nav class="msr-sub">
+  <a href="/rental" aria-label="SK매직 렌탈 홈"><img class="msr-sub-logo" src="/rental-assets/brand/logo.png" alt="SK magic"></a>
+  <a href="/rental?cls=100000005">정수기</a>
+  <a href="/rental?cls=100000010">공기청정기</a>
+  <a href="/rental?cls=100000024">비데</a>
+  <a href="/rental?cls=1000000245">매트리스</a>
+</nav>
 
 <!-- ============================================================
      VIEW: HOME
@@ -403,6 +422,9 @@
   </div>
 </footer>
 
+</div><!-- /scroll -->
+
+<!-- 아래 FAB·팝업·모달은 .scroll 밖(스크롤 안 됨)이지만 .device 안 → transform 덕에 폰 프레임 기준으로 고정됨 -->
 <!-- ===== Floating 상담 버튼 + Popup ===== -->
 <a class="fab-consult" href="#" id="fab-consult" aria-label="상담 신청 열기">
   <span id="fab-phone"></span>
@@ -474,6 +496,8 @@
     </div>
   </div>
 </div>
+
+</div><!-- /device -->
 
 <script src="/rental-assets/icons.js"></script>
 <script src="/rental-assets/db.js"></script>
