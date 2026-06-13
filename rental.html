@@ -9,9 +9,6 @@
   /* ★ 합본 사이트 매장 슬러그 고정 — 멀티테넌트 path 파싱 대신 이 값을 사용.
      매장(데이터)을 바꾸려면 여기와 rental-assets/supabase.js 의 fallback('skmagic')을 함께 수정. */
   window.RENTAL_STORE_SLUG = 'skmagic';
-  /* 페이지 전환 슬라이드 — 첫 페인트 전에 진입 방향을 정해 화면 밖에 위치시킴
-     (안 그러면 콘텐츠가 중앙에 먼저 그려진 뒤 점프해서 '빙 도는' 현상 발생) */
-  try { if (sessionStorage.getItem('msrNav') === 'toRental') { document.documentElement.className += ' msr-enter-right'; sessionStorage.removeItem('msrNav'); } } catch(e){}
 </script>
 <link rel="stylesheet" href="/rental-assets/style.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png">
@@ -48,8 +45,6 @@
     -webkit-overflow-scrolling:touch; overflow-anchor:none; background:#fff;
   }
   .scroll::-webkit-scrollbar{ width:0 }
-  /* 페이지 전환 슬라이드 진입 시작 위치 (head 스크립트가 html에 클래스 부여) */
-  html.msr-enter-right .scroll{ transform:translateX(100%); }
   @media (max-width:480px){
     body{ padding:0; display:block; background:#fff; }
     .device{
@@ -677,27 +672,6 @@
   };
   window.skmMountScrollTop();
 
-  /* ===== 페이지 전환 슬라이드 — 휴대폰/인터넷 패널 carousel 과 같은 가로 슬라이드 느낌 =====
-     샵(/)에서 렌탈로 올 땐 오른쪽에서 슬라이드 인, 렌탈에서 휴대폰/인터넷으로 갈 땐 오른쪽으로 슬라이드 아웃. */
-  (function(){
-    var sc = document.querySelector('.scroll');
-    if (!sc) return;
-    // 들어올 때: head에서 이미 화면 밖(오른쪽)에 위치시켜 둠 → 클래스 제거하며 0으로 슬라이드 인
-    if (document.documentElement.classList.contains('msr-enter-right')) {
-      sc.style.transition = 'transform .34s cubic-bezier(.32,.72,0,1)';
-      sc.getBoundingClientRect(); // reflow 확정 (시작 위치 100% 커밋)
-      document.documentElement.classList.remove('msr-enter-right'); // transform 규칙 사라짐 → 0으로 애니메이트
-      setTimeout(function(){ sc.style.transition = ''; }, 420);
-    }
-    // 나갈 때(휴대폰/인터넷 탭): 방향 플래그만 남기고 즉시 이동 (샵이 왼쪽에서 슬라이드 인)
-    document.querySelectorAll('.msr-cat-nav a[href^="/?cat="]').forEach(function(a){
-      a.addEventListener('click', function(e){
-        e.preventDefault();
-        try { sessionStorage.setItem('msrNav','toShop'); } catch(err){}
-        location.href = a.getAttribute('href');
-      });
-    });
-  })();
   document.getElementById('ic-arr1').innerHTML = ICONS.arrow();
   document.getElementById('ic-arr2').innerHTML = ICONS.arrow();
   document.getElementById('ic-arr').innerHTML = ICONS.arrow();
