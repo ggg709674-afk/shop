@@ -1563,7 +1563,8 @@ const App = (() => {
     const cls = params.get('cls');
     document.querySelectorAll('.gnb a, .msr-sub a').forEach(a => {
       const aCls = new URL(a.href, location.href).searchParams.get('cls');
-      a.classList.toggle('active', !!cls && aCls === cls);
+      // 카테고리 링크: cls 일치 시 active. '전체'(cls 없는 링크)는 현재 cls가 없을 때 active.
+      a.classList.toggle('active', aCls ? (aCls === cls) : !cls);
     });
   }
 

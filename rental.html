@@ -67,12 +67,17 @@
   .msr-cat-nav a{ font-size:17px; font-weight:300; line-height:22px; letter-spacing:-.035em; color:#9090B0; text-decoration:none; }
   .msr-cat-nav a.on{ color:#222; font-weight:600; }
 
-  /* ── 카테고리 서브바 (휴대폰샵 .sub-nav 톤: SK매직 로고 + 카테고리) ── */
-  .msr-sub{ position:sticky; top:84px; z-index:290; display:flex; align-items:center; gap:16px; padding:7px 20px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none; }
+  /* ── 배너 (휴대폰/인터넷과 동일: 고정 비율 가로 띠 + cover) ── */
+  .banner-wide{ display:block; overflow:hidden; width:100%; aspect-ratio:750/260; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
+  .banner-wide .banner-img{ display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
+
+  /* ── 카테고리 서브메뉴 (배너 아래 · 휴대폰샵 .sub-nav 그대로: 점 구분, 로고 없음) ── */
+  .msr-sub{ position:sticky; top:84px; z-index:290; display:flex; align-items:center; padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none; }
   .msr-sub::-webkit-scrollbar{ display:none }
-  .msr-sub-logo{ height:17px; width:auto; flex-shrink:0; opacity:.92; }
-  .msr-sub a{ flex-shrink:0; font-size:13px; font-weight:500; letter-spacing:-.012em; color:#666; text-decoration:none; }
-  .msr-sub a.active{ color:#222; font-weight:700; }
+  .msr-sub a{ flex-shrink:0; font-size:13px; font-weight:400; letter-spacing:-.012em; color:#9090B0; text-decoration:none; padding:3px 12px; }
+  .msr-sub a:first-of-type{ padding-left:0; }
+  .msr-sub a.active{ color:#222; font-weight:600; }
+  .msr-dot{ flex-shrink:0; width:3px; height:3px; border-radius:50%; background:#CFCFD8; }
 
   /* 상세 탭바 sticky 기준 — 메뉴(84) + 서브바(약 33) 아래 */
   .detail-tabs .tabbar{ top:117px; }
@@ -89,6 +94,8 @@
   .gallery .thumbs{ grid-template-columns:repeat(5,1fr) !important; }
   .footer-grid{ grid-template-columns:1fr !important; gap:18px !important; }
   .biz-info .biz-grid{ grid-template-columns:1fr !important; }
+  /* 카탈로그 카테고리 뷰의 자체 칩 네비(.filter-bar)는 상단 서브메뉴(.msr-sub)와 중복 → 숨김 */
+  #filter-bar{ display:none !important; }
 </style>
 </head>
 <body>
@@ -114,12 +121,24 @@
   </nav>
 </header>
 
-<!-- ===== 카테고리 서브바 (SK매직 로고 + 카테고리 / app.js updateGnbActive 가 active 표시) ===== -->
+<!-- ===== 배너 (휴대폰/인터넷과 동일한 샘플 배너) ===== -->
+<section>
+  <div class="banner-wide">
+    <img class="banner-img" src="/sample-banners/rental.svg" alt="렌탈 배너"/>
+  </div>
+</section>
+
+<!-- ===== 카테고리 서브메뉴 (배너 아래 · 모바일샵 .sub-nav 스타일 그대로 · 로고 없음) =====
+     app.js updateGnbActive 가 cls 기준으로 active 표시 (cls 없으면 '전체'). -->
 <nav class="msr-sub">
-  <a href="/rental" aria-label="SK매직 렌탈 홈"><img class="msr-sub-logo" src="/rental-assets/brand/logo.png" alt="SK magic"></a>
+  <a href="/rental" class="active">전체</a>
+  <span class="msr-dot"></span>
   <a href="/rental?cls=100000005">정수기</a>
+  <span class="msr-dot"></span>
   <a href="/rental?cls=100000010">공기청정기</a>
+  <span class="msr-dot"></span>
   <a href="/rental?cls=100000024">비데</a>
+  <span class="msr-dot"></span>
   <a href="/rental?cls=1000000245">매트리스</a>
 </nav>
 
@@ -127,25 +146,8 @@
      VIEW: HOME
 ============================================================ -->
 <main data-view="home" hidden>
-  <!-- ===== NEW HERO: 3-슬라이드 캐러셀 (3초 자동전환 + 좌우 버튼) ===== -->
-  <section class="hero-slider" id="hero-slider">
-    <div class="hs-track">
-      <div class="hs-slide on"><img src="/rental-assets/hero/11.jpg" alt="" loading="eager"></div>
-      <div class="hs-slide"><img src="/rental-assets/hero/22.jpg" alt="" loading="lazy"></div>
-      <div class="hs-slide"><img src="/rental-assets/hero/33.jpg" alt="" loading="lazy"></div>
-    </div>
-    <button class="hs-nav hs-prev" type="button" aria-label="이전 슬라이드">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
-    </button>
-    <button class="hs-nav hs-next" type="button" aria-label="다음 슬라이드">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
-    </button>
-    <div class="hs-dots">
-      <button class="hs-dot on" type="button" data-i="0" aria-label="1번"></button>
-      <button class="hs-dot" type="button" data-i="1" aria-label="2번"></button>
-      <button class="hs-dot" type="button" data-i="2" aria-label="3번"></button>
-    </div>
-  </section>
+  <!-- 히어로 슬라이더 제거 — 상단 공통 배너(.banner-wide)로 대체. 슬라이더 JS는 #hero-slider 없으면 자동 skip. -->
+
 
   <!-- ===== LEGACY HERO (구버전 — 숨김 보존 / 다시 켜려면 hidden 제거) ===== -->
   <section class="hero" hidden>

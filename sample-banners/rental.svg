@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 260" width="750" height="260" font-family="'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <linearGradient id="bgr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FBF3F2"/>
+    </linearGradient>
+  </defs>
+  <rect width="750" height="260" fill="url(#bgr)"/>
+  <!-- 우측 장식: 정수기 실루엣 + 물방울 -->
+  <g transform="translate(566,40)">
+    <rect x="8" y="0" width="118" height="180" rx="18" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="2"/>
+    <rect x="22" y="16" width="90" height="52" rx="8" fill="#FCEEEC"/>
+    <rect x="40" y="92" width="54" height="10" rx="5" fill="#DE4F41"/>
+    <rect x="34" y="150" width="66" height="8" rx="4" fill="#F0CFC9"/>
+    <path d="M67 112 c10 14 16 22 16 30 a16 16 0 0 1 -32 0 c0 -8 6 -16 16 -30 z" fill="#DE4F41" opacity="0.85"/>
+  </g>
+  <!-- 좌측 텍스트 -->
+  <g transform="translate(48,46)">
+    <rect x="0" y="0" width="128" height="30" rx="15" fill="#DE4F41"/>
+    <text x="64" y="20" text-anchor="middle" fill="#FFFFFF" font-size="15" font-weight="700">이달의 렌탈</text>
+    <text x="2" y="84" fill="#222222" font-size="36" font-weight="800">정수기 · 공기청정기</text>
+    <text x="2" y="122" fill="#555555" font-size="19" font-weight="500">설치비 0원 · <tspan fill="#DE4F41" font-weight="800">4개월 무료체험</tspan></text>
+    <g transform="translate(2,142)">
+      <rect x="0" y="0" width="176" height="40" rx="20" fill="#222222"/>
+      <text x="88" y="26" text-anchor="middle" fill="#FFFFFF" font-size="16" font-weight="700">렌탈 상담 받기 →</text>
+    </g>
+  </g>
+</svg>
