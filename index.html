@@ -1461,12 +1461,25 @@
 
     currentIdx = newIdx;
     panelsEl.style.left = -(newIdx * 100) + '%';
-    // 렌탈 패널이면 라인 제거 클래스 on, 떠나면 compact도 해제
-    scrollEl.classList.toggle('on-rental', cat === 'rental');
-    if (cat !== 'rental') scrollEl.classList.remove('rental-compact');
-    rPrevY = 0;
-    syncPanelsHeight();
 
+    if (cat === 'rental') {
+      // 렌탈 진입: 휴대폰/인터넷용 transform-compact 해제(로고 보이는 상태로 시작) + 렌탈 자체 collapse off +
+      // iframe 맨 위로 → 항상 깨끗한 상단(로고+탭+소메뉴 다 보이게)부터 시작
+      headEl.classList.remove('compact');
+      scrollEl.classList.remove('compact-mode');
+      scrollEl.classList.remove('rental-compact');
+      scrollEl.classList.add('on-rental');
+      rPrevY = 0; rAccum = 0; rLastSign = 0;
+      syncPanelsHeight();
+      scrollEl.scrollTop = 0;
+      try { var rf = document.getElementById('rental-frame'); if (rf && rf.contentWindow) rf.contentWindow.scrollTo(0, 0); } catch(e){}
+      return;
+    }
+
+    // 휴대폰/인터넷
+    scrollEl.classList.remove('on-rental');
+    scrollEl.classList.remove('rental-compact');
+    syncPanelsHeight();
     if (wasCompact) {
       // compact 유지 — scrollTop 변경이 방향 로직에 잡혀 un-compact 되지 않도록 lockout
       lockUntil = performance.now() + 500;
