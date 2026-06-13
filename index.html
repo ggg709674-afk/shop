@@ -5,57 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="theme-color" content="#FFFFFF"/>
 <title>우주커넥트 — 이번 주 가장 합리적인 폰</title>
-<!-- Variant D · Iridescent Glass -->
+<!-- SK매직 화이트톤 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
   :root {
-    /* Variant D · Iridescent Glass — 영롱 파스텔 */
-    --ink:#1A1A2E;
-    --g1:#5A5A7A;
-    --g2:#9090B0;
-    --g3:#BDB8D4;
-    --g4:#DCD8EC;
-    --g5:#EBE7F4;
+    /* SK매직 화이트톤 — 화이트 바탕 + 브랜드 레드 액센트 */
+    --ink:#222222;
+    --g1:#555555;
+    --g2:#888888;
+    --g3:#BBBBBB;
+    --g4:#E0E0E0;
+    --g5:#EEEEEE;
     --bg:#FFFFFF;
-    --bg-soft:#FAF8FE;
+    --bg-soft:#F7F7F7;
     --w:#FFFFFF;
-    /* 파스텔 액센트 (라인·다이라이트 전용) */
-    --lav:#B5A8F4;       --lav-soft:#EDE7FF;
-    --mint:#88D4B5;      --mint-soft:#DDF2E8;
-    --peach:#F4B89A;     --peach-soft:#FCE8DA;
-    --rose:#F4A5BA;      --rose-soft:#FCDFE6;
-    --sky:#9DC9E8;       --sky-soft:#E1F0F9;
-    /* 메인 액센트 — 라벤더 톤 (블루 대체) */
-    --accent:#7A6BD9;
-    --accent-soft:#F0EBFE;
-    --accent-deep:#5A4DB8;
-    /* 영롱 그라데이션 — 핵심 비주얼 시그니처 */
-    --iridescent:linear-gradient(135deg, #E8DEFF 0%, #DDEEFF 25%, #DEFAEC 50%, #FFEEDA 75%, #FFE0EC 100%);
-    --iridescent-line:linear-gradient(90deg, #B5A8F4, #9DC9E8, #88D4B5, #F4B89A, #F4A5BA);
+    --line:#E8E8E8;
+    --line-strong:#D0D0D0;
+    /* 구 파스텔 슬롯 — 화이트톤 호환 매핑 (기존 참조 유지) */
+    --lav:#D0D0D0;       --lav-soft:#F5F5F5;
+    --mint:#3CAA6E;      --mint-soft:#E6F4ED;
+    --peach:#C58B2B;     --peach-soft:#F8F1E2;
+    --rose:#DE4F41;      --rose-soft:#FFEEEC;
+    --sky:#D0D0D0;       --sky-soft:#F5F5F5;
+    /* 메인 액센트 — SK매직 본사 시그니처 레드 */
+    --accent:#DE4F41;
+    --accent-soft:#FFEEEC;
+    --accent-deep:#C13A2D;
     --success:#3CAA6E;
     --success-bg:#E6F4ED;
-    --danger:#D45A6F;
-    --danger-bg:#F9E5EA;
-    --warning:#D89A47;
-    --warning-bg:#FAF1E2;
-    /* 통신사 — 파스텔 매핑 */
+    --danger:#DE4F41;
+    --danger-bg:#FFEEEC;
+    --warning:#C58B2B;
+    --warning-bg:#F8F1E2;
+    --shadow-card:0 4px 18px rgba(34,34,34,.06);
+    /* 통신사 구분색 (의미색 유지) */
     --skt:#D45A6F;
     --kt:#5A5A7A;
     --lg:#C56B8A;
     --sk:#D45A6F;
-    --skm:#C77BAA;
-    --cw:#6F9BC8;
   }
   *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
   body {
     font-family:'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(181,168,244,.18) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 80% 20%, rgba(157,201,232,.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 70% 90%, rgba(244,165,186,.16) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 10% 80%, rgba(136,212,181,.14) 0%, transparent 60%),
-      #F8F6FE;
+    background:var(--bg-soft);
     color:var(--ink);
     line-height:1.5; letter-spacing:-.014em;
     -webkit-font-smoothing:antialiased;
@@ -73,11 +66,10 @@
     width:390px; height:844px;
     background:var(--bg);
     border-radius:48px;
-    border:11px solid #1F1B30;
+    border:11px solid #2A2A2A;
     box-shadow:
-      0 40px 90px rgba(122,107,217,.18),
-      0 20px 40px rgba(244,165,186,.10),
-      0 8px 20px rgba(15,17,23,.10);
+      0 40px 90px rgba(34,34,34,.14),
+      0 8px 20px rgba(34,34,34,.10);
     position:relative; overflow:hidden; isolation:isolate;
   }
   /* Galaxy 스타일 펀치홀 카메라 (상단 중앙, 작은 동그라미) */
@@ -96,11 +88,7 @@
     overflow-anchor:none;
     padding-bottom:24px;
     --head-h:83px;
-    background:
-      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(181,168,244,.10) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 30% at 100% 50%, rgba(157,201,232,.08) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 30% at 0% 80%, rgba(244,165,186,.08) 0%, transparent 60%),
-      #FFFFFF;
+    background:#FFFFFF;
   }
   .scroll::-webkit-scrollbar { width:0; }
   @media (max-width: 480px) {
@@ -122,8 +110,8 @@
      compact 시각 효과는 transform + opacity만 사용 (compositor only) */
   .head {
     position:sticky; top:0; z-index:30;
-    background:#FCFAFE;
-    border-bottom:1px solid rgba(220,216,236,.6);
+    background:#FFFFFF;
+    border-bottom:1px solid var(--line);
     padding-top:0;
     transition:border-bottom-color .3s ease, clip-path .3s ease;
     clip-path:inset(0 0 0 0);
@@ -148,11 +136,7 @@
   .brand {
     font-size:18px; font-weight:800; letter-spacing:-.04em; color:var(--ink);
   }
-  .brand span {
-    background:var(--iridescent-line);
-    -webkit-background-clip:text; background-clip:text;
-    color:transparent;
-  }
+  .brand span { color:var(--accent); }
   .top-r { display:flex; gap:2px; }
   .ic {
     width:40px; height:40px; border-radius:50%;
@@ -194,8 +178,8 @@
     margin-top:-1px;
     display:flex; align-items:center;
     padding:6px 20px 10px;
-    background:#FCFAFE;
-    border-bottom:1px solid rgba(220,216,236,.6);
+    background:#FFFFFF;
+    border-bottom:1px solid var(--line);
     overflow-x:auto; scrollbar-width:none;
     -webkit-overflow-scrolling:touch;
     transform:translateY(0);
@@ -227,199 +211,41 @@
   .swatch.kt  { background:var(--kt); }
   .swatch.lg  { background:var(--lg); }
   .swatch.sk  { background:var(--sk); }
-  .swatch.skm { background:var(--skm); }
-  .swatch.cw  { background:var(--cw); }
 
   /* ───── 패널 (가로 캐러셀, left 방식 — transform이 sticky 깨므로) ───── */
   .panels {
     position:relative; left:0;
     display:flex; align-items:flex-start;
-    width:300%;
+    width:200%;
     transition:left .35s cubic-bezier(.32,.72,0,1), height .3s ease;
   }
   .panel {
-    width:33.3333%; flex-shrink:0;
-  }
-  /* 카테고리 전환 중엔 backdrop-filter 끔 — left 트랜지션은 GPU 합성이 안 돼
-     매 프레임 전체 페인트가 돌고, 글래스 블러 11개가 슬라이드를 버벅이게 함.
-     글래스 카드는 rgba(255,255,255,.65~.85) 흰 배경을 따로 가져서 블러 꺼도 보임 */
-  .panels.switching .bw-tag,
-  .panels.switching .bw-cta,
-  .panels.switching .stats,
-  .panels.switching .trade-cta,
-  .panels.switching .promo-cta,
-  .panels.switching .item,
-  .panels.switching .quick,
-  .panels.switching .cmp,
-  .panels.switching .rv-stat,
-  .panels.switching .rv {
-    backdrop-filter:none; -webkit-backdrop-filter:none;
+    width:50%; flex-shrink:0;
   }
 
   /* ───── 공통 컨테이너 ───── */
   .pad { padding:0 20px; }
 
-  /* ───── 가로 와이드 배너 (영롱 글래스) ───── */
+  /* ───── 가로 와이드 배너 — 등록 이미지 전용 (없으면 숨김) ───── */
   .banner-wide {
-    position:relative; overflow:hidden;
+    display:block; overflow:hidden;
     border-radius:0;
-    background:
-      linear-gradient(135deg, rgba(232,222,255,.7) 0%, rgba(221,238,255,.6) 30%, rgba(222,250,236,.5) 60%, rgba(255,224,236,.6) 100%),
-      #FFFFFF;
-    color:var(--ink);
-    min-height:138px;
-    padding:20px 110px 20px 22px;
-    display:flex; flex-direction:column; justify-content:center; gap:10px;
-    border-bottom:1px solid rgba(220,216,236,.6);
+    background:#FFFFFF;
+    border-bottom:1px solid var(--line);
   }
-  .banner-wide::before {
-    content:''; position:absolute; inset:0;
-    background:
-      radial-gradient(circle at 88% 20%, rgba(181,168,244,.28) 0%, transparent 45%),
-      radial-gradient(circle at 12% 85%, rgba(244,165,186,.22) 0%, transparent 40%);
-    pointer-events:none;
-  }
-  .banner-wide.bw-internet {
-    background:
-      linear-gradient(135deg, rgba(225,240,249,.7) 0%, rgba(232,222,255,.55) 50%, rgba(222,250,236,.5) 100%),
-      #FFFFFF;
-  }
-  .banner-wide.bw-internet::before {
-    background:
-      radial-gradient(circle at 88% 20%, rgba(157,201,232,.32) 0%, transparent 45%),
-      radial-gradient(circle at 12% 85%, rgba(181,168,244,.22) 0%, transparent 40%);
-  }
-  .banner-wide.bw-rental {
-    background:
-      linear-gradient(135deg, rgba(221,242,232,.7) 0%, rgba(225,240,249,.55) 50%, rgba(252,232,218,.5) 100%),
-      #FFFFFF;
-  }
-  .banner-wide.bw-rental::before {
-    background:
-      radial-gradient(circle at 88% 20%, rgba(136,212,181,.30) 0%, transparent 45%),
-      radial-gradient(circle at 12% 85%, rgba(244,184,154,.22) 0%, transparent 40%);
-  }
-  .banner-wide::after {
-    content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
-    background:var(--iridescent-line); opacity:.6;
-  }
-  .bw-phone {
-    position:absolute; left:50%; top:0;
-    width:30%; height:auto; max-height:100%; z-index:1;
-    /* translateX(-50%)로 박스 정중앙 정렬 → 슬라이더 0일 때 이미지가 배너 가운데 */
-    transform:
-      translateX(-50%)
-      translate(
-        calc(var(--img-offset-x, 0) * 1px),
-        calc(var(--img-offset-y, 0) * 1px)
-      )
-      rotate(calc(var(--img-rotate, 0) * 1deg))
-      scale(calc(var(--img-scale, 100) / 100));
-    transform-origin:center;
-    /* 값이 0이면 offset·blur·opacity 모두 0 → 완전 투명 (그림자 안 보임) */
-    filter:
-      drop-shadow(
-        0
-        calc(var(--img-shadow, 0) * 0.5px)
-        calc(var(--img-shadow, 0) * 1px)
-        rgba(0, 0, 0, calc(var(--img-shadow, 0) * 0.025))
-      )
-      drop-shadow(
-        0 0
-        calc(var(--img-glow, 0) * 1px)
-        rgba(255, 255, 255, calc(var(--img-glow, 0) * 0.022))
-      );
-  }
-  img.bw-phone-img { object-fit:cover; object-position:center center; }
-  .bw-tags {
-    display:flex; gap:6px; position:relative; z-index:2; align-items:center;
-    /* 부모 padding-right(110px)을 벗어나 폰 일러스트 영역까지 슬라이드 가능하게.
-       좌측 padding(22) ↔ 우측 잔여(20px)로 거의 대칭 → chip-pos:50이 시각적 가운데. */
-    margin-right:-90px;
-  }
-  .bw-tags::before { content:''; flex-grow:var(--chip-pos, 0); flex-basis:0; min-width:0; }
-  .bw-tags::after  { content:''; flex-grow:calc(100 - var(--chip-pos, 0)); flex-basis:0; min-width:0; }
-  .bw-tag {
-    font-size:10px; font-weight:700; letter-spacing:0.1em;
-    padding:4px 10px; border-radius:999px;
-    background:rgba(255,255,255,0.65);
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
-    color:var(--ink);
-    border:1px solid rgba(255,255,255,0.9);
-    box-shadow:0 2px 8px rgba(122,107,217,.10);
-    text-transform:uppercase;
-  }
-  .bw-tag.hot {
-    background:linear-gradient(135deg, var(--rose-soft), var(--peach-soft));
-    color:var(--accent-deep); border-color:rgba(255,255,255,0.85);
-  }
-  .bw-title {
-    display:flex; flex-direction:column;
-    position:relative; z-index:2;
-  }
-  /* 가로 위치 공통 패턴 — flex 스페이서로 0~100 보간 (.bw-tags와 동일) */
-  .bw-row { display:flex; align-items:center; min-width:0; }
-  .bw-row::before { content:''; flex-grow:var(--row-pos, 0); flex-basis:0; min-width:0; }
-  .bw-row::after  { content:''; flex-grow:calc(100 - var(--row-pos, 0)); flex-basis:0; min-width:0; }
-  /* 폰 영역(우 110px) 너머로 텍스트가 닿을 수 있도록 — .bw-tags와 동일한 우 확장 */
-  .bw-title small, .bw-title-main, .bw-cta-row { margin-right:-90px; }
-  .bw-title small {
-    font-size:10px; font-weight:700;
-    color:var(--accent); letter-spacing:0.14em; margin-bottom:5px;
-    text-transform:uppercase;
-  }
-  .bw-title-main {
-    font-size:19px; font-weight:800;
-    line-height:1.25; letter-spacing:-.034em;
-    color:var(--ink);
-  }
-  .bw-cta {
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:12px; font-weight:600; letter-spacing:-.005em;
-    background:rgba(255,255,255,0.72);
-    backdrop-filter:blur(16px);
-    -webkit-backdrop-filter:blur(16px);
-    color:var(--ink);
-    padding:8px 14px; border-radius:999px;
-    align-self:flex-start;
-    position:relative; z-index:2;
-    border:1px solid rgba(255,255,255,0.95);
-    box-shadow:0 4px 14px rgba(122,107,217,.14);
-  }
-  .bw-cta b {
-    background:linear-gradient(135deg, var(--accent), var(--rose));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    font-weight:800;
-  }
-  .bw-cta::after {
-    content:''; width:11px; height:11px;
-    background:currentColor; opacity:.55;
-    -webkit-mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 12h14M13 5l7 7-7 7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
-            mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 12h14M13 5l7 7-7 7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  .banner-wide[hidden] { display:none; }
+  .banner-wide .banner-img {
+    display:block; width:100%; height:auto;
   }
 
-  /* ───── HERO 카드 (영롱 글래스) ───── */
+  /* ───── HERO 카드 (화이트) ───── */
   .hero {
-    background:linear-gradient(180deg, rgba(255,255,255,.86) 0%, rgba(255,255,255,.96) 100%);
+    background:#FFFFFF;
     border-radius:20px;
     padding:28px 24px 26px; margin-top:8px;
     position:relative; overflow:hidden;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 12px 36px rgba(122,107,217,.10),
-      0 4px 12px rgba(244,165,186,.08);
-  }
-  .hero::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:var(--iridescent-line); opacity:.7;
-  }
-  .hero::after {
-    content:''; position:absolute; right:-40px; top:-40px;
-    width:160px; height:160px; border-radius:50%;
-    background:radial-gradient(circle, rgba(181,168,244,.18), transparent 70%);
-    pointer-events:none;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .hero-eye {
     font-size:11px; color:var(--accent); font-weight:700;
@@ -433,8 +259,7 @@
     margin-bottom:24px; position:relative;
   }
   .hero-title b {
-    background:linear-gradient(135deg, var(--accent) 0%, var(--rose) 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
+    color:var(--accent);
     font-weight:800;
   }
   .hero-num {
@@ -443,10 +268,7 @@
     letter-spacing:-.05em; margin-bottom:10px;
     position:relative;
   }
-  .hero-num .minus {
-    background:linear-gradient(135deg, var(--accent), var(--sky));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-  }
+  .hero-num .minus { color:var(--accent); }
   .hero-num .unit { font-size:23px; font-weight:600; color:var(--g1); margin-left:3px; letter-spacing:-.025em; }
   .hero-cap {
     font-size:13px; color:var(--g1);
@@ -455,31 +277,24 @@
   }
   .hero-cta {
     display:block; width:100%;
-    background:linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+    background:var(--accent);
     color:#fff;
     padding:16px; border-radius:14px;
     font-size:15px; font-weight:600; letter-spacing:-.015em;
     text-align:center; transition:transform .15s, box-shadow .2s;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.25) inset,
-      0 8px 22px rgba(122,107,217,.32),
-      0 2px 6px rgba(122,107,217,.18);
+    box-shadow:0 6px 18px rgba(222,79,65,.22);
     position:relative;
   }
   .hero-cta:active { transform:scale(.98); }
 
   /* ───── 통계 행 ───── */
   .stats {
-    background:rgba(255,255,255,.7);
-    backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
+    background:#FFFFFF;
     border-radius:18px;
     padding:22px 14px;
     display:grid; grid-template-columns:repeat(3,1fr);
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 6px 20px rgba(122,107,217,.08);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .st { text-align:center; position:relative; }
   .st + .st::before {
@@ -493,26 +308,14 @@
   .st-v .num-star-sm { width:14px; height:14px; margin-left:2px; vertical-align:-2px; }
   .st-l { font-size:11px; color:var(--g2); margin-top:5px; font-weight:500; letter-spacing:-.005em; }
 
-  /* ───── 보상판매 — 글래스 라일락 ───── */
+  /* ───── 보상판매 — 화이트 카드 ───── */
   .trade {
-    background:linear-gradient(135deg, rgba(232,222,255,.5) 0%, rgba(255,224,236,.4) 50%, rgba(225,240,249,.5) 100%);
+    background:#FFFFFF;
     color:var(--ink);
     border-radius:20px; padding:26px 24px 22px;
     position:relative; overflow:hidden;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 10px 30px rgba(122,107,217,.12);
-  }
-  .trade::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:var(--iridescent-line); opacity:.65;
-  }
-  .trade::after {
-    content:''; position:absolute; right:-50px; bottom:-50px;
-    width:200px; height:200px; border-radius:50%;
-    background:radial-gradient(circle, rgba(181,168,244,.28), transparent 65%);
-    pointer-events:none;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .trade-eye {
     font-size:11px; color:var(--accent); font-weight:700;
@@ -536,12 +339,11 @@
   .trade-num .w { font-size:17px; font-weight:600; color:var(--g2); margin-left:3px; letter-spacing:-.025em; }
   .trade-cta {
     display:flex; align-items:center; justify-content:space-between;
-    background:rgba(255,255,255,.65);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    background:var(--bg-soft);
     border-radius:12px;
     padding:14px 16px; color:var(--ink);
     font-size:14px; font-weight:600; letter-spacing:-.015em;
-    border:1px solid rgba(255,255,255,.95);
+    border:1px solid var(--line);
     position:relative;
   }
   .trade-cta::after {
@@ -551,28 +353,17 @@
             mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 6l6 6-6 6' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
   }
 
-  /* ───── 프로모 (글래스 민트) ───── */
+  /* ───── 프로모 (화이트 카드) ───── */
   .promo {
-    background:linear-gradient(135deg, rgba(221,242,232,.5) 0%, rgba(225,240,249,.5) 100%);
+    background:#FFFFFF;
     color:var(--ink);
     border-radius:20px;
     padding:26px 24px 22px; position:relative; overflow:hidden;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 10px 30px rgba(136,212,181,.14);
-  }
-  .promo::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:var(--iridescent-line); opacity:.6;
-  }
-  .promo::after {
-    content:''; position:absolute; right:-40px; top:-40px;
-    width:160px; height:160px; border-radius:50%;
-    background:radial-gradient(circle, rgba(136,212,181,.28), transparent 70%);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .promo-eye {
-    font-size:11px; color:var(--mint); font-weight:700;
+    font-size:11px; color:var(--accent); font-weight:700;
     letter-spacing:0.14em; text-transform:uppercase;
     margin-bottom:14px; display:inline-block;
     position:relative;
@@ -585,14 +376,12 @@
   .promo-h b { font-weight:800; color:var(--ink); }
   .promo-cta {
     display:inline-flex; align-items:center; gap:8px;
-    background:rgba(255,255,255,.85);
-    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    background:var(--bg-soft);
     color:var(--ink);
     padding:12px 18px; border-radius:12px;
     font-size:14px; font-weight:600; letter-spacing:-.015em;
     position:relative;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:0 4px 14px rgba(136,212,181,.16);
+    border:1px solid var(--line);
   }
   .promo-cta::after {
     content:''; width:12px; height:12px;
@@ -629,27 +418,23 @@
   }
   .tel-pl { padding:0 20px; }
   .item {
-    background:rgba(255,255,255,.72);
-    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    background:#FFFFFF;
     border-radius:16px;
     padding:18px;
     display:grid; grid-template-columns:84px 1fr; gap:16px;
     align-items:center;
     margin-bottom:6px;
     transition:transform .15s, box-shadow .2s;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 4px 14px rgba(122,107,217,.06);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .item:active { transform:scale(.99); }
   .item-img {
     width:84px; height:84px; border-radius:14px;
-    background:linear-gradient(135deg, var(--lav-soft), var(--sky-soft));
+    background:var(--bg-soft);
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:0 2px 6px rgba(122,107,217,.08) inset;
+    border:1px solid var(--line);
   }
   .item-img svg { width:54px; height:64px; }
   .item-info { min-width:0; }
@@ -736,25 +521,22 @@
   .item-gift {
     margin-top:10px;
     font-size:11px; font-weight:600;
-    color:var(--accent-deep); background:linear-gradient(135deg, var(--lav-soft), var(--rose-soft));
+    color:var(--accent-deep); background:var(--accent-soft);
     padding:4px 10px; border-radius:999px;
     display:inline-flex; align-items:center; gap:5px;
     letter-spacing:-.005em;
-    border:1px solid rgba(255,255,255,.8);
+    border:1px solid rgba(222,79,65,.15);
   }
   .item-gift svg { width:11px; height:11px; flex-shrink:0; stroke-width:1.8; opacity:.7; }
 
   /* ───── 빠른액션 4셀 ───── */
   .quick {
-    background:rgba(255,255,255,.7);
-    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    background:#FFFFFF;
     border-radius:20px;
     padding:22px 8px; margin:8px 20px 0;
     display:grid; grid-template-columns:repeat(4,1fr);
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 6px 20px rgba(122,107,217,.08);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .qa {
     text-align:center; padding:8px 4px;
@@ -766,31 +548,23 @@
     width:46px; height:46px; border-radius:50%;
     margin:0 auto 8px;
     display:flex; align-items:center; justify-content:center;
-    border:1px solid rgba(255,255,255,.9);
-    box-shadow:0 2px 8px rgba(122,107,217,.10), 0 1px 0 rgba(255,255,255,.9) inset;
+    border:1px solid var(--line);
   }
   .qa-ic svg { width:21px; height:21px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-  .qa-ic.b { background:linear-gradient(135deg, var(--lav-soft), var(--sky-soft)); color:var(--accent-deep); }
-  .qa-ic.g { background:linear-gradient(135deg, var(--mint-soft), var(--sky-soft)); color:#3CAA6E; }
-  .qa-ic.o { background:linear-gradient(135deg, var(--peach-soft), var(--rose-soft)); color:#D89A47; }
-  .qa-ic.r { background:linear-gradient(135deg, var(--rose-soft), var(--lav-soft)); color:#D45A6F; }
+  .qa-ic.b { background:var(--accent-soft); color:var(--accent-deep); }
+  .qa-ic.g { background:var(--success-bg); color:var(--success); }
+  .qa-ic.o { background:var(--warning-bg); color:var(--warning); }
+  .qa-ic.r { background:var(--bg-soft); color:var(--ink); }
   .qa-l { font-size:11.5px; color:var(--ink); font-weight:500; letter-spacing:-.012em; line-height:1.3; }
 
   /* ───── 비교표 ───── */
   .cmp {
-    background:rgba(255,255,255,.72);
-    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    background:#FFFFFF;
     border-radius:20px;
     padding:24px 22px; margin:8px 20px 0;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 6px 20px rgba(122,107,217,.06);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
     position:relative; overflow:hidden;
-  }
-  .cmp::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:var(--iridescent-line); opacity:.5;
   }
   .cmp-h {
     font-size:13px; font-weight:600; letter-spacing:-.018em;
@@ -813,26 +587,21 @@
   .cmp-foot-l { font-size:13px; color:var(--ink); font-weight:600; }
   .cmp-foot-v {
     font-size:30px; font-weight:800; letter-spacing:-.045em;
-    background:linear-gradient(135deg, var(--accent), var(--rose));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
+    color:var(--accent);
   }
 
   /* ───── 후기 ───── */
   .rv-stat {
-    background:rgba(255,255,255,.72);
-    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    background:#FFFFFF;
     border-radius:20px;
     padding:24px 22px; margin:8px 20px 0;
     display:flex; align-items:center; gap:18px;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 6px 20px rgba(122,107,217,.06);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .rv-stat-num {
     font-size:44px; font-weight:800; letter-spacing:-.045em; line-height:0.95;
-    background:linear-gradient(135deg, var(--accent), var(--rose));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
+    color:var(--accent);
     display:inline-flex; align-items:baseline; gap:3px;
   }
   .rv-stat-num .num-star {
@@ -848,14 +617,11 @@
   .rv-stat-cap b { color:var(--ink); font-weight:600; }
   .rv-list { padding:0 20px; margin-top:6px; }
   .rv {
-    background:rgba(255,255,255,.72);
-    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    background:#FFFFFF;
     border-radius:16px;
     padding:20px; margin-bottom:6px;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 4px 14px rgba(122,107,217,.05);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-card);
   }
   .rv-top {
     display:flex; justify-content:space-between; align-items:center;
@@ -877,7 +643,7 @@
   .ft {
     padding:32px 20px 24px;
     font-size:11px; color:var(--g2); line-height:1.7;
-    border-top:1px solid rgba(220,216,236,.5); margin-top:24px;
+    border-top:1px solid var(--line); margin-top:24px;
   }
   .ft b { color:var(--g1); font-weight:600; }
   .ft-row {
@@ -925,22 +691,18 @@
   .fab-btn:active { transform:scale(.96) !important; }
   .fab-btn svg { width:18px; height:18px; flex-shrink:0; }
   .fab-talk { background:#FEE500; color:#191600; }
-  .fab-call { background:linear-gradient(135deg, var(--accent), var(--accent-deep)); color:#fff; }
+  .fab-call { background:var(--accent); color:#fff; }
 
   /* ───── 맨 위로 버튼 (스크롤 시 등장) ───── */
   .top-btn {
     position:absolute; right:18px; bottom:80px;
     z-index:49;
     width:44px; height:44px; border-radius:50%;
-    background:rgba(255,255,255,.85);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    background:#FFFFFF;
     color:var(--ink);
     display:flex; align-items:center; justify-content:center;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.9) inset,
-      0 6px 16px rgba(122,107,217,.14),
-      0 2px 6px rgba(122,107,217,.06);
-    border:1px solid rgba(255,255,255,.95);
+    box-shadow:0 6px 16px rgba(34,34,34,.12);
+    border:1px solid var(--line);
     opacity:0; transform:translateY(8px);
     pointer-events:none;
     transition:opacity .2s, transform .2s;
@@ -963,13 +725,10 @@
   /* 메인 트리거 버튼 (항상 표시) */
   .fab-trigger {
     width:50px; height:50px; border-radius:50%;
-    background:linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+    background:var(--accent);
     color:#fff;
     display:flex; align-items:center; justify-content:center;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,.3) inset,
-      0 8px 22px rgba(122,107,217,.4),
-      0 3px 8px rgba(122,107,217,.18);
+    box-shadow:0 8px 22px rgba(222,79,65,.32);
     transition:transform .2s, box-shadow .2s;
     position:relative;
   }
@@ -983,193 +742,32 @@
   .fab.open .fab-trigger .ic-msg { opacity:0; }
   .fab.open .fab-trigger .ic-x { opacity:1; }
 
-  /* ───── admin 연동 — 배경 프리셋 라이브러리 ───── */
-  .banner-wide.bg-preset-lavender-pastel {
-    background:
-      linear-gradient(135deg, rgba(232,222,255,.7) 0%, rgba(221,238,255,.6) 30%, rgba(222,250,236,.5) 60%, rgba(255,224,236,.6) 100%),
-      #FFFFFF;
-  }
-  .banner-wide.bg-preset-lavender-pastel::before {
-    background:
-      radial-gradient(circle at 88% 20%, rgba(181,168,244,.28) 0%, transparent 45%),
-      radial-gradient(circle at 12% 85%, rgba(244,165,186,.22) 0%, transparent 40%);
-  }
-  .banner-wide.bg-preset-sky-pastel {
-    background:
-      linear-gradient(135deg, rgba(225,240,249,.7) 0%, rgba(232,222,255,.55) 50%, rgba(222,250,236,.5) 100%),
-      #FFFFFF;
-  }
-  .banner-wide.bg-preset-sky-pastel::before {
-    background:
-      radial-gradient(circle at 88% 20%, rgba(157,201,232,.32) 0%, transparent 45%),
-      radial-gradient(circle at 12% 85%, rgba(181,168,244,.22) 0%, transparent 40%);
-  }
-  .banner-wide.bg-preset-mint-pastel {
-    background:
-      linear-gradient(135deg, rgba(221,242,232,.7) 0%, rgba(225,240,249,.55) 50%, rgba(252,232,218,.5) 100%),
-      #FFFFFF;
-  }
-  .banner-wide.bg-preset-mint-pastel::before {
-    background:
-      radial-gradient(circle at 88% 20%, rgba(136,212,181,.30) 0%, transparent 45%),
-      radial-gradient(circle at 12% 85%, rgba(244,184,154,.22) 0%, transparent 40%);
-  }
-  .banner-wide.bg-preset-rose-warm {
-    background:
-      linear-gradient(135deg, rgba(255,228,232,.8) 0%, rgba(252,219,204,.65) 50%, rgba(255,238,210,.6) 100%),
-      #FFFFFF;
-  }
-  .banner-wide.bg-preset-rose-warm::before {
-    background:
-      radial-gradient(circle at 80% 20%, rgba(244,165,186,.32) 0%, transparent 45%),
-      radial-gradient(circle at 15% 85%, rgba(244,184,154,.26) 0%, transparent 40%);
-  }
-  .banner-wide.bg-preset-sunset-gradient {
-    background:linear-gradient(135deg, #FFCBA4 0%, #FFA1B0 55%, #C19EE0 100%);
-    color:#FFFFFF;
-  }
-  .banner-wide.bg-preset-sunset-gradient::before { background:none; }
-  .banner-wide.bg-preset-sunset-gradient .bw-title,
-  .banner-wide.bg-preset-sunset-gradient .bw-title small { color:#FFFFFF; }
-  .banner-wide.bg-preset-sunset-gradient .bw-tag { background:rgba(255,255,255,.85); color:#1A1A2E; }
-  .banner-wide.bg-preset-sunset-gradient .bw-cta { background:rgba(255,255,255,.92); color:#1A1A2E; }
-  .banner-wide.bg-preset-aurora {
-    background:linear-gradient(135deg, #E8DEFF 0%, #DDEEFF 25%, #DEFAEC 50%, #FFEEDA 75%, #FFE0EC 100%);
-  }
-  .banner-wide.bg-preset-aurora::before {
-    background:
-      radial-gradient(circle at 25% 30%, rgba(181,168,244,.40) 0%, transparent 50%),
-      radial-gradient(circle at 75% 70%, rgba(136,212,181,.30) 0%, transparent 50%);
-  }
-  .banner-wide.bg-preset-dark-glow {
-    background:linear-gradient(135deg, #1A1A2E 0%, #2A1F4F 100%);
-    color:#FFFFFF;
-  }
-  .banner-wide.bg-preset-dark-glow::before {
-    background:
-      radial-gradient(circle at 80% 30%, rgba(181,168,244,.40) 0%, transparent 45%),
-      radial-gradient(circle at 20% 80%, rgba(157,201,232,.30) 0%, transparent 40%);
-  }
-  .banner-wide.bg-preset-dark-glow .bw-title,
-  .banner-wide.bg-preset-dark-glow .bw-title small { color:#FFFFFF; }
-  .banner-wide.bg-preset-dark-glow .bw-tag {
-    background:rgba(255,255,255,.18); color:#FFFFFF; border-color:rgba(255,255,255,.3);
-  }
-  .banner-wide.bg-preset-dark-glow .bw-tag.hot {
-    background:linear-gradient(135deg, rgba(244,165,186,.6), rgba(244,184,154,.5));
-    color:#FFFFFF;
-  }
-  .banner-wide.bg-preset-dark-glow .bw-cta { background:rgba(255,255,255,.95); color:#1A1A2E; }
-  .banner-wide.bg-preset-dark-glow .bw-cta b {
-    background:linear-gradient(135deg, var(--accent), var(--rose));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-  }
-  .banner-wide.bg-preset-mono-clean { background:#FFFFFF; }
-  .banner-wide.bg-preset-mono-clean::before {
-    background:linear-gradient(180deg, rgba(220,216,236,.0) 0%, rgba(220,216,236,.4) 100%);
-  }
-  .banner-wide.bg-preset-mono-ink { background:#1A1A2E; color:#FFFFFF; }
-  .banner-wide.bg-preset-mono-ink::before { background:none; }
-  .banner-wide.bg-preset-mono-ink .bw-title,
-  .banner-wide.bg-preset-mono-ink .bw-title small { color:#FFFFFF; }
-  .banner-wide.bg-preset-mono-ink .bw-tag { background:rgba(255,255,255,.18); color:#FFFFFF; }
-  .banner-wide.bg-preset-mono-ink .bw-cta { background:#FFFFFF; color:#1A1A2E; }
-  .banner-wide.bg-preset-mesh-pastel {
-    background:
-      radial-gradient(at 0% 0%, rgba(181,168,244,.5), transparent 50%),
-      radial-gradient(at 100% 0%, rgba(157,201,232,.5), transparent 50%),
-      radial-gradient(at 100% 100%, rgba(136,212,181,.5), transparent 50%),
-      radial-gradient(at 0% 100%, rgba(244,165,186,.5), transparent 50%),
-      #FFFFFF;
-  }
-  .banner-wide.bg-preset-mesh-pastel::before { background:none; }
-
-  /* ───── 단색 10종 (글래스 오버레이·라디얼 글로우 없음, 순수 평면) ───── */
-  .banner-wide.bg-preset-solid-lavender { background:#EDE7FF; }
-  .banner-wide.bg-preset-solid-lavender::before { background:none; }
-  .banner-wide.bg-preset-solid-sky      { background:#E8F1FF; }
-  .banner-wide.bg-preset-solid-sky::before      { background:none; }
-  .banner-wide.bg-preset-solid-mint     { background:#DDF4EC; }
-  .banner-wide.bg-preset-solid-mint::before     { background:none; }
-  .banner-wide.bg-preset-solid-coral    { background:#FCE2DE; }
-  .banner-wide.bg-preset-solid-coral::before    { background:none; }
-  .banner-wide.bg-preset-solid-beige    { background:#F4E8DA; }
-  .banner-wide.bg-preset-solid-beige::before    { background:none; }
-  .banner-wide.bg-preset-solid-slate    { background:#F1F5F9; }
-  .banner-wide.bg-preset-solid-slate::before    { background:none; }
-  .banner-wide.bg-preset-solid-lilac    { background:#EDE2F8; }
-  .banner-wide.bg-preset-solid-lilac::before    { background:none; }
-  .banner-wide.bg-preset-solid-cream    { background:#FFF4D6; }
-  .banner-wide.bg-preset-solid-cream::before    { background:none; }
-  .banner-wide.bg-preset-solid-pink     { background:#FCDFE6; }
-  .banner-wide.bg-preset-solid-pink::before     { background:none; }
-  .banner-wide.bg-preset-solid-sage     { background:#E8F0E0; }
-  .banner-wide.bg-preset-solid-sage::before     { background:none; }
-
-  /* ───── 패턴 — 흰 바탕 + 도트 / 대각선 스트라이프 ───── */
-  .banner-wide.bg-preset-pattern-dots {
-    background:
-      radial-gradient(circle, rgba(122,107,217,.18) 1.5px, transparent 1.8px) 0 0 / 16px 16px,
-      #FFFFFF;
-  }
-  .banner-wide.bg-preset-pattern-dots::before { background:none; }
-  .banner-wide.bg-preset-pattern-stripes {
-    background:
-      repeating-linear-gradient(45deg,
-        #FFFFFF, #FFFFFF 7px,
-        rgba(122,107,217,.08) 7px, rgba(122,107,217,.08) 14px);
-  }
-  .banner-wide.bg-preset-pattern-stripes::before { background:none; }
-
-  .banner-wide.bg-image-custom {
-    background-size:cover !important;
-    background-position:center !important;
-    background-repeat:no-repeat !important;
-    color:#FFFFFF;
-  }
-  .banner-wide.bg-image-custom::before {
-    background:linear-gradient(135deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.15) 60%, rgba(0,0,0,.45) 100%);
-  }
-  .banner-wide.bg-image-custom .bw-title,
-  .banner-wide.bg-image-custom .bw-title small { color:#FFFFFF; text-shadow:0 1px 8px rgba(0,0,0,.4); }
-  .banner-wide.bg-image-custom .bw-tag { background:rgba(255,255,255,.85); color:#1A1A2E; }
-  .banner-wide.bg-image-custom .bw-cta { background:rgba(255,255,255,.95); color:#1A1A2E; }
-
-  /* ───── admin 연동 — 칩/타이틀/CTA 정렬 ───── */
-  .bw-tags.align-center { justify-content:center; }
-  .bw-tags.align-right  { justify-content:flex-end; padding-right:0; }
-  .banner-wide.tags-right .bw-tags { margin-right:-90px; }
-  .bw-title.align-center { text-align:center; }
-  .bw-title.align-right  { text-align:right; }
-  .banner-wide.title-right .bw-title { margin-right:-90px; }
-  .bw-cta.align-center { align-self:center; }
-  .bw-cta.align-right  { align-self:flex-end; }
-  .banner-wide.cta-right .bw-cta { margin-right:-90px; }
 </style>
 <script>
   // 배너 이미지 preload — localStorage 캐시 URL을 HTML 파싱 단계에 미리 fetch 시작
-  // (JS 렌더링 시점에 이미 다운로드 완료/진행 중 → 휴대폰 그림 즉시 표시)
+  // (JS 렌더링 시점에 이미 다운로드 완료/진행 중 → 배너 이미지 즉시 표시)
   (function() {
-    function addPreload(url, cors) {
+    function addPreload(url) {
       if (!url) return;
       var link = document.createElement('link');
       link.rel = 'preload';
       link.as = 'image';
       link.href = url;
       link.fetchPriority = 'high';
-      // 폰 이미지는 <img crossorigin=anonymous>로 쓰여서 preload도 같은 모드여야
-      // 재사용됨 (안 맞추면 같은 이미지를 두 번 받음). 배경은 CSS background라 끔.
-      if (cors) link.crossOrigin = 'anonymous';
+      // 배너는 <img crossorigin=anonymous>로 쓰여서 preload도 같은 모드여야 재사용됨
+      link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
     }
     try {
-      var cache = JSON.parse(localStorage.getItem('mobileshop_snapshot_v1') || 'null');
+      // 손님 페이지는 lite 캐시 키 사용 (data-store.js init({master:false}) 참조)
+      var cache = JSON.parse(
+        localStorage.getItem('mobileshop_snapshot_v1_lite') ||
+        localStorage.getItem('mobileshop_snapshot_v1') || 'null'
+      );
       if (!cache || !cache.banners) return;
-      ['phone', 'internet', 'rental'].forEach(function(k) {
+      ['phone', 'internet'].forEach(function(k) {
         var b = cache.banners[k];
-        if (!b) return;
-        addPreload(b.imageUrl, true);
-        addPreload(b.background && b.background.imageUrl, false);
+        if (b) addPreload(b.imageUrl);
       });
     } catch (e) { /* 무시 */ }
   })();
@@ -1210,42 +808,10 @@
   <!-- ╔═══════ 패널: 휴대폰 ═══════╗ -->
   <div class="panel" id="panel-phone">
 
-    <!-- 가로 와이드 사전예약 배너 (화면 끝까지 풀블리드) -->
+    <!-- 가로 와이드 배너 — 관리자 등록 이미지만 표시 (없으면 숨김) -->
     <section>
-      <div class="banner-wide" data-banner="phone">
-        <img class="bw-phone bw-phone-img" style="display:none" alt=""/>
-        <svg class="bw-phone bw-phone-svg" viewBox="0 0 100 144" style="display:none">
-          <defs>
-            <linearGradient id="bwBody" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#3a3d4a"/>
-              <stop offset="50%" stop-color="#1c1e26"/>
-              <stop offset="100%" stop-color="#0f1015"/>
-            </linearGradient>
-            <linearGradient id="bwScreen" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#1a2748"/>
-              <stop offset="100%" stop-color="#0a0f24"/>
-            </linearGradient>
-          </defs>
-          <rect x="4" y="4" width="92" height="136" rx="16" fill="url(#bwBody)"/>
-          <rect x="6" y="6" width="88" height="132" rx="14" fill="#0a0a0f"/>
-          <rect x="10" y="10" width="80" height="124" rx="11" fill="url(#bwScreen)"/>
-          <circle cx="50" cy="17" r="2.2" fill="#0a0a0f"/>
-          <circle cx="50" cy="17" r="1" fill="#1a2540"/>
-          <ellipse cx="92" cy="34" rx="4" ry="10" fill="rgba(0,0,0,0.4)"/>
-          <text x="50" y="80" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.16)" font-family="Pretendard, sans-serif">S26</text>
-          <text x="50" y="94" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.22)" font-family="Pretendard, sans-serif">ULTRA</text>
-        </svg>
-        <div class="bw-tags">
-          <span class="bw-tag hot">사전예약</span>
-          <span class="bw-tag">D-3</span>
-        </div>
-        <div class="bw-title">
-          <small class="bw-row">SAMSUNG GALAXY</small>
-          <span class="bw-title-main bw-row">S26 Ultra · 5월 신상</span>
-        </div>
-        <div class="bw-cta-row bw-row">
-          <button class="bw-cta">예약 혜택 <b>−730,000원</b></button>
-        </div>
+      <div class="banner-wide" data-banner="phone" hidden>
+        <img class="banner-img" alt="배너"/>
       </div>
     </section>
 
@@ -1303,7 +869,7 @@
           <div class="st-l">누적 개통</div>
         </div>
         <div class="st">
-          <div class="st-v num">4.97<svg class="num-star-sm" viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
+          <div class="st-v num">4.97<svg class="num-star-sm" viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
           <div class="st-l">평균 만족도</div>
         </div>
         <div class="st">
@@ -1323,7 +889,7 @@
       <div class="rv-stat">
         <div class="rv-stat-num num">4.97<svg class="num-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
         <div class="rv-stat-r">
-          <div class="rv-stat-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
+          <div class="rv-stat-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
           <div class="rv-stat-cap">총 <b>14,238건</b> · 최근 30일 +1,128</div>
         </div>
       </div>
@@ -1332,7 +898,7 @@
     <div class="rv-list">
       <div class="rv">
         <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
           <span class="rv-prod">iPhone 17 Pro · SKT</span>
         </div>
         <p class="rv-tx">통신사 매장 세 군데 돌고 마지막에 왔는데, <b>여기가 시뮬레이션 표를 정확히 보여주는 유일한 곳</b>이었어요. 결국 자급제로 결정. 결정이 빨랐고 후회 없습니다.</p>
@@ -1340,7 +906,7 @@
       </div>
       <div class="rv">
         <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
           <span class="rv-prod">Galaxy S26 Ultra · KT</span>
         </div>
         <p class="rv-tx">통신비 월 1.9만원 절감 확정. <b>중고 보상가도 가장 높게 쳐주셨고</b>, 사은품 정품 인증서까지 박스 봉인. 신뢰도 200%.</p>
@@ -1348,7 +914,7 @@
       </div>
       <div class="rv">
         <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
           <span class="rv-prod">Z Flip 7 · LG U+</span>
         </div>
         <p class="rv-tx">영업 압박 없는 상담이 진짜였어요. <b>"이건 권 안 드린다"는 말까지 해주셔서</b> 오히려 안심하고 결제. 다음에 부모님 폰도 여기서 바꿉니다.</p>
@@ -1375,46 +941,10 @@
   <!-- ╔═══════ 패널: 인터넷 ═══════╗ -->
   <div class="panel" id="panel-internet">
 
-    <!-- 가로 와이드 배너 (인터넷 결합) -->
+    <!-- 가로 와이드 배너 — 관리자 등록 이미지만 표시 (없으면 숨김) -->
     <section>
-      <div class="banner-wide bw-internet" data-banner="internet">
-        <img class="bw-phone bw-phone-img" style="display:none" alt=""/>
-        <svg class="bw-phone bw-phone-svg" viewBox="0 0 100 144" style="display:none">
-          <defs>
-            <linearGradient id="rtBody" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#2C2F3A"/>
-              <stop offset="100%" stop-color="#0F1117"/>
-            </linearGradient>
-          </defs>
-          <!-- WiFi waves -->
-          <path d="M50 70 Q34 54 18 70" stroke="#3DD8E8" fill="none" stroke-width="2.4" stroke-linecap="round" opacity="0.9"/>
-          <path d="M50 56 Q26 28 2 56" stroke="#3DD8E8" fill="none" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
-          <path d="M50 42 Q18 4 -14 42" stroke="#3DD8E8" fill="none" stroke-width="1.8" stroke-linecap="round" opacity="0.3"/>
-          <circle cx="50" cy="76" r="2.5" fill="#3DD8E8"/>
-          <!-- antennas -->
-          <line x1="22" y1="86" x2="14" y2="60" stroke="#1a1a1f" stroke-width="3.2" stroke-linecap="round"/>
-          <line x1="78" y1="86" x2="86" y2="60" stroke="#1a1a1f" stroke-width="3.2" stroke-linecap="round"/>
-          <!-- router body -->
-          <rect x="6" y="86" width="88" height="44" rx="8" fill="url(#rtBody)"/>
-          <rect x="6" y="86" width="88" height="44" rx="8" fill="none" stroke="#1f2024" stroke-width="0.6"/>
-          <!-- LED indicators -->
-          <circle cx="20" cy="108" r="2.2" fill="#00C73C"/>
-          <circle cx="30" cy="108" r="2.2" fill="#00C73C"/>
-          <circle cx="40" cy="108" r="2.2" fill="#3DD8E8"/>
-          <circle cx="50" cy="108" r="2.2" fill="#3DD8E8"/>
-          <text x="76" y="113" text-anchor="middle" font-size="10" font-weight="800" fill="rgba(255,255,255,0.4)" font-family="Pretendard, sans-serif">1G</text>
-        </svg>
-        <div class="bw-tags">
-          <span class="bw-tag hot">결합특가</span>
-          <span class="bw-tag">5월 한정</span>
-        </div>
-        <div class="bw-title">
-          <small class="bw-row">SK · KT · LG U+ INTERNET</small>
-          <span class="bw-title-main bw-row">1G + IPTV · 평생 할인</span>
-        </div>
-        <div class="bw-cta-row bw-row">
-          <button class="bw-cta">현금 사은품 <b>최대 35만원</b></button>
-        </div>
+      <div class="banner-wide" data-banner="internet" hidden>
+        <img class="banner-img" alt="배너"/>
       </div>
     </section>
 
@@ -1601,7 +1131,7 @@
       <div class="rv-stat">
         <div class="rv-stat-num num">4.94<svg class="num-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
         <div class="rv-stat-r">
-          <div class="rv-stat-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
+          <div class="rv-stat-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
           <div class="rv-stat-cap">결합 후기 <b>3,287건</b> · 최근 30일 +218</div>
         </div>
       </div>
@@ -1610,7 +1140,7 @@
     <div class="rv-list">
       <div class="rv">
         <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
           <span class="rv-prod">SK 1G + Btv · 4인가구</span>
         </div>
         <p class="rv-tx">휴대폰 4회선 + 인터넷 결합으로 <b>월 2.4만원 절감</b>. 사은품 30만원도 입금 빨랐고, 설치기사님이 친절하셨어요.</p>
@@ -1618,7 +1148,7 @@
       </div>
       <div class="rv">
         <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
           <span class="rv-prod">KT 1G + 지니TV · 3인가구</span>
         </div>
         <p class="rv-tx">기존 인터넷 위약금까지 <b>대납</b>해주셔서 부담 없이 갈아탔습니다. 신청 후 이틀 만에 설치 완료.</p>
@@ -1626,7 +1156,7 @@
       </div>
       <div class="rv">
         <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#C58B2B"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
           <span class="rv-prod">LG U+ 1G + IPTV · 5인가구</span>
         </div>
         <p class="rv-tx">통신사 직영보다 사은품 8만원 더 받았어요. <b>약정 끝나기 6개월 전에 미리 연락</b>주신 것도 인상 깊습니다.</p>
@@ -1639,303 +1169,6 @@
     </footer>
 
   </div><!-- /panel-internet -->
-
-
-  <!-- ╔═══════ 패널: 렌탈 ═══════╗ -->
-  <div class="panel" id="panel-rental">
-
-    <!-- 가로 와이드 배너 (렌탈) -->
-    <section>
-      <div class="banner-wide bw-rental" data-banner="rental">
-        <img class="bw-phone bw-phone-img" style="display:none" alt=""/>
-        <svg class="bw-phone bw-phone-svg" viewBox="0 0 100 144" style="display:none">
-          <!-- 정수기 body -->
-          <rect x="22" y="6" width="56" height="132" rx="8" fill="#F2F3F6"/>
-          <rect x="22" y="6" width="56" height="132" rx="8" fill="none" stroke="#D5D7DC" stroke-width="0.6"/>
-          <!-- top display -->
-          <rect x="32" y="18" width="36" height="22" rx="3" fill="#0a1530"/>
-          <text x="50" y="32" text-anchor="middle" font-size="9" font-weight="900" fill="#3DD8E8" font-family="Pretendard, sans-serif">PURE</text>
-          <!-- buttons -->
-          <circle cx="34" cy="56" r="3" fill="#3DD8E8"/>
-          <circle cx="50" cy="56" r="3" fill="#00C73C"/>
-          <circle cx="66" cy="56" r="3" fill="#F04452"/>
-          <!-- water spout -->
-          <rect x="44" y="76" width="12" height="22" rx="2.5" fill="#A0A4AD"/>
-          <rect x="44" y="76" width="12" height="5" fill="#7A7E87"/>
-          <!-- water drop -->
-          <ellipse cx="50" cy="106" rx="3" ry="4.5" fill="#3DD8E8" opacity="0.65"/>
-          <!-- glass cup hint -->
-          <path d="M36 110 L33 132 L67 132 L64 110 Z" fill="rgba(140,220,230,0.18)" stroke="#88C0CC" stroke-width="0.5"/>
-          <!-- brand mark -->
-          <text x="50" y="128" text-anchor="middle" font-size="6.5" font-weight="800" fill="#999" font-family="Pretendard, sans-serif">SK magic</text>
-        </svg>
-        <div class="bw-tags">
-          <span class="bw-tag hot">신상</span>
-          <span class="bw-tag">4개월 무료</span>
-        </div>
-        <div class="bw-title">
-          <small class="bw-row">SK매직 · 코웨이 RENTAL</small>
-          <span class="bw-title-main bw-row">정수기 · 청정기 · 식세기</span>
-        </div>
-        <div class="bw-cta-row bw-row">
-          <button class="bw-cta">설치비 <b>0원</b> + 무료체험</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 렌탈 소분류 (스크롤 시 head 슬롯으로 이동) -->
-    <!-- 렌탈 소분류 (sticky) -->
-    <nav class="sub-nav">
-      <button class="on">전체</button>
-      <span class="sub-dot"></span>
-      <button><span class="swatch skm"></span>SK매직</button>
-      <span class="sub-dot"></span>
-      <button><span class="swatch cw"></span>코웨이</button>
-      <span class="sub-dot"></span>
-      <button>청호나이스</button>
-    </nav>
-
-    <!-- HERO (렌탈) -->
-    <section class="pad">
-      <div class="hero">
-        <div class="hero-eye">통신요금 합산 청구</div>
-        <div class="hero-title">정수기·청정기,<br><b>통신비에 묶어서</b> 한 번에</div>
-        <div class="hero-num num"><span class="minus">−</span>5,400<span class="unit">원</span></div>
-        <div class="hero-cap">결합 시 월 할인 · 설치비 0원 · 4개월 무료체험</div>
-        <a class="hero-cta">렌탈 상담 신청</a>
-      </div>
-    </section>
-
-    <!-- STATS -->
-    <section class="pad" style="margin-top:8px">
-      <div class="stats">
-        <div class="st">
-          <div class="st-v num">2,164<small>건</small></div>
-          <div class="st-l">렌탈 누적</div>
-        </div>
-        <div class="st">
-          <div class="st-v num">4<small>개월</small></div>
-          <div class="st-l">평균 무료체험</div>
-        </div>
-        <div class="st">
-          <div class="st-v num">24<small>시간</small></div>
-          <div class="st-l">AS 응대</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 렌탈 상품 -->
-    <div class="sec">
-      <div class="sec-t">인기 렌탈 상품 <a class="more">전체 →</a></div>
-      <div class="sec-s">설치비 무료 · 약정 만료 시 소유권 이전</div>
-    </div>
-
-    <div class="pl">
-
-      <!-- SK매직 슈퍼정수기 -->
-      <div class="item">
-        <div class="item-img">
-          <svg viewBox="0 0 60 72">
-            <rect x="18" y="4" width="24" height="64" rx="5" fill="#F2F3F6"/>
-            <rect x="18" y="4" width="24" height="64" rx="5" fill="none" stroke="#D5D7DC" stroke-width="0.6"/>
-            <rect x="22" y="10" width="16" height="12" rx="2" fill="#0a1530"/>
-            <text x="30" y="18" text-anchor="middle" font-size="5" font-weight="900" fill="#3182F6" font-family="Pretendard">PURE</text>
-            <rect x="26" y="36" width="8" height="12" rx="2" fill="#A0A4AD"/>
-            <path d="M22 52 L20 66 L40 66 L38 52 Z" fill="rgba(140,180,255,0.25)" stroke="#B8C0CC" stroke-width="0.5"/>
-            <circle cx="22" cy="28" r="1.5" fill="#3182F6"/>
-            <circle cx="30" cy="28" r="1.5" fill="#00C73C"/>
-            <circle cx="38" cy="28" r="1.5" fill="#F04452"/>
-          </svg>
-        </div>
-        <div class="item-info">
-          <div class="item-tags">
-            <span class="item-tag"><span class="swatch skm"></span>SK매직</span>
-            <span class="item-tag">직수형</span>
-          </div>
-          <div class="item-name">슈퍼정수기 100C</div>
-          <div class="item-c">5년 약정 · 4개월 무료체험</div>
-          <div class="item-row">
-            <div class="item-month">월 렌탈료<b class="num">26,900<span class="w">원</span></b></div>
-            <div class="item-disc zero num">설치비 0원</div>
-          </div>
-          <div class="item-gift">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-            첫 4개월 무료 + 통신요금 합산
-          </div>
-        </div>
-      </div>
-
-      <!-- 코웨이 아이콘 정수기 -->
-      <div class="item">
-        <div class="item-img">
-          <svg viewBox="0 0 60 72">
-            <rect x="20" y="4" width="20" height="64" rx="7" fill="#FFFFFF"/>
-            <rect x="20" y="4" width="20" height="64" rx="7" fill="none" stroke="#C8CCD3" stroke-width="0.6"/>
-            <rect x="24" y="10" width="12" height="9" rx="2" fill="#0061B0"/>
-            <circle cx="30" cy="14" r="0.9" fill="#00C73C"/>
-            <rect x="27" y="34" width="6" height="14" rx="1.5" fill="#88909C"/>
-            <ellipse cx="30" cy="52" rx="2" ry="3" fill="#3182F6" opacity="0.4"/>
-            <rect x="20" y="26" width="2" height="34" fill="#0061B0"/>
-          </svg>
-        </div>
-        <div class="item-info">
-          <div class="item-tags">
-            <span class="item-tag"><span class="swatch cw"></span>코웨이</span>
-            <span class="item-tag">냉온정</span>
-          </div>
-          <div class="item-name">아이콘 정수기2</div>
-          <div class="item-c">6년 약정 · 2개월 방문관리</div>
-          <div class="item-row">
-            <div class="item-month">월 렌탈료<b class="num">29,900<span class="w">원</span></b></div>
-            <div class="item-disc zero num">설치비 0원</div>
-          </div>
-          <div class="item-gift">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-            카드 결제 시 5% 할인
-          </div>
-        </div>
-      </div>
-
-      <!-- SK매직 식세기 -->
-      <div class="item">
-        <div class="item-img">
-          <svg viewBox="0 0 60 72">
-            <rect x="8" y="6" width="44" height="60" rx="4" fill="#EFF1F4"/>
-            <rect x="8" y="6" width="44" height="60" rx="4" fill="none" stroke="#C8CCD3" stroke-width="0.6"/>
-            <rect x="11" y="10" width="38" height="44" rx="2.5" fill="none" stroke="#B8BDC5" stroke-width="0.6"/>
-            <rect x="13" y="32" width="34" height="2.5" rx="1.2" fill="#9CA0AA"/>
-            <rect x="36" y="14" width="11" height="5" rx="1" fill="#1A1A2A"/>
-            <ellipse cx="30" cy="40" rx="13" ry="8" fill="rgba(49,130,246,0.1)"/>
-          </svg>
-        </div>
-        <div class="item-info">
-          <div class="item-tags">
-            <span class="item-tag"><span class="swatch skm"></span>SK매직</span>
-            <span class="item-tag">12인용</span>
-          </div>
-          <div class="item-name">트리플케어 식세기</div>
-          <div class="item-c">5년 약정 · 신상</div>
-          <div class="item-row">
-            <div class="item-month">월 렌탈료<b class="num">35,900<span class="w">원</span></b></div>
-            <div class="item-disc zero num">설치비 0원</div>
-          </div>
-          <div class="item-gift">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-            세제 1년치 + 설치비 면제
-          </div>
-        </div>
-      </div>
-
-      <!-- 코웨이 노블 공기청정기 -->
-      <div class="item">
-        <div class="item-img">
-          <svg viewBox="0 0 60 72">
-            <rect x="14" y="4" width="32" height="64" rx="7" fill="#F5F6F9"/>
-            <rect x="14" y="4" width="32" height="64" rx="7" fill="none" stroke="#C8CCD3" stroke-width="0.6"/>
-            <line x1="18" y1="12" x2="42" y2="12" stroke="#C0C5CC" stroke-width="0.5"/>
-            <line x1="18" y1="16" x2="42" y2="16" stroke="#C0C5CC" stroke-width="0.5"/>
-            <line x1="18" y1="20" x2="42" y2="20" stroke="#C0C5CC" stroke-width="0.5"/>
-            <circle cx="30" cy="38" r="11" fill="#fff" stroke="#D0D5DC" stroke-width="0.7"/>
-            <circle cx="30" cy="38" r="7" fill="none" stroke="#E0E5EC" stroke-width="0.5"/>
-            <circle cx="30" cy="38" r="3" fill="#00C73C"/>
-            <rect x="14" y="58" width="32" height="10" rx="3" fill="#E5E7EB"/>
-          </svg>
-        </div>
-        <div class="item-info">
-          <div class="item-tags">
-            <span class="item-tag"><span class="swatch cw"></span>코웨이</span>
-            <span class="item-tag">28평형</span>
-          </div>
-          <div class="item-name">노블 공기청정기</div>
-          <div class="item-c">5년 약정 · 4개월 방문관리</div>
-          <div class="item-row">
-            <div class="item-month">월 렌탈료<b class="num">32,900<span class="w">원</span></b></div>
-            <div class="item-disc zero num">필터 무료</div>
-          </div>
-          <div class="item-gift">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-            전 필터 5년간 무상 교체
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- 렌탈 비교표 -->
-    <section style="margin-top:8px">
-      <div class="cmp">
-        <div class="cmp-h">SK매직 슈퍼정수기 · 60개월 총비용</div>
-        <div class="cmp-row">
-          <span class="cmp-l">월 렌탈료</span>
-          <span class="cmp-v num">26,900원</span>
-        </div>
-        <div class="cmp-row">
-          <span class="cmp-l">4개월 무료체험</span>
-          <span class="cmp-v down num">−107,600원</span>
-        </div>
-        <div class="cmp-row">
-          <span class="cmp-l">통신비 결합 할인</span>
-          <span class="cmp-v down num">−5,400원/월</span>
-        </div>
-        <div class="cmp-row">
-          <span class="cmp-l">설치비 / 방문관리</span>
-          <span class="cmp-v down num">0원 (포함)</span>
-        </div>
-        <div class="cmp-foot">
-          <span class="cmp-foot-l">실 부담 (60개월)</span>
-          <span class="cmp-foot-v num">1,182,400원</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 후기 -->
-    <div class="sec">
-      <div class="sec-t">렌탈 후기 <a class="more">전체 →</a></div>
-      <div class="sec-s">설치 후 60일 이내 작성 후기만</div>
-    </div>
-
-    <section>
-      <div class="rv-stat">
-        <div class="rv-stat-num num">4.92<svg class="num-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
-        <div class="rv-stat-r">
-          <div class="rv-stat-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></div>
-          <div class="rv-stat-cap">렌탈 후기 <b>2,164건</b> · AS 만족도 4.95</div>
-        </div>
-      </div>
-    </section>
-
-    <div class="rv-list">
-      <div class="rv">
-        <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
-          <span class="rv-prod">SK매직 슈퍼정수기 · 통신결합</span>
-        </div>
-        <p class="rv-tx"><b>4개월 무료체험</b>이라 부담 없이 시작. 통신비랑 같이 청구되니 잊을 일도 없고, 설치 다음 날 바로 사용 가능했어요.</p>
-        <div class="rv-meta"><b>정** · 송파구</b> · 2026.05.02</div>
-      </div>
-      <div class="rv">
-        <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
-          <span class="rv-prod">코웨이 노블 공기청정기</span>
-        </div>
-        <p class="rv-tx">방문관리 기사님이 <b>필터 교체 주기까지 캘린더에 알림</b> 등록해주셨어요. 잔고장 0회, 5년 보증도 신뢰 갑니다.</p>
-        <div class="rv-meta"><b>장** · 서초구</b> · 2026.04.18</div>
-      </div>
-      <div class="rv">
-        <div class="rv-top">
-          <span class="rv-stars"><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="#F4B89A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
-          <span class="rv-prod">SK매직 트리플케어 식세기</span>
-        </div>
-        <p class="rv-tx">설치비 0원에 세제 1년치까지. 대형 가전인데 설치기사 두 분이 <b>주방 동선 맞춰 위치 조정</b>까지. 만족.</p>
-        <div class="rv-meta"><b>오** · 분당구</b> · 2026.04.14</div>
-      </div>
-    </div>
-
-    <footer class="ft">
-      <div class="ft-c">렌탈 상품은 통신요금과 합산 청구 가능. 약정 중도해지 시 위약금 발생.</div>
-    </footer>
-
-  </div><!-- /panel-rental -->
 
   </div><!-- /panels -->
 
@@ -1995,97 +1228,27 @@
   var GIFT_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>';
   var ARROW_DOWN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 21l-9-9h6V3h6v9h6z"/></svg>';
 
+  // 배너 — 등록된 이미지(imageUrl)만 풀폭 표시, 없으면 영역 숨김.
+  // (기존에 저장된 복합 배너 데이터도 imageUrl 필드만 사용)
   function renderBanner(key, banner) {
-    if (!banner) return;
     var $b = document.querySelector('[data-banner="' + key + '"]');
-    if (!$b) return;
-    // 배경 클래스 정리 후 적용
-    Array.from($b.classList).forEach(function(cls) {
-      if (cls.indexOf('bg-preset-') === 0 || cls === 'bg-image-custom' || cls === 'bw-internet' || cls === 'bw-rental') {
-        $b.classList.remove(cls);
+    if (!$b) return; // 대상 엘리먼트 없으면 조용히 skip
+    var $img = $b.querySelector('img.banner-img');
+    var url = (banner && typeof banner.imageUrl === 'string') ? banner.imageUrl : '';
+    if (url && $img) {
+      $img.crossOrigin = 'anonymous'; // preload(crossorigin)와 모드 일치 — 중복 다운로드 방지
+      if ($img.getAttribute('src') !== url) {
+        $img.onload = function() {
+          if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
+        };
+        $img.src = url;
       }
-    });
-    $b.style.backgroundImage = '';
-    var bg = banner.background || { type: 'preset', presetId: 'lavender-pastel' };
-    if (bg.type === 'image' && bg.imageUrl) {
-      $b.classList.add('bg-image-custom');
-      $b.style.backgroundImage = 'url("' + bg.imageUrl.replace(/"/g, '\\"') + '")';
+      $img.alt = (banner && banner.title) || '배너';
+      $b.hidden = false;
     } else {
-      $b.classList.add('bg-preset-' + (bg.presetId || 'lavender-pastel'));
+      if ($img) { $img.onload = null; $img.removeAttribute('src'); }
+      $b.hidden = true;
     }
-
-    var $tags = $b.querySelector('.bw-tags');
-    if ($tags) {
-      $tags.classList.remove('align-center', 'align-right');
-      $b.classList.remove('tags-right');
-      // chipAlign: 0~100 숫자 (옛 'left'/'center'/'right' 문자열도 호환)
-      var align = banner.chipAlign;
-      if (typeof align === 'string') align = align === 'right' ? 100 : align === 'center' ? 50 : 0;
-      if (typeof align !== 'number' || isNaN(align)) align = 0;
-      $tags.style.setProperty('--chip-pos', align);
-      $tags.innerHTML = (banner.tags || []).map(function(t) {
-        var style = '';
-        if (t.hot) {
-          if (t.bg) style += 'background:' + t.bg + ';';
-          if (t.fg) style += 'color:' + t.fg + ';';
-        }
-        var styleAttr = style ? ' style="' + style + '"' : '';
-        return '<span class="bw-tag' + (t.hot ? ' hot' : '') + '"' + styleAttr + '>' + escapeHtml(t.text) + '</span>';
-      }).join('');
-    }
-    // 가로 위치 0~100 정규화 (옛 left/center/right 문자열 호환)
-    function normalizeAlign(v) {
-      if (typeof v === 'string') return v === 'right' ? 100 : v === 'center' ? 50 : 0;
-      return (typeof v === 'number' && !isNaN(v)) ? v : 0;
-    }
-    var $title = $b.querySelector('.bw-title');
-    if ($title) {
-      var eAlign = normalizeAlign(banner.eyebrowAlign);
-      var tAlign = normalizeAlign(banner.titleAlign);
-      var eStyle = '--row-pos:' + eAlign + ';';
-      if (banner.eyebrowColor) eStyle += 'color:' + banner.eyebrowColor + ';';
-      var tStyle = '--row-pos:' + tAlign + ';';
-      if (banner.titleColor) tStyle += 'color:' + banner.titleColor + ';';
-      $title.innerHTML =
-        '<small class="bw-row" style="' + eStyle + '">' + escapeHtml(banner.eyebrow) + '</small>' +
-        '<span class="bw-title-main bw-row" style="' + tStyle + '">' + escapeHtml(banner.title) + '</span>';
-    }
-    var $ctaRow = $b.querySelector('.bw-cta-row');
-    var $cta = $b.querySelector('.bw-cta');
-    if ($cta) {
-      var cAlign = normalizeAlign(banner.ctaAlign);
-      if ($ctaRow) $ctaRow.style.setProperty('--row-pos', cAlign);
-      // CTA 버튼 텍스트 색 (b 태그의 그라데이션 텍스트는 영향 X — background-clip)
-      $cta.style.color = banner.ctaTextColor || '';
-      // CTA 강조 그라데이션 — 시작·끝 색 데이터로 인라인 적용 (없으면 기본 보라→로즈)
-      var hlStart = banner.ctaHlStart || '#7A6BD9';
-      var hlEnd   = banner.ctaHlEnd   || '#F4A5BA';
-      var hlStyle = 'background:linear-gradient(135deg,' + hlStart + ',' + hlEnd + ');'
-                  + '-webkit-background-clip:text;background-clip:text;color:transparent;';
-      $cta.innerHTML = escapeHtml(banner.ctaText) + ' <b style="' + hlStyle + '">' + escapeHtml(banner.ctaHighlight) + '</b>';
-    }
-    // 배너 이미지 — img만 토글, SVG 폴백은 항상 숨김 (까만 폰 깜빡임 방지)
-    var $imgEl = $b.querySelector('img.bw-phone-img');
-    var $svgEl = $b.querySelector('svg.bw-phone-svg');
-    if (banner.imageUrl) {
-      if ($imgEl) {
-        $imgEl.crossOrigin = 'anonymous'; // canvas 캡쳐 위해 (Supabase Storage CORS OK)
-        $imgEl.src = banner.imageUrl;
-        $imgEl.alt = banner.title || '';
-        $imgEl.style.display = '';
-      }
-    } else {
-      if ($imgEl) { $imgEl.style.display = 'none'; $imgEl.src = ''; }
-    }
-    if ($svgEl) { $svgEl.style.display = 'none'; }
-    $b.querySelectorAll('.bw-phone').forEach(function(el) {
-      if (typeof banner.imageRotate  === 'number') el.style.setProperty('--img-rotate',   banner.imageRotate);
-      if (typeof banner.imageScale   === 'number') el.style.setProperty('--img-scale',    banner.imageScale);
-      if (typeof banner.imageOffsetX === 'number') el.style.setProperty('--img-offset-x', banner.imageOffsetX);
-      if (typeof banner.imageOffsetY === 'number') el.style.setProperty('--img-offset-y', banner.imageOffsetY);
-      if (typeof banner.imageShadow  === 'number') el.style.setProperty('--img-shadow',  banner.imageShadow);
-      if (typeof banner.imageGlow    === 'number') el.style.setProperty('--img-glow',    banner.imageGlow);
-    });
   }
 
   function renderPhoneProducts(products, categories) {
@@ -2177,7 +1340,6 @@
     if (data.banners) {
       renderBanner('phone', data.banners.phone);
       renderBanner('internet', data.banners.internet);
-      renderBanner('rental', data.banners.rental);
     }
     renderPhoneSubNav(data.categories);
     renderPhoneProducts(data.productsPhone, data.categories);
@@ -2191,31 +1353,8 @@
     if (e.data.type === 'mobileshop:preview' && e.data.data) {
       renderAll(e.data.data);
     } else if (e.data.type === 'mobileshop:preview-panel' && e.data.panel) {
-      // admin 서브탭 클릭 → 해당 패널로 이동
+      // admin 서브탭 클릭 → 해당 패널로 이동 (rental 등 미존재 패널은 showCat에서 무시)
       if (typeof showCat === 'function') showCat(e.data.panel);
-    } else if (e.data.type === 'mobileshop:chip-pos' && e.data.panel) {
-      var panel = document.getElementById('panel-' + e.data.panel);
-      var tags = panel && panel.querySelector('.bw-tags');
-      if (tags) tags.style.setProperty('--chip-pos', e.data.value);
-    } else if (e.data.type === 'mobileshop:eyebrow-pos' && e.data.panel) {
-      var panel = document.getElementById('panel-' + e.data.panel);
-      var el = panel && panel.querySelector('.bw-title small');
-      if (el) el.style.setProperty('--row-pos', e.data.value);
-    } else if (e.data.type === 'mobileshop:title-pos' && e.data.panel) {
-      var panel = document.getElementById('panel-' + e.data.panel);
-      var el = panel && panel.querySelector('.bw-title-main');
-      if (el) el.style.setProperty('--row-pos', e.data.value);
-    } else if (e.data.type === 'mobileshop:cta-pos' && e.data.panel) {
-      var panel = document.getElementById('panel-' + e.data.panel);
-      var el = panel && panel.querySelector('.bw-cta-row');
-      if (el) el.style.setProperty('--row-pos', e.data.value);
-    } else if (e.data.panel && /^mobileshop:img-(rotate|scale|offset-x|offset-y|shadow|glow)$/.test(e.data.type)) {
-      // 이미지 변형/효과 — .bw-phone(SVG와 img 둘 다)에 CSS 변수만 surgical 갱신
-      var varName = '--img-' + e.data.type.split('img-')[1];
-      var panel = document.getElementById('panel-' + e.data.panel);
-      if (panel) panel.querySelectorAll('.bw-phone').forEach(function(el) {
-        el.style.setProperty(varName, e.data.value);
-      });
     }
   });
   if (window.parent && window.parent !== window) {
@@ -2225,9 +1364,8 @@
   var catNav = document.getElementById('cat-nav');
   var scrollEl = document.querySelector('.scroll');
   var panelsEl = document.getElementById('panels');
-  var catOrder = ['phone', 'internet', 'rental'];
+  var catOrder = ['phone', 'internet']; // rental은 별도 페이지(/rental)로 이동
   var currentIdx = 0;
-  var switchTimer = 0;
 
   function syncPanelsHeight() {
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
@@ -2240,7 +1378,8 @@
 
   function showCat(cat) {
     var newIdx = catOrder.indexOf(cat);
-    if (newIdx === currentIdx) return;
+    // 미존재 카테고리(rental 포함, admin preview postMessage 등) 가드 — 조용히 무시
+    if (newIdx === -1 || newIdx === currentIdx) return;
 
     var wasCompact = headEl.classList.contains('compact');
 
@@ -2249,9 +1388,6 @@
     });
 
     currentIdx = newIdx;
-    panelsEl.classList.add('switching');
-    clearTimeout(switchTimer);
-    switchTimer = setTimeout(function() { panelsEl.classList.remove('switching'); }, 380);
     panelsEl.style.left = -(newIdx * 100) + '%';
     syncPanelsHeight();
 
@@ -2280,8 +1416,24 @@
   window.addEventListener('resize', syncPanelsHeight);
 
   catNav.querySelectorAll('button').forEach(function(b) {
-    b.addEventListener('click', function() { showCat(b.dataset.cat); });
+    b.addEventListener('click', function() {
+      // 렌탈 탭 → SK매직 카탈로그 페이지로 이동 (슬라이드 패널 아님)
+      if (b.dataset.cat === 'rental') { location.href = '/rental'; return; }
+      showCat(b.dataset.cat);
+    });
   });
+
+  // ?cat= 딥링크 — /?cat=internet 등으로 진입 시 해당 패널 즉시 표시 (애니메이션 없음)
+  (function() {
+    var qcat = '';
+    try { qcat = new URLSearchParams(location.search).get('cat') || ''; } catch (e) {}
+    if (qcat && qcat !== catOrder[currentIdx] && catOrder.indexOf(qcat) !== -1) {
+      panelsEl.style.transition = 'none';
+      showCat(qcat);
+      void panelsEl.offsetWidth; // reflow — transition:none 상태로 left 적용 확정
+      panelsEl.style.transition = '';
+    }
+  })();
 
   // 각 패널의 sub-nav — 클릭 시 active 토글
   document.querySelectorAll('.sub-nav').forEach(function(nav) {

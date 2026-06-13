@@ -5,35 +5,99 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SK매직 인증파트너점 | 정수기·공기청정기·비데·매트리스</title>
 <meta name="description" content="검증된 SK매직 정품 렌탈 라인업을 한 화면에. 안심·편한 셀프 또는 방문 관리, 빠른 설치까지.">
-<link rel="stylesheet" href="./assets/style.css">
-<link rel="icon" type="image/png" sizes="32x32" href="./assets/brand/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="./assets/brand/favicon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="./assets/brand/apple-touch-icon.png">
-<link rel="shortcut icon" href="./assets/brand/favicon.ico">
+<script>
+  /* ★ 합본 사이트 매장 슬러그 고정 — 멀티테넌트 path 파싱 대신 이 값을 사용.
+     매장(데이터)을 바꾸려면 여기와 rental-assets/supabase.js 의 fallback('skmagic')을 함께 수정. */
+  window.RENTAL_STORE_SLUG = 'skmagic';
+</script>
+<link rel="stylesheet" href="/rental-assets/style.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/rental-assets/brand/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/rental-assets/brand/apple-touch-icon.png">
+<link rel="shortcut icon" href="/rental-assets/brand/favicon.ico">
 <meta name="theme-color" content="#DE4F41">
+<style>
+  /* ===== 합본 전용 오버라이드 (rental.html 한정) =====
+     1) 모바일샵 공통 상단 메뉴(msr-*) — mobile-shop index.html 의 .head/.cat-nav 톤을
+        msr- 프리픽스로 복제 (skmagic style.css 가 글로벌이라 클래스 충돌 방지).
+     2) skmagic 자체 헤더 슬림화 — 이중 헤더 답답함 완화. 화이트톤 유지. */
+  .msr-head{
+    position:sticky;top:0;z-index:300;
+    background:rgba(255,255,255,.94);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(220,216,236,.6);
+  }
+  .msr-in{
+    max-width:var(--container,1200px);margin:0 auto;padding:0 20px;
+    height:52px;display:flex;align-items:center;gap:28px;
+  }
+  .msr-brand{
+    font-size:18px;font-weight:800;letter-spacing:-.04em;color:#1A1A2E;
+    text-decoration:none;flex-shrink:0;
+  }
+  .msr-brand span{
+    background:linear-gradient(90deg,#B5A8F4,#9DC9E8,#88D4B5,#F4B89A,#F4A5BA);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .msr-cat-nav{display:flex;gap:22px;align-items:center}
+  .msr-cat-nav a{
+    font-size:16px;font-weight:400;line-height:22px;letter-spacing:-.035em;
+    color:#9090B0;text-decoration:none;padding:14px 0;position:relative;
+    transition:color .2s;
+  }
+  .msr-cat-nav a:hover{color:#1A1A2E}
+  .msr-cat-nav a.on{color:#1A1A2E;font-weight:700}
+  .msr-cat-nav a.on::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;
+    height:2px;background:var(--primary);border-radius:1px;
+  }
+  @media (max-width:560px){
+    .msr-in{height:46px;gap:18px;padding:0 16px}
+    .msr-brand{font-size:16px}
+    .msr-cat-nav{gap:16px}
+    .msr-cat-nav a{font-size:15px;padding:11px 0}
+  }
+  /* skmagic 헤더 슬림화 — 위 메뉴바와 한 덩어리처럼 보이게 (로고+카테고리만, 낮게) */
+  .site-header .container{height:58px}
+  .site-header .brand-logo{height:30px}
+  .site-header .partner-label{font-size:13px;padding-left:11px}
+  @media (max-width:560px){
+    .site-header .container{height:50px}
+    .site-header .brand-logo{height:26px}
+  }
+  /* 상세 탭바 sticky 기준점 — msr 메뉴바(52px) 아래에 붙도록 */
+  .detail-tabs .tabbar{top:52px}
+  @media (max-width:560px){ .detail-tabs .tabbar{top:46px} }
+</style>
 </head>
 <body>
 
-<!-- ===== Utility bar ===== -->
-<div class="util-bar">
-  <div class="container">
-    <a href="/card-benefits">제휴카드 안내</a>
-    <a href="/faq">자주 묻는 질문</a>
+<!-- ===== 모바일샵 공통 상단 메뉴 (sticky) =====
+     mobile-shop index.html 의 .head(로고)+.cat-nav(휴대폰|인터넷|렌탈) 구조를 msr- 프리픽스로 복제.
+     휴대폰/인터넷 탭은 모바일샵 손님페이지(/)의 ?cat= 딥링크로 이동, 렌탈 탭이 현재(active). -->
+<header class="msr-head">
+  <div class="msr-in">
+    <a class="msr-brand" href="/">우주<span>커넥트</span></a>
+    <nav class="msr-cat-nav">
+      <a href="/?cat=phone">휴대폰</a>
+      <a href="/?cat=internet">인터넷</a>
+      <a class="on" href="/rental">렌탈</a>
+    </nav>
   </div>
-</div>
+</header>
 
-<!-- ===== Header ===== -->
+<!-- ===== Header (skmagic — 슬림) ===== -->
 <header class="site-header">
   <div class="container">
-    <a class="brand" href="./index.html">
-      <img class="brand-logo" src="./assets/brand/logo.png" alt="SK magic">
+    <a class="brand" href="/rental">
+      <img class="brand-logo" src="/rental-assets/brand/logo.png" alt="SK magic">
       <span class="partner-label">인증파트너점</span>
     </a>
     <nav class="gnb">
-      <a href="./index.html?cls=100000005">정수기</a>
-      <a href="./index.html?cls=100000010">공기청정기</a>
-      <a href="./index.html?cls=100000024">비데</a>
-      <a href="./index.html?cls=1000000245">매트리스</a>
+      <a href="/rental?cls=100000005">정수기</a>
+      <a href="/rental?cls=100000010">공기청정기</a>
+      <a href="/rental?cls=100000024">비데</a>
+      <a href="/rental?cls=1000000245">매트리스</a>
     </nav>
     <!-- 헤더 우측 액션 영역 제거됨 (검색·장바구니·계정·상담신청) — 상담은 우하단 FAB로 대체 -->
     <div class="header-actions"></div>
@@ -47,9 +111,9 @@
   <!-- ===== NEW HERO: 3-슬라이드 캐러셀 (3초 자동전환 + 좌우 버튼) ===== -->
   <section class="hero-slider" id="hero-slider">
     <div class="hs-track">
-      <div class="hs-slide on"><img src="./assets/hero/11.jpg" alt="" loading="eager"></div>
-      <div class="hs-slide"><img src="./assets/hero/22.jpg" alt="" loading="lazy"></div>
-      <div class="hs-slide"><img src="./assets/hero/33.jpg" alt="" loading="lazy"></div>
+      <div class="hs-slide on"><img src="/rental-assets/hero/11.jpg" alt="" loading="eager"></div>
+      <div class="hs-slide"><img src="/rental-assets/hero/22.jpg" alt="" loading="lazy"></div>
+      <div class="hs-slide"><img src="/rental-assets/hero/33.jpg" alt="" loading="lazy"></div>
     </div>
     <button class="hs-nav hs-prev" type="button" aria-label="이전 슬라이드">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
@@ -74,7 +138,7 @@
           검증된 정품 라인업과 셀프·방문 관리 선택권, <br>
           빠른 설치를 한 곳에서.</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="./index.html?cls=100000005">
+          <a class="btn btn-primary" href="/rental?cls=100000005">
             정수기 둘러보기 <span id="ic-arr1"></span>
           </a>
           <a class="btn btn-ghost" href="#consult">
@@ -111,7 +175,7 @@
           <h2 id="best-title"><span id="best-month">5</span>월 인기 상품</h2>
           <p class="sub">실시간 조회수 + 구독 신청 데이터를 합쳐 골랐어요.</p>
         </div>
-        <a class="more" href="./index.html?view=category">전체보기 <span id="ic-arr2"></span></a>
+        <a class="more" href="/rental?view=category">전체보기 <span id="ic-arr2"></span></a>
       </div>
       <div class="product-grid" id="best-grid"></div>
     </div>
@@ -282,7 +346,7 @@
     <div class="footer-grid">
       <div>
         <div class="brand" style="color:#fff">
-          <img class="brand-logo" src="./assets/brand/logo_white.png" alt="SK magic">
+          <img class="brand-logo" src="/rental-assets/brand/logo_white.png" alt="SK magic">
           <span class="partner-label">인증파트너점</span>
         </div>
         <p style="font-size:13px;line-height:1.7;margin-top:12px;color:#A0A0A0">
@@ -293,10 +357,10 @@
       <div>
         <h4>쇼핑</h4>
         <ul>
-          <li><a href="./index.html?cls=100000005">정수기</a></li>
-          <li><a href="./index.html?cls=100000010">공기청정기</a></li>
-          <li><a href="./index.html?cls=100000024">비데</a></li>
-          <li><a href="./index.html?cls=1000000245">매트리스</a></li>
+          <li><a href="/rental?cls=100000005">정수기</a></li>
+          <li><a href="/rental?cls=100000010">공기청정기</a></li>
+          <li><a href="/rental?cls=100000024">비데</a></li>
+          <li><a href="/rental?cls=1000000245">매트리스</a></li>
         </ul>
       </div>
       <div>
@@ -411,8 +475,8 @@
   </div>
 </div>
 
-<script src="./assets/icons.js"></script>
-<script src="./assets/db.js"></script>
+<script src="/rental-assets/icons.js"></script>
+<script src="/rental-assets/db.js"></script>
 <script>
   /* 상세 상품명 FOUC 방지 — db.js(app.js보다 먼저 로드) 직후, 첫 페인트용으로
      URL의 id에 해당하는 상품명을 즉시 박는다. app.js가 나중에 같은 값으로 재렌더.
@@ -428,10 +492,10 @@
     }catch(e){}
   })();
 </script>
-<script src="./assets/commission.js"></script>
+<script src="/rental-assets/commission.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./assets/supabase.js"></script>
-<script src="./assets/app.js"></script>
+<script src="/rental-assets/supabase.js"></script>
+<script src="/rental-assets/app.js"></script>
 <script>
   // ===== 정적 아이콘 주입 (헤더 액션 제거됨 — FAB만 남음) =====
   document.getElementById('fab-phone').innerHTML = ICONS.chat();

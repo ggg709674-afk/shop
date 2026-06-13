@@ -119,7 +119,7 @@
   .tab-pane[data-pane="kt"]:not(.on),
   .tab-pane[data-pane="lg"]:not(.on) { content-visibility:hidden; }
 
-  /* ───── 서브탭 (배너 안에서 휴대폰/인터넷/렌탈 분리) ───── */
+  /* ───── 서브탭 (배너 안에서 휴대폰/인터넷 분리) ───── */
   .sub-tabs {
     display:inline-flex; gap:4px; padding:4px;
     background:var(--g5); border-radius:11px;
@@ -154,238 +154,12 @@
   .card-h { font-size:15px; font-weight:700; letter-spacing:-.02em; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .card-h .pill { font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; background:var(--g5); color:var(--g1); letter-spacing:0; }
   .card-h-actions { display:flex; gap:6px; align-items:center; margin-left:auto; }
-  .btn-tpl {
-    font-size:11.5px; font-weight:600; letter-spacing:-.01em;
-    padding:5px 10px; border-radius:7px;
-    background:var(--bg-soft); color:var(--g1);
-    border:1px solid var(--border); cursor:pointer;
-    display:inline-flex; align-items:center; gap:4px;
-    transition:border-color .15s, color .15s, background .15s;
-  }
-  .btn-tpl:hover { border-color:var(--accent); color:var(--accent-deep); background:#fff; }
-  .btn-tpl svg { width:13px; height:13px; stroke:currentColor; stroke-width:1.8; fill:none; }
-
-  /* 템플릿 그리드 — 카드 폭 = 배너 375px + 좌우 패딩 8px = 391px */
-  .tpl-grid {
-    display:grid; grid-template-columns:repeat(auto-fill, 391px);
-    justify-content:center; gap:10px;
-    max-height:75vh; overflow-y:auto; padding:4px;
-    scrollbar-gutter:stable;
-  }
-  .tpl-card {
-    border:1px solid var(--border); border-radius:14px; padding:8px 8px 12px;
-    background:var(--card); cursor:pointer;
-    display:flex; flex-direction:column; gap:8px;
-    transition:border-color .15s, box-shadow .15s, transform .1s;
-    position:relative;
-  }
-  .tpl-card .tpl-name, .tpl-card .tpl-meta { padding:0 6px; }
-  .tpl-card:hover { border-color:var(--accent); box-shadow:0 6px 20px rgba(122,107,217,.14); }
-  .tpl-card:active { transform:scale(.99); }
-  .tpl-name { font-size:14px; font-weight:700; color:var(--ink); letter-spacing:-.015em; line-height:1.3; }
-  .tpl-meta { font-size:11.5px; color:var(--g2); }
-  .tpl-del {
-    position:absolute; top:8px; right:8px;
-    width:26px; height:26px; padding:0;
-    background:rgba(255,255,255,.95); color:var(--g1);
-    border:1px solid var(--border); border-radius:50%;
-    font-size:14px; line-height:1; cursor:pointer;
-    display:none; align-items:center; justify-content:center;
-    z-index:5;
-  }
-  .tpl-card:hover .tpl-del { display:flex; }
-  .tpl-del:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
-
-  /* ───── 배너에 삽입할 이미지 (KT 모델) 모달 ───── */
-  .mi-toolbar { display:flex; gap:8px; margin-bottom:14px; }
-  .mi-toolbar input {
-    flex:1; padding:9px 12px; border:1px solid var(--border); border-radius:9px;
-    font-size:13px; outline:none;
-  }
-  .mi-toolbar input:focus { border-color:var(--accent); }
-  .mi-body { max-height:72vh; overflow-y:auto; padding:4px; scrollbar-gutter:stable; }
-  .mi-section { margin-bottom:22px; }
-  .mi-section-head {
-    display:flex; align-items:baseline; gap:8px; margin-bottom:9px;
-    font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-.015em;
-  }
-  .mi-maker {
-    font-size:11px; font-weight:600; color:var(--g2);
-    background:var(--card); border:1px solid var(--border);
-    padding:1px 7px; border-radius:999px;
-  }
-  .mi-grid {
-    display:grid; grid-template-columns:repeat(auto-fill, minmax(116px, 1fr)); gap:8px;
-  }
-  .mi-card {
-    border:1px solid var(--border); border-radius:12px; padding:7px;
-    background:#fff; cursor:pointer; display:flex; flex-direction:column; gap:5px;
-    transition:border-color .15s, box-shadow .15s, transform .1s;
-  }
-  .mi-card:hover { border-color:var(--accent); box-shadow:0 6px 18px rgba(122,107,217,.16); }
-  .mi-card:active { transform:scale(.98); }
-  .mi-card img { width:100%; aspect-ratio:1; object-fit:contain; }
-  .mi-color { font-size:11px; color:var(--g1); text-align:center; line-height:1.3; }
-  /* 모달을 화면 상단에 고정 — 검색으로 내용 높이가 바뀌어도 위치 안 흔들림 */
-  #model-img-modal { align-items:flex-start; }
-  #model-img-modal .modal { margin-top:24px; }
-  /* 내 그룹 — 추가 타일 / 삭제 버튼 */
-  .mi-card { position:relative; }
-  .mi-add-tile {
-    align-items:center; justify-content:center;
-    border-style:dashed; min-height:120px;
-  }
-  .mi-add-tile:hover { border-color:var(--accent); }
-  .mi-add-plus { font-size:30px; font-weight:300; color:var(--g2); line-height:1; }
-  .mi-img-del {
-    position:absolute; top:4px; right:4px; width:22px; height:22px; padding:0;
-    border-radius:50%; border:1px solid var(--border); background:rgba(255,255,255,.95);
-    color:var(--g1); font-size:13px; line-height:1; cursor:pointer;
-    display:none; align-items:center; justify-content:center; z-index:5;
-  }
-  .mi-card:hover .mi-img-del { display:flex; }
-  .mi-img-del:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
-  .mi-group-del {
-    margin-left:auto; width:22px; height:22px; padding:0;
-    border-radius:50%; border:1px solid var(--border); background:#fff;
-    color:var(--g1); font-size:13px; line-height:1; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .mi-group-del:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
-  .mi-maker.mine { background:#eef0ff; color:var(--accent); border-color:#d8dcff; }
-  .mi-empty-hint { font-size:12px; color:var(--g2); padding:6px 2px; }
-
-  /* 템플릿 종류 (공유/나만의) 라디오 */
-  .scope-options { display:flex; flex-direction:column; gap:8px; }
-  .scope-opt {
-    display:flex; align-items:flex-start; gap:10px;
-    padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
-    cursor:pointer; transition:border-color .15s, background .15s;
-  }
-  .scope-opt:hover { border-color:var(--g3); }
-  .scope-opt input[type=radio] { width:18px; height:18px; margin-top:2px; cursor:pointer; accent-color:var(--accent); }
-  .scope-opt:has(input:checked) { border-color:var(--accent); background:rgba(122,107,217,.04); }
-  .scope-body { flex:1; min-width:0; }
-  .scope-title { font-size:14px; font-weight:700; color:var(--ink); letter-spacing:-.015em; margin-bottom:2px; }
-  .scope-desc { font-size:11.5px; color:var(--g2); letter-spacing:-.012em; }
-  /* 템플릿 카드 scope 배지 */
-  .tpl-scope-badge {
-    position:absolute; top:8px; left:8px;
-    font-size:10.5px; font-weight:700; letter-spacing:-.01em;
-    padding:3px 9px; border-radius:99px;
-    z-index:4;
-  }
-  .tpl-scope-badge.shared { background:rgba(122,107,217,.92); color:#fff; }
-  .tpl-scope-badge.mine   { background:rgba(60,170,110,.92); color:#fff; }
-  /* 구운 썸네일 (저장 시 캡쳐된 이미지) */
-  .tpl-thumb-img {
-    width:375px; aspect-ratio:375/165;
-    display:block; border-radius:10px;
-    object-fit:cover; object-position:center;
-    background:#fff;
-  }
-  /* 미니 배너 렌더 (템플릿 카드 안) — 실제 모바일 배너와 동일 폭(375px) */
-  .tb-banner {
-    width:375px; aspect-ratio:375/165;
-    border-radius:10px; position:relative; overflow:hidden;
-    background:#FFFFFF;
-    background-size:cover; background-position:center;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
-  }
-  .tb-banner::before {
-    content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
-    background:linear-gradient(90deg, transparent 0%, rgba(122,107,217,.4) 50%, transparent 100%);
-    opacity:.5;
-  }
-  .tb-content {
-    padding:20px 110px 20px 22px; height:100%; box-sizing:border-box;
-    display:flex; flex-direction:column; justify-content:center; gap:10px;
-    position:relative; z-index:2;
-  }
-  .tb-chips { display:flex; gap:6px; }
-  .tb-chip {
-    font-size:10px; font-weight:700; padding:4px 10px;
-    background:rgba(255,255,255,.65); color:#191F28;
-    border-radius:99px; letter-spacing:.1em;
-    border:1px solid rgba(255,255,255,.9);
-    text-transform:uppercase;
-  }
-  .tb-chip.hot { background:linear-gradient(135deg, #FCDBCC, #FFEED2); color:#1A1A2E; }
-  .tb-eyebrow {
-    font-size:10px; font-weight:700; letter-spacing:.14em;
-    color:var(--accent); text-transform:uppercase;
-    margin-bottom:-5px;
-  }
-  .tb-title {
-    font-size:19px; font-weight:800; line-height:1.25; letter-spacing:-.034em;
-    color:#191F28;
-    overflow:hidden; text-overflow:ellipsis;
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-  }
-  .tb-cta {
-    font-size:12px; font-weight:600; padding:8px 14px;
-    background:rgba(255,255,255,.72); border-radius:99px;
-    display:inline-flex; align-self:flex-start; align-items:center; gap:6px;
-    color:#191F28;
-    border:1px solid rgba(255,255,255,.95);
-    box-shadow:0 4px 14px rgba(122,107,217,.14);
-    letter-spacing:-.005em;
-  }
-  .tb-cta b { color:var(--accent-deep); font-weight:800; }
-  .tb-phone {
-    position:absolute; left:50%; top:0; width:30%; height:auto; max-height:100%;
-    object-fit:cover; object-position:center center;
-    transform:translateX(-50%);
-    z-index:1;
-    /* 부드러운 다운스케일 — GPU 합성 + 기본 image-rendering */
-    image-rendering:auto;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
-    transform-style:preserve-3d;
-  }
-  /* 다크 프리셋 — 텍스트/CTA 색 반전 */
-  .tb-banner.mini-dark-glow .tb-title,
-  .tb-banner.mini-dark-glow .tb-eyebrow,
-  .tb-banner.mini-mono-ink .tb-title,
-  .tb-banner.mini-mono-ink .tb-eyebrow,
-  .tb-banner.mini-sunset-gradient .tb-title,
-  .tb-banner.mini-sunset-gradient .tb-eyebrow { color:#FFFFFF; }
-  .tb-banner.mini-dark-glow .tb-eyebrow,
-  .tb-banner.mini-mono-ink .tb-eyebrow { opacity:.7; }
-
   /* ───── 폼 ───── */
   .field { margin-bottom:14px; }
   .color-inputs { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
   .color-inputs input[type="text"] { padding:9px 8px; text-align:center; }
   .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .field-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
-  .field-row-chip { grid-template-columns:230px 230px auto; align-items:start; }
-  .field-row-text { grid-template-columns:1fr auto; align-items:start; }
-  .field-row-cta  { grid-template-columns:1fr 1fr auto; align-items:start; }
-
-  /* 색 컨트롤 묶음 — 인풋 우측에 인라인 배치 */
-  .chip-emph {
-    display:inline-flex; align-items:center; gap:4px;
-    margin-top:0;
-  }
-  .chip-emph .check { padding:0; gap:0; cursor:pointer; }
-  .chip-emph .check input[type=checkbox] { margin:0; cursor:pointer; }
-  .chip-emph input[type=color] {
-    width:22px; height:22px; padding:0;
-    border:1.5px solid var(--g4); border-radius:5px;
-    background:transparent; cursor:pointer;
-    transition:transform .12s, border-color .15s;
-  }
-  .chip-emph input[type=color]:hover { border-color:var(--accent); transform:scale(1.08); }
-  .chip-emph input[type=color]::-webkit-color-swatch-wrapper { padding:0; border-radius:3px; }
-  .chip-emph input[type=color]::-webkit-color-swatch { border:0; border-radius:3px; }
-  .chip-emph input[type=color]::-moz-color-swatch { border:0; border-radius:3px; }
-  .chip-emph.dim input[type=color] { pointer-events:none; opacity:.5; }
-
-  /* 인풋 + 우측 색 컨트롤 한 줄 배치 (.iwc = input-with-controls) */
-  .iwc { display:flex; align-items:center; gap:6px; }
-  .iwc > input[type="text"] { flex:1 1 auto; min-width:0; }
-  .iwc > .chip-emph { flex:0 0 auto; }
 
   /* 배너 이미지 업로드 영역 */
   .img-upload-row { display:flex; align-items:center; gap:10px; }
@@ -415,38 +189,23 @@
   .img-clear:hover { background:var(--danger); }
   .img-name { font-size:11.5px; color:var(--g2); }
 
-  /* 칩 가로 위치 — 드래그 슬라이더 (0~100% 미세 조정) */
-  .chip-pos {
-    display:flex; align-items:center; gap:10px;
-    width:210px; height:36px;
+  /* 등록된 배너 이미지 미리보기 (이미지 등록 전용 UI) */
+  .banner-img-box {
+    width:100%; max-width:420px; aspect-ratio:375/165;
+    border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    background:repeating-linear-gradient(45deg, #F5F2FB, #F5F2FB 6px, #FFF 6px, #FFF 12px);
+    margin-bottom:10px;
   }
-  .chip-pos input[type=range] {
-    flex:1; height:6px; padding:0; border:0;
-    appearance:none; -webkit-appearance:none;
-    background:linear-gradient(to right, var(--g3) 0%, var(--g3) var(--fill,0%), var(--g5) var(--fill,0%), var(--g5) 100%);
-    border-radius:999px; outline:none; cursor:pointer;
+  .banner-img-box img { width:100%; height:100%; object-fit:cover; display:block; }
+  .banner-img-empty {
+    width:100%; max-width:420px; aspect-ratio:375/165;
+    border:1.5px dashed var(--g4); border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--g3); font-size:12.5px; background:var(--bg-soft);
+    margin-bottom:10px;
   }
-  .chip-pos input[type=range]::-webkit-slider-thumb {
-    appearance:none; -webkit-appearance:none;
-    width:18px; height:18px; border-radius:50%;
-    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
-    box-shadow:0 0 0 3px rgba(122,107,217,.18), 0 2px 5px rgba(122,107,217,.30);
-    border:0; cursor:grab; margin-top:0;
-    transition:transform .12s;
-  }
-  .chip-pos input[type=range]:active::-webkit-slider-thumb { cursor:grabbing; transform:scale(1.1); }
-  .chip-pos input[type=range]::-moz-range-thumb {
-    width:18px; height:18px; border-radius:50%;
-    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
-    box-shadow:0 0 0 3px rgba(122,107,217,.18), 0 2px 5px rgba(122,107,217,.30);
-    border:0; cursor:grab;
-  }
-  .chip-pos input[type=range]:active::-moz-range-thumb { cursor:grabbing; }
-  .chip-pos output {
-    font-size:11px; font-weight:700; color:var(--accent-deep);
-    min-width:34px; text-align:right; letter-spacing:-.008em;
-    font-variant-numeric:tabular-nums;
-  }
+  .banner-img-actions { display:flex; align-items:center; gap:10px; }
+
   label {
     display:block; font-size:12px; font-weight:600; color:var(--g1);
     margin-bottom:6px; letter-spacing:-.005em;
@@ -460,95 +219,9 @@
     outline:none; border-color:var(--accent);
     box-shadow:0 0 0 3px rgba(122,107,217,.12);
   }
-  /* 세그먼트 토글 (정렬 등) */
-  .seg { display:inline-flex; background:var(--g5); border-radius:9px; padding:3px; gap:2px; }
-  .seg button {
-    padding:7px 14px; border:0; background:transparent; border-radius:7px;
-    font-size:12.5px; font-weight:600; color:var(--g1); cursor:pointer;
-    transition:background .12s, color .12s;
-  }
-  .seg button:hover { color:var(--ink); }
-  .seg button.on { background:#fff; color:var(--accent-deep); box-shadow:0 1px 3px rgba(122,107,217,.12); }
-
   .check { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--g1); cursor:pointer; }
   .check input { margin:0; }
   .hint { font-size:11px; color:var(--g3); margin-top:4px; letter-spacing:-.005em; }
-
-  /* ───── 배경 픽커 ───── */
-  .bg-picker { display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:10px; margin-top:6px; }
-  .bg-tile {
-    position:relative; border-radius:10px; overflow:hidden;
-    aspect-ratio:1.6/1; cursor:pointer;
-    border:2px solid transparent; transition:transform .12s, border-color .15s, box-shadow .15s;
-    background:#FFF;
-  }
-  .bg-tile:hover { transform:translateY(-2px); box-shadow:0 4px 14px rgba(122,107,217,.12); }
-  .bg-tile.on {
-    border-color:var(--accent);
-    box-shadow:0 0 0 3px rgba(122,107,217,.15), 0 4px 14px rgba(122,107,217,.18);
-  }
-  .bg-tile.on::after {
-    content:'✓'; position:absolute; top:6px; right:6px;
-    width:20px; height:20px; border-radius:50%;
-    background:var(--accent); color:#fff;
-    display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:800;
-  }
-  .bg-tile-label { position:absolute; left:6px; bottom:6px; font-size:10.5px; font-weight:700; color:#1A1A2E; background:rgba(255,255,255,.85); padding:2px 6px; border-radius:4px; }
-  .bg-tile-label.dark { color:#FFF; background:rgba(0,0,0,.42); }
-
-  /* 미니어처 — index.html의 bg-preset-* 시각 모방 */
-  .mini-lavender-pastel { background:linear-gradient(135deg, #E8DEFF 0%, #DDEEFF 30%, #DEFAEC 60%, #FFE0EC 100%); }
-  .mini-sky-pastel      { background:linear-gradient(135deg, #E1F0F9 0%, #E8DEFF 50%, #DEFAEC 100%); }
-  .mini-mint-pastel     { background:linear-gradient(135deg, #DDF2E8 0%, #E1F0F9 50%, #FCE8DA 100%); }
-  .mini-rose-warm       { background:linear-gradient(135deg, #FFE4E8 0%, #FCDBCC 50%, #FFEED2 100%); }
-  .mini-sunset-gradient { background:linear-gradient(135deg, #FFCBA4 0%, #FFA1B0 55%, #C19EE0 100%); }
-  .mini-aurora          { background:linear-gradient(135deg, #E8DEFF 0%, #DDEEFF 25%, #DEFAEC 50%, #FFEEDA 75%, #FFE0EC 100%); }
-  .mini-dark-glow       { background:linear-gradient(135deg, #1A1A2E 0%, #2A1F4F 100%); }
-  .mini-mono-clean      { background:#FFFFFF; border:1px solid var(--border); }
-  .mini-mono-ink        { background:#1A1A2E; }
-  .mini-mesh-pastel     {
-    background:
-      radial-gradient(at 0% 0%, rgba(181,168,244,.7), transparent 50%),
-      radial-gradient(at 100% 0%, rgba(157,201,232,.7), transparent 50%),
-      radial-gradient(at 100% 100%, rgba(136,212,181,.7), transparent 50%),
-      radial-gradient(at 0% 100%, rgba(244,165,186,.7), transparent 50%),
-      #FFFFFF;
-  }
-  /* 단색 10 */
-  .mini-solid-lavender  { background:#EDE7FF; }
-  .mini-solid-sky       { background:#E8F1FF; }
-  .mini-solid-mint      { background:#DDF4EC; }
-  .mini-solid-coral     { background:#FCE2DE; }
-  .mini-solid-beige     { background:#F4E8DA; }
-  .mini-solid-slate     { background:#F1F5F9; }
-  .mini-solid-lilac     { background:#EDE2F8; }
-  .mini-solid-cream     { background:#FFF4D6; }
-  .mini-solid-pink      { background:#FCDFE6; }
-  .mini-solid-sage      { background:#E8F0E0; }
-  /* 패턴 */
-  .mini-pattern-dots {
-    background:
-      radial-gradient(circle, rgba(122,107,217,.22) 1.2px, transparent 1.5px) 0 0 / 10px 10px,
-      #FFFFFF;
-  }
-  .mini-pattern-stripes {
-    background:
-      repeating-linear-gradient(45deg,
-        #FFFFFF, #FFFFFF 5px,
-        rgba(122,107,217,.10) 5px, rgba(122,107,217,.10) 10px);
-  }
-
-  /* 업로드 타일 */
-  .bg-tile-upload {
-    display:flex; align-items:center; justify-content:center;
-    flex-direction:column; gap:4px;
-    background:repeating-linear-gradient(45deg, #F5F2FB, #F5F2FB 6px, #FFF 6px, #FFF 12px);
-    color:var(--g1); font-size:11px; font-weight:600;
-  }
-  .bg-tile-upload svg { width:22px; height:22px; stroke:var(--g1); stroke-width:1.8; fill:none; }
-  .bg-tile-custom { background-size:cover; background-position:center; }
-  .bg-tile-custom .bg-tile-label { background:rgba(255,255,255,.9); }
 
   /* ───── 상품 테이블 ───── */
   .cat-tabs {
@@ -854,180 +527,30 @@
     <nav class="sub-tabs" id="banner-sub-tabs">
       <button class="sub-tab on" type="button" data-sub="phone"><span class="dot"></span>휴대폰 배너</button>
       <button class="sub-tab" type="button" data-sub="internet"><span class="dot"></span>인터넷 배너</button>
-      <button class="sub-tab" type="button" data-sub="rental"><span class="dot"></span>렌탈 배너</button>
     </nav>
 
     <div class="sub-pane on" data-sub-pane="phone">
     <div class="card" data-banner="phone">
       <div class="card-h">휴대폰 배너
         <div class="card-h-actions">
-          <button type="button" class="btn-tpl" data-tpl-load="phone"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>배너템플릿</button>
-          <button type="button" class="btn-tpl" data-tpl-save="phone"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>현재배너저장</button>
           <span class="pill">PHONE</span>
         </div>
       </div>
-      <div class="field-row field-row-chip">
-        <div class="field">
-          <label>칩 1</label>
-          <div class="iwc">
-            <input type="text" data-field="tag0"/>
-            <div class="chip-emph">
-              <label class="check" title="강조"><input type="checkbox" data-field="tag0hot"/></label>
-              <input type="color" data-field="tag0bg" value="#FCDFE6" title="칩 1 배경 색"/>
-              <input type="color" data-field="tag0fg" value="#5A4DB8" title="칩 1 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>칩 2</label>
-          <div class="iwc">
-            <input type="text" data-field="tag1"/>
-            <div class="chip-emph">
-              <label class="check" title="강조"><input type="checkbox" data-field="tag1hot"/></label>
-              <input type="color" data-field="tag1bg" value="#FCDFE6" title="칩 2 배경 색"/>
-              <input type="color" data-field="tag1fg" value="#5A4DB8" title="칩 2 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="chipAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="칩 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-text">
-        <div class="field">
-          <label>윗글 (eyebrow)</label>
-          <div class="iwc">
-            <input type="text" data-field="eyebrow"/>
-            <div class="chip-emph">
-              <input type="color" data-field="eyebrowColor" value="#7A6BD9" title="윗글 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="eyebrowAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="윗글 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-text">
-        <div class="field">
-          <label>타이틀</label>
-          <div class="iwc">
-            <input type="text" data-field="title"/>
-            <div class="chip-emph">
-              <input type="color" data-field="titleColor" value="#1A1A2E" title="타이틀 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="titleAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="타이틀 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-cta">
-        <div class="field">
-          <label>CTA 버튼 텍스트</label>
-          <div class="iwc">
-            <input type="text" data-field="ctaText"/>
-            <div class="chip-emph">
-              <input type="color" data-field="ctaTextColor" value="#1A1A2E" title="CTA 버튼 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>CTA 강조</label>
-          <div class="iwc">
-            <input type="text" data-field="ctaHighlight"/>
-            <div class="chip-emph">
-              <input type="color" data-field="ctaHlStart" value="#7A6BD9" title="강조 시작 색"/>
-              <input type="color" data-field="ctaHlEnd" value="#F4A5BA" title="강조 끝 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="ctaAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="CTA 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
       <div class="field">
-        <label>배너에 삽입할 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 기본 SVG 폰)</span></label>
-        <div class="img-upload-row">
-          <div class="img-preview" data-img-preview style="display:none">
-            <img alt=""/>
-            <button type="button" class="img-clear" data-img-clear title="이미지 제거">×</button>
-          </div>
-          <button type="button" class="img-add" data-img-pick>
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            이미지 선택
+        <label>현재 등록된 배너 이미지</label>
+        <div class="banner-img-box" data-img-preview style="display:none">
+          <img alt="휴대폰 배너 이미지"/>
+        </div>
+        <div class="banner-img-empty" data-img-empty>등록된 배너 이미지가 없습니다.</div>
+        <div class="banner-img-actions">
+          <button type="button" class="img-add" data-img-add>
+            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+            이미지 업로드 (교체)
           </button>
+          <button type="button" class="btn btn-danger btn-sm" data-img-clear style="display:none">이미지 삭제</button>
           <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
         </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>회전</label>
-          <div class="chip-pos" data-field="imageRotate" data-suffix="°">
-            <input type="range" min="-180" max="180" value="0" step="1" aria-label="이미지 회전"/>
-            <output>0°</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>크기</label>
-          <div class="chip-pos" data-field="imageScale" data-suffix="%">
-            <input type="range" min="30" max="200" value="100" step="1" aria-label="이미지 크기"/>
-            <output>100%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>좌우 위치</label>
-          <div class="chip-pos" data-field="imageOffsetX" data-suffix="px">
-            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 좌우 위치"/>
-            <output>0px</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>상하 위치</label>
-          <div class="chip-pos" data-field="imageOffsetY" data-suffix="px">
-            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 상하 위치"/>
-            <output>0px</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>그림자</label>
-          <div class="chip-pos" data-field="imageShadow" data-suffix="">
-            <input type="range" min="0" max="60" value="0" step="1" aria-label="그림자 강도"/>
-            <output>0</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>외부광선</label>
-          <div class="chip-pos" data-field="imageGlow" data-suffix="">
-            <input type="range" min="0" max="40" value="0" step="1" aria-label="외부광선 강도"/>
-            <output>0</output>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>배경 (샘플 선택 또는 직접 업로드)</label>
-        <div class="bg-picker" data-field="bg-picker"></div>
-        <input type="file" accept="image/*" data-field="bg-upload" style="display:none"/>
+        <p class="hint">업로드한 이미지가 손님 페이지 휴대폰 배너에 그대로 노출됩니다. 변경 후 상단 저장을 눌러야 반영됩니다.</p>
       </div>
     </div>
     </div><!-- /sub-pane phone -->
@@ -1036,351 +559,28 @@
     <div class="card" data-banner="internet">
       <div class="card-h">인터넷 배너
         <div class="card-h-actions">
-          <button type="button" class="btn-tpl" data-tpl-load="internet"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>배너템플릿</button>
-          <button type="button" class="btn-tpl" data-tpl-save="internet"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>현재배너저장</button>
           <span class="pill">INTERNET</span>
         </div>
       </div>
-      <div class="field-row field-row-chip">
-        <div class="field">
-          <label>칩 1</label>
-          <div class="iwc">
-            <input type="text" data-field="tag0"/>
-            <div class="chip-emph">
-              <label class="check" title="강조"><input type="checkbox" data-field="tag0hot"/></label>
-              <input type="color" data-field="tag0bg" value="#FCDFE6" title="칩 1 배경 색"/>
-              <input type="color" data-field="tag0fg" value="#5A4DB8" title="칩 1 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>칩 2</label>
-          <div class="iwc">
-            <input type="text" data-field="tag1"/>
-            <div class="chip-emph">
-              <label class="check" title="강조"><input type="checkbox" data-field="tag1hot"/></label>
-              <input type="color" data-field="tag1bg" value="#FCDFE6" title="칩 2 배경 색"/>
-              <input type="color" data-field="tag1fg" value="#5A4DB8" title="칩 2 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="chipAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="칩 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-text">
-        <div class="field">
-          <label>윗글 (eyebrow)</label>
-          <div class="iwc">
-            <input type="text" data-field="eyebrow"/>
-            <div class="chip-emph">
-              <input type="color" data-field="eyebrowColor" value="#7A6BD9" title="윗글 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="eyebrowAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="윗글 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-text">
-        <div class="field">
-          <label>타이틀</label>
-          <div class="iwc">
-            <input type="text" data-field="title"/>
-            <div class="chip-emph">
-              <input type="color" data-field="titleColor" value="#1A1A2E" title="타이틀 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="titleAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="타이틀 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-cta">
-        <div class="field">
-          <label>CTA 버튼 텍스트</label>
-          <div class="iwc">
-            <input type="text" data-field="ctaText"/>
-            <div class="chip-emph">
-              <input type="color" data-field="ctaTextColor" value="#1A1A2E" title="CTA 버튼 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>CTA 강조</label>
-          <div class="iwc">
-            <input type="text" data-field="ctaHighlight"/>
-            <div class="chip-emph">
-              <input type="color" data-field="ctaHlStart" value="#7A6BD9" title="강조 시작 색"/>
-              <input type="color" data-field="ctaHlEnd" value="#F4A5BA" title="강조 끝 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="ctaAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="CTA 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
       <div class="field">
-        <label>배너 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 기본 SVG)</span></label>
-        <div class="img-upload-row">
-          <div class="img-preview" data-img-preview style="display:none">
-            <img alt=""/>
-            <button type="button" class="img-clear" data-img-clear title="이미지 제거">×</button>
-          </div>
+        <label>현재 등록된 배너 이미지</label>
+        <div class="banner-img-box" data-img-preview style="display:none">
+          <img alt="인터넷 배너 이미지"/>
+        </div>
+        <div class="banner-img-empty" data-img-empty>등록된 배너 이미지가 없습니다.</div>
+        <div class="banner-img-actions">
           <button type="button" class="img-add" data-img-add>
             <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-            이미지 업로드
+            이미지 업로드 (교체)
           </button>
+          <button type="button" class="btn btn-danger btn-sm" data-img-clear style="display:none">이미지 삭제</button>
           <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
         </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>회전</label>
-          <div class="chip-pos" data-field="imageRotate" data-suffix="°">
-            <input type="range" min="-180" max="180" value="0" step="1" aria-label="이미지 회전"/>
-            <output>0°</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>크기</label>
-          <div class="chip-pos" data-field="imageScale" data-suffix="%">
-            <input type="range" min="30" max="200" value="100" step="1" aria-label="이미지 크기"/>
-            <output>100%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>좌우 위치</label>
-          <div class="chip-pos" data-field="imageOffsetX" data-suffix="px">
-            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 좌우 위치"/>
-            <output>0px</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>상하 위치</label>
-          <div class="chip-pos" data-field="imageOffsetY" data-suffix="px">
-            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 상하 위치"/>
-            <output>0px</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>그림자</label>
-          <div class="chip-pos" data-field="imageShadow" data-suffix="">
-            <input type="range" min="0" max="60" value="0" step="1" aria-label="그림자 강도"/>
-            <output>0</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>외부광선</label>
-          <div class="chip-pos" data-field="imageGlow" data-suffix="">
-            <input type="range" min="0" max="40" value="0" step="1" aria-label="외부광선 강도"/>
-            <output>0</output>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>배경 (샘플 선택 또는 직접 업로드)</label>
-        <div class="bg-picker" data-field="bg-picker"></div>
-        <input type="file" accept="image/*" data-field="bg-upload" style="display:none"/>
+        <p class="hint">업로드한 이미지가 손님 페이지 인터넷 배너에 그대로 노출됩니다. 변경 후 상단 저장을 눌러야 반영됩니다.</p>
       </div>
     </div>
     </div><!-- /sub-pane internet -->
 
-    <div class="sub-pane" data-sub-pane="rental">
-    <div class="card" data-banner="rental">
-      <div class="card-h">렌탈 배너
-        <div class="card-h-actions">
-          <button type="button" class="btn-tpl" data-tpl-load="rental"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>배너템플릿</button>
-          <button type="button" class="btn-tpl" data-tpl-save="rental"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>현재배너저장</button>
-          <span class="pill">RENTAL</span>
-        </div>
-      </div>
-      <div class="field-row field-row-chip">
-        <div class="field">
-          <label>칩 1</label>
-          <div class="iwc">
-            <input type="text" data-field="tag0"/>
-            <div class="chip-emph">
-              <label class="check" title="강조"><input type="checkbox" data-field="tag0hot"/></label>
-              <input type="color" data-field="tag0bg" value="#FCDFE6" title="칩 1 배경 색"/>
-              <input type="color" data-field="tag0fg" value="#5A4DB8" title="칩 1 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>칩 2</label>
-          <div class="iwc">
-            <input type="text" data-field="tag1"/>
-            <div class="chip-emph">
-              <label class="check" title="강조"><input type="checkbox" data-field="tag1hot"/></label>
-              <input type="color" data-field="tag1bg" value="#FCDFE6" title="칩 2 배경 색"/>
-              <input type="color" data-field="tag1fg" value="#5A4DB8" title="칩 2 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="chipAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="칩 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-text">
-        <div class="field">
-          <label>윗글 (eyebrow)</label>
-          <div class="iwc">
-            <input type="text" data-field="eyebrow"/>
-            <div class="chip-emph">
-              <input type="color" data-field="eyebrowColor" value="#7A6BD9" title="윗글 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="eyebrowAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="윗글 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-text">
-        <div class="field">
-          <label>타이틀</label>
-          <div class="iwc">
-            <input type="text" data-field="title"/>
-            <div class="chip-emph">
-              <input type="color" data-field="titleColor" value="#1A1A2E" title="타이틀 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="titleAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="타이틀 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row field-row-cta">
-        <div class="field">
-          <label>CTA 버튼 텍스트</label>
-          <div class="iwc">
-            <input type="text" data-field="ctaText"/>
-            <div class="chip-emph">
-              <input type="color" data-field="ctaTextColor" value="#1A1A2E" title="CTA 버튼 글자 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>CTA 강조</label>
-          <div class="iwc">
-            <input type="text" data-field="ctaHighlight"/>
-            <div class="chip-emph">
-              <input type="color" data-field="ctaHlStart" value="#7A6BD9" title="강조 시작 색"/>
-              <input type="color" data-field="ctaHlEnd" value="#F4A5BA" title="강조 끝 색"/>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label>가로 위치</label>
-          <div class="chip-pos" data-field="ctaAlign">
-            <input type="range" min="0" max="100" value="0" step="1" aria-label="CTA 가로 위치"/>
-            <output>0%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field">
-        <label>배너 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 기본 SVG)</span></label>
-        <div class="img-upload-row">
-          <div class="img-preview" data-img-preview style="display:none">
-            <img alt=""/>
-            <button type="button" class="img-clear" data-img-clear title="이미지 제거">×</button>
-          </div>
-          <button type="button" class="img-add" data-img-add>
-            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-            이미지 업로드
-          </button>
-          <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
-        </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>회전</label>
-          <div class="chip-pos" data-field="imageRotate" data-suffix="°">
-            <input type="range" min="-180" max="180" value="0" step="1" aria-label="이미지 회전"/>
-            <output>0°</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>크기</label>
-          <div class="chip-pos" data-field="imageScale" data-suffix="%">
-            <input type="range" min="30" max="200" value="100" step="1" aria-label="이미지 크기"/>
-            <output>100%</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>좌우 위치</label>
-          <div class="chip-pos" data-field="imageOffsetX" data-suffix="px">
-            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 좌우 위치"/>
-            <output>0px</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>상하 위치</label>
-          <div class="chip-pos" data-field="imageOffsetY" data-suffix="px">
-            <input type="range" min="-150" max="150" value="0" step="1" aria-label="이미지 상하 위치"/>
-            <output>0px</output>
-          </div>
-        </div>
-      </div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr; gap:14px">
-        <div class="field">
-          <label>그림자</label>
-          <div class="chip-pos" data-field="imageShadow" data-suffix="">
-            <input type="range" min="0" max="60" value="0" step="1" aria-label="그림자 강도"/>
-            <output>0</output>
-          </div>
-        </div>
-        <div class="field">
-          <label>외부광선</label>
-          <div class="chip-pos" data-field="imageGlow" data-suffix="">
-            <input type="range" min="0" max="40" value="0" step="1" aria-label="외부광선 강도"/>
-            <output>0</output>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>배경 (샘플 선택 또는 직접 업로드)</label>
-        <div class="bg-picker" data-field="bg-picker"></div>
-        <input type="file" accept="image/*" data-field="bg-upload" style="display:none"/>
-      </div>
-    </div>
-    </div><!-- /sub-pane rental -->
   </section>
 
   <!-- 상품 탭 -->
@@ -1670,35 +870,6 @@
   </div>
 </div>
 
-<!-- 템플릿 불러오기 모달 -->
-<div class="modal-bg" id="tpl-browse-modal">
-  <div class="modal" style="max-width:1320px; width:95vw">
-    <h2 id="tpl-browse-title">템플릿에서 가져오기</h2>
-    <p class="hint" style="margin:-4px 0 14px">선택하면 현재 배너에 덮어씁니다 (저장 누르기 전까진 미적용).</p>
-    <div id="tpl-grid" class="tpl-grid"><div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0">불러오는 중…</div></div>
-    <div class="modal-foot">
-      <button class="btn" id="tpl-browse-cancel">닫기</button>
-    </div>
-  </div>
-</div>
-
-<!-- 배너에 삽입할 이미지 (KT 모델) 모달 -->
-<div class="modal-bg" id="model-img-modal">
-  <div class="modal" style="max-width:1080px; width:94vw">
-    <h2>배너에 삽입할 이미지</h2>
-    <p class="hint" style="margin:-4px 0 14px">이미지를 골라 휴대폰 배너에 넣습니다. 내 그룹을 만들어 직접 올린 이미지도 쓸 수 있어요.</p>
-    <div class="mi-toolbar">
-      <input type="text" id="mi-search" placeholder="이름 검색 (예: S26, 아이폰)" autocomplete="off"/>
-      <button type="button" class="btn btn-sm" id="mi-add-group">+ 새 그룹</button>
-    </div>
-    <div id="mi-body" class="mi-body"><div class="hint" style="text-align:center; padding:40px 0">불러오는 중…</div></div>
-    <div class="modal-foot">
-      <button class="btn" id="mi-cancel">닫기</button>
-    </div>
-  </div>
-  <input type="file" accept="image/*" id="mi-file-input" multiple style="display:none"/>
-</div>
-
 <!-- 카테고리 관리 모달 -->
 <div class="modal-bg" id="cat-manage-modal">
   <div class="modal" style="max-width:560px">
@@ -1716,46 +887,9 @@
   </div>
 </div>
 
-<!-- 템플릿 저장 모달 -->
-<div class="modal-bg" id="tpl-save-modal">
-  <div class="modal" style="max-width:460px">
-    <h2>현재 배너를 템플릿으로 저장</h2>
-    <p class="hint" style="margin:-4px 0 14px">저장 후 다른 곳에서 가져다 적용할 수 있는 보관함.</p>
-    <div class="field">
-      <label>템플릿 이름</label>
-      <input type="text" id="tpl-save-name" placeholder="예: 갤럭시 사전예약 다크"/>
-    </div>
-    <div class="field">
-      <label style="margin-bottom:8px; display:block">템플릿 종류</label>
-      <div class="scope-options">
-        <label class="scope-opt">
-          <input type="radio" name="tpl-scope" value="shared" checked/>
-          <div class="scope-body">
-            <div class="scope-title">공유 템플릿</div>
-            <div class="scope-desc">본사 보관함. 모든 매장이 가져다 쓸 수 있음.</div>
-          </div>
-        </label>
-        <label class="scope-opt">
-          <input type="radio" name="tpl-scope" value="mine"/>
-          <div class="scope-body">
-            <div class="scope-title">나만의 템플릿</div>
-            <div class="scope-desc">내 매장에서만 보이는 개인 보관함.</div>
-          </div>
-        </label>
-      </div>
-    </div>
-    <input type="hidden" id="tpl-save-category"/>
-    <div class="modal-foot">
-      <button class="btn" id="tpl-save-cancel">취소</button>
-      <button class="btn btn-primary" id="tpl-save-confirm">저장</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="supabase-client.js"></script>
 <script src="data-store.js"></script>
@@ -1878,7 +1012,7 @@
     });
   });
 
-  // ───── 배너 서브탭 (휴대폰/인터넷/렌탈) ─────
+  // ───── 배너 서브탭 (휴대폰/인터넷) ─────
   $$('#banner-sub-tabs .sub-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       $$('#banner-sub-tabs .sub-tab').forEach(b => b.classList.toggle('on', b === btn));
@@ -1897,285 +1031,71 @@
   (function restoreUI() {
     const s = loadUI();
     if (s.csub) activateCsub(s.csub);
-    if (s.bsub) {
+    // 저장된 서브탭이 더 이상 없으면(예: 구버전의 rental) 기본(휴대폰) 유지
+    if (s.bsub && $(`#banner-sub-tabs .sub-tab[data-sub="${s.bsub}"]`)) {
       $$('#banner-sub-tabs .sub-tab').forEach(b => b.classList.toggle('on', b.dataset.sub === s.bsub));
       $$('.sub-pane').forEach(p => p.classList.toggle('on', p.dataset.subPane === s.bsub));
     }
     if (s.tab && document.querySelector(`.tab-pane[data-pane="${s.tab}"]`)) activateTab(s.tab);
   })();
 
-  // ───── 배너 ─────
+  // ───── 배너 (이미지 등록 전용 — 합성/템플릿 기능 제거) ─────
+  const BANNER_KEYS = ['phone', 'internet'];
+
   function loadBannersToForm() {
-    ['phone', 'internet', 'rental'].forEach(key => {
-      const card = $(`[data-banner="${key}"]`);
-      if (!card) return;
-      const b = workingData.banners[key] || {};
-      const tags = b.tags || [];
-      card.querySelector('[data-field="tag0"]').value = tags[0]?.text || '';
-      card.querySelector('[data-field="tag1"]').value = tags[1]?.text || '';
-      card.querySelector('[data-field="tag0hot"]').checked = !!(tags[0]?.hot);
-      card.querySelector('[data-field="tag1hot"]').checked = !!(tags[1]?.hot);
-      // 색 picker는 데이터에 명시값이 있을 때만 덮어씀 (없으면 HTML 기본값 유지)
-      if (tags[0]?.bg) card.querySelector('[data-field="tag0bg"]').value = tags[0].bg;
-      if (tags[0]?.fg) card.querySelector('[data-field="tag0fg"]').value = tags[0].fg;
-      if (tags[1]?.bg) card.querySelector('[data-field="tag1bg"]').value = tags[1].bg;
-      if (tags[1]?.fg) card.querySelector('[data-field="tag1fg"]').value = tags[1].fg;
-      // 강조 체크 해제 상태면 색 picker 흐리게 (CTA 강조 chip-emph엔 체크박스 없음 → 건너뜀)
-      card.querySelectorAll('.chip-emph').forEach(emph => {
-        const c = emph.querySelector('input[type=checkbox]');
-        if (!c) return;
-        emph.classList.toggle('dim', !c.checked);
-      });
-      card.querySelector('[data-field="eyebrow"]').value = b.eyebrow || '';
-      card.querySelector('[data-field="title"]').value = b.title || '';
-      card.querySelector('[data-field="ctaText"]').value = b.ctaText || '';
-      card.querySelector('[data-field="ctaHighlight"]').value = b.ctaHighlight || '';
-      if (b.eyebrowColor)  card.querySelector('[data-field="eyebrowColor"]').value = b.eyebrowColor;
-      if (b.titleColor)    card.querySelector('[data-field="titleColor"]').value = b.titleColor;
-      if (b.ctaTextColor)  card.querySelector('[data-field="ctaTextColor"]').value = b.ctaTextColor;
-      if (b.ctaHlStart)    card.querySelector('[data-field="ctaHlStart"]').value = b.ctaHlStart;
-      if (b.ctaHlEnd)      card.querySelector('[data-field="ctaHlEnd"]').value = b.ctaHlEnd;
-      // 배너 이미지 미리보기 (data URL이면 썸네일 표시)
-      updateImagePreview(key);
-      // 슬라이더 9종 (가로 위치 4 + 이미지 5) — 모두 .chip-pos[data-field=*] 컨벤션
-      ['chipAlign', 'eyebrowAlign', 'titleAlign', 'ctaAlign',
-       'imageRotate', 'imageScale', 'imageOffsetX', 'imageOffsetY', 'imageShadow', 'imageGlow'].forEach(f => {
-        const wrap = card.querySelector(`.chip-pos[data-field="${f}"]`);
-        if (!wrap) return;
-        const slider = wrap.querySelector('input[type=range]');
-        let v = b[f];
-        if (typeof v === 'string') v = v === 'right' ? 100 : v === 'center' ? 50 : 0;
-        if (typeof v !== 'number' || isNaN(v)) v = +slider.value; // HTML 기본값 사용
-        slider.value = v;
-        const min = +slider.min || 0;
-        const max = +slider.max || 100;
-        const pct = max > min ? ((v - min) / (max - min)) * 100 : 0;
-        slider.style.setProperty('--fill', pct + '%');
-        const suffix = wrap.dataset.suffix !== undefined ? wrap.dataset.suffix : '%';
-        const out = wrap.querySelector('output');
-        if (out) out.textContent = v + suffix;
-      });
-      renderBgPicker(key);
-    });
+    BANNER_KEYS.forEach(key => updateImagePreview(key));
   }
 
+  // 저장 데이터는 { imageUrl } 형태로 단순화 — index.html은 imageUrl만 렌더
   function readBannersFromForm() {
-    ['phone', 'internet', 'rental'].forEach(key => {
-      const card = $(`[data-banner="${key}"]`);
-      if (!card) return;
+    BANNER_KEYS.forEach(key => {
       const existing = workingData.banners[key] || {};
-      const readAlign = (f) => {
-        const slider = card.querySelector(`.chip-pos[data-field="${f}"] input[type=range]`);
-        return slider ? parseInt(slider.value, 10)
-          : (typeof existing[f] === 'number' ? existing[f] : 0);
-      };
-      workingData.banners[key] = {
-        tags: [
-          {
-            text: card.querySelector('[data-field="tag0"]').value,
-            hot: card.querySelector('[data-field="tag0hot"]').checked,
-            bg: card.querySelector('[data-field="tag0bg"]').value,
-            fg: card.querySelector('[data-field="tag0fg"]').value
-          },
-          {
-            text: card.querySelector('[data-field="tag1"]').value,
-            hot: card.querySelector('[data-field="tag1hot"]').checked,
-            bg: card.querySelector('[data-field="tag1bg"]').value,
-            fg: card.querySelector('[data-field="tag1fg"]').value
-          }
-        ].filter(t => t.text),
-        eyebrow: card.querySelector('[data-field="eyebrow"]').value,
-        eyebrowColor: card.querySelector('[data-field="eyebrowColor"]').value,
-        title: card.querySelector('[data-field="title"]').value,
-        titleColor: card.querySelector('[data-field="titleColor"]').value,
-        ctaText: card.querySelector('[data-field="ctaText"]').value,
-        ctaTextColor: card.querySelector('[data-field="ctaTextColor"]').value,
-        ctaHighlight: card.querySelector('[data-field="ctaHighlight"]').value,
-        ctaHlStart: card.querySelector('[data-field="ctaHlStart"]').value,
-        ctaHlEnd: card.querySelector('[data-field="ctaHlEnd"]').value,
-        imageUrl: existing.imageUrl || '',
-        imageRotate:  readAlign('imageRotate'),
-        imageScale:   readAlign('imageScale'),
-        imageOffsetX: readAlign('imageOffsetX'),
-        imageOffsetY: readAlign('imageOffsetY'),
-        imageShadow:  readAlign('imageShadow'),
-        imageGlow:    readAlign('imageGlow'),
-        chipAlign: readAlign('chipAlign'),
-        eyebrowAlign: readAlign('eyebrowAlign'),
-        titleAlign: readAlign('titleAlign'),
-        ctaAlign: readAlign('ctaAlign'),
-        background: existing.background || { type: 'preset', presetId: 'lavender-pastel' }
-      };
+      workingData.banners[key] = { imageUrl: existing.imageUrl || '' };
     });
   }
 
-  // ───── 배경 픽커 ─────
-  const DARK_PRESETS = new Set(['dark-glow', 'mono-ink', 'sunset-gradient']);
-
-  function renderBgPicker(key) {
-    const card = $(`[data-banner="${key}"]`);
-    if (!card) return;
-    const picker = card.querySelector('[data-field="bg-picker"]');
-    if (!picker) return;
-    const bg = (workingData.banners[key] && workingData.banners[key].background) || { type: 'preset', presetId: 'lavender-pastel' };
-    const presets = (typeof BACKGROUND_PRESETS !== 'undefined') ? BACKGROUND_PRESETS : [];
-
-    let html = '';
-    presets.forEach(p => {
-      const active = bg.type === 'preset' && bg.presetId === p.id;
-      const labelDark = DARK_PRESETS.has(p.id) ? ' dark' : '';
-      html += `<div class="bg-tile mini-${p.id}${active ? ' on' : ''}" data-preset="${p.id}" title="${escapeHtml(p.desc || '')}">
-        <span class="bg-tile-label${labelDark}">${escapeHtml(p.label)}</span>
-      </div>`;
-    });
-    // 사용자 업로드 미리보기 (있으면)
-    if (bg.type === 'image' && bg.imageUrl) {
-      html += `<div class="bg-tile bg-tile-custom on" data-custom="1" style="background-image:url('${bg.imageUrl.replace(/'/g, "\\'")}')">
-        <span class="bg-tile-label">내 이미지 ✓</span>
-      </div>`;
-    }
-    // 업로드 타일 (항상 마지막)
-    html += `<div class="bg-tile bg-tile-upload" data-upload="1">
-      <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-      <span>이미지 업로드</span>
-    </div>`;
-    picker.innerHTML = html;
-
-    // 클릭 핸들러
-    picker.querySelectorAll('.bg-tile[data-preset]').forEach(tile => {
-      tile.addEventListener('click', () => {
-        workingData.banners[key].background = { type: 'preset', presetId: tile.dataset.preset, imageUrl: '' };
-        renderBgPicker(key);
-        setStatus('수정 중 (저장 안 됨)', true); pushPreview();
-      });
-    });
-    picker.querySelector('[data-upload]')?.addEventListener('click', () => {
-      card.querySelector('[data-field="bg-upload"]').click();
-    });
-    picker.querySelector('[data-custom]')?.addEventListener('click', () => {
-      // 이미 선택된 상태 — 삭제 옵션
-      if (confirm('업로드한 배경 이미지를 제거하고 기본 프리셋(라벤더)으로 돌릴까요?')) {
-        workingData.banners[key].background = { type: 'preset', presetId: 'lavender-pastel', imageUrl: '' };
-        renderBgPicker(key);
-        setStatus('수정 중 (저장 안 됨)', true); pushPreview();
-      }
-    });
-  }
-
-  // 파일 업로드 핸들러 (3개 배너 공통) — Supabase Storage 업로드
-  ['phone', 'internet', 'rental'].forEach(key => {
-    const card = $(`[data-banner="${key}"]`);
-    const fileInput = card?.querySelector('[data-field="bg-upload"]');
-    if (!fileInput) return;
-    fileInput.addEventListener('change', async e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      e.target.value = '';
-      if (file.size > 5 * 1024 * 1024) {
-        toast(`이미지가 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하로.`, true);
-        return;
-      }
-      toast('업로드 중...');
-      try {
-        const url = await DataStore.uploadImage(file, `bg/${key}`);
-        workingData.banners[key].background = { type: 'image', presetId: '', imageUrl: url };
-        renderBgPicker(key);
-        setStatus('수정 중 (저장 안 됨)', true);
-        pushPreview();
-        toast('업로드 완료');
-      } catch (err) {
-        console.error(err);
-        toast('업로드 실패: ' + (err?.message || err), true);
-      }
-    });
-  });
-
-  // 배너 폼 입력 변경 시 dirty 체크 (range 제외 — 슬라이더는 별도 핸들러)
-  $$('[data-banner] input').forEach(input => {
-    if (input.type === 'range') return;
-    input.addEventListener('input', () => { setStatus('수정 중 (저장 안 됨)', true); pushPreview(); });
-    input.addEventListener('change', () => { setStatus('수정 중 (저장 안 됨)', true); pushPreview(); });
-  });
-
-  // 강조 체크박스 토글 → 같은 chip-emph의 색 picker 흐리게/선명하게
-  $$('[data-banner] .chip-emph input[type=checkbox]').forEach(check => {
-    check.addEventListener('change', () => {
-      check.closest('.chip-emph').classList.toggle('dim', !check.checked);
-    });
-  });
-
-  // 슬라이더 8종 — 드래그 중 surgical(메시지 1줄), 떼면 전체 동기화
-  const ALIGN_MSG = {
-    chipAlign: 'chip-pos',
-    eyebrowAlign: 'eyebrow-pos',
-    titleAlign: 'title-pos',
-    ctaAlign: 'cta-pos',
-    imageRotate:  'img-rotate',
-    imageScale:   'img-scale',
-    imageOffsetX: 'img-offset-x',
-    imageOffsetY: 'img-offset-y',
-    imageShadow:  'img-shadow',
-    imageGlow:    'img-glow',
-  };
-  $$('[data-banner] .chip-pos input[type=range]').forEach(slider => {
-    const wrap = slider.closest('.chip-pos');
-    const field = wrap.dataset.field;
-    const msgType = ALIGN_MSG[field];
-    const card = wrap.closest('[data-banner]');
-    const key = card.dataset.banner;
-    const out = wrap.querySelector('output');
-    const min = +slider.min || 0;
-    const max = +slider.max || 100;
-    const suffix = wrap.dataset.suffix !== undefined ? wrap.dataset.suffix : '%';
-    slider.addEventListener('input', () => {
-      const v = +slider.value;
-      const pct = max > min ? ((v - min) / (max - min)) * 100 : 0;
-      slider.style.setProperty('--fill', pct + '%');
-      if (out) out.textContent = v + suffix;
-      setStatus('수정 중 (저장 안 됨)', true);
-      const iframe = $('#preview-iframe');
-      if (iframe && iframe.contentWindow && previewReady && msgType) {
-        iframe.contentWindow.postMessage({ type: 'mobileshop:' + msgType, panel: key, value: v }, '*');
-      }
-    });
-    slider.addEventListener('change', () => pushPreview());
-  });
-
-  // 배너 이미지 — 업로드 / 제거
+  // 등록된 배너 이미지 미리보기 갱신
   function updateImagePreview(key) {
     const card = $(`[data-banner="${key}"]`);
     if (!card) return;
-    const url = workingData.banners[key] && workingData.banners[key].imageUrl;
+    const url = (workingData.banners[key] && workingData.banners[key].imageUrl) || '';
     const preview = card.querySelector('[data-img-preview]');
-    // 휴대폰 배너는 data-img-pick(모달), 인터넷/렌탈은 data-img-add(파일업로드)
-    const add = card.querySelector('[data-img-add], [data-img-pick]');
-    // 모달 버튼(data-img-pick)은 이미지가 있어도 계속 노출 — 다시 눌러 교체 가능해야 함
-    const keepBtn = add.hasAttribute('data-img-pick');
+    const empty = card.querySelector('[data-img-empty]');
+    const clearBtn = card.querySelector('[data-img-clear]');
     if (url) {
       preview.style.display = '';
       preview.querySelector('img').src = url;
-      add.style.display = keepBtn ? '' : 'none';
+      if (empty) empty.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = '';
     } else {
       preview.style.display = 'none';
       preview.querySelector('img').src = '';
-      add.style.display = '';
+      if (empty) empty.style.display = '';
+      if (clearBtn) clearBtn.style.display = 'none';
     }
   }
+
+  // 업로드 버튼 → 숨은 파일 입력 열기
   $$('[data-banner] [data-img-add]').forEach(btn => {
     btn.addEventListener('click', () => {
       btn.closest('[data-banner]').querySelector('[data-field="imageUpload"]').click();
     });
   });
+
+  // 이미지 삭제 (배너 비우기)
   $$('[data-banner] [data-img-clear]').forEach(btn => {
     btn.addEventListener('click', () => {
       const card = btn.closest('[data-banner]');
       const key = card.dataset.banner;
-      workingData.banners[key].imageUrl = '';
+      if (!confirm('배너 이미지를 삭제할까요? (상단 저장을 눌러야 반영됩니다)')) return;
+      workingData.banners[key] = { imageUrl: '' };
       updateImagePreview(key);
       setStatus('수정 중 (저장 안 됨)', true);
       pushPreview();
     });
   });
+
+  // 파일 선택 → Supabase Storage 업로드 (기존 파이프라인 재사용)
   $$('[data-banner] [data-field="imageUpload"]').forEach(input => {
     const card = input.closest('[data-banner]');
     const key = card.dataset.banner;
@@ -2189,16 +1109,8 @@
       }
       toast('업로드 중...');
       try {
-        const url = await DataStore.uploadImage(file, `phone/${key}`);
-        if (!workingData.banners[key]) workingData.banners[key] = {};
-        workingData.banners[key].imageUrl = url;
-        // 새 사진은 깨끗하게 시작 — 회전/그림자/광선/크기/좌우 위치 리셋
-        Object.assign(workingData.banners[key], {
-          imageRotate: 0, imageScale: 100, imageOffsetX: 0, imageOffsetY: 0,
-          imageShadow: 0, imageGlow: 0
-        });
-        // 슬라이더 UI 동기화 (load 함수가 이미 이 9종 다 처리해줌)
-        loadBannersToForm();
+        const url = await DataStore.uploadImage(file, `banner/${key}`);
+        workingData.banners[key] = { imageUrl: url };
         updateImagePreview(key);
         setStatus('수정 중 (저장 안 됨)', true);
         pushPreview();
@@ -2207,275 +1119,6 @@
         console.error(err);
         toast('업로드 실패: ' + (err?.message || err), true);
       }
-    });
-  });
-
-  // ───── 배너에 삽입할 이미지 (KT 모델) 모달 — 휴대폰 배너 전용 ─────
-  const modelImgModal = $('#model-img-modal');
-  let _ktCatalog = null;
-
-  async function loadKtCatalog() {
-    if (_ktCatalog) return _ktCatalog;
-    const res = await fetch('kt-models.json', { cache: 'no-cache' });
-    if (!res.ok) throw new Error('카탈로그 로드 실패 (' + res.status + ')');
-    _ktCatalog = await res.json();
-    return _ktCatalog;
-  }
-
-  // 모델명 정규화 — 소문자 + 제조사 접두어 제거 + 공백 제거 (한글/영문 혼용 매칭용)
-  // products.do는 "삼성 폼폼푸린…", 본사관리는 "폼폼푸린…" 처럼 표기가 달라서 접두어 제거
-  function normModelName(s) {
-    return String(s == null ? '' : s).trim().toLowerCase()
-      .replace(/^(삼성|애플|apple)\s+/, '')
-      .replace(/\s+/g, '');
-  }
-  // 끝의 용량 토큰 제거 (예: "갤럭시 S26 256GB" → "갤럭시 S26")
-  function stripCapacity(name) {
-    return String(name == null ? '' : name).trim()
-      .replace(/\s*\d+\s*(gb|tb|g|t)\s*$/i, '');
-  }
-  // 본사관리 KT 모델 등장 순서 → {정규화 base 이름: 첫 인덱스}
-  function ktMasterOrder() {
-    const map = new Map();
-    const all = (typeof DataStore !== 'undefined' && DataStore.load)
-      ? (DataStore.load().models || []) : [];
-    const list = all.filter(m => m.carrier === 'kt');
-    list.forEach((m, i) => {
-      const b = normModelName(stripCapacity(m.name));
-      if (b && !map.has(b)) map.set(b, i);
-    });
-    return map;
-  }
-
-  // ───── 배너 이미지 — 내가 올린 그룹/이미지 (mobileshop_banner_images) ─────
-  let _customRows = [];       // DB 행 [{id, group_name, label, image_url, sort_order}]
-  let _extraGroupNames = [];  // 모델이 아닌 독립 그룹 이름 (메모리 — 빈 그룹 포함)
-  let _uploadTarget = null;   // + 타일 클릭 시 업로드 대상 그룹명
-
-  async function loadCustomGroups() {
-    try { _customRows = await DataStore.listBannerImages(); }
-    catch (e) {
-      console.warn('[banner-images] 로드 실패(테이블 미생성 가능)', e);
-      _customRows = [];
-    }
-  }
-
-  // displayLabel = 카드에 보일 짧은 라벨, altLabel = 확인창용 전체 이름
-  function miCardHtml(imgPath, displayLabel, altLabel, delId) {
-    return `<div class="mi-card" data-img="${escapeHtml(imgPath)}">
-      ${delId ? `<button class="mi-img-del" data-img-del="${escapeHtml(delId)}" title="이미지 삭제">×</button>` : ''}
-      <img src="${escapeHtml(imgPath)}" alt="${escapeHtml(altLabel)}" loading="lazy"/>
-      ${displayLabel ? `<div class="mi-color">${escapeHtml(displayLabel)}</div>` : ''}
-    </div>`;
-  }
-
-  // 한 그룹 섹션 — 기본이미지(삭제X) + 내이미지(삭제O) + 끝에 + 추가 타일
-  function miSectionHtml(opts) {
-    const baseCards = (opts.baseImages || [])
-      .map(c => miCardHtml(c.image, c.display, c.alt, null)).join('');
-    const customCards = (opts.customImages || [])
-      .map(r => miCardHtml(r.image_url, r.label || '',
-        `${opts.name} ${r.label || ''}`.trim(), r.id)).join('');
-    const addTile = `<div class="mi-card mi-add-tile" data-add-to="${escapeHtml(opts.name)}" title="이미지 추가"><div class="mi-add-plus">+</div></div>`;
-    const delBtn = opts.canDeleteGroup
-      ? `<button class="mi-group-del" data-group-del="${escapeHtml(opts.name)}" title="그룹 삭제">×</button>` : '';
-    return `<div class="mi-section">
-      <div class="mi-section-head">${escapeHtml(opts.name)}<span class="mi-maker${opts.mine ? ' mine' : ''}">${escapeHtml(opts.badge)}</span>${delBtn}</div>
-      <div class="mi-grid">${baseCards}${customCards}${addTile}</div>
-    </div>`;
-  }
-
-  function renderModelImgGrid(filter) {
-    const body = $('#mi-body');
-    const f = (filter || '').toLowerCase();
-
-    const baseModels = _ktCatalog?.models || [];
-    const modelNames = new Set(baseModels.map(m => m.name));
-
-    // 그룹별 내 이미지
-    const customByGroup = new Map();
-    _customRows.forEach(r => {
-      if (!customByGroup.has(r.group_name)) customByGroup.set(r.group_name, []);
-      customByGroup.get(r.group_name).push(r);
-    });
-
-    // 독립 그룹 = 모델명 아닌 group_name + 메모리상 빈 그룹
-    const standalone = [];
-    const seen = new Set();
-    customByGroup.forEach((rows, name) => {
-      if (!modelNames.has(name)) { standalone.push(name); seen.add(name); }
-    });
-    _extraGroupNames.forEach(n => {
-      if (!modelNames.has(n) && !seen.has(n)) { standalone.push(n); seen.add(n); }
-    });
-
-    // 내 그룹 (위쪽)
-    const customHtml = standalone
-      .filter(n => !f || n.toLowerCase().includes(f))
-      .map(name => miSectionHtml({
-        name, badge: '내 그룹', mine: true,
-        baseImages: [],
-        customImages: customByGroup.get(name) || [],
-        canDeleteGroup: true
-      })).join('');
-
-    // 기본 모델 그룹 (아래쪽) — 본사관리 KT 모델 순서대로 정렬
-    const order = ktMasterOrder();
-    const rank = m => {
-      const i = order.get(normModelName(m.name));
-      return i == null ? 99999 : i;
-    };
-    const models = baseModels
-      .filter(m => !f || (m.name || '').toLowerCase().includes(f))
-      .slice()
-      .sort((a, b) => rank(a) - rank(b));
-    const baseHtml = models.map(m => miSectionHtml({
-      name: m.name, badge: m.maker || '', mine: false,
-      baseImages: (m.colors || []).map(c => ({
-        image: c.image, display: c.color, alt: `${m.name} ${c.color}`
-      })),
-      customImages: customByGroup.get(m.name) || [],
-      canDeleteGroup: false
-    })).join('');
-
-    if (!customHtml && !baseHtml) {
-      body.innerHTML = '<div class="hint" style="text-align:center; padding:40px 0">검색 결과가 없습니다.</div>';
-      return;
-    }
-    body.innerHTML = customHtml + baseHtml;
-
-    // 이미지 선택 (추가 타일 제외)
-    body.querySelectorAll('.mi-card:not(.mi-add-tile)').forEach(card => {
-      card.addEventListener('click', e => {
-        if (e.target.closest('[data-img-del]')) return;
-        const label = card.querySelector('img')?.alt || '선택한';
-        applyModelImg(card.dataset.img, label);
-      });
-    });
-    // + 타일 → 해당 그룹에 이미지 업로드
-    body.querySelectorAll('.mi-add-tile').forEach(tile => {
-      tile.addEventListener('click', () => {
-        _uploadTarget = tile.dataset.addTo;
-        $('#mi-file-input').click();
-      });
-    });
-    // 내 이미지 삭제
-    body.querySelectorAll('[data-img-del]').forEach(btn => {
-      btn.addEventListener('click', async e => {
-        e.stopPropagation();
-        if (!confirm('이 이미지를 삭제할까요?')) return;
-        try {
-          await DataStore.deleteBannerImage(btn.dataset.imgDel);
-          _customRows = _customRows.filter(r => r.id !== btn.dataset.imgDel);
-          renderModelImgGrid($('#mi-search').value.trim());
-          toast('이미지 삭제됨');
-        } catch (err) { toast('삭제 실패: ' + (err?.message || err), true); }
-      });
-    });
-    // 내 그룹 삭제 (독립 그룹만)
-    body.querySelectorAll('[data-group-del]').forEach(btn => {
-      btn.addEventListener('click', async e => {
-        e.stopPropagation();
-        const name = btn.dataset.groupDel;
-        if (!confirm(`'${name}' 그룹과 그 안의 이미지를 모두 삭제할까요?`)) return;
-        try {
-          await DataStore.deleteBannerImageGroup(name);
-          _customRows = _customRows.filter(r => r.group_name !== name);
-          _extraGroupNames = _extraGroupNames.filter(n => n !== name);
-          renderModelImgGrid($('#mi-search').value.trim());
-          toast('그룹 삭제됨');
-        } catch (err) { toast('삭제 실패: ' + (err?.message || err), true); }
-      });
-    });
-  }
-
-  function applyModelImg(imgPath, label) {
-    if (!confirm(`'${label}' 이미지로 배너 이미지를 변경할까요?`)) return;
-    if (!workingData.banners.phone) workingData.banners.phone = {};
-    workingData.banners.phone.imageUrl = imgPath;
-    // 새 사진은 깨끗하게 시작 — 업로드 핸들러와 동일하게 변형값 리셋
-    Object.assign(workingData.banners.phone, {
-      imageRotate: 0, imageScale: 100, imageOffsetX: 0, imageOffsetY: 0,
-      imageShadow: 0, imageGlow: 0
-    });
-    loadBannersToForm();
-    updateImagePreview('phone');
-    setStatus('수정 중 (저장 안 됨)', true);
-    pushPreview();
-    modelImgModal.classList.remove('on');
-    toast('이미지 적용됨');
-  }
-
-  function openModelImgModal() {
-    modelImgModal.classList.add('on');
-    $('#mi-search').value = '';
-    $('#mi-body').innerHTML = '<div class="hint" style="text-align:center; padding:40px 0">불러오는 중…</div>';
-    Promise.all([loadKtCatalog(), loadCustomGroups()])
-      .then(() => renderModelImgGrid(''))
-      .catch(err => {
-        $('#mi-body').innerHTML = `<div class="hint" style="text-align:center; padding:40px 0; color:var(--danger)">로드 실패: ${escapeHtml(err?.message || String(err))}</div>`;
-      });
-  }
-
-  // + 새 그룹 (독립 그룹)
-  function addCustomGroup() {
-    const name = (prompt('새 그룹 이름을 입력하세요 (예: 5월 프로모션)') || '').trim();
-    if (!name) return;
-    const modelNames = new Set((_ktCatalog?.models || []).map(m => m.name));
-    if (modelNames.has(name) || _extraGroupNames.includes(name)
-        || _customRows.some(r => r.group_name === name)) {
-      toast('같은 이름의 그룹이 이미 있습니다', true);
-      return;
-    }
-    _extraGroupNames.unshift(name);
-    $('#mi-search').value = '';
-    renderModelImgGrid('');
-    $('#mi-body').scrollTop = 0;
-  }
-
-  // 파일 선택 → _uploadTarget 그룹에 업로드 + DB 저장
-  $('#mi-file-input')?.addEventListener('change', async e => {
-    const files = [...(e.target.files || [])];
-    e.target.value = '';
-    const groupName = _uploadTarget;
-    _uploadTarget = null;
-    if (!groupName || !files.length) return;
-    for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast(`${file.name}: 5MB 초과 — 건너뜀`, true);
-        continue;
-      }
-      toast('업로드 중…');
-      try {
-        const url = await DataStore.uploadImage(file, 'banner-custom');
-        const label = (file.name || '이미지').replace(/\.[^.]+$/, '').slice(0, 30);
-        const sort = _customRows.filter(r => r.group_name === groupName).length;
-        const id = await DataStore.addBannerImage({
-          group_name: groupName, label, image_url: url, sort_order: sort
-        });
-        _customRows.push({ id, group_name: groupName, label, image_url: url, sort_order: sort });
-        renderModelImgGrid($('#mi-search').value.trim());
-        toast('업로드 완료');
-      } catch (err) {
-        toast('업로드 실패: ' + (err?.message || err), true);
-      }
-    }
-  });
-
-  $('[data-banner="phone"] [data-img-pick]')?.addEventListener('click', openModelImgModal);
-  $('#mi-cancel')?.addEventListener('click', () => modelImgModal.classList.remove('on'));
-  modelImgModal?.addEventListener('click', e => {
-    if (e.target === modelImgModal) modelImgModal.classList.remove('on');
-  });
-  $('#mi-search')?.addEventListener('input', e => renderModelImgGrid(e.target.value.trim()));
-  $('#mi-add-group')?.addEventListener('click', addCustomGroup);
-
-  // 정렬 세그먼트 클릭 (칩/타이틀/CTA 공통)
-  $$('[data-banner] .seg button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const seg = btn.closest('.seg');
-      seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
-      setStatus('수정 중 (저장 안 됨)', true); pushPreview();
     });
   });
 
@@ -2863,321 +1506,6 @@
   $('#cat-new-add').addEventListener('click', addNewCategoryFromInput);
   $('#cat-new-label').addEventListener('keydown', e => {
     if (e.key === 'Enter') addNewCategoryFromInput();
-  });
-
-  // ───── 배너 템플릿 (불러오기 / 저장) ─────
-  const tplBrowseModal = $('#tpl-browse-modal');
-  const tplSaveModal = $('#tpl-save-modal');
-  const CATEGORY_LABEL = { phone: '휴대폰', internet: '인터넷', rental: '렌탈' };
-
-  function openTplBrowse(category) {
-    $('#tpl-browse-title').textContent = `${CATEGORY_LABEL[category]} 배너 템플릿`;
-    const grid = $('#tpl-grid');
-    grid.innerHTML = '<div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0">불러오는 중…</div>';
-    tplBrowseModal.classList.add('on');
-    DataStore.listTemplates(category).then(list => {
-      if (list.length === 0) {
-        grid.innerHTML = `<div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0">${CATEGORY_LABEL[category]} 카테고리 템플릿이 없습니다.<br/>현재 배너에서 "저장" 버튼을 눌러 첫 템플릿을 만들어보세요.</div>`;
-        return;
-      }
-      // 실제 모바일 배너 기준 폭 (offsetX/Y 값들이 저장된 기준)
-      const REF_WIDTH = 375;
-      grid.innerHTML = list.map(t => {
-        const d = t.data || {};
-        const date = t.created_at ? new Date(t.created_at).toLocaleDateString('ko-KR') : '';
-
-        const scope = t.scope || 'shared';
-        const scopeBadge = `<span class="tpl-scope-badge ${scope}">${scope === 'mine' ? '나만의' : '공유'}</span>`;
-
-        // 썸네일 굽혔으면 그 이미지만 보여주기 (픽셀 정확 + 가벼움)
-        if (t.thumbnail_url) {
-          return `<div class="tpl-card" data-tpl-id="${t.id}">
-            ${scopeBadge}
-            <button class="tpl-del" data-tpl-del="${t.id}" title="템플릿 삭제">×</button>
-            <img class="tpl-thumb-img" src="${escapeHtml(t.thumbnail_url)}" alt="${escapeHtml(t.name)}" loading="lazy"/>
-            <div class="tpl-name">${escapeHtml(t.name)}</div>
-            <div class="tpl-meta">${date}</div>
-          </div>`;
-        }
-
-        // 폴백: 썸네일 없는 옛 템플릿은 미니 렌더 (예전 방식)
-        const bg = d.background || {};
-        let bannerClass = '';
-        let bannerStyle = '';
-        if (bg.type === 'image' && bg.imageUrl) {
-          bannerStyle = `background-image:url('${bg.imageUrl.replace(/'/g, "\\'")}')`;
-        } else if (bg.presetId) {
-          bannerClass = ` mini-${bg.presetId}`;
-        }
-        const chips = (d.tags || []).slice(0, 3).map(tag => {
-          // 강조(hot) 켜진 칩만 색 적용 (index.html 동작과 일치)
-          const chipBg = (tag.hot && tag.bg) ? `background:${tag.bg};` : '';
-          const chipFg = (tag.hot && tag.fg) ? `color:${tag.fg};` : '';
-          return `<span class="tb-chip${tag.hot ? ' hot' : ''}" style="${chipBg}${chipFg}">${escapeHtml(tag.text || '')}</span>`;
-        }).join('');
-        const phoneImg = d.imageUrl
-          ? `<img class="tb-phone" src="${escapeHtml(d.imageUrl)}" alt=""/>`
-          : '';
-        const eyebrowStyle = d.eyebrowColor ? `color:${d.eyebrowColor}` : '';
-        const titleStyle = d.titleColor ? `color:${d.titleColor}` : '';
-        const ctaTextStyle = d.ctaTextColor ? `color:${d.ctaTextColor}` : '';
-        const ctaHlStyle = (d.ctaHighlight && d.ctaHlStart && d.ctaHlEnd)
-          ? `background:linear-gradient(135deg, ${d.ctaHlStart}, ${d.ctaHlEnd}); -webkit-background-clip:text; background-clip:text; color:transparent;`
-          : '';
-        return `<div class="tpl-card" data-tpl-id="${t.id}">
-          ${scopeBadge}
-          <button class="tpl-del" data-tpl-del="${t.id}" title="템플릿 삭제">×</button>
-          <div class="tb-banner${bannerClass}" style="${bannerStyle}">
-            ${phoneImg}
-            <div class="tb-content">
-              ${chips ? `<div class="tb-chips">${chips}</div>` : ''}
-              ${d.eyebrow ? `<div class="tb-eyebrow" style="${eyebrowStyle}">${escapeHtml(d.eyebrow)}</div>` : ''}
-              ${d.title ? `<div class="tb-title" style="${titleStyle}">${escapeHtml(d.title)}</div>` : ''}
-              ${(d.ctaText || d.ctaHighlight) ? `<div class="tb-cta"><span style="${ctaTextStyle}">${escapeHtml(d.ctaText || '')}</span>${d.ctaHighlight ? ` <b style="${ctaHlStyle}">${escapeHtml(d.ctaHighlight)}</b>` : ''}</div>` : ''}
-            </div>
-          </div>
-          <div class="tpl-name">${escapeHtml(t.name)}</div>
-          <div class="tpl-meta">${date}</div>
-        </div>`;
-      }).join('');
-
-      // 카드 렌더 직후 — 실제 배너 폭 측정해서 폰 transform 동적 적용 (px 오프셋이 미니 카드 폭에 비례)
-      requestAnimationFrame(() => {
-        grid.querySelectorAll('.tpl-card').forEach(card => {
-          const id = card.dataset.tplId;
-          const t = list.find(x => x.id === id);
-          if (!t) return;
-          const banner = card.querySelector('.tb-banner');
-          const phone = card.querySelector('.tb-phone');
-          if (!banner || !phone) return;
-          const ratio = banner.offsetWidth / REF_WIDTH;
-          const d = t.data || {};
-          const imgScale = (d.imageScale ?? 100) / 100;
-          const imgOffX = (d.imageOffsetX ?? 0) * ratio;
-          const imgOffY = (d.imageOffsetY ?? 0) * ratio;
-          const imgRot = d.imageRotate ?? 0;
-          phone.style.transform = `translateX(-50%) translate(${imgOffX}px, ${imgOffY}px) rotate(${imgRot}deg) scale(${imgScale})`;
-        });
-      });
-      // 카드 클릭 → 적용
-      grid.querySelectorAll('.tpl-card').forEach(card => {
-        card.addEventListener('click', e => {
-          if (e.target.closest('[data-tpl-del]')) return;
-          const id = card.dataset.tplId;
-          const tpl = list.find(t => t.id === id);
-          if (!tpl) return;
-          if (!confirm(`"${tpl.name}" 템플릿을 ${CATEGORY_LABEL[category]} 배너에 적용할까요?\n현재 ${CATEGORY_LABEL[category]} 배너 내용은 사라집니다 (저장 누르기 전까진 되돌릴 수 있음).`)) return;
-          workingData.banners[category] = JSON.parse(JSON.stringify(tpl.data));
-          loadBannersToForm();
-          tplBrowseModal.classList.remove('on');
-          setStatus('수정 중 (저장 안 됨)', true);
-          pushPreview();
-          toast('템플릿 적용됨');
-        });
-      });
-      // 삭제 버튼
-      grid.querySelectorAll('[data-tpl-del]').forEach(btn => {
-        btn.addEventListener('click', async e => {
-          e.stopPropagation();
-          const id = btn.dataset.tplDel;
-          const tpl = list.find(t => t.id === id);
-          if (!tpl) return;
-          if (!confirm(`"${tpl.name}" 템플릿을 삭제할까요? (되돌릴 수 없음)`)) return;
-          try {
-            await DataStore.deleteTemplate(id);
-            toast('템플릿 삭제됨');
-            openTplBrowse(category); // 새로고침
-          } catch (err) {
-            toast('삭제 실패: ' + (err?.message || err), true);
-          }
-        });
-      });
-    }).catch(err => {
-      grid.innerHTML = `<div class="hint" style="grid-column:1/-1; text-align:center; padding:30px 0; color:var(--danger)">로드 실패: ${escapeHtml(err?.message || String(err))}</div>`;
-    });
-  }
-  function openTplSave(category) {
-    readBannersFromForm();
-    $('#tpl-save-category').value = category;
-    $('#tpl-save-name').value = '';
-    // scope 기본값: 공유 (멀티테넌트 단계에서 본사 여부에 따라 disabled 처리 예정)
-    const sharedRadio = document.querySelector('input[name="tpl-scope"][value="shared"]');
-    if (sharedRadio) sharedRadio.checked = true;
-    tplSaveModal.classList.add('on');
-    setTimeout(() => $('#tpl-save-name').focus(), 50);
-  }
-
-  // 카드 헤더 버튼 위임 핸들러
-  document.addEventListener('click', e => {
-    const loadBtn = e.target.closest('[data-tpl-load]');
-    if (loadBtn) { openTplBrowse(loadBtn.dataset.tplLoad); return; }
-    const saveBtn = e.target.closest('[data-tpl-save]');
-    if (saveBtn) { openTplSave(saveBtn.dataset.tplSave); return; }
-  });
-
-  // 모달 닫기
-  $('#tpl-browse-cancel').addEventListener('click', () => tplBrowseModal.classList.remove('on'));
-  tplBrowseModal.addEventListener('click', e => { if (e.target === tplBrowseModal) tplBrowseModal.classList.remove('on'); });
-  $('#tpl-save-cancel').addEventListener('click', () => tplSaveModal.classList.remove('on'));
-  tplSaveModal.addEventListener('click', e => { if (e.target === tplSaveModal) tplSaveModal.classList.remove('on'); });
-
-  // 미리보기 iframe의 배너를 캡쳐해서 썸네일 굽기 (html2canvas)
-  async function bakeBannerThumb(category) {
-    const iframe = $('#preview-iframe');
-    if (!iframe || !iframe.contentDocument) throw new Error('iframe 없음 (file://에선 안 됨)');
-    iframe.contentWindow.postMessage({ type: 'mobileshop:preview', data: workingData }, '*');
-    iframe.contentWindow.postMessage({ type: 'mobileshop:preview-panel', panel: category }, '*');
-    await new Promise(r => setTimeout(r, 800));
-
-    const idoc = iframe.contentDocument;
-    const bannerEl = idoc.querySelector(`#panel-${category} .banner-wide`);
-    if (!bannerEl) throw new Error('iframe에서 배너 못 찾음');
-    if (typeof html2canvas !== 'function') throw new Error('html2canvas 로드 안 됨');
-
-    // html2canvas는 background-clip:text 와 -webkit-mask 를 못 그림.
-    // (1) CTA 하이라이트(.bw-cta b) — 캔버스에 직접 그라디언트 텍스트를 그려서 PNG로 박음
-    //     → background-clip:text 결과를 픽셀로 미리 베이크. 원본 그라디언트 색 그대로 보존.
-    // (2) 화살표(::after mask) — 일반 글자 → 로 임시 오버라이드.
-    // 캡처가 끝나면 원본 DOM/스타일 원복.
-    const banner = (workingData.banners && workingData.banners[category]) || {};
-    const hlStart = banner.ctaHlStart || '#7A6BD9';
-    const hlEnd   = banner.ctaHlEnd   || '#F4A5BA';
-
-    // (2) 화살표만 CSS 오버라이드
-    const overrideStyle = idoc.createElement('style');
-    overrideStyle.id = '__h2c_capture_override';
-    overrideStyle.textContent = `
-      .bw-cta::after {
-        content: '\\2192' !important;
-        width: auto !important; height: auto !important;
-        background: none !important;
-        -webkit-mask: none !important; mask: none !important;
-        font-size: 13px !important; opacity: .55 !important;
-        color: currentColor;
-      }
-    `;
-    idoc.head.appendChild(overrideStyle);
-
-    // (1) 하이라이트 텍스트 → 그라디언트 PNG 로 일시 치환
-    const bEl = bannerEl.querySelector('.bw-cta b');
-    if (bEl && bEl.textContent.trim()) {
-      const cs = idoc.defaultView.getComputedStyle(bEl);
-      const text = bEl.textContent;
-      const fontSize = parseFloat(cs.fontSize) || 12;
-      const fontStr = `${cs.fontStyle || 'normal'} ${cs.fontWeight || '800'} ${fontSize}px ${cs.fontFamily || 'sans-serif'}`;
-      const dpr = 2;
-      const meas = idoc.createElement('canvas').getContext('2d');
-      meas.font = fontStr;
-      const w = Math.ceil(meas.measureText(text).width) + 6;
-      const h = Math.ceil(fontSize * 1.4);
-      const cv = idoc.createElement('canvas');
-      cv.width = w * dpr; cv.height = h * dpr;
-      const ctx = cv.getContext('2d');
-      ctx.scale(dpr, dpr);
-      ctx.font = fontStr;
-      ctx.textBaseline = 'middle';
-      const grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, hlStart);
-      grad.addColorStop(1, hlEnd);
-      ctx.fillStyle = grad;
-      ctx.fillText(text, 3, h / 2);
-
-      bEl.dataset.h2cOriginalHtml = bEl.innerHTML;
-      bEl.dataset.h2cOriginalStyle = bEl.getAttribute('style') || '';
-      bEl.innerHTML = '';
-      const gImg = idoc.createElement('img');
-      gImg.src = cv.toDataURL('image/png');
-      gImg.style.cssText = `height:${h}px; width:auto; vertical-align:middle; display:inline-block;`;
-      bEl.appendChild(gImg);
-      // <b>의 background-clip:text / color:transparent 가 캡처에 잔재로 깔리지 않게 비활성
-      bEl.style.background = 'none';
-      bEl.style.webkitBackgroundClip = 'initial';
-      bEl.style.backgroundClip = 'initial';
-      bEl.style.color = 'inherit';
-    }
-
-    function restoreCapture() {
-      const b = bannerEl.querySelector('.bw-cta b');
-      if (b && 'h2cOriginalHtml' in b.dataset) {
-        b.innerHTML = b.dataset.h2cOriginalHtml;
-        b.setAttribute('style', b.dataset.h2cOriginalStyle || '');
-        delete b.dataset.h2cOriginalHtml;
-        delete b.dataset.h2cOriginalStyle;
-      }
-    }
-
-    try {
-      // 모든 이미지(img + CSS background-image)를 CORS 모드로 명시적 preload
-      const win = iframe.contentWindow;
-      const urls = new Set();
-      bannerEl.querySelectorAll('img').forEach(img => { if (img.src) urls.add(img.src); });
-      [bannerEl, ...bannerEl.querySelectorAll('*')].forEach(el => {
-        const bg = win.getComputedStyle(el).backgroundImage || '';
-        const re = /url\(["']?(https?:[^"')]+)["']?\)/g;
-        let m;
-        while ((m = re.exec(bg)) !== null) urls.add(m[1]);
-      });
-      await Promise.all(Array.from(urls).map(url => new Promise(resolve => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve();
-        img.onerror = () => resolve(); // 실패해도 진행
-        img.src = url;
-      })));
-      await new Promise(r => setTimeout(r, 200)); // 안정화 대기
-
-      const canvas = await html2canvas(bannerEl, {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: '#FFFFFF',
-        logging: false,
-        imageTimeout: 8000
-      });
-
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
-      if (!blob) throw new Error('canvas → blob 실패');
-      const file = new File([blob], `tpl-thumb-${Date.now()}.jpg`, { type: 'image/jpeg' });
-      return await DataStore.uploadImage(file, 'tpl-thumb');
-    } finally {
-      restoreCapture();
-      overrideStyle.remove();
-    }
-  }
-
-  // 저장 확정
-  $('#tpl-save-confirm').addEventListener('click', async () => {
-    const name = $('#tpl-save-name').value.trim();
-    const category = $('#tpl-save-category').value;
-    if (!name) { toast('템플릿 이름을 입력해주세요', true); return; }
-    if (!workingData.banners[category]) { toast('배너 데이터 없음', true); return; }
-    const btn = $('#tpl-save-confirm');
-    btn.disabled = true;
-    let thumbnail_url = null;
-    try {
-      toast('썸네일 생성 중...');
-      thumbnail_url = await bakeBannerThumb(category);
-    } catch (err) {
-      console.warn('[tpl thumb] 썸네일 굽기 실패, 썸네일 없이 저장:', err);
-      // 썸네일 실패해도 템플릿은 저장 진행
-    }
-    const scope = document.querySelector('input[name="tpl-scope"]:checked')?.value || 'shared';
-    try {
-      toast(thumbnail_url ? '저장 중...' : '썸네일 없이 저장 중...');
-      await DataStore.saveTemplate({
-        name,
-        category,
-        data: JSON.parse(JSON.stringify(workingData.banners[category])),
-        thumbnail_url,
-        scope
-      });
-      tplSaveModal.classList.remove('on');
-      toast(thumbnail_url ? '템플릿 저장됨' : '템플릿 저장됨 (썸네일 실패 — 폴백 렌더 사용)');
-    } catch (err) {
-      console.error('[tpl save]', err);
-      toast('템플릿 저장 실패: ' + (err?.message || err), true);
-    } finally {
-      btn.disabled = false;
-    }
   });
 
   // ───── 저장 / 되돌리기 / 리셋 ─────

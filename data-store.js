@@ -8,63 +8,12 @@
 //   const url = await DataStore.uploadImage(file, 'banner-bg');
 // ─────────────────────────────────────────────────────────────────────
 
-// ───── 배경 프리셋 라이브러리 (admin에서 선택, index.html에서 CSS 클래스로 적용) ─────
-const BACKGROUND_PRESETS = [
-  { id: 'lavender-pastel', label: '라벤더 파스텔', desc: '영롱 보라 + 로즈 광채 (휴대폰 기본)' },
-  { id: 'sky-pastel',      label: '스카이 파스텔', desc: '스카이 + 라벤더 (인터넷 기본)' },
-  { id: 'mint-pastel',     label: '민트 파스텔',   desc: '민트 + 피치 (렌탈 기본)' },
-  { id: 'rose-warm',       label: '로즈 웜',       desc: '핑크-피치 따뜻한 그라데이션' },
-  { id: 'sunset-gradient', label: '선셋',          desc: '오렌지 → 핑크' },
-  { id: 'aurora',          label: '오로라',        desc: '5색 영롱 다이라이트' },
-  { id: 'dark-glow',       label: '다크 글로우',   desc: '딥 블루 + 보라 광채 (다크톤)' },
-  { id: 'mono-clean',      label: '미니멀 화이트', desc: '거의 흰색 + 옅은 라인' },
-  { id: 'mono-ink',        label: '미니멀 다크',   desc: '거의 검정 + 옅은 라인' },
-  { id: 'mesh-pastel',     label: '메쉬 파스텔',   desc: '여러 색 부드러운 메쉬' },
-  // ───── 단색 10종 (테마 액센트 색에 맞춘 부드러운 톤) ─────
-  { id: 'solid-lavender',  label: '라벤더 단색',   desc: '연한 라벤더 단일톤' },
-  { id: 'solid-sky',       label: '스카이 단색',   desc: '연한 하늘색 단일톤 (토스 무드)' },
-  { id: 'solid-mint',      label: '민트 단색',     desc: '연한 민트 단일톤' },
-  { id: 'solid-coral',     label: '코랄 단색',     desc: '연한 살구 단일톤' },
-  { id: 'solid-beige',     label: '베이지 단색',   desc: '오트밀 베이지 단일톤 (웜)' },
-  { id: 'solid-slate',     label: '슬레이트 단색', desc: '연한 회색 단일톤 (클래식)' },
-  { id: 'solid-lilac',     label: '라일락 단색',   desc: '연한 보라 단일톤' },
-  { id: 'solid-cream',     label: '크림 단색',     desc: '연한 크림 옐로우' },
-  { id: 'solid-pink',      label: '핑크 단색',     desc: '소프트 핑크 단일톤' },
-  { id: 'solid-sage',      label: '세이지 단색',   desc: '옅은 세이지 그린' },
-  // ───── 패턴 (흰 바탕) ─────
-  { id: 'pattern-dots',    label: '화이트 도트',   desc: '흰 바탕 + 잔잔한 도트' },
-  { id: 'pattern-stripes', label: '화이트 스트라이프', desc: '흰 바탕 + 대각선 스트라이프' }
-];
-
+// 배너 = 등록 이미지만 표시 (imageUrl 없으면 손님 페이지에서 배너 영역 숨김)
+// rental 탭은 /rental(SK매직 카탈로그)로 연결되어 모바일샵 배너를 쓰지 않음 → phone/internet만 관리.
 const DEFAULT_DATA = {
   banners: {
-    phone: {
-      tags: [{ text: '사전예약', hot: true }, { text: 'D-3', hot: false }],
-      eyebrow: 'SAMSUNG GALAXY',
-      title: 'S26 Ultra · 5월 신상',
-      ctaText: '예약 혜택',
-      ctaHighlight: '−730,000원',
-      imageUrl: '',
-      background: { type: 'preset', presetId: 'lavender-pastel', imageUrl: '' }
-    },
-    internet: {
-      tags: [{ text: '결합특가', hot: true }, { text: '5월 한정', hot: false }],
-      eyebrow: 'SK · KT · LG U+ INTERNET',
-      title: '1G + IPTV · 평생 할인',
-      ctaText: '현금 사은품',
-      ctaHighlight: '최대 35만원',
-      imageUrl: '',
-      background: { type: 'preset', presetId: 'sky-pastel', imageUrl: '' }
-    },
-    rental: {
-      tags: [{ text: '신상', hot: true }, { text: '4개월 무료', hot: false }],
-      eyebrow: 'SK매직 · 코웨이 RENTAL',
-      title: '정수기 · 청정기 · 식세기',
-      ctaText: '설치비',
-      ctaHighlight: '0원 + 무료체험',
-      imageUrl: '',
-      background: { type: 'preset', presetId: 'mint-pastel', imageUrl: '' }
-    }
+    phone:    { imageUrl: '' },
+    internet: { imageUrl: '' }
   },
   productsPhone: [],
   models: [],
@@ -187,7 +136,8 @@ const DataStore = {
       const sb = window.supabaseClient;
       if (!sb) throw new Error('supabaseClient 없음');
 
-      const bannerRows = ['phone', 'internet', 'rental'].map(id => ({
+      // rental 배너는 관리/렌더 대상이 아니므로 저장하지 않음 (DB의 구형 rental row 재기록 방지)
+      const bannerRows = ['phone', 'internet'].map(id => ({
         id,
         data: data.banners[id] || this._cloneDefault().banners[id],
         updated_at: new Date().toISOString()
@@ -375,70 +325,10 @@ const DataStore = {
     window.dispatchEvent(new Event('mobileshop:datachange'));
   },
 
-  // ───── 배너 템플릿 CRUD ─────
-  async listTemplates(category) {
-    const sb = window.supabaseClient;
-    if (!sb) throw new Error('supabaseClient 없음');
-    let q = sb.from('mobileshop_banner_templates').select('*').order('created_at', { ascending: false });
-    if (category) q = q.eq('category', category);
-    const { data, error } = await q;
-    if (error) throw error;
-    return data || [];
-  },
-
-  async saveTemplate({ name, category, data, thumbnail_url = null, scope = 'shared' }) {
-    const sb = window.supabaseClient;
-    if (!sb) throw new Error('supabaseClient 없음');
-    const id = 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-    const { error } = await sb.from('mobileshop_banner_templates').insert({
-      id, name, category, data, thumbnail_url, scope
-    });
-    if (error) throw error;
-    return id;
-  },
-
-  async deleteTemplate(id) {
-    const sb = window.supabaseClient;
-    if (!sb) throw new Error('supabaseClient 없음');
-    const { error } = await sb.from('mobileshop_banner_templates').delete().eq('id', id);
-    if (error) throw error;
-  },
-
-  // ───── 배너 삽입 이미지 (사용자 그룹/이미지) CRUD ─────
-  // 그룹은 group_name 으로만 정의 — 같은 group_name 행들이 한 그룹.
-  async listBannerImages() {
-    const sb = window.supabaseClient;
-    if (!sb) throw new Error('supabaseClient 없음');
-    const { data, error } = await sb.from('mobileshop_banner_images')
-      .select('*').order('sort_order', { ascending: true });
-    if (error) throw error;
-    return data || [];
-  },
-
-  async addBannerImage({ group_name, label, image_url, sort_order = 0 }) {
-    const sb = window.supabaseClient;
-    if (!sb) throw new Error('supabaseClient 없음');
-    const id = 'bi' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-    const { error } = await sb.from('mobileshop_banner_images')
-      .insert({ id, group_name, label: label || null, image_url, sort_order });
-    if (error) throw error;
-    return id;
-  },
-
-  async deleteBannerImage(id) {
-    const sb = window.supabaseClient;
-    if (!sb) throw new Error('supabaseClient 없음');
-    const { error } = await sb.from('mobileshop_banner_images').delete().eq('id', id);
-    if (error) throw error;
-  },
-
-  async deleteBannerImageGroup(groupName) {
-    const sb = window.supabaseClient;
-    if (!sb) throw new Error('supabaseClient 없음');
-    const { error } = await sb.from('mobileshop_banner_images')
-      .delete().eq('group_name', groupName);
-    if (error) throw error;
-  },
+  // (배너 합성 UI 제거에 따라 배너 템플릿/삽입이미지 CRUD 메서드도 삭제됨.
+  //  복원 필요 시 원본 mobile-shop/data-store.js 의 listTemplates/saveTemplate/
+  //  deleteTemplate/listBannerImages/addBannerImage/deleteBannerImage/
+  //  deleteBannerImageGroup 참조 — mobileshop_banner_templates/_images 테이블 사용.)
 
   // Storage 업로드 → 공개 URL 반환
   async uploadImage(file, prefix = 'banner') {

@@ -222,6 +222,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .hs-nav:hover{background:transparent;color:#4b5563;transform:translateY(-50%) scale(1.15);opacity:1}
 .hs-prev{left:-150px}
 .hs-next{right:-150px}
+/* 컨테이너(1200px) 밖 ±150px에 놓이는 화살표가 좁은 데스크톱에서 가로 스크롤을 만들지 않게:
+   자리가 안 나오는 폭(<1520px)에서는 숨김 (자동전환 + 슬라이드 점으로 충분) */
+@media (max-width:1520px){
+  .hs-nav{display:none}
+}
 /* 하단 인디케이터 점 */
 .hs-dots{display:none}  /* 인디케이터 점 숨김 */
 .hs-dot{
@@ -908,20 +913,27 @@ ul,ol{margin:0;padding:0;list-style:none}
   .cat-text{align-items:center}
   .cat-card .nm{font-size:12.5px}
   .cat-card .cnt{font-size:10px}
-  .product-grid{grid-template-columns:repeat(2,1fr)}
-  /* 2열로 좁아지면 데스크탑용 고정 높이(430px)가 과해 카드가 세로로 늘어남 → 내용 높이에 맞춤 */
+  /* 태블릿(561~960px) = 3열. 모바일(≤560px)은 아래 블록에서 2열로 재정의 */
+  .product-grid{grid-template-columns:repeat(3,1fr);gap:14px}
+  /* 3열로 좁아지면 데스크탑용 고정 높이(430px)가 과해 카드가 세로로 늘어남 → 내용 높이에 맞춤 */
   .product-card{min-height:0}
   /* 썸네일 패딩(16px)이 좁은 카드에선 상대적으로 커져 제품이 작아 보임 → PC와 동일한 채움 비율(~90%)로 축소 */
   .product-card .thumb img{padding:8px}
+  /* 3열 카드 폭(~210px)에 맞춰 글자·가격 살짝 축소 — 깨짐/줄넘침 방지 */
+  .product-card .body{padding:12px 12px 14px;gap:4px}
+  .product-card .name{font-size:13.5px;min-height:38px}
+  .product-card .bft{font-size:10px;padding:2px 6px}
+  .product-card .price-row .now strong{font-size:17px}
+  .product-card .price-row .card-applied strong{font-size:17px}
   .detail-top{grid-template-columns:1fr;gap:30px}
   .gallery{position:relative}
   .footer-grid{grid-template-columns:1fr 1fr}
   .gnb{display:none}
-  /* CLS: 2열로 변하면 자연 높이 다름 — min-height 재조정 */
+  /* CLS: 3열로 변하면 자연 높이 다름 — min-height 재조정 */
   .cat-grid:empty{min-height:280px}
-  .product-grid:empty{min-height:880px}
-  #cat-sections:empty{min-height:4000px}
-  #cat-products:empty{min-height:1500px}
+  .product-grid:empty{min-height:640px}
+  #cat-sections:empty{min-height:3200px}
+  #cat-products:empty{min-height:1100px}
 }
 @media (max-width: 960px){
   /* 모바일 hero — 카드/제목 작게 */
@@ -934,7 +946,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 }
 @media (max-width: 560px){
   .cat-grid{grid-template-columns:repeat(4,1fr);gap:4px}  /* 좁은 모바일도 4열 한 줄 유지 */
-  .product-grid{grid-template-columns:repeat(2,1fr)}
+  .product-grid{grid-template-columns:repeat(2,1fr);gap:10px}  /* 모바일 = 2열 */
+  /* 2열 카드 자연 높이 기준 — JS 채우기 전 자리 선점 재조정 */
+  .product-grid:empty{min-height:620px}
+  #cat-sections:empty{min-height:3000px}
+  #cat-products:empty{min-height:1300px}
 
   /* 필터 칩: 줄바꿈 막고 한 줄 유지 + 가로 스크롤 */
   .filter-bar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}

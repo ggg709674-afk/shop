@@ -5,6 +5,14 @@
 const App = (() => {
   let _db = null;
 
+  /* ─── 합본(mobile-shop-rental) 사이트 상수 ───
+     - IMG_BASE: 제품 이미지는 repo에 복사하지 않고 운영 사이트(sk-magic.kr)에서 직접 로드.
+       (meta.json 만 로컬 /products/<gid>/meta.json — 원격 fetch는 CORS에 막힘)
+     - RENTAL_PATH: 이 카탈로그가 서비스되는 단일 경로. SPA 내비게이션이 이 pathname을
+       유지하고 쿼리(?cls=/?id=)만 바꾼다. vercel cleanUrls 로 /rental → rental.html. */
+  const IMG_BASE = 'https://sk-magic.kr';
+  const RENTAL_PATH = '/rental';
+
   /* 카테고리 메타 — dispClsfNo → {라벨, 아이콘 키} */
   const CATEGORY_META = {
     '100000005':  { label: '정수기',           icon: 'water' },
@@ -545,10 +553,10 @@ const App = (() => {
   }
 
   function thumbOf(p) {
-    /* download_thumbs.py 로 떨궈둔 ../products/<gid>/thumb.<ext> 우선 사용 */
+    /* 운영 사이트(sk-magic.kr)의 /products/<gid>/thumb.<ext> 원격 로드 */
     if (!p.thumb) return '';
     const ext = p.thumb_ext || '.png';
-    return `../products/${p.goodsId}/thumb${ext}`;
+    return `${IMG_BASE}/products/${p.goodsId}/thumb${ext}`;
   }
   function thumbFallback(p) {
     return p.thumb || '';
@@ -572,7 +580,7 @@ const App = (() => {
     const halfBadge = halfMonths ? `<div class="half-badge"><span class="m">${halfMonths}개월</span><span class="t">반값</span></div>` : '';
     // 매트리스(1000000245) 카테고리면 워커힐 브랜드 배지 표시
     const isMattress = (p.categories || []).includes('1000000245');
-    const brandBadge = isMattress ? '<span class="brand-badge" style="background-image:url(./assets/brand/walkerhill.png)" aria-label="워커힐"></span>' : '';
+    const brandBadge = isMattress ? '<span class="brand-badge" style="background-image:url(/rental-assets/brand/walkerhill.png)" aria-label="워커힐"></span>' : '';
     // 고객지원금 — 매장이 표시기준 행(코드|형태|의무)에 입력한 값. 이미지 하단 밴드. 0이면 숨김.
     const spEnabled = _custSupport && _custSupport.__enabled === true;   // 매장 카드 노출 마스터(기본 false)
     const supKey = (spEnabled && pol) ? (pol.코드 + '|' + pol.형태 + '|' + pol.의무) : null;
@@ -581,7 +589,7 @@ const App = (() => {
     // 만원 단위 표기 — "지원금 30만원" (이미지 박스 하단 오버레이, 이미지 안 밀어올림)
     const custSupBand = custSup > 0 ? `<div class="cust-support"><span class="cs-l">지원금</span><strong>${Math.round(custSup / 10000)}만원</strong></div>` : '';
     return `
-      <a class="product-card${isMattress ? ' has-brand' : ''}" href="./detail.html?id=${encodeURIComponent(p.goodsId)}">
+      <a class="product-card${isMattress ? ' has-brand' : ''}" href="${RENTAL_PATH}?id=${encodeURIComponent(p.goodsId)}">
         ${brandBadge}
         ${halfBadge}
         <div class="thumb">
@@ -652,7 +660,7 @@ const App = (() => {
     const hv = document.getElementById('hero-visual-img');
     if (hv) {
       const heroId = 'G000069309';
-      const imgBase = `../products/${heroId}/images`;
+      const imgBase = `${IMG_BASE}/products/${heroId}/images`;
       hv.innerHTML = `
         <img class="hv-img-front" src="${imgBase}/main_${heroId}_12_480x480.png" alt="WPUJAC115SNW">
         <img class="hv-img-side"  src="${imgBase}/main_${heroId}_11_480x480.png" alt="WPUJAC115SNW">
@@ -663,7 +671,7 @@ const App = (() => {
     const grid = document.getElementById('cat-grid');
     if (grid) {
       grid.innerHTML = visibleCats.map(c => `
-        <a class="cat-card" href="./index.html?cls=${c.dispClsfNo}">
+        <a class="cat-card" href="${RENTAL_PATH}?cls=${c.dispClsfNo}">
           <div class="ic ${categoryColorClass(c.dispClsfNo)}">${categoryIcon(c.dispClsfNo)}</div>
           <div class="cat-text">
             <div class="nm">${escape(CATEGORY_META[c.dispClsfNo]?.label || c.name || '기타')}</div>
@@ -708,7 +716,7 @@ const App = (() => {
                   <p class="sub">${all.length}개 상품 · 월 구독료 기준</p>
                 </div>
               </div>
-              <a class="more" href="./index.html?cls=${c.dispClsfNo}">전체보기 ${ICONS.arrow()}</a>
+              <a class="more" href="${RENTAL_PATH}?cls=${c.dispClsfNo}">전체보기 ${ICONS.arrow()}</a>
             </div>
             <div class="product-grid">
               ${preview.map(productCard).join('')}
@@ -742,9 +750,9 @@ const App = (() => {
     const bar = document.getElementById('filter-bar');
     if (bar) {
       const visible = orderedVisibleCats(data.categories);
-      const chips = [`<a class="chip ${!cls ? 'on':''}" href="./index.html?view=category">전체</a>`]
+      const chips = [`<a class="chip ${!cls ? 'on':''}" href="${RENTAL_PATH}?view=category">전체</a>`]
         .concat(visible.map(c => `
-          <a class="chip ${cls === c.dispClsfNo ? 'on' : ''}" href="./index.html?cls=${c.dispClsfNo}">
+          <a class="chip ${cls === c.dispClsfNo ? 'on' : ''}" href="${RENTAL_PATH}?cls=${c.dispClsfNo}">
             ${escape(CATEGORY_META[c.dispClsfNo]?.label || c.name)}
           </a>`));
       bar.innerHTML = chips.join('');
@@ -1222,7 +1230,7 @@ const App = (() => {
            || (data._raw_products || []).find(x => x.goodsId === id);
     if (!p) {
       document.getElementById('detail-main').innerHTML =
-        `<div class="empty">상품을 찾을 수 없습니다.<br><br><a class="btn btn-ghost" href="./index.html">홈으로</a></div>`;
+        `<div class="empty">상품을 찾을 수 없습니다.<br><br><a class="btn btn-ghost" href="${RENTAL_PATH}">홈으로</a></div>`;
       return;
     }
     // 그룹 정보 (색상 선택 UI용)
@@ -1235,7 +1243,8 @@ const App = (() => {
       meta = window.PRODUCTS_META[id];
     } else {
       try {
-        const r = await fetch(`../products/${encodeURIComponent(id)}/meta.json`);
+        // meta.json 은 로컬(repo /products/<gid>/meta.json) — 원격(sk-magic.kr)은 CORS로 막힘
+        const r = await fetch(`/products/${encodeURIComponent(id)}/meta.json`);
         if (r.ok) meta = await r.json();
       } catch {}
     }
@@ -1243,16 +1252,16 @@ const App = (() => {
     // breadcrumb
     const cls = (p.categories || [])[0];
     document.getElementById('crumb').innerHTML = `
-      <a href="./index.html">홈</a> &nbsp;›&nbsp;
-      <a href="./category.html?cls=${cls}">${escape(categoryName(cls))}</a> &nbsp;›&nbsp;
+      <a href="${RENTAL_PATH}">홈</a> &nbsp;›&nbsp;
+      <a href="${RENTAL_PATH}?cls=${cls}">${escape(categoryName(cls))}</a> &nbsp;›&nbsp;
       <span>${escape(p.name)}</span>`;
 
     // gallery
     let mainImgs = (meta && meta.main_images) ? meta.main_images : [p.thumb];
-    // 자체 호스팅 경로로 교체
+    // 운영 사이트(sk-magic.kr) 호스팅 경로로 교체
     const localMainImgs = mainImgs.map(u => {
       const fn = u.split('/').pop();
-      return `../products/${id}/images/main_${fn}`;
+      return `${IMG_BASE}/products/${id}/images/main_${fn}`;
     });
 
     const galleryMain = document.getElementById('gallery-main');
@@ -1266,7 +1275,7 @@ const App = (() => {
       if (isMattress) {
         const badge = document.createElement('span');
         badge.className = 'brand-badge';
-        badge.style.backgroundImage = "url('./assets/brand/walkerhill.png')";
+        badge.style.backgroundImage = "url('/rental-assets/brand/walkerhill.png')";
         badge.setAttribute('aria-label', '워커힐');
         galleryEl.prepend(badge);
       }
@@ -1379,7 +1388,7 @@ const App = (() => {
             const isOn = s.model === myModel;
             return `
             <a class="cp-chip ${isOn ? 'on' : ''}"
-               href="./detail.html?id=${encodeURIComponent(s.goodsId)}"
+               href="${RENTAL_PATH}?id=${encodeURIComponent(s.goodsId)}"
                title="${escape(s.color.name)} · ${escape(sModelCode)}">
               <span class="cp-dot" style="${escape(s.color.style)}"></span>
             </a>
@@ -1503,8 +1512,8 @@ const App = (() => {
       if (filtered.length) {
         info.innerHTML = filtered.map(({ u, i }) => {
           const fn = u.split('/').pop();
-          const local = `../products/${id}/images/detail_${String(i).padStart(2,'0')}_${fn}`;
-          // 상세 컷 전부 우리 서버(repo/vercel)에 저장 — 본사 핫링크 안 함.
+          const local = `${IMG_BASE}/products/${id}/images/detail_${String(i).padStart(2,'0')}_${fn}`;
+          // 상세 컷은 운영 사이트(sk-magic.kr)에 저장된 파일을 원격 로드 (합본 repo에는 이미지 미복사).
           // 26.5월부터 본사가 애니메이션 컷을 <video src=*.mp4> 로 직접 제공 — 그대로 video 렌더.
           if (/\.mp4(\?|$)/i.test(fn)) {
             return `<video src="${escape(local)}" autoplay loop muted playsinline preload="metadata" onerror="this.style.display='none'"></video>`;
@@ -1595,9 +1604,10 @@ const App = (() => {
     if (!opts || !opts.keepScroll) window.scrollTo(0, 0);
   }
 
-  /* 클릭 가로채기 — index.html / category.html / detail.html 링크는 SPA 처리 */
+  /* 클릭 가로채기 — 카탈로그 내부 링크(/rental?… 또는 구 *.html?…)는 SPA 처리.
+     합본 사이트: 경로는 항상 RENTAL_PATH(/rental) 고정, 쿼리(?cls=/?id=)만 바뀐다.
+     새로고침해도 /rental?cls=… 가 그대로 열림 (vercel cleanUrls: /rental → rental.html). */
   function normalizeHref(href) {
-    // category.html?X, detail.html?X, index.html?X 모두 ./index.html?X 로 통일
     if (!href) return null;
     if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) return null;
     try {
@@ -1605,35 +1615,19 @@ const App = (() => {
       // 같은 origin (file:// 또는 http://) 만 SPA 처리
       if (url.origin !== location.origin) return null;
       const path = url.pathname;
-      // *.html 만 처리
-      if (!/(?:index|category|detail)\.html$/i.test(path)) return null;
-      // index.html 로 통일
-      const base = path.replace(/(?:category|detail)\.html$/i, 'index.html');
-      return base + url.search + url.hash;
+      // /rental(현재 카탈로그 경로) 또는 구 index/category/detail.html 링크만 SPA 처리
+      const isCatalogPath = (path === RENTAL_PATH || path === RENTAL_PATH + '.html' || path === location.pathname);
+      const isLegacyHtml = /(?:index|category|detail)\.html$/i.test(path);
+      if (!isCatalogPath && !isLegacyHtml) return null;
+      // 경로는 /rental 로 고정, 쿼리·해시만 유지
+      return RENTAL_PATH + url.search + url.hash;
     } catch { return null; }
   }
 
-  /* 프로덕션 멀티테넌트 경로(/{slug})에서 현재 매장 슬러그.
-     dev(/web/index.html), ?store= 쿼리, /index.html 직진입 시엔 null → 기존 링크 그대로. */
-  function pathSlug() {
-    const segs = (location.pathname || '/').split('/').filter(Boolean);
-    const seg = segs[0];
-    if (!seg || seg === 'web') return null;
-    if (/\.html?$/i.test(seg)) return null;
-    if (['admin', '_super', 'assets', 'products', 'data'].includes(seg)) return null;
-    return seg;
-  }
-
-  /* 내부 링크를 SPA 이동 대상 URL로 변환.
-     매장 슬러그가 path에 있으면 /{slug}?cls=…|?id=… 로 유지 (슬러그·깨끗한 URL 보존),
-     아니면 normalizeHref 결과(/index.html?…) 그대로. */
+  /* 내부 링크를 SPA 이동 대상 URL로 변환 — 합본 사이트는 슬러그 경로가 없으므로
+     normalizeHref 결과(/rental?…)를 그대로 사용. */
   function navTarget(rawHref) {
-    const norm = normalizeHref(rawHref);
-    if (!norm) return null;
-    const slug = pathSlug();
-    if (!slug) return norm;
-    const u = new URL(norm, location.origin);
-    return '/' + slug + u.search + u.hash;
+    return normalizeHref(rawHref);
   }
 
   function attachClickHandler() {

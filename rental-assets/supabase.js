@@ -1,7 +1,8 @@
 /* ============================================================
    supabase.js — Supabase 클라이언트 초기화 + 공통 헬퍼
    - CDN의 supabase-js v2 글로벌 사용 (window.supabase)
-   - 슬러그 파싱: URL ?store= 우선, 없으면 path /{slug}/...
+   - 슬러그: rental.html <head>의 window.RENTAL_STORE_SLUG 고정 사용
+     (멀티테넌트 ?store=/path 파싱은 합본 사이트에서 제거됨 — skmGetSlug 참조)
    ============================================================ */
 
 (function(){
@@ -22,65 +23,36 @@
     },
   });
 
-  /* ─── 슬러그 파싱 ─────────────────────────────────
-     우선순위:
-       1) ?store=xxx  (query string — 개발/테스트 편의)
-       2) /xxx/...    (pathname 첫 segment)
-       3) null        (루트 또는 매장 슬러그 없음)
-     예약 슬러그: _super (본부), admin (단일 매장 admin 직진입)
-  ─────────────────────────────────────────────────── */
-  const RESERVED = new Set(['admin', '_super', 'assets', 'products', 'data', 'web', 'card-benefits', 'faq', 'terms', 'privacy']);
-
+  /* ─── 매장 슬러그 — 합본(mobile-shop-rental) 사이트는 단일 매장 고정 ─────
+     원래 멀티테넌트(sk-magic.kr/{슬러그})의 path 파싱이었지만, 합본 사이트는
+     /rental 단일 페이지라 path 를 슬러그로 해석하면 안 됨('rental'이 매장으로 오인).
+     → rental.html <head> 의 window.RENTAL_STORE_SLUG 를 그대로 사용.
+       매장을 바꾸려면 rental.html 의 RENTAL_STORE_SLUG 와 아래 fallback('skmagic')을 함께 수정. */
   window.skmGetSlug = function(){
-    try {
-      const params = new URLSearchParams(location.search);
-      const fromQuery = params.get('store');
-      if (fromQuery) return fromQuery.trim();
-    } catch(_){}
-    // dev 환경: /web/admin.html → 'web' segment 건너뛰기
-    const segs = (location.pathname || '/').split('/').filter(Boolean);
-    let seg = segs[0];
-    if (seg === 'web') seg = segs[1];
-    if (!seg) return null;
-    if (RESERVED.has(seg)) return null;
-    if (/\.html?$/i.test(seg)) return null;
-    return seg;
+    return window.RENTAL_STORE_SLUG || 'skmagic';
   };
 
   /* ─── 매장 경로 헬퍼 ───────────────────────────────
-     매장 컨텍스트(슬러그)가 있으면 path 앞에 /{slug} 를 붙이고,
-     없으면(본부/루트) 그대로 둔다. 멀티테넌트 정적페이지 링크 생성용.
-     예) skmStorePath('/card-benefits') → '/sample/card-benefits' (매장) | '/card-benefits' (본부)
-  ─────────────────────────────────────────────────── */
+     합본 사이트는 슬러그 경로 prefix 가 없음 — 정적페이지(/card-benefits 등)는
+     모두 루트에 그대로 있으므로 경로를 변경하지 않는다. */
   window.skmStorePath = function(p){
-    const s = window.skmGetSlug();
-    if (!s) return p;                       // 본부/매장없음 → 전역 경로 그대로
-    return '/' + s + (p.charAt(0) === '/' ? p : '/' + p);
+    return p;
   };
 
-  /* ─── 페이지 내 링크에 매장 슬러그 주입 ─────────────
-     정적 정보페이지(card-benefits/faq/terms/privacy)와 SPA 헤더에서,
-     매장 슬러그가 있을 때 내부 링크가 슬러그를 잃지 않게 보정한다.
-       - 정적페이지 링크  /card-benefits 등        → /{slug}/card-benefits
-       - (opts.catalog) 카탈로그 링크 ./index.html?… → /{slug}?…  (정적페이지에서만)
-     본부/매장없음이면 아무것도 안 함(전역 링크 유지). 외부·앵커·tel/mailto 링크는 건드리지 않음.
-  ─────────────────────────────────────────────────── */
+  /* ─── 페이지 내 링크 보정 (합본 사이트) ─────────────
+     정적 정보페이지(/card-benefits·/faq·/terms·/privacy)는 루트 그대로 두고,
+     구 카탈로그 링크(./index.html?…|category.html?…|detail.html?…)만 /rental?… 로 바꾼다.
+     (정적페이지 헤더/푸터의 카탈로그 링크가 모바일샵 index.html 로 가는 것 방지 안전망.)
+     외부·앵커·tel/mailto 링크는 건드리지 않음. */
   window.skmLocalizeLinks = function(opts){
     opts = opts || {};
-    const s = window.skmGetSlug();
-    if (!s) return;                         // 본부 → 전역 링크 그대로 둔다
-    const prefix = '/' + s;
-    const STATIC = /^\/(?:card-benefits|faq|terms|privacy)(?=$|[/?#])/;
     const CATALOG = /^\.?\/?(?:index|category|detail)\.html(\?[^#]*)?(#.*)?$/i;
     document.querySelectorAll('a[href]').forEach(function(a){
       const raw = a.getAttribute('href');
       if (!raw || /^(?:#|mailto:|tel:|javascript:|https?:|\/\/)/i.test(raw)) return;
       if (a.dataset.skmLocalized) return;   // 중복 보정 방지(재렌더 대비)
-      if (STATIC.test(raw)) { a.setAttribute('href', prefix + raw); a.dataset.skmLocalized = '1'; return; }
-      if (opts.catalog) {
-        const m = raw.match(CATALOG);
-        if (m) { a.setAttribute('href', prefix + (m[1] || '') + (m[2] || '')); a.dataset.skmLocalized = '1'; return; }
-      }
+      const m = raw.match(CATALOG);
+      if (m) { a.setAttribute('href', '/rental' + (m[1] || '') + (m[2] || '')); a.dataset.skmLocalized = '1'; }
     });
   };
 
