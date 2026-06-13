@@ -55,6 +55,8 @@
   html.msr-embed .scroll{ position:static; inset:auto; height:auto; overflow:visible; }
   html.msr-embed .msr-head{ display:none; }   /* 상단 탭은 부모 샵이 제공 */
   html.msr-embed .msr-sub{ top:0; }           /* 헤더 없으니 맨 위에 sticky */
+  /* 임베드 시 자체 상담 FAB·팝업 숨김 — 떠다니는 상담 버튼은 샵 공통 FAB(카톡/전화)로 통일 */
+  html.msr-embed .fab-consult, html.msr-embed .fab-popup{ display:none !important; }
   /* 임베드 시 스크롤은 iframe 문서(html)로 옮겨감 → 기본 스크롤바 숨김 (샵 패널과 동일하게 깔끔) */
   html.msr-embed{ scrollbar-width:none; -ms-overflow-style:none; }
   html.msr-embed::-webkit-scrollbar{ width:0; height:0; display:none; }

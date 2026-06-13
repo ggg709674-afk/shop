@@ -128,8 +128,7 @@
     transform:translateY(0);
     transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1), height .3s ease, padding .3s ease;
   }
-  /* 렌탈 패널에선 샵 FAB·맨위로 버튼 숨김 — 렌탈 iframe이 자체 FAB·맨위로를 가지므로 (빨간 버튼 두겹 방지) */
-  .scroll.on-rental ~ .fab,
+  /* 렌탈 패널: 상담 FAB는 샵 공통 FAB(카톡/전화 펼침형)로 통일해 표시. 맨위로 버튼만 숨김(렌탈 iframe이 자체 맨위로 보유) */
   .scroll.on-rental ~ .top-btn { display:none !important; }
   /* compact(로고 숨김) 시 렌탈 iframe을 위로 올려 탭 바로 아래에 붙임 — 휴대폰/인터넷의 sub-nav 슬라이드업(-44px)과 동일 원리 */
   .scroll.compact-mode #panel-rental { transform: translateY(-50px); transition: transform .42s cubic-bezier(.4,0,.2,1); }

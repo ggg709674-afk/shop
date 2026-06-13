@@ -42,6 +42,8 @@
   /* ===== 임베드(샵 iframe) 모드: 자체 유틸바/헤더 숨기고 브랜드 소메뉴만 — 샵 탭이 위에 있으므로 메뉴 보존 ===== */
   html.msr-embed .util-bar, html.msr-embed .site-header{ display:none; }
   html.msr-embed body{ background:#fff; }
+  /* 임베드 시 자체 상담 FAB·팝업 숨김 — 떠다니는 상담 버튼은 샵 공통 FAB로 통일 (보던상품 돌아가기 버튼은 유지) */
+  html.msr-embed .fab-consult, html.msr-embed .fab-popup{ display:none !important; }
   .msr-embed-sub{ display:none; }
   html.msr-embed .msr-embed-sub{
     display:flex; align-items:center; position:sticky; top:0; z-index:50;
