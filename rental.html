@@ -9,6 +9,9 @@
   /* ★ 합본 사이트 매장 슬러그 고정 — 멀티테넌트 path 파싱 대신 이 값을 사용.
      매장(데이터)을 바꾸려면 여기와 rental-assets/supabase.js 의 fallback('skmagic')을 함께 수정. */
   window.RENTAL_STORE_SLUG = 'skmagic';
+  /* 임베드 모드 — 샵(/) carousel의 iframe 안에서 열릴 때: 폰 프레임/상단 탭 제거, 콘텐츠만.
+     상단 탭(휴대폰/인터넷/렌탈)은 부모 샵이 제공하므로 여기선 숨김. */
+  try { if (location.search.indexOf('embed=1') >= 0 || window.self !== window.top) document.documentElement.classList.add('msr-embed'); } catch(e){}
 </script>
 <link rel="stylesheet" href="/rental-assets/style.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png">
@@ -45,6 +48,13 @@
     -webkit-overflow-scrolling:touch; overflow-anchor:none; background:#fff;
   }
   .scroll::-webkit-scrollbar{ width:0 }
+  /* ── 임베드 모드(샵 carousel iframe 안): 폰 프레임 제거 + 상단 탭 숨김, 콘텐츠가 iframe을 꽉 채우고 내부 스크롤 ── */
+  html.msr-embed body{ display:block; padding:0; margin:0; background:#fff; min-height:0; }
+  html.msr-embed .device{ width:100%; height:auto; border:0; border-radius:0; box-shadow:none; transform:none; overflow:visible; isolation:auto; }
+  html.msr-embed .device::before{ display:none; }
+  html.msr-embed .scroll{ position:static; inset:auto; height:auto; overflow:visible; }
+  html.msr-embed .msr-head{ display:none; }   /* 상단 탭은 부모 샵이 제공 */
+  html.msr-embed .msr-sub{ top:0; }           /* 헤더 없으니 맨 위에 sticky */
   @media (max-width:480px){
     body{ padding:0; display:block; background:#fff; }
     .device{
@@ -650,24 +660,27 @@
   /* ===== 맨 위로 버튼 — 폰 프레임(.device) 안에 마운트 + 내부 .scroll 컨테이너 기준으로 동작 =====
      원본(supabase.js)은 body에 붙이고 window 스크롤을 들어서 합본(내부 스크롤)에선 안 보임/안 눌림 → 여기서 재정의 */
   window.skmMountScrollTop = function(){
-    var scrollEl = document.querySelector('.scroll');
-    var host = document.querySelector('.device') || document.body;
-    if (!scrollEl) return;
+    var embed = document.documentElement.classList.contains('msr-embed');
+    // 임베드 모드: iframe 문서(window)가 스크롤 / 단독 모드: 내부 .scroll 컨테이너가 스크롤
+    var scrollEl = embed ? null : document.querySelector('.scroll');
+    var host = embed ? document.body : (document.querySelector('.device') || document.body);
+    if (!embed && !scrollEl) return;
     var old = document.getElementById('scroll-top'); if (old) old.remove();
     var btn = document.createElement('button');
     btn.id = 'scroll-top'; btn.className = 'scroll-top'; btn.type = 'button'; btn.setAttribute('aria-label', '맨 위로');
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
     host.appendChild(btn);
-    btn.addEventListener('click', function(){ scrollEl.scrollTo({ top:0, behavior:'smooth' }); btn.blur(); });
-    var lastY = scrollEl.scrollTop;
+    var getY = embed ? function(){ return window.scrollY; } : function(){ return scrollEl.scrollTop; };
+    btn.addEventListener('click', function(){ (embed ? window : scrollEl).scrollTo({ top:0, behavior:'smooth' }); btn.blur(); });
+    var lastY = getY();
     function onScroll(){
-      var y = scrollEl.scrollTop;
+      var y = getY();
       if (y < lastY) btn.classList.remove('show');      // 위로 올림 → 숨김
       else if (y > 300) btn.classList.add('show');       // 충분히 내려옴 → 표시
       if (y <= 0) btn.classList.remove('show');
       lastY = y;
     }
-    scrollEl.addEventListener('scroll', onScroll, { passive:true });
+    (embed ? window : scrollEl).addEventListener('scroll', onScroll, { passive:true });
     onScroll();
   };
   window.skmMountScrollTop();

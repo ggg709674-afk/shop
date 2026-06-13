@@ -216,12 +216,15 @@
   .panels {
     position:relative; left:0;
     display:flex; align-items:flex-start;
-    width:200%;
+    width:300%;
     transition:left .35s cubic-bezier(.32,.72,0,1), height .3s ease;
   }
   .panel {
-    width:50%; flex-shrink:0;
+    width:33.3333%; flex-shrink:0;
   }
+  /* 렌탈 패널 = SK매직 카탈로그를 iframe으로 임베드 (carousel 슬라이드로 진입) */
+  #panel-rental { align-self:stretch; }
+  #rental-frame { width:100%; border:0; display:block; background:#fff; }
 
   /* ───── 공통 컨테이너 ───── */
   .pad { padding:0 20px; }
@@ -1177,6 +1180,11 @@
 
   </div><!-- /panel-internet -->
 
+  <!-- ╔═══════ 패널: 렌탈 (SK매직 카탈로그 iframe 임베드) ═══════╗ -->
+  <div class="panel" id="panel-rental">
+    <iframe id="rental-frame" title="렌탈" loading="lazy"></iframe>
+  </div><!-- /panel-rental -->
+
   </div><!-- /panels -->
 
 </div><!-- /scroll -->
@@ -1385,17 +1393,32 @@
   var catNav = document.getElementById('cat-nav');
   var scrollEl = document.querySelector('.scroll');
   var panelsEl = document.getElementById('panels');
-  var catOrder = ['phone', 'internet']; // rental은 별도 페이지(/rental)로 이동
+  var catOrder = ['phone', 'internet', 'rental'];
   var currentIdx = 0;
+
+  var headEl = document.querySelector('.head');
+
+  function mountRentalFrame() {
+    var f = document.getElementById('rental-frame');
+    if (f && !f.getAttribute('src')) f.setAttribute('src', '/rental?embed=1');
+  }
+  // 샵 초기 렌더 후 렌탈 iframe 백그라운드 프리로드 → 첫 슬라이드도 매끄럽게
+  setTimeout(mountRentalFrame, 1200);
 
   function syncPanelsHeight() {
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
-    if (active && panelsEl) {
+    if (!active || !panelsEl) return;
+    if (catOrder[currentIdx] === 'rental') {
+      // 렌탈은 iframe — 헤더 아래 공간을 꽉 채우고 내부 스크롤 (높이 동기화)
+      var frame = document.getElementById('rental-frame');
+      var h = scrollEl.clientHeight - (headEl ? headEl.offsetHeight : 0);
+      if (h < 0) h = scrollEl.clientHeight;
+      if (frame) frame.style.height = h + 'px';
+      panelsEl.style.height = h + 'px';
+    } else {
       panelsEl.style.height = active.scrollHeight + 'px';
     }
   }
-
-  var headEl = document.querySelector('.head');
 
   function showCat(cat) {
     var newIdx = catOrder.indexOf(cat);
@@ -1438,8 +1461,8 @@
 
   catNav.querySelectorAll('button').forEach(function(b) {
     b.addEventListener('click', function() {
-      // 렌탈 탭 → SK매직 카탈로그 페이지로 즉시 이동 (전환 애니메이션 없음)
-      if (b.dataset.cat === 'rental') { location.href = '/rental'; return; }
+      // 렌탈 탭 → 같은 carousel의 3번째 패널(iframe)로 슬라이드. 첫 진입 시 iframe 로드.
+      if (b.dataset.cat === 'rental') { mountRentalFrame(); }
       showCat(b.dataset.cat);
     });
   });
