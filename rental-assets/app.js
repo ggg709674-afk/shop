@@ -1561,10 +1561,10 @@ const App = (() => {
   function updateGnbActive() {
     const params = new URLSearchParams(location.search);
     const cls = params.get('cls');
-    document.querySelectorAll('.gnb a, .msr-sub a').forEach(a => {
+    // .gnb(카탈로그 자체 카테고리 링크)만 cls 기준 active. 브랜드 서브메뉴(.msr-sub)는 SK매직 고정 active라 제외.
+    document.querySelectorAll('.gnb a').forEach(a => {
       const aCls = new URL(a.href, location.href).searchParams.get('cls');
-      // 카테고리 링크: cls 일치 시 active. '전체'(cls 없는 링크)는 현재 cls가 없을 때 active.
-      a.classList.toggle('active', aCls ? (aCls === cls) : !cls);
+      a.classList.toggle('active', !!cls && aCls === cls);
     });
   }
 
@@ -1602,7 +1602,11 @@ const App = (() => {
     // 부수효과
     updateGnbActive();
     // 색상 chip 클릭 등 같은 상품군 내 이동은 스크롤 유지 (UX: 사용자가 보고있던 위치 보존)
-    if (!opts || !opts.keepScroll) { window.scrollTo(0, 0); var _sc = document.querySelector('.scroll'); if (_sc) _sc.scrollTop = 0; }
+    if (!opts || !opts.keepScroll) {
+      window.scrollTo(0, 0);
+      var _sc = document.querySelector('.scroll'); if (_sc) { _sc.scrollTop = 0; _sc.classList.remove('compact-mode'); }
+      var _hd = document.querySelector('.msr-head'); if (_hd) _hd.classList.remove('compact'); // 페이지 전환 시 헤더 펼침 복원
+    }
   }
 
   /* 클릭 가로채기 — 카탈로그 내부 링크(/rental?… 또는 구 *.html?…)는 SPA 처리.

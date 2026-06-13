@@ -54,30 +54,45 @@
     .device::before{ display:none }
   }
 
-  /* ── 상단 메뉴 (휴대폰샵 .head 복제: 브랜드행 + 탭행) ── */
-  .msr-head{ position:sticky; top:0; z-index:300; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
-  .msr-top{ display:flex; align-items:center; justify-content:space-between; padding:10px 20px 4px; height:54px; box-sizing:border-box; }
+  /* ── 상단 메뉴 (휴대폰샵 .head 복제: 브랜드행 + 탭행 + 스크롤 시 compact) ── */
+  .msr-head{ position:sticky; top:0; z-index:300; background:#fff; border-bottom:1px solid var(--line,#E8E8E8);
+    clip-path:inset(0 0 0 0); transition:clip-path .3s ease, border-bottom-color .3s ease; }
+  .msr-top{ display:flex; align-items:center; justify-content:space-between; padding:10px 20px 4px; height:54px; box-sizing:border-box;
+    transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1); }
   .msr-brand{ font-size:18px; font-weight:800; letter-spacing:-.04em; color:#222; text-decoration:none; }
   .msr-brand span{ color:var(--primary,#DE4F41); }
   .msr-top-r{ display:flex; gap:2px; }
   .msr-ic{ width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#222; position:relative; background:none; border:0; cursor:pointer; }
   .msr-ic svg{ width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
   .msr-ic-bd{ position:absolute; top:6px; right:6px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--primary,#DE4F41); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #fff; }
-  .msr-cat-nav{ display:flex; gap:22px; padding:2px 20px 8px; }
+  .msr-cat-nav{ display:flex; gap:22px; padding:2px 20px 8px; transition:transform .42s cubic-bezier(.4,0,.2,1); }
   .msr-cat-nav a{ font-size:17px; font-weight:300; line-height:22px; letter-spacing:-.035em; color:#9090B0; text-decoration:none; }
   .msr-cat-nav a.on{ color:#222; font-weight:600; }
+  /* compact: 아래로 스크롤하면 브랜드행(.msr-top) 숨고 탭행이 위로 올라붙음 (휴대폰샵과 동일) */
+  .msr-head.compact{ border-bottom-color:transparent; clip-path:inset(0 0 54px 0); }
+  .msr-head.compact .msr-top{ opacity:0; transform:translateY(-12px); pointer-events:none; }
+  .msr-head.compact .msr-cat-nav{ transform:translateY(-54px); }
 
   /* ── 배너 (휴대폰/인터넷과 동일: 고정 비율 가로 띠 + cover) ── */
   .banner-wide{ display:block; overflow:hidden; width:100%; aspect-ratio:750/260; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
   .banner-wide .banner-img{ display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
 
-  /* ── 카테고리 서브메뉴 (배너 아래 · 휴대폰샵 .sub-nav 그대로: 점 구분, 로고 없음) ── */
-  .msr-sub{ position:sticky; top:84px; z-index:290; display:flex; align-items:center; padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none; }
+  /* ── 브랜드 서브메뉴 (배너 아래 · 휴대폰샵 .sub-nav 그대로: 색 스와치 + 점 구분) ── */
+  .msr-sub{ position:sticky; top:84px; z-index:290; display:flex; align-items:center; padding:6px 20px 10px; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); overflow-x:auto; scrollbar-width:none;
+    transition:transform .42s cubic-bezier(.4,0,.2,1); }
   .msr-sub::-webkit-scrollbar{ display:none }
-  .msr-sub a{ flex-shrink:0; font-size:13px; font-weight:400; letter-spacing:-.012em; color:#9090B0; text-decoration:none; padding:3px 12px; }
+  .msr-sub a{ flex-shrink:0; display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:400; letter-spacing:-.012em; color:#9090B0; text-decoration:none; padding:3px 12px; }
   .msr-sub a:first-of-type{ padding-left:0; }
   .msr-sub a.active{ color:#222; font-weight:600; }
+  .msr-sub a.msr-soon{ color:#BFBFC8; }   /* 입점 준비중 브랜드 — 흐리게 */
   .msr-dot{ flex-shrink:0; width:3px; height:3px; border-radius:50%; background:#CFCFD8; }
+  /* 브랜드 색 스와치 (휴대폰샵 통신사 스와치와 동일 톤) */
+  .msr-bswatch{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .msr-bswatch.skm{ background:#11A8A0; }    /* SK매직 */
+  .msr-bswatch.cho{ background:#2E6FD0; }    /* 청호나이스 */
+  .msr-bswatch.coway{ background:#1C4E8A; }  /* 코웨이 */
+  /* compact 시 서브메뉴도 위로 올라붙음 */
+  .scroll.compact-mode .msr-sub{ transform:translateY(-54px); }
 
   /* 상세 탭바 sticky 기준 — 메뉴(84) + 서브바(약 33) 아래 */
   .detail-tabs .tabbar{ top:117px; }
@@ -132,8 +147,8 @@
   .product-card .thumb .cust-support .cs-l{ font-size:7px !important; margin-bottom:0 !important; }
   .product-card .thumb .cust-support strong{ font-size:10.5px !important; }
 
-  /* 카탈로그 카테고리 뷰의 자체 칩 네비(.filter-bar)는 상단 서브메뉴(.msr-sub)와 중복 → 숨김 */
-  #filter-bar{ display:none !important; }
+  /* 카탈로그 카테고리 뷰의 칩 네비(.filter-bar) = 제품 카테고리 전환 (브랜드 서브메뉴와 별개 역할이라 표시) */
+  .filter-bar{ padding:12px 0 14px !important; margin-bottom:16px !important; }
 </style>
 </head>
 <body>
@@ -166,18 +181,14 @@
   </div>
 </section>
 
-<!-- ===== 카테고리 서브메뉴 (배너 아래 · 모바일샵 .sub-nav 스타일 그대로 · 로고 없음) =====
-     app.js updateGnbActive 가 cls 기준으로 active 표시 (cls 없으면 '전체'). -->
+<!-- ===== 브랜드 서브메뉴 (배너 아래 · 휴대폰샵 통신사 서브메뉴와 동일 구조: 색 스와치 + 점 구분) =====
+     SK매직만 상품 보유 → 항상 active. 청호나이스/코웨이는 입점 준비중(클릭 시 안내). -->
 <nav class="msr-sub">
-  <a href="/rental" class="active">전체</a>
+  <a href="/rental" class="active"><span class="msr-bswatch skm"></span>SK매직</a>
   <span class="msr-dot"></span>
-  <a href="/rental?cls=100000005">정수기</a>
+  <a href="#" class="msr-soon" data-soon="청호나이스"><span class="msr-bswatch cho"></span>청호나이스</a>
   <span class="msr-dot"></span>
-  <a href="/rental?cls=100000010">공기청정기</a>
-  <span class="msr-dot"></span>
-  <a href="/rental?cls=100000024">비데</a>
-  <span class="msr-dot"></span>
-  <a href="/rental?cls=1000000245">매트리스</a>
+  <a href="#" class="msr-soon" data-soon="코웨이"><span class="msr-bswatch coway"></span>코웨이</a>
 </nav>
 
 <!-- ============================================================
@@ -585,6 +596,57 @@
       if (e.key === 'Escape' && !popup.hidden) popup.hidden = true;
     });
   })();
+
+  /* ===== 상단 메뉴 compact — 아래로 스크롤 시 브랜드행(상호) 숨김, 위로/맨위에선 복원 (휴대폰샵과 동일) ===== */
+  (function(){
+    var scrollEl = document.querySelector('.scroll');
+    var headEl = document.querySelector('.msr-head');
+    if (!scrollEl || !headEl) return;
+    var prevSt = scrollEl.scrollTop, accumDy = 0, lastSign = 0, lockUntil = 0;
+    var TRIGGER = 12;
+    scrollEl.addEventListener('scroll', function(){
+      var now = performance.now();
+      var st = scrollEl.scrollTop;
+      var dy = st - prevSt; prevSt = st;
+      if (now < lockUntil) { accumDy = 0; return; }
+      var sign = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
+      if (sign !== 0 && sign !== lastSign) { accumDy = 0; lastSign = sign; }
+      accumDy += dy;
+      var isC = headEl.classList.contains('compact');
+      if (st < 30) {
+        if (isC) { headEl.classList.remove('compact'); scrollEl.classList.remove('compact-mode'); lockUntil = now + 200; }
+        accumDy = 0;
+      } else if (accumDy > TRIGGER && !isC && st > 110) {   // 배너 지나 서브메뉴가 헤더에 붙은 뒤에만 compact
+        headEl.classList.add('compact'); scrollEl.classList.add('compact-mode'); lockUntil = now + 200; accumDy = 0;
+      } else if (accumDy < -TRIGGER && isC) {
+        headEl.classList.remove('compact'); scrollEl.classList.remove('compact-mode'); lockUntil = now + 200; accumDy = 0;
+      }
+    }, { passive:true });
+  })();
+
+  /* ===== 입점 준비중 브랜드(청호나이스/코웨이) 클릭 시 안내 토스트 ===== */
+  (function(){
+    var nav = document.querySelector('.msr-sub');
+    if (!nav) return;
+    nav.addEventListener('click', function(e){
+      var a = e.target.closest('a.msr-soon');
+      if (!a) return;
+      e.preventDefault();
+      var name = a.getAttribute('data-soon') || '해당 브랜드';
+      var t = document.getElementById('msr-toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'msr-toast';
+        t.style.cssText = 'position:absolute;left:50%;bottom:84px;transform:translateX(-50%);z-index:700;background:rgba(34,34,34,.92);color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:20px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none';
+        (document.querySelector('.device') || document.body).appendChild(t);
+      }
+      t.textContent = '🚧 ' + name + ' 입점 준비중이에요';
+      requestAnimationFrame(function(){ t.style.opacity = '1'; });
+      clearTimeout(t._h);
+      t._h = setTimeout(function(){ t.style.opacity = '0'; }, 1800);
+    });
+  })();
+
   if (window.skmMountScrollTop) window.skmMountScrollTop();
   document.getElementById('ic-arr1').innerHTML = ICONS.arrow();
   document.getElementById('ic-arr2').innerHTML = ICONS.arrow();
