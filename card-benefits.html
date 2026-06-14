@@ -30,7 +30,7 @@
   /* ===== 보던 상품으로 돌아가기 — 화면 하단 floating (상세에서 진입했을 때만) ===== */
   .cb-back{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:90;margin:0;text-align:center}
   .cb-back[hidden]{display:none}
-  .cb-back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#fff;
+  .cb-back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#fff;white-space:nowrap;
     font-weight:800;font-size:16px;padding:15px 32px;border-radius:999px;text-decoration:none;
     box-shadow:0 10px 30px rgba(222,79,65,.4);transition:.18s}
   .cb-back-btn:hover{background:var(--primary-dark,#c33f33);box-shadow:0 12px 34px rgba(222,79,65,.5);transform:translateY(-1px)}
@@ -44,6 +44,9 @@
   html.msr-embed body{ background:#fff; }
   /* 임베드 시 자체 상담 FAB·팝업 숨김 — 떠다니는 상담 버튼은 샵 공통 FAB로 통일 (보던상품 돌아가기 버튼은 유지) */
   html.msr-embed .fab-consult, html.msr-embed .fab-popup{ display:none !important; }
+  /* 임베드 시 스크롤바 숨김 — iframe 문서 스크롤바가 노출되지 않게 (샵 패널과 동일하게 깔끔) */
+  html.msr-embed{ scrollbar-width:none; -ms-overflow-style:none; }
+  html.msr-embed::-webkit-scrollbar{ width:0; height:0; display:none; }
   .msr-embed-sub{ display:none; }
   html.msr-embed .msr-embed-sub{
     display:flex; align-items:center; position:sticky; top:0; z-index:50;
@@ -151,44 +154,16 @@
   <div class="cb-back" id="cb-back" hidden></div>
 </main>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="brand" style="color:#fff">
-          <img class="brand-logo" src="/rental-assets/brand/logo_white.png" alt="SK magic">
-          <span class="partner-label">인증파트너점</span>
-        </div>
-        <p style="font-size:13px;line-height:1.7;margin-top:12px;color:#A0A0A0">정수기·공기청정기·비데·매트리스 렌탈 전문.<br>궁금한 점은 언제든 편하게 문의주세요.</p>
-      </div>
-      <div><h4>쇼핑</h4><ul>
-        <li><a href="/rental?cls=100000005">정수기</a></li>
-        <li><a href="/rental?cls=100000010">공기청정기</a></li>
-        <li><a href="/rental?cls=100000024">비데</a></li>
-        <li><a href="/rental?cls=1000000245">매트리스</a></li>
-      </ul></div>
-      <div><h4>안내</h4><ul>
-        <li><a href="/card-benefits">제휴카드 안내</a></li>
-        <li><a href="/faq">자주 묻는 질문</a></li>
-      </ul></div>
-      <div><h4>고객센터</h4><ul class="ft-info"><li id="ft-center-phone" style="font-size:22px;color:#fff;font-weight:800;letter-spacing:-0.5px">상담 환영</li></ul></div>
-    </div>
-    <div class="biz-info">
-      <dl class="biz-grid">
-        <div class="biz-row"><dt>상호</dt><dd id="ft-biz-name">—</dd></div>
-        <div class="biz-row"><dt>대표자</dt><dd id="ft-biz-owner">—</dd></div>
-        <div class="biz-row"><dt>사업자등록번호</dt><dd id="ft-biz-no">—</dd></div>
-        <div class="biz-row"><dt>통신판매업</dt><dd id="ft-biz-mailorder">—</dd></div>
-        <div class="biz-row full"><dt>주소</dt><dd id="ft-biz-address">—</dd></div>
-        <div class="biz-row"><dt>대표전화</dt><dd id="ft-biz-phone">—</dd></div>
-        <div class="biz-row"><dt>이메일</dt><dd id="ft-biz-email">—</dd></div>
-      </dl>
-      <p class="biz-note">본 페이지는 SK매직 정식 인증파트너점의 상품 안내 페이지입니다. 상품·가격·설치·약정 상담은 저희 매장으로 편하게 문의해 주세요. 친절하게 안내해 드립니다.</p>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 SK매직 인증파트너점</span>
-      <span><a href="/terms" style="color:inherit">이용약관</a> · <a href="/privacy" style="color:inherit">개인정보처리방침</a></span>
-    </div>
+<!-- 공통 푸터 — 휴대폰샵과 동일 -->
+<footer class="ft">
+  <div class="ft-row">
+    <a href="/terms" target="_top">이용약관</a>·<a href="/privacy" target="_top">개인정보처리방침</a>·<a>판매자 정보</a>·<a>고객센터</a>
+  </div>
+  <div>
+    <b>(주)우주커넥트</b> · 대표 김** · 1577-0000<br>
+    서울 강남구 테헤란로 152 · Mon–Sat 10:00–20:00<br>
+    사업자번호 123-45-67890 · 통신판매업신고 제2026-서울강남-1234호<br>
+    <span class="ft-c">© 2026 우주커넥트. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>
   </div>
 </footer>
 

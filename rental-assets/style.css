@@ -853,6 +853,13 @@ ul,ol{margin:0;padding:0;list-style:none}
 .scroll-top svg{width:20px;height:20px}
 @media (max-width:560px){ .scroll-top{right:16px;bottom:76px;width:50px;height:50px} }
 
+/* ===== 공통 푸터(.ft) — 휴대폰샵 푸터와 동일 (전 페이지 통일) ===== */
+.ft{ padding:32px 20px 24px; font-size:11px; color:#6a6a72; line-height:1.7; border-top:1px solid var(--line); margin-top:24px; background:#fff; }
+.ft b{ color:#333; font-weight:600; }
+.ft-row{ display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+.ft-row a{ color:#333; font-weight:500; font-size:12px; text-decoration:none; }
+.ft-c{ color:#9a9aa2; }
+
 /* PC popup */
 .fab-popup{
   position:fixed;right:24px;bottom:88px;z-index:99;
