@@ -226,6 +226,7 @@
     position:relative; left:0;
     display:flex; align-items:flex-start;
     width:300%;
+    overflow:hidden; /* 비활성 패널이 .panels 높이를 넘쳐 .scroll이 과다 스크롤되는 것 방지 (렌탈 탭에서 푸터 아래 빈 영역으로 밀려내려감 차단). 활성 패널은 height=scrollHeight라 클리핑 안됨 */
     transition:left .35s cubic-bezier(.32,.72,0,1), height .3s ease;
   }
   .panel {
@@ -1449,6 +1450,8 @@
   window.addEventListener('message', function(e) {
     if (!e.data || e.data.type !== 'msr-view') return;
     scrollEl.classList.toggle('rental-subview', catOrder[currentIdx] === 'rental' && e.data.view !== 'home');
+    // 뷰 전환(카탈로그→상세 등) 시 iframe 스크롤 리셋(scrollTo 0)이 compact를 풀어 로고가 보였다 사라지는 현상 방지 → 잠깐 lockout
+    rLockUntil = performance.now() + 800;
   }, false);
 
   function syncPanelsHeight() {
