@@ -629,6 +629,20 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 /* ---------- Detail page ---------- */
 .detail-wrap{padding:40px 20px 80px}
+/* 상세 '뒤로' 떠다니는 버튼 — 좌측 상단 고정 (상세 뷰일 때만 DOM에 렌더됨) */
+.detail-back{
+  position:fixed; top:56px; left:14px; z-index:95;
+  display:inline-flex; align-items:center; gap:3px;
+  padding:9px 15px 9px 11px;
+  background:rgba(255,255,255,.94); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  color:#222; font-size:14px; font-weight:600; line-height:1;
+  border:1px solid var(--line,#ececec); border-radius:999px;
+  box-shadow:0 4px 16px rgba(0,0,0,.14);
+  cursor:pointer; transition:transform .12s, box-shadow .12s;
+}
+.detail-back svg{flex-shrink:0;margin-top:-1px}
+.detail-back:hover{box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.detail-back:active{transform:scale(.95)}
 .breadcrumb{font-size:12px;color:var(--ink-4);margin-bottom:24px}
 .breadcrumb a{color:var(--ink-3)}
 .breadcrumb a:hover{color:var(--ink-1)}

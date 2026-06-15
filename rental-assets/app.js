@@ -1603,9 +1603,16 @@ const App = (() => {
     updateGnbActive();
     // 색상 chip 클릭 등 같은 상품군 내 이동은 스크롤 유지 (UX: 사용자가 보고있던 위치 보존)
     if (!opts || !opts.keepScroll) {
-      window.scrollTo(0, 0);
-      var _sc = document.querySelector('.scroll'); if (_sc) { _sc.scrollTop = 0; _sc.classList.remove('compact-mode'); }
-      var _hd = document.querySelector('.msr-head'); if (_hd) _hd.classList.remove('compact'); // 페이지 전환 시 헤더 펼침 복원
+      if (_pendingScroll != null) {
+        // 상세 '뒤로'로 목록 복귀 — 보던 스크롤 위치로 복원 (맨위 리셋 대신)
+        var _py = _pendingScroll; _pendingScroll = null;
+        try { window.scrollTo(0, _py); } catch(e){}
+        var _scp = document.querySelector('.scroll'); if (_scp) _scp.scrollTop = _py;
+      } else {
+        window.scrollTo(0, 0);
+        var _sc = document.querySelector('.scroll'); if (_sc) { _sc.scrollTop = 0; _sc.classList.remove('compact-mode'); }
+        var _hd = document.querySelector('.msr-head'); if (_hd) _hd.classList.remove('compact'); // 페이지 전환 시 헤더 펼침 복원
+      }
     }
   }
 
@@ -1635,6 +1642,21 @@ const App = (() => {
     return normalizeHref(rawHref);
   }
 
+  /* 상세 → 이전 목록(보던 위치)로 돌아가기.
+     목록(홈/카테고리)에서 상세로 들어갈 때 그 스크롤 위치를 저장하고,
+     상세의 '뒤로' 버튼은 history.back() + 저장한 위치 복원(_pendingScroll). */
+  var _detailBack = null;   // { url, y }
+  var _pendingScroll = null;
+  function _skmScrollPos() {
+    var sc = document.querySelector('.scroll');
+    return Math.max((sc && sc.scrollTop) || 0, window.scrollY || 0, (document.documentElement && document.documentElement.scrollTop) || 0);
+  }
+  function goBackFromDetail() {
+    if (_detailBack) { _pendingScroll = _detailBack.y || 0; _detailBack = null; }
+    if (history.length > 1) { history.back(); }
+    else { history.pushState({}, '', RENTAL_PATH); route(); }
+  }
+
   function attachClickHandler() {
     document.addEventListener('click', (e) => {
       // 수정 키(Ctrl/Cmd/Shift) + 클릭은 새 탭 등 브라우저 기본 동작 유지
@@ -1649,6 +1671,11 @@ const App = (() => {
         return;
       }
       e.preventDefault();
+      // 목록(홈/카테고리)에서 상세(?id=)로 들어갈 때 보던 스크롤 위치 저장 → 상세 '뒤로'로 복원.
+      // 상세→상세(연관상품) 이동 시엔 최초 목록 위치를 유지(덮어쓰지 않음).
+      if (/[?&]id=/.test(norm) && getViewFromUrl() !== 'detail') {
+        _detailBack = { url: location.pathname + location.search + location.hash, y: _skmScrollPos() };
+      }
       history.pushState({}, '', norm);
       // 색상 chip 클릭은 같은 상품군 내 이동 → 스크롤 위치 유지
       const keepScroll = a.classList.contains('cp-chip');
@@ -1680,6 +1707,9 @@ const App = (() => {
       }
     } catch (_) {}
     attachClickHandler();
+    // 상세 '뒤로' 버튼 — 보던 목록 위치로 복원
+    var _backBtn = document.getElementById('detail-back');
+    if (_backBtn) _backBtn.addEventListener('click', function(e){ e.preventDefault(); goBackFromDetail(); });
     // 헤더/푸터의 정적 정보페이지 링크(/card-benefits·/faq·/terms·/privacy)에 매장 슬러그 주입.
     // (카탈로그 링크는 SPA 클릭핸들러가 처리하므로 catalog 옵션은 끈다.)
     if (window.skmLocalizeLinks) window.skmLocalizeLinks();
