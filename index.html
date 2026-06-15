@@ -1510,9 +1510,15 @@
     scrollEl.classList.remove('on-rental');
     syncPanelsHeight();
     if (wasCompact) {
-      // compact 유지 — scrollTop 변경이 방향 로직에 잡혀 un-compact 되지 않도록 lockout
+      // compact(로고 숨김)는 탭 전환해도 유지하되, 새 탭 콘텐츠는 '맨 위'에서 시작해야 함.
+      // (예전엔 scrollTop=250으로 둬서 다른 메뉴가 250px 내려와 보였음) lockout으로 scrollTop=0이
+      // st<30 un-compact 로직에 잡히지 않게 막아 compact 유지 + 콘텐츠 최상단.
       lockUntil = performance.now() + 500;
-      if (scrollEl) scrollEl.scrollTop = 250;
+      accumDy = 0; lastSign = 0;
+      if (scrollEl) {
+        scrollEl.scrollTop = 0; prevSt = 0;
+        requestAnimationFrame(function(){ scrollEl.scrollTop = 0; prevSt = 0; });
+      }
     } else {
       if (scrollEl) {
         scrollEl.scrollTop = 0;
