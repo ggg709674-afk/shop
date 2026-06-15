@@ -1417,6 +1417,14 @@
 
   var headEl = document.querySelector('.head');
 
+  // 각 대메뉴(휴대폰/인터넷)는 '완전 독립' — 자기 스크롤 위치 + 자기 로고(compact) 상태를 따로 기억.
+  // (예전엔 .scroll/compact를 공유해 한 탭을 내리면 다른 탭도 내려가 있거나 로고가 숨은 채로 보였음)
+  var panelMem = { phone: { top: 0, compact: false }, internet: { top: 0, compact: false }, rental: { y: 0, compact: false } };
+  function applyCompactState(on) {
+    headEl.classList.toggle('compact', on);
+    scrollEl.classList.toggle('compact-mode', on);
+  }
+
   function mountRentalFrame() {
     var f = document.getElementById('rental-frame');
     if (f && !f.getAttribute('src')) f.setAttribute('src', '/rental?embed=1');
@@ -1482,6 +1490,16 @@
 
     var wasCompact = headEl.classList.contains('compact');
 
+    // 떠나는 탭의 스크롤 위치 + 로고 상태를 저장 (돌아오면 그대로 복원 → 완전 독립)
+    var oldCat = catOrder[currentIdx];
+    if (oldCat === 'phone' || oldCat === 'internet') {
+      panelMem[oldCat] = { top: scrollEl.scrollTop, compact: wasCompact };
+    } else if (oldCat === 'rental') {
+      var ry = 0;
+      try { var rf0 = document.getElementById('rental-frame'); if (rf0 && rf0.contentWindow) ry = rf0.contentWindow.scrollY || 0; } catch(e){}
+      panelMem.rental = { y: ry, compact: wasCompact };
+    }
+
     catNav.querySelectorAll('button').forEach(function(b) {
       b.classList.toggle('on', b.dataset.cat === cat);
     });
@@ -1491,13 +1509,14 @@
     scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화 (iframe이 곧 실제 뷰를 알림)
 
     if (cat === 'rental') {
-      // 렌탈도 휴대폰/인터넷과 '동일한' compact 상태(.head.compact) 유지 — 탭 전환해도 로고 숨김 유지.
+      // 렌탈도 완전 독립 — 자기 iframe 스크롤 위치 + 로고(compact) 상태를 복원 (다른 탭 영향 안받음).
       scrollEl.classList.add('on-rental');
       rAccum = 0; rLastSign = 0;
       scrollEl.scrollTop = 0;
-      var ty = wasCompact ? 200 : 0;  // compact면 배너 지난 위치로 → 소메뉴가 탭 아래 붙고 로고 계속 숨김
+      applyCompactState(panelMem.rental.compact);
+      var ty = panelMem.rental.y;
       rPrevY = ty;
-      rLockUntil = performance.now() + 700; // 진입 직후 iframe 스크롤 리셋이 compact 토글하지 않도록
+      rLockUntil = performance.now() + 700; // 복원 직후 iframe 스크롤 알림이 compact를 재토글하지 않도록
       syncPanelsHeight();
       try {
         var rf = document.getElementById('rental-frame');
@@ -1506,25 +1525,18 @@
       return;
     }
 
-    // 휴대폰/인터넷
+    // 휴대폰/인터넷 — 들어가는 탭의 '자기' 스크롤 위치 + 로고 상태를 복원 (완전 독립).
+    // 다른 탭에서 내려놨든 로고를 숨겼든 영향받지 않고, 이 탭이 마지막에 있던 그대로 보여줌.
     scrollEl.classList.remove('on-rental');
+    var mem = panelMem[cat] || { top: 0, compact: false };
+    applyCompactState(mem.compact);
     syncPanelsHeight();
-    if (wasCompact) {
-      // compact(로고 숨김)는 탭 전환해도 유지하되, 새 탭 콘텐츠는 '맨 위'에서 시작해야 함.
-      // (예전엔 scrollTop=250으로 둬서 다른 메뉴가 250px 내려와 보였음) lockout으로 scrollTop=0이
-      // st<30 un-compact 로직에 잡히지 않게 막아 compact 유지 + 콘텐츠 최상단.
-      lockUntil = performance.now() + 500;
-      accumDy = 0; lastSign = 0;
-      if (scrollEl) {
-        scrollEl.scrollTop = 0; prevSt = 0;
-        requestAnimationFrame(function(){ scrollEl.scrollTop = 0; prevSt = 0; });
-      }
-    } else {
-      if (scrollEl) {
-        scrollEl.scrollTop = 0;
-        requestAnimationFrame(function(){ scrollEl.scrollTop = 0; });
-      }
-      window.scrollTo(0, 0);
+    // scrollTop 복원 시 scroll 핸들러가 방향로직으로 compact를 토글하지 않도록 lockout
+    lockUntil = performance.now() + 500;
+    accumDy = 0; lastSign = 0;
+    if (scrollEl) {
+      scrollEl.scrollTop = mem.top; prevSt = mem.top;
+      requestAnimationFrame(function(){ scrollEl.scrollTop = mem.top; prevSt = mem.top; });
     }
   }
 
