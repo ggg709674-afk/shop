@@ -132,6 +132,10 @@
   .scroll.on-rental ~ .top-btn { display:none !important; }
   /* 렌탈 상세/카테고리 뷰에선 샵 헤더(탭) 아래 라인 제거 (홈에선 유지) — iframe이 msr-view 메시지로 알림 */
   .scroll.rental-subview .head { border-bottom-color:transparent; }
+  /* 렌탈 '상세' 뷰 = 결정 모드 — 글로벌 헤더(로고+대탭) 완전 숨김. iframe이 전체를 차지하고
+     상세 전용 앱바(iframe 내부 sticky)가 상단을 담당. 브랜드 필터도 iframe 측에서 숨김. */
+  .scroll.rental-detail .head { display:none; }
+  .scroll.rental-detail #panel-rental { transform:none !important; }
   /* compact(로고 숨김) 시 렌탈 iframe을 위로 올려 탭 바로 아래에 붙임 — 휴대폰/인터넷의 sub-nav 슬라이드업(-44px)과 동일 원리 */
   .scroll.compact-mode #panel-rental { transform: translateY(-50px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
   /* 렌탈+compact: 헤더(흰 배경 89px)가 올라온 iframe 상단(브랜드메뉴)을 덮으므로, 헤더를 탭만 남게 clip.
@@ -1443,6 +1447,7 @@
   window.addEventListener('message', function(e) {
     if (!e.data || e.data.type !== 'msr-scroll') return;
     if (catOrder[currentIdx] !== 'rental') return;
+    if (scrollEl.classList.contains('rental-detail')) return; // 상세 모드: 헤더 숨김 상태라 compact 토글 불필요(목록 compact 상태 보존)
     var y = e.data.y || 0;
     // 진입 직후 iframe 스크롤 리셋/클램프가 compact를 잘못 토글하지 않도록 lockout
     if (performance.now() < rLockUntil) { rPrevY = y; rAccum = 0; return; }
@@ -1461,7 +1466,13 @@
   // 렌탈 iframe의 현재 뷰 알림 → 상세/카테고리면 샵 헤더 라인 제거 (홈이면 유지)
   window.addEventListener('message', function(e) {
     if (!e.data || e.data.type !== 'msr-view') return;
-    scrollEl.classList.toggle('rental-subview', catOrder[currentIdx] === 'rental' && e.data.view !== 'home');
+    var onRental = catOrder[currentIdx] === 'rental';
+    scrollEl.classList.toggle('rental-subview', onRental && e.data.view !== 'home');
+    // '상세' 뷰 = 결정 모드: 글로벌 헤더 숨기고 iframe 전체 높이로 (상세 전용 앱바가 상단 담당)
+    var isDetail = onRental && e.data.view === 'detail';
+    var wasDetail = scrollEl.classList.contains('rental-detail');
+    scrollEl.classList.toggle('rental-detail', isDetail);
+    if (isDetail !== wasDetail) syncPanelsHeight(); // 헤더 표시/숨김에 따라 iframe 높이 재조정
     // 뷰 전환(카탈로그→상세 등) 시 iframe 스크롤 리셋(scrollTo 0)이 compact를 풀어 로고가 보였다 사라지는 현상 방지 → 잠깐 lockout
     rLockUntil = performance.now() + 800;
   }, false);
@@ -1474,10 +1485,12 @@
       // #panel-rental를 transform으로 위로 올려(sub-nav가 올라가는 것과 동일) 탭 바로 아래에 붙임.
       var frame = document.getElementById('rental-frame');
       var compact = headEl.classList.contains('compact');
-      var fh = scrollEl.clientHeight - (compact ? 39 : 89);
+      var detail = scrollEl.classList.contains('rental-detail');
+      // 상세 모드: 글로벌 헤더 숨김 → iframe이 화면 전체. 그 외: 헤더(89/compact39) 아래 공간.
+      var fh = detail ? scrollEl.clientHeight : (scrollEl.clientHeight - (compact ? 39 : 89));
       if (fh < 0) fh = scrollEl.clientHeight;
       if (frame) frame.style.height = fh + 'px';
-      panelsEl.style.height = (scrollEl.clientHeight - 89) + 'px'; // 패널 레이아웃은 고정(.scroll 오버플로 방지)
+      panelsEl.style.height = (detail ? scrollEl.clientHeight : (scrollEl.clientHeight - 89)) + 'px'; // 패널 레이아웃 고정(.scroll 오버플로 방지)
     } else {
       panelsEl.style.height = active.scrollHeight + 'px';
     }
@@ -1507,6 +1520,7 @@
     currentIdx = newIdx;
     panelsEl.style.left = -(newIdx * 100) + '%';
     scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화 (iframe이 곧 실제 뷰를 알림)
+    scrollEl.classList.remove('rental-detail');  // 상세 모드 해제 (다른 탭으로 가면 글로벌 헤더 복원)
 
     if (cat === 'rental') {
       // 렌탈도 완전 독립 — 자기 iframe 스크롤 위치 + 로고(compact) 상태를 복원 (다른 탭 영향 안받음).

@@ -55,6 +55,41 @@
   html.msr-embed .scroll{ position:static; inset:auto; height:auto; overflow:visible; }
   html.msr-embed .msr-head{ display:none; }   /* 상단 탭은 부모 샵이 제공 */
   html.msr-embed .msr-sub{ top:0; }           /* 헤더 없으니 맨 위에 sticky */
+
+  /* ── 상세 전용 sticky 앱바 (임베드 모드에서만) — 화이트, 56px, ←뒤로 / 상품명(중앙) / 상담 pill ── */
+  .detail-appbar{ display:none; }
+  html.msr-embed .detail-appbar{
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:400;
+    height:56px; padding:0 16px;
+    background:#fff; border-bottom:1px solid #f2f2f2;
+  }
+  .detail-appbar .dab-back{
+    display:inline-flex; align-items:center; gap:1px;
+    background:none; border:0; padding:0; margin:0;
+    color:#222; font-size:15px; font-weight:500; line-height:1;
+    flex-shrink:0; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .detail-appbar .dab-back svg{ margin-left:-4px; }
+  .detail-appbar .dab-back:active{ opacity:.5; }
+  /* 상품명 — 사이드 버튼 폭과 무관하게 '바 정중앙' 정렬 + 한 줄 말줄임 */
+  .detail-appbar .dab-title{
+    position:absolute; left:50%; transform:translateX(-50%);
+    max-width:56%; text-align:center;
+    font-size:16px; font-weight:600; color:#222; letter-spacing:-.02em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    pointer-events:none;
+  }
+  .detail-appbar .dab-consult{
+    flex-shrink:0; background:var(--primary,#DE4F41); color:#fff;
+    font-size:13px; font-weight:600; line-height:1;
+    padding:8px 15px; border:0; border-radius:999px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .detail-appbar .dab-consult:active{ filter:brightness(.92); }
+  /* 상세에선 탐색요소(브랜드 필터·브레드크럼) 숨김 — 앱바가 네비 담당 (임베드 모드) */
+  html.msr-embed body:has(main[data-view="detail"]:not([hidden])) .msr-sub{ display:none; }
+  html.msr-embed .breadcrumb{ display:none; }
   /* 임베드 시 자체 상담 FAB·팝업 숨김 — 떠다니는 상담 버튼은 샵 공통 FAB(카톡/전화)로 통일 */
   html.msr-embed .fab-consult, html.msr-embed .fab-popup{ display:none !important; }
   /* 임베드 시 스크롤은 iframe 문서(html)로 옮겨감 → 기본 스크롤바 숨김 (샵 패널과 동일하게 깔끔) */
@@ -330,6 +365,16 @@
      VIEW: DETAIL
 ============================================================ -->
 <main data-view="detail" hidden>
+  <!-- 상세 전용 sticky 앱바 (합본 임베드 모드 전용) — ←뒤로 / 상품명 / 상담.
+       탐색요소(로고·대탭·브랜드필터)는 부모 샵이 숨기고, 이 앱바가 상단을 담당 → '결정 모드' 집중 UI. -->
+  <header class="detail-appbar">
+    <button type="button" class="dab-back" id="dab-back" aria-label="이전 목록으로 돌아가기">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span>뒤로</span>
+    </button>
+    <div class="dab-title" id="dab-title"></div>
+    <button type="button" class="dab-consult" id="dab-consult">상담</button>
+  </header>
   <section class="container detail-wrap">
     <div class="breadcrumb" id="crumb"><span class="loader"></span></div>
 
