@@ -226,9 +226,13 @@
     position:relative; left:0;
     display:flex; align-items:flex-start;
     width:300%;
-    overflow:hidden; /* 비활성 패널이 .panels 높이를 넘쳐 .scroll이 과다 스크롤되는 것 방지 (렌탈 탭에서 푸터 아래 빈 영역으로 밀려내려감 차단). 활성 패널은 height=scrollHeight라 클리핑 안됨 */
     transition:left .35s cubic-bezier(.32,.72,0,1), height .3s ease;
   }
+  /* 렌탈 탭에서는 iframe이 내부 스크롤을 담당 → 부모 .scroll은 스크롤 잠금.
+     (비활성 휴대폰/인터넷 패널이 .panels 높이를 넘쳐 .scroll이 푸터 아래로 과다 스크롤되던 것 차단)
+     .panels가 아닌 .scroll에 overflow:hidden을 걸어야 compact 시 head clip 영역(panels-top 위쪽)에
+     올라오는 sub-nav(소메뉴)가 잘리지 않음. */
+  .scroll.on-rental { overflow:hidden; }
   .panel {
     width:33.3333%; flex-shrink:0;
   }
