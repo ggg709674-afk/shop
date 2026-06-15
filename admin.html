@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>관리자 — SK매직 인증파트너점</title>
+<title>우주커넥트 — 관리자</title>
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="pragma" content="no-cache">
@@ -18,9 +18,8 @@
 <div class="adm-auth-gate" id="adm-auth-gate" hidden>
   <div class="adm-auth-card">
     <div class="adm-auth-brand">
-      <img src="/rental-assets/brand/logo.png" alt="SK magic" style="height:28px;width:auto">
       <div>
-        <div class="adm-auth-title">인증파트너점 관리자</div>
+        <div class="adm-auth-title">우주커넥트 관리자</div>
         <div class="adm-auth-sub">로그인이 필요합니다</div>
       </div>
     </div>
@@ -54,10 +53,10 @@
 
 <aside class="adm-side">
   <div class="adm-brand">
-    <img src="/rental-assets/brand/logo.png" alt="SK magic" style="height:24px;width:auto">
+    <span class="adm-brand-dot"></span>
     <div>
-      <div class="adm-brand-title">인증파트너점</div>
-      <div class="adm-brand-sub">관리자</div>
+      <div class="adm-brand-title" id="adm-brand-title">렌탈 관리</div>
+      <div class="adm-brand-sub">우주커넥트</div>
     </div>
   </div>
 
@@ -871,6 +870,7 @@
         var el = document.getElementById(id); if (el) el.hidden = true;
       });
     }
+    var BRAND = { rental:'렌탈 관리', phone:'휴대폰 관리', internet:'인터넷 관리' };
     function setShop(shop){
       var prev = body.getAttribute('data-shop');
       if (prev === 'rental' && location.hash && location.hash !== '#') lastRentalHash = location.hash;
@@ -878,6 +878,7 @@
       document.querySelectorAll('.adm-shop-tab').forEach(function(tb){
         tb.classList.toggle('on', tb.getAttribute('data-shop') === shop);
       });
+      var bt = document.getElementById('adm-brand-title'); if (bt) bt.textContent = BRAND[shop] || '관리';
       if (shop === 'rental'){
         // 합본 placeholder 패널 숨김(admin.js 는 이 패널을 모르므로 직접 처리)
         var ss = document.querySelector('.adm-panel[data-panel="shop-soon"]'); if (ss) ss.hidden = true;

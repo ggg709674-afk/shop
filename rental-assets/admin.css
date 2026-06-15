@@ -78,6 +78,11 @@ body.admin-body[data-shop="internet"] .adm-nav-group[data-shop]:not([data-shop="
   border-bottom:1px solid var(--adm-side-line);
 }
 .adm-brand img{height:24px; width:auto; filter:brightness(0) invert(1) opacity(.95)}
+/* 합본: 현재 영역(탭) 표시 점 — 색은 샵별 */
+.adm-brand-dot{ width:11px; height:11px; border-radius:3px; flex:0 0 auto; background:var(--primary); }
+body[data-shop="phone"]    .adm-brand-dot{ background:#2E6FD0; }
+body[data-shop="internet"] .adm-brand-dot{ background:#11A8A0; }
+body[data-shop="rental"]   .adm-brand-dot{ background:var(--primary); }
 .adm-brand-title{font-size:13px; font-weight:700; letter-spacing:-0.2px; line-height:1.2}
 .adm-brand-sub{font-size:11px; color:var(--adm-side-ink-dim); margin-top:2px}
 
