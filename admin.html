@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/rental-assets/admin.css" id="adm-css">
 <link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png?v=2">
 </head>
-<body class="admin-body">
+<body class="admin-body" data-shop="rental">
 
 <!-- ===== 로그인 게이트 (auth 안 끝나면 가림) ===== -->
 <div class="adm-auth-gate" id="adm-auth-gate" hidden>
@@ -42,6 +42,16 @@
   </div>
 </div>
 
+<!-- ===== 합본 상단 탭 바 (휴대폰 / 인터넷 / 렌탈) — 탭마다 사이드바 메뉴 세트 교체 ===== -->
+<div class="adm-topbar">
+  <div class="adm-topbar-brand">우주<span>커넥트</span></div>
+  <div class="adm-shop-tabs">
+    <button type="button" class="adm-shop-tab" data-shop="phone"><span class="dot"></span>휴대폰</button>
+    <button type="button" class="adm-shop-tab" data-shop="internet"><span class="dot"></span>인터넷</button>
+    <button type="button" class="adm-shop-tab on" data-shop="rental"><span class="dot"></span>렌탈</button>
+  </div>
+</div>
+
 <aside class="adm-side">
   <div class="adm-brand">
     <img src="/rental-assets/brand/logo.png" alt="SK magic" style="height:24px;width:auto">
@@ -52,7 +62,7 @@
   </div>
 
   <nav class="adm-nav">
-    <div class="adm-nav-group">
+    <div class="adm-nav-group" data-shop="rental">
       <div class="adm-nav-label">운영</div>
       <a class="adm-nav-item on" href="#products" data-menu="products">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> 상품 관리
@@ -70,7 +80,7 @@
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span> 카드할인금액
       </a>
     </div>
-    <div class="adm-nav-group">
+    <div class="adm-nav-group" data-shop="rental">
       <div class="adm-nav-label">실적</div>
       <a class="adm-nav-item" href="#consult" data-menu="consult">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> 상담 및 주문
@@ -79,7 +89,7 @@
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span> 정산관리 <em class="adm-soon">soon</em>
       </a>
     </div>
-    <div class="adm-nav-group">
+    <div class="adm-nav-group" data-shop="rental">
       <div class="adm-nav-label">사이트 설정</div>
       <a class="adm-nav-item" href="#store" data-menu="store">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> 기본 정보
@@ -91,19 +101,41 @@
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span> FAQ 관리
       </a>
     </div>
-    <div class="adm-nav-group" data-group="deploy" hidden>
+    <div class="adm-nav-group" data-shop="rental" data-group="deploy" hidden>
       <div class="adm-nav-label">분양관리</div>
       <a class="adm-nav-item" href="#deploy" data-menu="deploy">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> 사이트분양
       </a>
     </div>
-    <div class="adm-nav-group" data-group="super" hidden>
+    <div class="adm-nav-group" data-shop="rental" data-group="super" hidden>
       <div class="adm-nav-label">본부 전용</div>
       <a class="adm-nav-item" href="#cards" data-menu="cards">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span> 제휴카드 관리
       </a>
       <a class="adm-nav-item" href="#iconlab" data-menu="iconlab">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span> 아이콘 시안
+      </a>
+    </div>
+
+    <!-- ===== 휴대폰 탭 메뉴 (3단계에서 패널 연결 — 지금은 placeholder) ===== -->
+    <div class="adm-nav-group" data-shop="phone">
+      <div class="adm-nav-label">휴대폰</div>
+      <a class="adm-nav-item" data-shop-menu="ph-banner">
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span> 배너
+      </a>
+      <a class="adm-nav-item" data-shop-menu="ph-products">
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> 상품
+      </a>
+      <a class="adm-nav-item" data-shop-menu="ph-carrier">
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span> 통신사 정책
+      </a>
+    </div>
+
+    <!-- ===== 인터넷 탭 메뉴 (배너만) ===== -->
+    <div class="adm-nav-group" data-shop="internet">
+      <div class="adm-nav-label">인터넷</div>
+      <a class="adm-nav-item" data-shop-menu="in-banner">
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span> 배너
       </a>
     </div>
   </nav>
@@ -397,6 +429,15 @@
       <h2>준비 중인 메뉴예요</h2>
       <p>이 메뉴는 곧 열려요. 우선 상품 관리부터 사용해주세요.</p>
       <a class="adm-btn adm-btn-primary" href="#products">상품 관리로 가기</a>
+    </div>
+  </section>
+
+  <!-- ===== 합본: 휴대폰/인터넷 탭 placeholder (3단계에서 실제 패널로 교체) ===== -->
+  <section class="adm-panel" data-panel="shop-soon" hidden>
+    <div class="adm-soon-card">
+      <div class="adm-soon-icon">🛠</div>
+      <h2 id="shop-soon-title">준비 중입니다</h2>
+      <p id="shop-soon-desc">이 탭의 관리 기능은 다음 단계에서 이식됩니다.</p>
     </div>
   </section>
 
@@ -801,6 +842,64 @@
     document.write('<script src="/rental-assets/app.js' + v + '"><\/script>');
     document.write('<script src="/rental-assets/supabase.js' + v + '"><\/script>');
     document.write('<script src="/rental-assets/admin.js' + v + '"><\/script>');
+  })();
+</script>
+
+<!-- ===== 합본 상단 탭 컨트롤러 — 휴대폰/인터넷/렌탈 전환 + 사이드바 메뉴 세트 교체 =====
+     렌탈 = 기존 admin.js 라우팅 그대로. 휴대폰/인터넷 = 아직 패널 없음 → shop-soon placeholder.
+     admin.js 가 .adm-nav-item 에 hash 라우팅을 직접 바인딩하므로, 휴대폰/인터넷 메뉴(href 없음)는
+     캡처 단계에서 stopImmediatePropagation 으로 차단해 렌탈 'products' 폴백을 막는다. -->
+<script>
+  (function(){
+    var body = document.body;
+    var SHOP = {
+      phone:    ['휴대폰 관리', '휴대폰 배너 · 상품 · 통신사 정책 (다음 단계에서 이식)'],
+      internet: ['인터넷 관리', '인터넷 배너 (다음 단계에서 이식)']
+    };
+    var lastRentalHash = '#products';
+    function showShopSoon(shop){
+      document.querySelectorAll('.adm-panel').forEach(function(p){
+        p.hidden = (p.getAttribute('data-panel') !== 'shop-soon');
+      });
+      var meta = SHOP[shop] || ['준비 중', ''];
+      var t = document.getElementById('adm-page-title'); if (t) t.textContent = meta[0];
+      var s = document.getElementById('adm-page-sub');  if (s) s.textContent = meta[1];
+      var st = document.getElementById('shop-soon-title'); if (st) st.textContent = meta[0] + ' — 준비 중';
+      var sd = document.getElementById('shop-soon-desc');  if (sd) sd.textContent = meta[1];
+      // 헤더의 렌탈 전용 업로드/다운로드 버튼 숨김
+      ['com-upload','cd-upload','mg-upload','hdr-download'].forEach(function(id){
+        var el = document.getElementById(id); if (el) el.hidden = true;
+      });
+    }
+    function setShop(shop){
+      var prev = body.getAttribute('data-shop');
+      if (prev === 'rental' && location.hash && location.hash !== '#') lastRentalHash = location.hash;
+      body.setAttribute('data-shop', shop);
+      document.querySelectorAll('.adm-shop-tab').forEach(function(tb){
+        tb.classList.toggle('on', tb.getAttribute('data-shop') === shop);
+      });
+      if (shop === 'rental'){
+        // 합본 placeholder 패널 숨김(admin.js 는 이 패널을 모르므로 직접 처리)
+        var ss = document.querySelector('.adm-panel[data-panel="shop-soon"]'); if (ss) ss.hidden = true;
+        // 렌탈 라우팅 복원 — admin.js 의 hashchange 핸들러가 패널/제목 처리
+        if (location.hash !== lastRentalHash) location.hash = lastRentalHash;
+        else window.dispatchEvent(new HashChangeEvent('hashchange'));
+      } else {
+        showShopSoon(shop);
+      }
+    }
+    document.querySelectorAll('.adm-shop-tab').forEach(function(tb){
+      tb.addEventListener('click', function(){ setShop(tb.getAttribute('data-shop')); });
+    });
+    // 휴대폰/인터넷 사이드바 메뉴 클릭: admin.js 의 hash 라우팅 차단 + shop-soon 유지
+    document.addEventListener('click', function(e){
+      var it = e.target.closest('.adm-nav-item[data-shop-menu]');
+      if (!it) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      var shop = body.getAttribute('data-shop');
+      if (shop === 'phone' || shop === 'internet') showShopSoon(shop);
+    }, true);
   })();
 </script>
 </body>

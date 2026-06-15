@@ -12,6 +12,7 @@
   --adm-side-line: #2c2e34;
   --adm-side-on: var(--primary);
   --adm-row-h: 64px;
+  --adm-topbar-h: 50px;
 }
 
 html, body.admin-body{
@@ -23,13 +24,48 @@ html, body.admin-body{
 body.admin-body{
   display:grid;
   grid-template-columns: var(--adm-side-w) 1fr;
-  grid-template-rows: 100vh;
+  grid-template-rows: var(--adm-topbar-h) 1fr;          /* 합본: 상단 샵 탭 바 행 추가 */
+  grid-template-areas: "topbar topbar" "side main";
+  height:100vh;
   overflow:hidden;
   min-width: 1024px;   /* PC 전용 — 더 좁아지면 축소(찌그러짐) 대신 가로 스크롤 */
 }
 
+/* ===== 합본 상단 탭 바 (휴대폰 / 인터넷 / 렌탈) ===== */
+.adm-topbar{
+  grid-area: topbar;
+  display:flex; align-items:stretch;
+  background:#101113; border-bottom:1px solid #0c0c0e;
+}
+.adm-topbar-brand{
+  display:flex; align-items:center; gap:8px;
+  padding:0 20px; flex:0 0 auto;
+  color:#fff; font-size:14px; font-weight:800; letter-spacing:-0.3px;
+  border-right:1px solid #26282e;
+}
+.adm-topbar-brand span{ color:var(--primary); }
+.adm-shop-tabs{ display:flex; align-items:stretch; }
+.adm-shop-tab{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:0 24px; height:100%;
+  background:none; border:0; cursor:pointer;
+  color:#8a8c92; font-size:14px; font-weight:600; letter-spacing:-0.2px;
+  border-bottom:2.5px solid transparent;
+  transition:color .12s, border-color .12s, background .12s;
+}
+.adm-shop-tab:hover{ color:#cfd0d4; background:rgba(255,255,255,.04); }
+.adm-shop-tab.on{ color:#fff; border-bottom-color:var(--primary); }
+.adm-shop-tab .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.55; }
+.adm-shop-tab.on .dot{ background:var(--primary); opacity:1; }
+
+/* 탭별 사이드바 그룹 표시 — 현재 샵에 속한 그룹만 노출 */
+body.admin-body[data-shop="rental"]   .adm-nav-group[data-shop]:not([data-shop="rental"]),
+body.admin-body[data-shop="phone"]    .adm-nav-group[data-shop]:not([data-shop="phone"]),
+body.admin-body[data-shop="internet"] .adm-nav-group[data-shop]:not([data-shop="internet"]){ display:none !important; }
+
 /* ===== Sidebar ===== */
 .adm-side{
+  grid-area: side;
   background:linear-gradient(180deg, var(--adm-side-bg) 0%, var(--adm-side-bg-2) 100%);
   color:var(--adm-side-ink);
   display:flex; flex-direction:column;
@@ -112,6 +148,7 @@ body.admin-body{
 
 /* ===== Main area ===== */
 .adm-main{
+  grid-area: main;
   display:flex; flex-direction:column;
   overflow:hidden;
 }
