@@ -760,7 +760,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 }
 .detail-tabs .tabbar button{
   padding:18px 28px;font-weight:700;font-size:15px;color:var(--ink-4);
-  border-bottom:2px solid transparent;transition:.15s;
+  border-bottom:2px solid transparent;transition:.15s;white-space:nowrap;
 }
 .detail-tabs .tabbar button.on{color:var(--primary-dark);border-bottom-color:var(--primary)}
 .detail-tabs .tabpane{padding:40px 0}

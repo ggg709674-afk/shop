@@ -150,8 +150,12 @@
   /* compact 시 서브메뉴도 위로 올라붙음 */
   .scroll.compact-mode .msr-sub{ transform:translateY(-54px); }
 
-  /* 상세 탭바 sticky 기준 — 메뉴(84) + 서브바(약 33) 아래 */
+  /* 상세 탭바 sticky 기준 — standalone: 메뉴(84) + 서브바(약 33) 아래 */
   .detail-tabs .tabbar{ top:117px; }
+  /* 합본 임베드: 글로벌 헤더 숨김 + 상세 앱바(56px)만 상단에 → 탭바는 앱바 바로 아래에 핀(중간에 떠서 따라다니던 것 수정) */
+  html.msr-embed .detail-tabs .tabbar{ top:56px; }
+  /* 합본 임베드(폰폭): 탭 3개 균등폭 + 한 줄(줄바꿈 방지) */
+  html.msr-embed .detail-tabs .tabbar button{ flex:1; padding:15px 6px; font-size:13.5px; text-align:center; white-space:nowrap; }
 
   /* ════════ 폰 프레임(~390px)에서는 항상 카탈로그의 '모바일(≤560px) 레이아웃' 그대로 적용 ════════
      미디어쿼리는 실제 창 폭 기준이라, 넓은 데스크톱 창의 폰 프레임 안에선 발동하지 않음.
