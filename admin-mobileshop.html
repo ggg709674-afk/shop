@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>우주커넥트 — 관리자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --ink:#1A1A2E; --g1:#5A5A7A; --g2:#9090B0; --g3:#BDB8D4; --g4:#DCD8EC; --g5:#EBE7F4;
+    --bg:#FAF8FE; --card:#FFFFFF; --accent:#7A6BD9; --accent-deep:#5A4DB8;
+    --danger:#D45A6F; --danger-bg:#F9E5EA; --success:#3CAA6E; --success-bg:#E6F4ED;
+    --border:rgba(220,216,236,.7);
+  }
+  *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.5; letter-spacing:-.012em;
+    -webkit-font-smoothing:antialiased;
+  }
+  button { font:inherit; cursor:pointer; }
+  input,select,textarea { font:inherit; color:inherit; }
+  a { color:var(--accent); text-decoration:none; }
+
+  /* ───── 레이아웃 ───── */
+  .wrap { max-width:1380px; margin:0 auto; padding:24px 20px 80px; }
+  .layout {
+    display:grid; grid-template-columns:430px 1fr; gap:28px;
+    align-items:flex-start;
+  }
+  .preview-col {
+    position:sticky; top:24px;
+    height:calc(100vh - 48px);
+    display:flex; flex-direction:column; gap:10px;
+    align-items:center;
+  }
+  .preview-frame {
+    flex:1; min-height:0;
+    /* 모바일 viewport(375px) 시뮬레이션 — index.html의 ≤480px 미디어쿼리가 적용돼서
+       실제 폰에서 보이는 그대로 미리보기됨 */
+    width:375px; max-width:100%;
+    margin:0 auto;
+    border-radius:18px; overflow:hidden;
+    background:#FAF8FE;
+    box-shadow:0 8px 28px rgba(122,107,217,.12), 0 2px 8px rgba(15,17,23,.06);
+    border:1px solid var(--border);
+    position:relative;
+  }
+  .preview-frame iframe {
+    width:100%; height:100%; border:0; display:block;
+    background:#FAF8FE;
+  }
+  .preview-bar {
+    width:100%; display:flex; justify-content:space-between; align-items:center;
+    font-size:11px; color:var(--g2); padding:0 4px;
+  }
+  .preview-bar b { color:var(--accent-deep); font-weight:700; font-size:12px; }
+  .form-col { min-width:0; }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns:1fr; gap:20px; }
+    .preview-col { position:static; height:auto; max-height:60vh; }
+    .preview-frame { height:60vh; }
+  }
+  .head {
+    padding:18px 0 0; border-bottom:1px solid var(--border); margin-bottom:24px;
+  }
+  .head-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  .h-l { display:flex; align-items:baseline; gap:10px; }
+  .h-l h1 { font-size:22px; font-weight:800; letter-spacing:-.03em; }
+  .h-l .sub { font-size:13px; color:var(--g2); font-weight:500; }
+  .h-r { display:flex; align-items:center; gap:14px; }
+  .h-link { font-size:12px; font-weight:600; color:var(--g1); white-space:nowrap; }
+  .h-link:hover { color:var(--accent); }
+  .acct {
+    display:flex; align-items:center; gap:8px; padding:4px 5px;
+    background:var(--card); border:1px solid var(--border); border-radius:999px;
+  }
+  .acct-dot {
+    width:27px; height:27px; border-radius:50%; flex:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
+    color:#fff; font-size:12px; font-weight:800; text-transform:uppercase;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .acct-email { font-size:12px; font-weight:600; color:var(--g1); white-space:nowrap; }
+  .acct-out {
+    padding:5px 11px; font-size:12px; font-weight:700; color:var(--g2);
+    background:var(--bg); border:0; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .acct-out:hover { color:var(--danger); background:var(--danger-bg); }
+  .head-nav { display:flex; align-items:center; gap:12px; padding:14px 0 0; }
+  .btn {
+    padding:9px 16px; border-radius:10px; border:1px solid var(--border);
+    background:var(--card); color:var(--ink); font-weight:600; font-size:13px;
+    transition:transform .1s, box-shadow .15s;
+  }
+  .btn:hover { box-shadow:0 2px 8px rgba(122,107,217,.10); }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff; border-color:transparent; }
+  .btn-primary:hover { box-shadow:0 4px 12px rgba(122,107,217,.30); }
+  .btn-danger { color:var(--danger); border-color:var(--danger-bg); }
+  .btn-danger:hover { background:var(--danger-bg); }
+  .btn-sm { padding:6px 11px; font-size:12px; border-radius:8px; }
+
+  /* ───── 탭 ───── */
+  .tabs { display:flex; gap:4px; margin-bottom:20px; border-bottom:1px solid var(--border); }
+  .tab {
+    padding:10px 18px; background:transparent; border:0;
+    color:var(--g1); font-weight:600; font-size:14px; letter-spacing:-.012em;
+    border-bottom:2px solid transparent; transition:color .15s, border-color .15s;
+  }
+  .tab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-pane { display:none; }
+  .tab-pane.on { display:block; }
+  /* 통신사(SKT/KT/LG) 패널은 display 대신 content-visibility로 숨김 —
+     공통지원금 그리드(input 수천 개)는 display:none→block 때마다 레이아웃 전체가
+     다시 돌아 수백 ms 걸림. cv:hidden은 레이아웃을 보존해 재표시가 ~15배 빠름 */
+  .tab-pane[data-pane="skt"], .tab-pane[data-pane="kt"], .tab-pane[data-pane="lg"] { display:block; }
+  .tab-pane[data-pane="skt"]:not(.on),
+  .tab-pane[data-pane="kt"]:not(.on),
+  .tab-pane[data-pane="lg"]:not(.on) { content-visibility:hidden; }
+
+  /* ───── 서브탭 (배너 안에서 휴대폰/인터넷 분리) ───── */
+  .sub-tabs {
+    display:inline-flex; gap:4px; padding:4px;
+    background:var(--g5); border-radius:11px;
+    margin-bottom:16px;
+  }
+  .sub-tab {
+    padding:8px 16px; border:0; background:transparent;
+    border-radius:8px; font-size:13px; font-weight:600; color:var(--g1);
+    letter-spacing:-.012em; transition:background .15s, color .15s, box-shadow .15s;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .sub-tab:hover { color:var(--ink); }
+  .sub-tab.on {
+    background:#fff; color:var(--accent-deep);
+    box-shadow:0 1px 3px rgba(122,107,217,.14);
+  }
+  .sub-tab .dot {
+    width:7px; height:7px; border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    opacity:.5; transition:opacity .15s, transform .15s;
+  }
+  .sub-tab.on .dot { opacity:1; transform:scale(1.1); }
+  .sub-pane { display:none; }
+  .sub-pane.on { display:block; }
+
+  /* ───── 카드 ───── */
+  .card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:24px; margin-bottom:18px;
+    box-shadow:0 1px 3px rgba(122,107,217,.04);
+  }
+  .card-h { font-size:15px; font-weight:700; letter-spacing:-.02em; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .card-h .pill { font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; background:var(--g5); color:var(--g1); letter-spacing:0; }
+  .card-h-actions { display:flex; gap:6px; align-items:center; margin-left:auto; }
+  /* ───── 폼 ───── */
+  .field { margin-bottom:14px; }
+  .color-inputs { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+  .color-inputs input[type="text"] { padding:9px 8px; text-align:center; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+
+  /* 배너 이미지 업로드 영역 */
+  .img-upload-row { display:flex; align-items:center; gap:10px; }
+  .img-add {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 14px; border:1.5px dashed var(--g4); border-radius:9px;
+    background:var(--bg-soft); color:var(--g1);
+    font-size:12.5px; font-weight:600; cursor:pointer;
+    transition:border-color .15s, background .15s, color .15s;
+  }
+  .img-add:hover { border-color:var(--accent); background:#fff; color:var(--accent-deep); }
+  .img-add svg { width:16px; height:16px; stroke:currentColor; stroke-width:1.8; fill:none; }
+  .img-preview {
+    position:relative; width:48px; height:48px; flex:0 0 auto;
+    border-radius:9px; overflow:hidden; border:1px solid var(--border);
+    background:repeating-linear-gradient(45deg, #F5F2FB, #F5F2FB 6px, #FFF 6px, #FFF 12px);
+  }
+  .img-preview img { width:100%; height:100%; object-fit:contain; display:block; }
+  .img-clear {
+    position:absolute; top:-6px; right:-6px;
+    width:18px; height:18px; padding:0;
+    background:var(--ink); color:#fff; border:0; border-radius:50%;
+    font-size:11px; font-weight:800; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 4px rgba(0,0,0,.2);
+  }
+  .img-clear:hover { background:var(--danger); }
+  .img-name { font-size:11.5px; color:var(--g2); }
+
+  /* 등록된 배너 이미지 미리보기 (이미지 등록 전용 UI) */
+  .banner-img-box {
+    width:100%; max-width:420px; aspect-ratio:375/165;
+    border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    background:repeating-linear-gradient(45deg, #F5F2FB, #F5F2FB 6px, #FFF 6px, #FFF 12px);
+    margin-bottom:10px;
+  }
+  .banner-img-box img { width:100%; height:100%; object-fit:cover; display:block; }
+  .banner-img-empty {
+    width:100%; max-width:420px; aspect-ratio:375/165;
+    border:1.5px dashed var(--g4); border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--g3); font-size:12.5px; background:var(--bg-soft);
+    margin-bottom:10px;
+  }
+  .banner-img-actions { display:flex; align-items:center; gap:10px; }
+
+  label {
+    display:block; font-size:12px; font-weight:600; color:var(--g1);
+    margin-bottom:6px; letter-spacing:-.005em;
+  }
+  input[type="text"], input[type="url"], textarea, select {
+    width:100%; padding:10px 12px; border-radius:9px;
+    border:1px solid var(--border); background:#fff;
+    font-size:14px; transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline:none; border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(122,107,217,.12);
+  }
+  .check { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--g1); cursor:pointer; }
+  .check input { margin:0; }
+  .hint { font-size:11px; color:var(--g3); margin-top:4px; letter-spacing:-.005em; }
+
+  /* ───── 상품 테이블 ───── */
+  .cat-tabs {
+    display:flex; gap:4px; margin-bottom:16px; flex-wrap:wrap;
+    border-bottom:1px solid var(--border); padding-bottom:0;
+  }
+  .cat-tab {
+    padding:8px 14px; background:transparent; border:0;
+    color:var(--g2); font-weight:600; font-size:13px; letter-spacing:-.012em;
+    border-bottom:2px solid transparent; cursor:pointer;
+    transition:color .15s, border-color .15s;
+    display:inline-flex; align-items:center; gap:5px;
+    margin-bottom:-1px;
+  }
+  .cat-tab:hover { color:var(--ink); }
+  .cat-tab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .cat-tab .cat-dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+  .cat-tab .cat-dot.skt { background:var(--skt); }
+  .cat-tab .cat-dot.kt  { background:var(--kt); }
+  .cat-tab .cat-dot.lg  { background:var(--lg); }
+  .cat-tab.featured-tab svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; }
+  .cat-tab-add {
+    padding:6px 10px; font-size:13px; font-weight:600; color:var(--g2);
+    background:transparent; border:1px dashed var(--g4); border-radius:6px;
+    cursor:pointer; margin-left:6px;
+  }
+  .cat-tab-add:hover { color:var(--accent-deep); border-color:var(--accent); }
+  .cat-tab-del {
+    margin-left:4px; opacity:.5; font-size:13px; line-height:1;
+    background:transparent; border:0; color:currentColor; cursor:pointer;
+    padding:0 2px; display:none;
+  }
+  .cat-tab:hover .cat-tab-del { display:inline; }
+  .cat-tab-del:hover { opacity:1; color:var(--danger); }
+  /* 카테고리 관리 모달 */
+  #cat-manage-list { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; max-height:50vh; overflow-y:auto; }
+  .cat-row {
+    display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center;
+    padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:#fff;
+  }
+  .cat-row.hidden-row { opacity:.55; background:var(--bg-soft); }
+  .cat-row input.cat-row-label {
+    width:100%; padding:7px 10px; border:1px solid transparent; border-radius:6px;
+    font-size:13.5px; font-weight:600; background:transparent;
+  }
+  .cat-row input.cat-row-label:hover { border-color:var(--border); background:#fff; }
+  .cat-row input.cat-row-label:focus { border-color:var(--accent); outline:0; background:#fff; }
+  /* 토글 스위치 */
+  .switch {
+    position:relative; width:38px; height:22px; flex-shrink:0;
+    background:var(--g4); border-radius:999px; cursor:pointer;
+    transition:background .2s;
+  }
+  .switch::after {
+    content:''; position:absolute; top:2px; left:2px;
+    width:18px; height:18px; border-radius:50%; background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.18);
+    transition:left .2s;
+  }
+  .switch.on { background:var(--accent); }
+  .switch.on::after { left:18px; }
+  .cat-row .cat-row-del {
+    padding:5px 9px; font-size:12px; font-weight:600;
+    background:transparent; border:1px solid var(--border); border-radius:6px;
+    color:var(--g2); cursor:pointer;
+  }
+  .cat-row .cat-row-del:hover { color:var(--danger); border-color:var(--danger); }
+  .cat-new-row {
+    display:flex; gap:8px; align-items:center;
+    padding:10px; border:1px dashed var(--g4); border-radius:8px; background:var(--bg-soft);
+  }
+  .cat-new-row input { flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
+  .product-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .product-toolbar select { width:auto; padding:7px 10px; font-size:13px; }
+  .product-list { display:flex; flex-direction:column; gap:6px; }
+  .product-item {
+    background:#fff; border:1px solid var(--border); border-radius:10px;
+    padding:8px 14px; display:grid; grid-template-columns:auto 1fr auto auto auto auto;
+    gap:12px; align-items:center;
+  }
+  .product-item .pi-handle { color:var(--g3); cursor:grab; user-select:none; font-size:18px; }
+  .product-item .pi-name { font-weight:700; font-size:14px; min-width:0; }
+  .product-item .pi-name .pi-tag {
+    display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.04em;
+    padding:2px 7px; border-radius:4px; background:var(--g5); color:var(--g1);
+    margin-right:6px; vertical-align:1px;
+  }
+  .product-item .pi-name .pi-tag.skt { background:#FCDFE6; color:#D45A6F; }
+  .product-item .pi-name .pi-tag.kt { background:#E5E5EE; color:#5A5A7A; }
+  .product-item .pi-name .pi-tag.lg { background:#F5DCE6; color:#C56B8A; }
+  .product-item .pi-meta { font-size:12px; color:var(--g2); }
+  .product-item button { padding:6px 10px; font-size:11px; border-radius:6px; }
+  /* 액션 버튼들을 한 그리드 칸에 묶어 줄바꿈 방지 */
+  .product-item .pi-actions { display:flex; gap:6px; align-items:center; }
+
+  /* ───── 모달 ───── */
+  .modal-bg {
+    position:fixed; inset:0; background:rgba(15,17,23,.4); backdrop-filter:blur(8px);
+    display:none; align-items:center; justify-content:center; z-index:100;
+    padding:20px;
+  }
+  .modal-bg.on { display:flex; }
+  .modal {
+    background:#fff; border-radius:16px; padding:28px; max-width:560px; width:100%;
+    max-height:90vh; overflow-y:auto;
+    box-shadow:0 30px 80px rgba(15,17,23,.20);
+  }
+  .modal h2 { font-size:18px; font-weight:800; margin-bottom:18px; letter-spacing:-.025em; }
+  .modal-foot { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; }
+
+  /* ───── 토스트 ───── */
+  .toast {
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:11px 22px; border-radius:999px;
+    font-size:13px; font-weight:600; opacity:0; pointer-events:none;
+    transition:opacity .2s, transform .2s; z-index:200;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.error { background:var(--danger); }
+
+  /* ───── 작은 액션 영역 ───── */
+  .save-bar {
+    position:sticky; bottom:0; background:rgba(250,248,254,.92);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    margin:-24px -20px -80px; padding:14px 20px;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    z-index:10;
+  }
+  .save-bar-l { font-size:12px; color:var(--g2); }
+  .save-bar-l b { color:var(--accent-deep); font-weight:700; }
+  .save-bar-r { display:flex; gap:8px; }
+
+  @media (max-width:640px) {
+    .field-row, .field-row-3 { grid-template-columns:1fr; }
+    .product-item { grid-template-columns:1fr auto; gap:8px; }
+    .product-item .pi-handle, .product-item .pi-meta { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───── 로그인 게이트 (인증 전까지 관리자 화면 가림) ───── -->
+<style>
+  .login-gate {
+    position:fixed; inset:0; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg); padding:24px;
+  }
+  .login-card {
+    width:100%; max-width:360px; background:var(--card);
+    border:1px solid var(--border); border-radius:16px;
+    padding:36px 32px; box-shadow:0 12px 40px rgba(90,77,184,.12);
+  }
+  .login-brand { font-size:13px; font-weight:800; color:var(--accent); letter-spacing:.04em; }
+  .login-title { font-size:21px; font-weight:800; margin:6px 0 22px; letter-spacing:-.02em; }
+  .login-field { display:block; margin-bottom:14px; }
+  .login-field span { display:block; font-size:12px; font-weight:700; color:var(--g1); margin-bottom:6px; }
+  .login-field input {
+    width:100%; padding:11px 13px; border:1px solid var(--g4); border-radius:9px;
+    background:var(--bg); font-size:14px; outline:none;
+  }
+  .login-field input:focus { border-color:var(--accent); }
+  .login-btn {
+    width:100%; padding:12px; margin-top:6px; border:0; border-radius:9px;
+    background:var(--accent); color:#fff; font-size:14px; font-weight:700;
+  }
+  .login-btn:disabled { opacity:.6; cursor:default; }
+  .login-err {
+    margin:4px 0 12px; padding:9px 11px; border-radius:8px;
+    background:var(--danger-bg); color:var(--danger);
+    font-size:12px; font-weight:600;
+  }
+  .login-checking { font-size:13px; color:var(--g2); text-align:center; }
+  .login-denied-msg { font-size:13px; color:var(--g1); line-height:1.6; margin-bottom:18px; }
+  .acct-chip { font-size:12px; font-weight:600; color:var(--g2); margin-right:2px; }
+</style>
+<div class="login-gate" id="login-gate">
+  <div class="login-card">
+    <div class="login-checking" id="login-checking">로그인 상태 확인 중…</div>
+
+    <form id="login-form" hidden>
+      <div class="login-brand">우주커넥트</div>
+      <div class="login-title">관리자 로그인</div>
+      <label class="login-field">
+        <span>이메일</span>
+        <input type="email" id="login-email" autocomplete="username" required>
+      </label>
+      <label class="login-field">
+        <span>비밀번호</span>
+        <input type="password" id="login-pw" autocomplete="current-password" required>
+      </label>
+      <div class="login-err" id="login-err" hidden></div>
+      <button type="submit" class="login-btn" id="login-submit">로그인</button>
+    </form>
+
+    <div id="login-denied" hidden>
+      <div class="login-brand">우주커넥트</div>
+      <div class="login-title">접근 권한 없음</div>
+      <div class="login-denied-msg">
+        이 계정은 모바일샵 관리자 권한이 없습니다.<br>
+        다른 계정으로 로그인하세요.
+      </div>
+      <button type="button" class="login-btn" id="login-denied-out">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <header class="head">
+    <div class="head-top">
+      <div class="h-l">
+        <h1>관리자</h1>
+        <span class="sub">우주커넥트 · 매장 콘텐츠 편집</span>
+      </div>
+      <div class="h-r">
+        <a href="index.html" target="_blank" class="h-link">사이트 미리보기 ↗</a>
+        <div class="acct">
+          <span class="acct-dot" id="acct-initial"></span>
+          <span class="acct-email" id="acct-email"></span>
+          <button class="acct-out" id="btn-logout">로그아웃</button>
+        </div>
+      </div>
+    </div>
+    <div class="head-nav">
+      <div class="master-bar">
+        <button class="m-tab on" id="site-edit-btn">사이트 편집</button>
+        <span class="mb-div"></span>
+        <span class="master-bar-label">본사 관리</span>
+        <button class="m-tab" data-tab="skt">SKT</button>
+        <button class="m-tab" data-tab="kt">KT</button>
+        <button class="m-tab" data-tab="lg">LG U+</button>
+      </div>
+    </div>
+  </header>
+
+  <style>
+    .master-bar { display:flex; align-items:center; gap:4px; }
+    .master-bar-label { font-size:10px; font-weight:800; color:var(--g3); letter-spacing:.06em; text-transform:uppercase; margin:0 6px 0 2px; }
+    .m-tab { padding:8px 16px; font-size:13px; font-weight:700; color:var(--g2); background:transparent; border:0; border-radius:9px; cursor:pointer; font-family:inherit; }
+    .m-tab:hover { color:var(--ink); background:var(--g5); }
+    .m-tab.on { background:var(--accent); color:#fff; }
+    .m-tab.on:hover { color:#fff; }
+    .mb-div { width:1px; height:18px; background:var(--g4); margin:0 8px; }
+    .layout.master-mode { grid-template-columns:1fr; }
+    .layout.master-mode .preview-col { display:none; }
+    .layout.master-mode #tabs { display:none; }
+    /* 본사 관리에선 하단 저장바 숨김 — 저장은 통신사 서브탭 줄의 버튼 사용 */
+    .layout.master-mode ~ .save-bar { display:none; }
+    .c-subnav { display:flex; gap:2px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+  .c-save { margin-left:auto; align-self:center; display:flex; gap:6px; align-items:center; }
+  .c-status { font-size:11px; font-weight:600; color:var(--g3); }
+    .c-sub { padding:9px 16px; background:transparent; border:0; border-bottom:2px solid transparent; color:var(--g2); font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; margin-bottom:-1px; }
+    .c-sub:hover { color:var(--ink); }
+    .c-sub.on { color:var(--accent); border-bottom-color:var(--accent); }
+    .c-pane { display:none; }
+    .c-pane.on { display:block; }
+    /* 공통지원금 서브탭도 동일 — cv:hidden으로 레이아웃 보존 (서브탭 전환도 빠르게) */
+    .c-pane[data-sub="support"] { display:block; }
+    .c-pane[data-sub="support"]:not(.on) { content-visibility:hidden; }
+    /* 모델 표 */
+    .m-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .m-table th { text-align:left; font-size:11px; font-weight:700; color:var(--g2); padding:8px 10px; border-bottom:1.5px solid var(--border); white-space:nowrap; }
+    .m-table td { padding:7px 10px; border-bottom:1px solid var(--border); }
+    /* 화면 밖 행은 레이아웃 건너뜀 — 모델 많은 통신사(LG 240행) 탭 전환 시 끊김 제거 */
+    .m-table tbody tr { content-visibility:auto; contain-intrinsic-size:auto 46px; }
+    .m-table tbody tr:hover { background:var(--bg-soft); }
+    .m-table .m-num { width:38px; text-align:center; color:var(--g3); font-size:12px; }
+    .m-table .m-name { font-weight:700; }
+    .m-table .m-price { white-space:nowrap; }
+    .m-table .m-colors { color:var(--g2); font-size:12px; }
+    .m-table .m-dim { color:var(--g3); }
+    .m-table .m-vis { white-space:nowrap; font-size:12px; color:var(--g2); }
+    .m-table tr.is-hidden td { opacity:.5; }
+    .m-table .m-hidden-tag { font-size:10px; font-weight:700; color:var(--g3); background:var(--bg-soft); padding:1px 6px; border-radius:4px; }
+    .m-table .m-act { white-space:nowrap; text-align:right; }
+    .m-table .m-act .btn { padding:5px 9px; font-size:11px; margin-left:4px; }
+  </style>
+
+  <!-- 좌:프리뷰 / 우:폼 -->
+  <div class="layout">
+
+  <aside class="preview-col">
+    <nav class="tabs">
+      <button class="tab on" type="button" tabindex="-1" style="cursor:default">실시간 미리보기</button>
+    </nav>
+    <div class="preview-frame">
+      <iframe id="preview-iframe" src="index.html?preview=1" title="미리보기"></iframe>
+    </div>
+  </aside>
+
+  <div class="form-col">
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-tab="banners">배너</button>
+    <button class="tab" data-tab="products">상품 (휴대폰)</button>
+  </nav>
+
+  <!-- 배너 탭 -->
+  <section class="tab-pane on" data-pane="banners">
+    <nav class="sub-tabs" id="banner-sub-tabs">
+      <button class="sub-tab on" type="button" data-sub="phone"><span class="dot"></span>휴대폰 배너</button>
+      <button class="sub-tab" type="button" data-sub="internet"><span class="dot"></span>인터넷 배너</button>
+    </nav>
+
+    <div class="sub-pane on" data-sub-pane="phone">
+    <div class="card" data-banner="phone">
+      <div class="card-h">휴대폰 배너
+        <div class="card-h-actions">
+          <span class="pill">PHONE</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>현재 등록된 배너 이미지</label>
+        <div class="banner-img-box" data-img-preview style="display:none">
+          <img alt="휴대폰 배너 이미지"/>
+        </div>
+        <div class="banner-img-empty" data-img-empty>등록된 배너 이미지가 없습니다.</div>
+        <div class="banner-img-actions">
+          <button type="button" class="img-add" data-img-add>
+            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+            이미지 업로드 (교체)
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" data-img-clear style="display:none">이미지 삭제</button>
+          <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
+        </div>
+        <p class="hint">업로드한 이미지가 손님 페이지 휴대폰 배너에 그대로 노출됩니다. 변경 후 상단 저장을 눌러야 반영됩니다.</p>
+      </div>
+    </div>
+    </div><!-- /sub-pane phone -->
+
+    <div class="sub-pane" data-sub-pane="internet">
+    <div class="card" data-banner="internet">
+      <div class="card-h">인터넷 배너
+        <div class="card-h-actions">
+          <span class="pill">INTERNET</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>현재 등록된 배너 이미지</label>
+        <div class="banner-img-box" data-img-preview style="display:none">
+          <img alt="인터넷 배너 이미지"/>
+        </div>
+        <div class="banner-img-empty" data-img-empty>등록된 배너 이미지가 없습니다.</div>
+        <div class="banner-img-actions">
+          <button type="button" class="img-add" data-img-add>
+            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+            이미지 업로드 (교체)
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" data-img-clear style="display:none">이미지 삭제</button>
+          <input type="file" accept="image/*" data-field="imageUpload" style="display:none"/>
+        </div>
+        <p class="hint">업로드한 이미지가 손님 페이지 인터넷 배너에 그대로 노출됩니다. 변경 후 상단 저장을 눌러야 반영됩니다.</p>
+      </div>
+    </div>
+    </div><!-- /sub-pane internet -->
+
+  </section>
+
+  <!-- 상품 탭 -->
+  <section class="tab-pane" data-pane="products">
+    <div class="card">
+      <div class="card-h">
+        휴대폰 상품
+        <button class="btn btn-primary btn-sm" id="btn-add-product">+ 상품 추가</button>
+      </div>
+      <nav class="cat-tabs" id="cat-tabs">
+        <!-- JS로 동적 렌더 (전체 / 통신사별 인기단말 / 카테고리들 / + 추가) -->
+      </nav>
+      <div class="product-list" id="product-list"></div>
+    </div>
+  </section>
+
+  <!-- 본사 관리: 통신사별 (SKT / KT / LG U+) -->
+  <style>
+    .ms-card-sub { font-size:11px; font-weight:600; color:var(--g3); margin-left:6px; }
+    /* 공통지원금 표 — 표 안에서 상하·좌우 스크롤, 헤더/첫열 고정 */
+    .ms-table-scroll { max-height:70vh; overflow:auto; border:1px solid var(--border); border-radius:8px; }
+    /* table-layout:fixed — 열 너비를 내용과 무관하게 고정.
+       auto면 셀 하나 건드려도(텍스트→input) 표 전체 수천 칸 열 너비가 재계산돼 멈춤.
+       fixed면 열이 thead 너비로 고정 → 셀 편집이 그 칸만 리플로우 */
+    .ms-table { table-layout:fixed; border-collapse:separate; border-spacing:0; font-size:12.5px; }
+    .ms-table th { font-size:11px; font-weight:700; color:var(--g2); padding:6px 8px; text-align:center; border-bottom:1px solid var(--border); white-space:nowrap; background:#fff; width:120px; overflow:hidden; text-overflow:ellipsis; }
+    .ms-table td { padding:5px 8px; text-align:center; border-bottom:1px solid var(--bg-soft); background:#fff; width:120px; }
+    .ms-table tr:last-child td { border-bottom:0; }
+    /* 스크롤 밖 행은 레이아웃 건너뜀 — 통신사 탭 전환 시 공통지원금 표(수천 셀) 끊김 제거 */
+    .ms-table tbody tr { content-visibility:auto; contain-intrinsic-size:auto 36px; }
+    /* 헤더 행 고정 (상하 스크롤 시) */
+    .ms-table thead th { position:sticky; top:0; z-index:2; }
+    /* 첫 열(모델명) 고정 (좌우 스크롤 시) */
+    .ms-table .ms-plan, .ms-table .ms-corner { position:sticky; left:0; width:180px; font-weight:600; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-right:1px solid var(--border); }
+    .ms-table td.ms-plan { z-index:1; }
+    .ms-table thead .ms-corner { z-index:3; }
+    /* 공시일 열 — 읽기전용(모델별 가장 최근 공시일). 모델명 다음 일반 열 */
+    .ms-table .ms-notice { width:92px; font-size:11px; color:var(--g2); white-space:nowrap; }
+    /* 공통지원금 셀 — woozoo 방식: 모든 칸이 항상 input(클릭해도 DOM 변형 0).
+       평소엔 테두리 없이 텍스트처럼 보이고, 포커스 때만 배경 강조 */
+    .ms-table input.ms-sup { width:100%; box-sizing:border-box; padding:5px 7px; border:0; background:transparent; font-size:12.5px; text-align:right; font-family:inherit; cursor:text; }
+    .ms-table input.ms-sup:focus { background:var(--bg-soft); outline:1px solid var(--accent); }
+    .ms-empty { padding:18px; text-align:center; }
+    /* 숨김 처리된 모델 — 흐리게 + 태그 */
+    .product-item.is-hidden { opacity:.5; }
+    .pi-hidden-tag { font-size:10px; font-weight:700; color:var(--g3); background:var(--bg-soft); padding:1px 5px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+    /* 모델 드래그 정렬 */
+    .product-item[draggable=true] { cursor:default; }
+    .product-item.dragging { opacity:.4; }
+    .product-item.drag-over { box-shadow:0 -3px 0 -1px var(--accent); }
+  </style>
+
+  <section class="tab-pane" data-pane="skt">
+    <nav class="c-subnav">
+      <button class="c-sub on" data-sub="model">모델 · 출고가</button>
+      <button class="c-sub" data-sub="plan">요금제 · 기본요금</button>
+      <button class="c-sub" data-sub="support">공통지원금</button>
+      <div class="c-save">
+        <span class="c-status"></span>
+        <button class="btn btn-primary btn-sm" data-master-save>저장</button>
+      </div>
+    </nav>
+    <div class="c-pane on" data-sub="model">
+      <div class="card">
+        <div class="card-h">SKT 모델 <span class="ms-card-sub">엑셀 행 순서 = 표시 순서</span>
+          <div class="card-h-actions">
+            <button class="btn btn-sm" data-xls-down="skt">엑셀 다운로드</button>
+            <button class="btn btn-sm" data-xls-up="skt">엑셀 업로드</button>
+            <button class="btn btn-primary btn-sm" data-add-model="skt">+ 모델 추가</button>
+          </div>
+        </div>
+        <div class="product-list" data-model-list="skt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="plan">
+      <div class="card">
+        <div class="card-h">SKT 요금제
+          <button class="btn btn-primary btn-sm" data-add-plan="skt">+ 요금제 추가</button>
+        </div>
+        <div class="product-list" data-plan-list="skt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="support">
+      <div class="card">
+        <div class="card-h">SKT 공통지원금 <span class="ms-card-sub">모델 × 요금제별 공시지원금</span></div>
+        <div data-support-wrap="skt"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-pane" data-pane="kt">
+    <nav class="c-subnav">
+      <button class="c-sub on" data-sub="model">모델 · 출고가</button>
+      <button class="c-sub" data-sub="plan">요금제 · 기본요금</button>
+      <button class="c-sub" data-sub="support">공통지원금</button>
+      <div class="c-save">
+        <span class="c-status"></span>
+        <button class="btn btn-primary btn-sm" data-master-save>저장</button>
+      </div>
+    </nav>
+    <div class="c-pane on" data-sub="model">
+      <div class="card">
+        <div class="card-h">KT 모델 <span class="ms-card-sub">엑셀 행 순서 = 표시 순서</span>
+          <div class="card-h-actions">
+            <button class="btn btn-sm" data-xls-down="kt">엑셀 다운로드</button>
+            <button class="btn btn-sm" data-xls-up="kt">엑셀 업로드</button>
+            <button class="btn btn-primary btn-sm" data-add-model="kt">+ 모델 추가</button>
+          </div>
+        </div>
+        <div class="product-list" data-model-list="kt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="plan">
+      <div class="card">
+        <div class="card-h">KT 요금제
+          <button class="btn btn-primary btn-sm" data-add-plan="kt">+ 요금제 추가</button>
+        </div>
+        <div class="product-list" data-plan-list="kt"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="support">
+      <div class="card">
+        <div class="card-h">KT 공통지원금 <span class="ms-card-sub">모델 × 요금제별 공시지원금</span></div>
+        <div data-support-wrap="kt"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-pane" data-pane="lg">
+    <nav class="c-subnav">
+      <button class="c-sub on" data-sub="model">모델 · 출고가</button>
+      <button class="c-sub" data-sub="plan">요금제 · 기본요금</button>
+      <button class="c-sub" data-sub="support">공통지원금</button>
+      <div class="c-save">
+        <span class="c-status"></span>
+        <button class="btn btn-primary btn-sm" data-master-save>저장</button>
+      </div>
+    </nav>
+    <div class="c-pane on" data-sub="model">
+      <div class="card">
+        <div class="card-h">LG U+ 모델 <span class="ms-card-sub">엑셀 행 순서 = 표시 순서</span>
+          <div class="card-h-actions">
+            <button class="btn btn-sm" data-xls-down="lg">엑셀 다운로드</button>
+            <button class="btn btn-sm" data-xls-up="lg">엑셀 업로드</button>
+            <button class="btn btn-primary btn-sm" data-add-model="lg">+ 모델 추가</button>
+          </div>
+        </div>
+        <div class="product-list" data-model-list="lg"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="plan">
+      <div class="card">
+        <div class="card-h">LG U+ 요금제
+          <button class="btn btn-primary btn-sm" data-add-plan="lg">+ 요금제 추가</button>
+        </div>
+        <div class="product-list" data-plan-list="lg"></div>
+      </div>
+    </div>
+    <div class="c-pane" data-sub="support">
+      <div class="card">
+        <div class="card-h">LG U+ 공통지원금 <span class="ms-card-sub">모델 × 요금제별 공시지원금</span></div>
+        <div data-support-wrap="lg"></div>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- /form-col -->
+  </div><!-- /layout -->
+  <input type="file" id="xls-file" accept=".xlsx,.xls" style="display:none"/>
+
+  <!-- 저장 바 -->
+  <div class="save-bar">
+    <div class="save-bar-l"><b id="status">대기 중</b> · 저장 시 미리보기 탭 자동 갱신</div>
+    <div class="save-bar-r">
+      <button class="btn" id="btn-revert">되돌리기</button>
+      <button class="btn btn-primary" id="btn-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 상품 편집 모달 -->
+<div class="modal-bg" id="product-modal">
+  <div class="modal">
+    <h2 id="product-modal-title">상품 추가</h2>
+    <input type="hidden" id="pm-id"/>
+    <div class="field-row">
+      <div class="field">
+        <label>통신사</label>
+        <select id="pm-carrier">
+          <option value="skt">SKT</option>
+          <option value="kt">KT</option>
+          <option value="lg">LG U+</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>모델</label>
+        <select id="pm-model"></select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>요금제</label>
+        <select id="pm-plan"></select>
+      </div>
+      <div class="field">
+        <label>출고가 <span class="hint" style="display:inline; margin-left:4px">자동</span></label>
+        <input type="text" id="pm-release" readonly style="background:var(--bg-soft)"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>공통지원금 <span class="hint" style="display:inline; margin-left:4px">모델+요금제 선택 시 자동</span></label>
+      <input type="text" id="pm-common" readonly style="background:var(--bg-soft)"/>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>추가할인 (번호이동)</label><input type="text" id="pm-addMnp" placeholder="0" inputmode="numeric"/></div>
+      <div class="field"><label>최종가 (번호이동) <span class="hint" style="display:inline; margin-left:4px">자동</span></label><input type="text" id="pm-finalMnp" readonly style="background:var(--bg-soft)"/></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>추가할인 (기기변경)</label><input type="text" id="pm-addChg" placeholder="0" inputmode="numeric"/></div>
+      <div class="field"><label>최종가 (기기변경) <span class="hint" style="display:inline; margin-left:4px">자동</span></label><input type="text" id="pm-finalChg" readonly style="background:var(--bg-soft)"/></div>
+    </div>
+    <div class="field" style="display:flex; align-items:center; gap:8px; margin-bottom:14px">
+      <input type="checkbox" id="pm-featured" style="width:18px; height:18px; cursor:pointer"/>
+      <label for="pm-featured" style="cursor:pointer; margin:0">통신사별 인기단말로 노출</label>
+    </div>
+    <div class="field"><label>안내사항</label><input type="text" id="pm-notice" placeholder="예: 사은품 6종 증정 / 매장 방문 상담"/></div>
+    <div class="field">
+      <label>상품 이미지 <span class="hint" style="display:inline; margin-left:4px">(비우면 카드에 이미지 없음)</span></label>
+      <div class="img-upload-row">
+        <div class="img-preview" id="pm-img-preview" style="display:none">
+          <img alt=""/>
+          <button type="button" class="img-clear" id="pm-img-clear" title="이미지 제거">×</button>
+        </div>
+        <button type="button" class="img-add" id="pm-img-add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+          이미지 업로드
+        </button>
+        <input type="file" accept="image/*" id="pm-img-file" style="display:none"/>
+      </div>
+      <input type="hidden" id="pm-imageUrl"/>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger btn-sm" id="pm-delete" style="margin-right:auto; display:none">삭제</button>
+      <button class="btn" id="pm-cancel">취소</button>
+      <button class="btn btn-primary" id="pm-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 모델 편집 모달 -->
+<div class="modal-bg" id="model-modal">
+  <div class="modal">
+    <h2 id="model-modal-title">모델 추가</h2>
+    <input type="hidden" id="mm-id"/>
+    <div class="field"><label>모델명 + 용량</label><input type="text" id="mm-name" placeholder="iPhone 17 Pro 256GB"/></div>
+    <div class="field"><label>출고가</label><input type="text" id="mm-price" placeholder="1,550,000" inputmode="numeric"/></div>
+    <div class="field">
+      <label>색상 <span class="hint" style="display:inline; margin-left:4px">최대 5개</span></label>
+      <div class="color-inputs">
+        <input type="text" class="mm-color" placeholder="블랙"/>
+        <input type="text" class="mm-color" placeholder="화이트"/>
+        <input type="text" class="mm-color" placeholder="블루"/>
+        <input type="text" class="mm-color" placeholder="실버"/>
+        <input type="text" class="mm-color" placeholder="그린"/>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger btn-sm" id="mm-delete" style="margin-right:auto; display:none">삭제</button>
+      <button class="btn" id="mm-cancel">취소</button>
+      <button class="btn btn-primary" id="mm-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 요금제 편집 모달 -->
+<div class="modal-bg" id="plan-modal">
+  <div class="modal">
+    <h2 id="plan-modal-title">요금제 추가</h2>
+    <input type="hidden" id="plm-id"/>
+    <div class="field"><label>요금제명</label><input type="text" id="plm-name" placeholder="5GX 프라임"/></div>
+    <div class="field"><label>월 요금 <span class="hint" style="display:inline; margin-left:4px">선택</span></label><input type="text" id="plm-fee" placeholder="89,000" inputmode="numeric"/></div>
+    <div class="modal-foot">
+      <button class="btn btn-danger btn-sm" id="plm-delete" style="margin-right:auto; display:none">삭제</button>
+      <button class="btn" id="plm-cancel">취소</button>
+      <button class="btn btn-primary" id="plm-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 카테고리 관리 모달 -->
+<div class="modal-bg" id="cat-manage-modal">
+  <div class="modal" style="max-width:560px">
+    <h2>카테고리 관리</h2>
+    <p class="hint" style="margin:-4px 0 14px">라벨 직접 수정 가능 · 노출 끄면 탭/모바일에서 숨김 (상품은 유지) · 삭제는 영구</p>
+    <div id="cat-manage-list"></div>
+    <div class="cat-new-row">
+      <input type="text" id="cat-new-label" placeholder="새 카테고리 이름 (예: 헬로모바일)" autocomplete="off"/>
+      <button class="btn btn-primary btn-sm" id="cat-new-add">+ 추가</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="cat-manage-close">취소</button>
+      <button class="btn btn-primary" id="cat-manage-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="data-store.js"></script>
+<script>
+  // ─────────────────────────────────────────────────
+  // 작업 데이터 (저장 전 메모리 상태) — init 이후 채워짐
+  let workingData = { banners: {}, productsPhone: [] };
+  let dirty = false;
+  // 본사 표 지연 렌더 플래그 — restoreUI(파싱 시점)가 ensureMasterRendered를 부르므로
+  // 반드시 그 전에 초기화돼 있어야 함 (TDZ 에러 방지)
+  let masterRendered = false;
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  function setStatus(text, isDirty) {
+    $('#status').textContent = text;
+    dirty = !!isDirty;
+    $('#status').style.color = isDirty ? 'var(--danger)' : 'var(--g2)';
+    // 본사 관리 서브탭 줄의 상태 표시도 동기화
+    $$('.c-status').forEach(el => {
+      el.textContent = isDirty ? text : '';
+      el.style.color = isDirty ? 'var(--danger)' : 'var(--g3)';
+    });
+  }
+
+  // ───── 미리보기 iframe 푸시 (60ms 디바운스 — 빠른 타이핑에도 부드럽게) ─────
+  let previewReady = false;
+  let previewTimer = null;
+  function _pushPreviewNow() {
+    const iframe = $('#preview-iframe');
+    if (!iframe || !iframe.contentWindow || !previewReady) return;
+    readBannersFromForm();
+    // 손님 미리보기는 배너/상품/카테고리만 씀 — master(support 2만행)는 빼고 보냄.
+    // workingData 통째로 postMessage하면 구조화 복제 비용 때문에 셀 1칸 저장도 버벅임.
+    const slim = {
+      banners: workingData.banners,
+      productsPhone: workingData.productsPhone,
+      categories: workingData.categories
+    };
+    iframe.contentWindow.postMessage({ type: 'mobileshop:preview', data: slim }, '*');
+  }
+  function pushPreview() {
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(_pushPreviewNow, 60);
+  }
+  // iframe이 준비 완료 알리면 초기 데이터 푸시
+  window.addEventListener('message', e => {
+    if (e.data && e.data.type === 'mobileshop:preview-ready') {
+      previewReady = true;
+      pushPreview();
+    }
+  });
+  // preview-ready 메시지를 놓친 경우(스크립트 로드 순서 레이스) 대비 —
+  // iframe load 이벤트 / 이미 로드된 상태로도 ready 처리. 안 그러면 미리보기가
+  // 갱신 안 돼서 저장+새로고침해야만 반영되는 증상이 생김.
+  (function ensurePreviewReady() {
+    const iframe = $('#preview-iframe');
+    if (!iframe) return;
+    iframe.addEventListener('load', () => { previewReady = true; pushPreview(); });
+    try {
+      if (iframe.contentWindow && iframe.contentDocument &&
+          iframe.contentDocument.readyState === 'complete') {
+        previewReady = true;
+      }
+    } catch (e) { /* 무시 */ }
+  })();
+
+  function toast(msg, isError) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.toggle('error', !!isError);
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // ───── 탭 상태 저장/복원 (새로고침해도 현재 탭 유지) ─────
+  const UI_KEY = 'mobileshop_admin_ui_v1';
+  function saveUI(patch) {
+    let s = {};
+    try { s = JSON.parse(localStorage.getItem(UI_KEY)) || {}; } catch (e) {}
+    Object.assign(s, patch);
+    try { localStorage.setItem(UI_KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  function loadUI() {
+    try { return JSON.parse(localStorage.getItem(UI_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  // ───── 탭 (메인 + 본사관리 통합) ─────
+  function activateTab(target) {
+    const isMaster = ['skt', 'kt', 'lg'].includes(target);
+    if (isMaster) ensureMasterRendered(); // 본사 표는 처음 진입 때 생성 (클래스 토글 전에 채움)
+    $$('#tabs .tab, .master-bar .m-tab').forEach(b => b.classList.toggle('on', b.dataset.tab === target));
+    // 사이트 편집 버튼은 배너/상품 어느 쪽이든 활성
+    const siteBtn = document.getElementById('site-edit-btn');
+    if (siteBtn) siteBtn.classList.toggle('on', !isMaster);
+    $$('.tab-pane').forEach(p => p.classList.toggle('on', p.dataset.pane === target));
+    // 본사 관리(SKT/KT/LG) 탭이면 미리보기·배너상품줄 숨기고 폼 전체폭
+    const layout = document.querySelector('.layout');
+    if (layout) layout.classList.toggle('master-mode', isMaster);
+    saveUI({ tab: target });
+  }
+  $$('#tabs .tab, .master-bar .m-tab[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+  });
+  const _siteBtn = document.getElementById('site-edit-btn');
+  if (_siteBtn) _siteBtn.addEventListener('click', () => activateTab('banners'));
+
+  // 통신사 탭 안 서브탭 (모델 / 요금제 / 공통지원금)
+  function activateCsub(sub) {
+    $$('section[data-pane]').forEach(section => {
+      section.querySelectorAll('.c-sub').forEach(b => b.classList.toggle('on', b.dataset.sub === sub));
+      section.querySelectorAll('.c-pane').forEach(p => p.classList.toggle('on', p.dataset.sub === sub));
+    });
+  }
+  $$('section[data-pane] .c-sub').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activateCsub(btn.dataset.sub);
+      saveUI({ csub: btn.dataset.sub });
+    });
+  });
+
+  // ───── 배너 서브탭 (휴대폰/인터넷) ─────
+  $$('#banner-sub-tabs .sub-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('#banner-sub-tabs .sub-tab').forEach(b => b.classList.toggle('on', b === btn));
+      const target = btn.dataset.sub;
+      $$('.sub-pane').forEach(p => p.classList.toggle('on', p.dataset.subPane === target));
+      saveUI({ bsub: target });
+      // 미리보기 iframe도 해당 패널로 전환
+      const iframe = $('#preview-iframe');
+      if (iframe && iframe.contentWindow && previewReady) {
+        iframe.contentWindow.postMessage({ type: 'mobileshop:preview-panel', panel: target }, '*');
+      }
+    });
+  });
+
+  // ───── 새로고침 후 마지막 탭 상태 복원 ─────
+  (function restoreUI() {
+    const s = loadUI();
+    if (s.csub) activateCsub(s.csub);
+    // 저장된 서브탭이 더 이상 없으면(예: 구버전의 rental) 기본(휴대폰) 유지
+    if (s.bsub && $(`#banner-sub-tabs .sub-tab[data-sub="${s.bsub}"]`)) {
+      $$('#banner-sub-tabs .sub-tab').forEach(b => b.classList.toggle('on', b.dataset.sub === s.bsub));
+      $$('.sub-pane').forEach(p => p.classList.toggle('on', p.dataset.subPane === s.bsub));
+    }
+    if (s.tab && document.querySelector(`.tab-pane[data-pane="${s.tab}"]`)) activateTab(s.tab);
+  })();
+
+  // ───── 배너 (이미지 등록 전용 — 합성/템플릿 기능 제거) ─────
+  const BANNER_KEYS = ['phone', 'internet'];
+
+  function loadBannersToForm() {
+    BANNER_KEYS.forEach(key => updateImagePreview(key));
+  }
+
+  // 저장 데이터는 { imageUrl } 형태로 단순화 — index.html은 imageUrl만 렌더
+  function readBannersFromForm() {
+    BANNER_KEYS.forEach(key => {
+      const existing = workingData.banners[key] || {};
+      workingData.banners[key] = { imageUrl: existing.imageUrl || '' };
+    });
+  }
+
+  // 등록된 배너 이미지 미리보기 갱신
+  function updateImagePreview(key) {
+    const card = $(`[data-banner="${key}"]`);
+    if (!card) return;
+    const url = (workingData.banners[key] && workingData.banners[key].imageUrl) || '';
+    const preview = card.querySelector('[data-img-preview]');
+    const empty = card.querySelector('[data-img-empty]');
+    const clearBtn = card.querySelector('[data-img-clear]');
+    if (url) {
+      preview.style.display = '';
+      preview.querySelector('img').src = url;
+      if (empty) empty.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = '';
+    } else {
+      preview.style.display = 'none';
+      preview.querySelector('img').src = '';
+      if (empty) empty.style.display = '';
+      if (clearBtn) clearBtn.style.display = 'none';
+    }
+  }
+
+  // 업로드 버튼 → 숨은 파일 입력 열기
+  $$('[data-banner] [data-img-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('[data-banner]').querySelector('[data-field="imageUpload"]').click();
+    });
+  });
+
+  // 이미지 삭제 (배너 비우기)
+  $$('[data-banner] [data-img-clear]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('[data-banner]');
+      const key = card.dataset.banner;
+      if (!confirm('배너 이미지를 삭제할까요? (상단 저장을 눌러야 반영됩니다)')) return;
+      workingData.banners[key] = { imageUrl: '' };
+      updateImagePreview(key);
+      setStatus('수정 중 (저장 안 됨)', true);
+      pushPreview();
+    });
+  });
+
+  // 파일 선택 → Supabase Storage 업로드 (기존 파이프라인 재사용)
+  $$('[data-banner] [data-field="imageUpload"]').forEach(input => {
+    const card = input.closest('[data-banner]');
+    const key = card.dataset.banner;
+    input.addEventListener('change', async e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      e.target.value = '';
+      if (file.size > 5 * 1024 * 1024) {
+        toast(`이미지가 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하로.`, true);
+        return;
+      }
+      toast('업로드 중...');
+      try {
+        const url = await DataStore.uploadImage(file, `banner/${key}`);
+        workingData.banners[key] = { imageUrl: url };
+        updateImagePreview(key);
+        setStatus('수정 중 (저장 안 됨)', true);
+        pushPreview();
+        toast('업로드 완료');
+      } catch (err) {
+        console.error(err);
+        toast('업로드 실패: ' + (err?.message || err), true);
+      }
+    });
+  });
+
+  // ───── 상품 ─────
+  const CARRIER_LABEL = { skt: 'SKT', kt: 'KT', lg: 'LG U+', mvno: '알뜰폰' };
+
+  // 현재 선택된 탭 ('all' | 'featured' | '<categoryId>')
+  let currentCatTab = 'all';
+
+  function getCategories() {
+    return (workingData.categories && workingData.categories.length > 0)
+      ? workingData.categories
+      : DEFAULT_CATEGORIES;
+  }
+  function getCategoryLabel(id) {
+    const c = getCategories().find(x => x.id === id);
+    return c ? c.label : id;
+  }
+  function renderCatTabs() {
+    const nav = $('#cat-tabs');
+    if (!nav) return;
+    // 탭은 visible 카테고리만 표시 (관리 모달에서 visible=false 끈 건 숨김)
+    const cats = getCategories().filter(c => c.visible !== false);
+    nav.innerHTML = `
+      <button class="cat-tab${currentCatTab === 'all' ? ' on' : ''}" data-cat="all">전체</button>
+      <button class="cat-tab featured-tab${currentCatTab === 'featured' ? ' on' : ''}" data-cat="featured">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        통신사별 인기단말
+      </button>
+      ${cats.map(c => `
+        <button class="cat-tab${currentCatTab === c.id ? ' on' : ''}" data-cat="${escapeHtml(c.id)}">
+          ${c.swatch ? `<span class="cat-dot ${escapeHtml(c.swatch)}"></span>` : ''}
+          ${escapeHtml(c.label)}
+        </button>
+      `).join('')}
+      <button class="cat-tab-add" id="cat-manage-open-btn">⚙ 카테고리 관리</button>
+    `;
+    nav.querySelectorAll('.cat-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentCatTab = btn.dataset.cat;
+        renderCatTabs();
+        renderProductList();
+      });
+    });
+    $('#cat-manage-open-btn').addEventListener('click', openCatManage);
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]
+    );
+  }
+
+  // 상품 — 마스터(모델/요금제/공통지원금) 조회 헬퍼
+  function prodInt(v) { const n = parseInt(String(v == null ? '' : v).replace(/[^0-9-]/g, ''), 10); return isNaN(n) ? 0 : n; }
+  function prodFmt(n) { return (n == null || n === '' || isNaN(n)) ? '' : Number(n).toLocaleString(); }
+  function prodModel(id) { return (workingData.models || []).find(m => m.id === id); }
+  function prodSupportAmt(modelId, planId, carrier) {
+    const s = (workingData.support || []).find(x => x.modelId === modelId && x.planId === planId && x.carrier === carrier);
+    return s ? prodInt(s.amount) : 0;
+  }
+
+  function renderProductList() {
+    const list = $('#product-list');
+    const all = workingData.productsPhone || [];
+    let items;
+    if (currentCatTab === 'all') items = all.slice();
+    else if (currentCatTab === 'featured') items = all.filter(p => p.featured);
+    else items = all.filter(p => p.carrier === currentCatTab);
+
+    if (!items.length) {
+      list.innerHTML = '<div class="hint" style="padding:20px; text-align:center">상품이 없습니다.</div>';
+      return;
+    }
+    list.innerHTML = items.map(p => {
+      const m = prodModel(p.modelId);
+      const rel = m ? prodInt(m.releasePrice) : 0;
+      const common = prodSupportAmt(p.modelId, p.planId, p.carrier);
+      const fMnp = rel ? rel - common - prodInt(p.addMnp) : null;
+      const fChg = rel ? rel - common - prodInt(p.addChg) : null;
+      return `
+      <div class="product-item" data-id="${escapeHtml(p.id)}">
+        <span class="pi-handle">≡</span>
+        <div class="pi-name">
+          <span class="pi-tag ${escapeHtml(p.carrier || '')}">${escapeHtml(getCategoryLabel(p.carrier))}</span>
+          ${p.featured ? '<span class="pi-tag" style="background:#FFE0EC; color:#A52555">★ 인기</span>' : ''}
+          ${escapeHtml(m ? m.name : '(모델 없음)')}
+        </div>
+        <div class="pi-meta">번이 ${fMnp != null ? prodFmt(fMnp) + '원' : '-'}</div>
+        <div class="pi-meta">기변 ${fChg != null ? prodFmt(fChg) + '원' : '-'}</div>
+        <button class="btn btn-sm" data-act="edit">편집</button>
+        <button class="btn btn-sm btn-danger" data-act="delete">삭제</button>
+      </div>`;
+    }).join('');
+
+    $$('.product-item button[data-act="edit"]').forEach(btn => {
+      btn.addEventListener('click', () => openProductModal(btn.closest('.product-item').dataset.id));
+    });
+    $$('.product-item button[data-act="delete"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.closest('.product-item').dataset.id;
+        if (!confirm('이 상품을 삭제할까요?')) return;
+        workingData.productsPhone = workingData.productsPhone.filter(p => p.id !== id);
+        renderProductList();
+        setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+      });
+    });
+  }
+
+  // ───── 상품 모달 ─────
+  const modal = $('#product-modal');
+  function updatePmImagePreview() {
+    const url = $('#pm-imageUrl').value;
+    const preview = $('#pm-img-preview');
+    const addBtn = $('#pm-img-add');
+    if (url) {
+      preview.querySelector('img').src = url;
+      preview.style.display = '';
+      addBtn.textContent = '이미지 변경';
+    } else {
+      preview.querySelector('img').src = '';
+      preview.style.display = 'none';
+      addBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg> 이미지 업로드';
+    }
+  }
+  function pmFillModelSelect(selId, carrier) {
+    $('#pm-model').innerHTML = '<option value="">— 모델 선택 —</option>' +
+      (workingData.models || [])
+        .filter(m => (m.carrier || 'skt') === carrier)
+        .map(m => `<option value="${escapeHtml(m.id)}"${m.id === selId ? ' selected' : ''}>${escapeHtml(m.name)}</option>`).join('');
+  }
+  function pmFillPlanSelect(carrier, selId) {
+    const plans = msPlansByCarrier(carrier);
+    $('#pm-plan').innerHTML = '<option value="">— 요금제 선택 —</option>' +
+      plans.map(p => `<option value="${escapeHtml(p.id)}"${p.id === selId ? ' selected' : ''}>${escapeHtml(p.name)}</option>`).join('');
+  }
+  function pmRecalc() {
+    const modelId = $('#pm-model').value, planId = $('#pm-plan').value, carrier = $('#pm-carrier').value;
+    const m = prodModel(modelId);
+    const rel = m ? prodInt(m.releasePrice) : 0;
+    const common = prodSupportAmt(modelId, planId, carrier);
+    $('#pm-release').value = rel ? prodFmt(rel) + '원' : '';
+    $('#pm-common').value = (modelId && planId) ? prodFmt(common) + '원' : '';
+    const calc = (addId, outId) => {
+      $(outId).value = rel ? prodFmt(rel - common - prodInt($(addId).value)) + '원' : '';
+    };
+    calc('#pm-addMnp', '#pm-finalMnp');
+    calc('#pm-addChg', '#pm-finalChg');
+  }
+  function openProductModal(id) {
+    const p = id ? (workingData.productsPhone.find(x => x.id === id) || {}) : {};
+    $('#product-modal-title').textContent = id ? '상품 편집' : '상품 추가';
+    $('#pm-id').value = p.id || '';
+    $('#pm-carrier').value = p.carrier || 'skt';
+    pmFillModelSelect(p.modelId || '', p.carrier || 'skt');
+    pmFillPlanSelect(p.carrier || 'skt', p.planId || '');
+    $('#pm-addMnp').value = (p.addMnp != null && p.addMnp !== '') ? p.addMnp : '';
+    $('#pm-addChg').value = (p.addChg != null && p.addChg !== '') ? p.addChg : '';
+    $('#pm-notice').value = p.notice || '';
+    $('#pm-imageUrl').value = p.imageUrl || '';
+    $('#pm-featured').checked = !!p.featured;
+    updatePmImagePreview();
+    pmRecalc();
+    $('#pm-delete').style.display = id ? 'inline-block' : 'none';
+    modal.classList.add('on');
+  }
+  function closeProductModal() { modal.classList.remove('on'); }
+  $('#pm-cancel').addEventListener('click', closeProductModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeProductModal(); });
+  $('#pm-carrier').addEventListener('change', () => {
+    const car = $('#pm-carrier').value;
+    pmFillModelSelect('', car);
+    pmFillPlanSelect(car, '');
+    pmRecalc();
+  });
+  $('#pm-model').addEventListener('change', pmRecalc);
+  $('#pm-plan').addEventListener('change', pmRecalc);
+  $('#pm-addMnp').addEventListener('input', pmRecalc);
+  $('#pm-addChg').addEventListener('input', pmRecalc);
+
+  // 상품 이미지 업로드 / 제거
+  $('#pm-img-add').addEventListener('click', () => $('#pm-img-file').click());
+  $('#pm-img-clear').addEventListener('click', () => {
+    $('#pm-imageUrl').value = '';
+    $('#pm-img-file').value = '';
+    updatePmImagePreview();
+  });
+  $('#pm-img-file').addEventListener('change', async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    if (file.size > 5 * 1024 * 1024) {
+      toast(`이미지가 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 5MB 이하로.`, true);
+      return;
+    }
+    toast('업로드 중...');
+    try {
+      const url = await DataStore.uploadImage(file, 'product');
+      $('#pm-imageUrl').value = url;
+      updatePmImagePreview();
+      toast('업로드 완료');
+    } catch (err) {
+      console.error(err);
+      toast('업로드 실패: ' + (err?.message || err), true);
+    }
+  });
+
+  $('#pm-save').addEventListener('click', () => {
+    const id = $('#pm-id').value || DataStore.newId();
+    if (!$('#pm-model').value) { toast('모델을 선택해주세요', true); return; }
+    const data = {
+      id,
+      carrier: $('#pm-carrier').value,
+      modelId: $('#pm-model').value,
+      planId: $('#pm-plan').value,
+      addMnp: prodInt($('#pm-addMnp').value) || '',
+      addChg: prodInt($('#pm-addChg').value) || '',
+      notice: $('#pm-notice').value.trim(),
+      imageUrl: $('#pm-imageUrl').value.trim(),
+      featured: $('#pm-featured').checked
+    };
+    const idx = workingData.productsPhone.findIndex(p => p.id === id);
+    if (idx >= 0) workingData.productsPhone[idx] = data;
+    else workingData.productsPhone.push(data);
+    closeProductModal();
+    renderProductList();
+    setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+  });
+
+  $('#pm-delete').addEventListener('click', () => {
+    const id = $('#pm-id').value;
+    if (!id || !confirm('이 상품을 삭제할까요?')) return;
+    workingData.productsPhone = workingData.productsPhone.filter(p => p.id !== id);
+    closeProductModal();
+    renderProductList();
+    setStatus('수정 중 (저장 안 됨)', true); pushPreview();
+  });
+
+  $('#btn-add-product').addEventListener('click', () => openProductModal(null));
+
+  // ───── 카테고리 관리 모달 ─────
+  const catManageModal = $('#cat-manage-modal');
+
+  function renderCatManageList() {
+    const list = $('#cat-manage-list');
+    const cats = getCategories();
+    if (!cats.length) {
+      list.innerHTML = '<div class="hint" style="padding:20px; text-align:center">카테고리가 없습니다. 아래에서 추가하세요.</div>';
+      return;
+    }
+    list.innerHTML = cats.map(c => `
+      <div class="cat-row${c.visible === false ? ' hidden-row' : ''}" data-cat-id="${escapeHtml(c.id)}">
+        <input type="text" class="cat-row-label" data-label="${escapeHtml(c.id)}" value="${escapeHtml(c.label)}"/>
+        <div class="switch${c.visible === false ? '' : ' on'}" data-vis="${escapeHtml(c.id)}" title="${c.visible === false ? '노출 켜기' : '숨기기'}"></div>
+        <button class="cat-row-del" data-del="${escapeHtml(c.id)}">삭제</button>
+      </div>
+    `).join('');
+
+    // 노출 토글
+    list.querySelectorAll('[data-vis]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.vis;
+        const cat = workingData.categories.find(c => c.id === id);
+        const newVis = cat.visible === false ? true : false;
+        try {
+          await DataStore.updateCategory(id, { visible: newVis });
+          cat.visible = newVis;
+          renderCatManageList();
+          renderCatTabs();
+          renderProductList();
+          pushPreview();
+          toast(newVis ? '노출 켰음' : '숨김');
+        } catch (err) {
+          toast('실패: ' + (err?.message || err), true);
+        }
+      });
+    });
+
+    // 라벨 인풋은 저장 버튼 클릭 시 일괄 반영 (자동저장 X)
+
+    // 삭제
+    list.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.del;
+        const cat = workingData.categories.find(c => c.id === id);
+        const usedBy = (workingData.productsPhone || []).filter(p => p.carrier === id).length;
+        const warn = usedBy > 0 ? `\n\n주의: 이 카테고리를 쓰는 상품이 ${usedBy}개 있습니다. 삭제 후에도 상품은 남지만 탭에서 안 보이게 됩니다.` : '';
+        if (!confirm(`"${cat?.label || id}" 카테고리를 영구 삭제할까요?${warn}\n\n숨기고 싶다면 눈 아이콘으로 끄세요.`)) return;
+        try {
+          await DataStore.deleteCategory(id);
+          workingData.categories = workingData.categories.filter(c => c.id !== id);
+          if (currentCatTab === id) currentCatTab = 'all';
+          renderCatManageList();
+          renderCatTabs();
+          renderProductList();
+          pushPreview();
+          toast('카테고리 삭제됨');
+        } catch (err) {
+          toast('삭제 실패: ' + (err?.message || err), true);
+        }
+      });
+    });
+  }
+
+  function openCatManage() {
+    renderCatManageList();
+    catManageModal.classList.add('on');
+  }
+  $('#cat-manage-close').addEventListener('click', () => catManageModal.classList.remove('on'));
+  catManageModal.addEventListener('click', e => { if (e.target === catManageModal) catManageModal.classList.remove('on'); });
+
+  // 라벨 변경분 일괄 저장
+  $('#cat-manage-save').addEventListener('click', async () => {
+    const inputs = $('#cat-manage-list').querySelectorAll('input.cat-row-label');
+    const btn = $('#cat-manage-save');
+    btn.disabled = true;
+    let changeCount = 0;
+    let errorMsg = null;
+    // 입력값 스냅샷 먼저 수집 (DOM이 사라져도 OK)
+    const updates = [];
+    inputs.forEach(input => {
+      const id = input.dataset.label;
+      const newLabel = input.value.trim();
+      if (!id || !newLabel) return;
+      updates.push({ id, newLabel });
+    });
+    console.log('[cat save] updates payload:', updates);
+    try {
+      for (const u of updates) {
+        const cat = (workingData.categories || []).find(c => c.id === u.id);
+        if (!cat) { console.warn('[cat save] no local cat for id', u.id); continue; }
+        if (u.newLabel === (cat.label || '').trim()) continue;
+        console.log('[cat save] DB update', u.id, cat.label, '→', u.newLabel);
+        await DataStore.updateCategory(u.id, { label: u.newLabel });
+        changeCount++;
+      }
+    } catch (err) {
+      console.error('[cat save] error', err);
+      errorMsg = err?.message || String(err);
+    } finally {
+      btn.disabled = false;
+    }
+    // workingData.categories를 _cache의 최신 참조로 강제 동기화
+    const latest = DataStore.load();
+    if (latest && Array.isArray(latest.categories)) {
+      workingData.categories = latest.categories;
+    }
+    renderCatTabs();
+    renderProductList();
+    pushPreview(); // iframe도 즉시 반영
+    catManageModal.classList.remove('on');
+    if (errorMsg) toast('저장 실패: ' + errorMsg, true);
+    else if (changeCount > 0) toast(`이름 ${changeCount}개 변경됨`);
+    else toast('변경사항 없음');
+  });
+
+  // 새 카테고리 추가 (모달 내부) — 라벨만 입력, ID 자동 생성
+  function genCatId() {
+    return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  }
+  async function addNewCategoryFromInput() {
+    const label = $('#cat-new-label').value.trim();
+    if (!label) { toast('카테고리 이름을 입력해주세요', true); return; }
+    const id = genCatId();
+    const btn = $('#cat-new-add');
+    btn.disabled = true;
+    try {
+      const maxOrder = Math.max(0, ...(workingData.categories || []).map(c => c.sort_order || 0));
+      await DataStore.addCategory({ id, label, swatch: '', sort_order: maxOrder + 10, visible: true });
+      workingData.categories = workingData.categories || [];
+      workingData.categories.push({ id, label, swatch: '', sort_order: maxOrder + 10, visible: true });
+      workingData.categories.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      $('#cat-new-label').value = '';
+      renderCatManageList();
+      renderCatTabs();
+      pushPreview();
+      toast('카테고리 추가됨');
+    } catch (err) {
+      console.error(err);
+      toast('추가 실패: ' + (err?.message || err), true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+  $('#cat-new-add').addEventListener('click', addNewCategoryFromInput);
+  $('#cat-new-label').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addNewCategoryFromInput();
+  });
+
+  // ───── 저장 / 되돌리기 / 리셋 ─────
+  async function doSave() {
+    readBannersFromForm();
+    const btns = $$('#btn-save, [data-master-save]');
+    btns.forEach(b => b.disabled = true);
+    setStatus('저장 중...', true);
+    try {
+      const ok = await DataStore.save(workingData);
+      if (ok) {
+        setStatus('저장됨', false);
+        toast('저장 완료');
+        pushPreview();
+      } else {
+        setStatus('저장 실패', true);
+      }
+    } finally {
+      btns.forEach(b => b.disabled = false);
+    }
+  }
+
+  // 핀포인트 저장 래퍼 — 단일 행 저장 시 상태표시·토스트·에러처리
+  async function quickSave(fn, okMsg) {
+    setStatus('저장 중...', true);
+    try {
+      await fn();
+      setStatus('저장됨', false);
+      toast(okMsg || '저장 완료');
+      pushPreview();
+    } catch (e) {
+      setStatus('저장 실패', true);
+      toast('저장 실패: ' + (e && e.message ? e.message : e), true);
+    }
+  }
+
+  function doRevert() {
+    if (dirty && !confirm('수정 내용을 버리고 마지막 저장 상태로 되돌릴까요?')) return;
+    workingData = DataStore.load();
+    loadBannersToForm();
+    renderProductList();
+    renderMaster();
+    setStatus('대기 중', false);
+    toast('되돌렸습니다');
+    pushPreview();
+  }
+
+  $('#btn-save').addEventListener('click', doSave);
+  $('#btn-revert').addEventListener('click', doRevert);
+  $$('[data-master-save]').forEach(b => b.addEventListener('click', doSave));
+  $$('[data-master-revert]').forEach(b => b.addEventListener('click', doRevert));
+
+
+  // 페이지 떠날 때 저장 안 된 변경 경고
+  window.addEventListener('beforeunload', e => {
+    if (dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ───── 본사 관리: 모델 / 통신사별 요금제·공통지원금 ─────
+  const MS_CARRIERS = [
+    { id: 'skt', label: 'SKT' },
+    { id: 'kt',  label: 'KT' },
+    { id: 'lg',  label: 'LG U+' }
+  ];
+  function msInt(v) {
+    const n = parseInt(String(v == null ? '' : v).replace(/[^0-9-]/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  }
+  function msFmt(n) {
+    return (n == null || n === '' || isNaN(n)) ? '' : Number(n).toLocaleString();
+  }
+  function msNewId(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+  function getMSModels()  { if (!Array.isArray(workingData.models))  workingData.models  = []; return workingData.models; }
+  function getMSPlans()   { if (!Array.isArray(workingData.plans))   workingData.plans   = []; return workingData.plans; }
+  function getMSSupport() { if (!Array.isArray(workingData.support)) workingData.support = []; return workingData.support; }
+  // 통신사별 요금제 — 기본요금 높은 순 정렬
+  function msPlansByCarrier(carrier) {
+    return getMSPlans().filter(p => p.carrier === carrier).sort((a, b) => msInt(b.monthlyFee) - msInt(a.monthlyFee));
+  }
+
+  function renderMaster() { renderMSModels(); renderMSPlans(); renderMSSupport(); }
+
+  // 본사 관리(SKT/KT/LG) 표는 무겁다(공통지원금만 입력칸 수천 개) — 첫 진입 때 1회만 생성.
+  // 사이트 편집만 쓰는 동안엔 이 표들이 아예 DOM에 없어서 가벼움.
+  // (masterRendered 플래그는 스크립트 상단에서 선언 — restoreUI보다 먼저 초기화돼야 함)
+  function ensureMasterRendered() {
+    if (masterRendered) return;
+    if (!workingData || !workingData.models) return; // 데이터 로드 전이면 startAdmin이 처리
+    masterRendered = true;
+    renderMaster();
+  }
+
+  // 통신사별 모델 — 숨김(visible:false) 모델은 목록 아래로 (그룹 내 순서는 유지)
+  function msModelsByCarrier(carrier) {
+    return getMSModels()
+      .filter(m => (m.carrier || 'skt') === carrier)
+      .sort((a, b) => Number(a.visible === false) - Number(b.visible === false));
+  }
+
+  function renderMSModels() {
+    MS_CARRIERS.forEach(c => {
+      const el = document.querySelector(`[data-model-list="${c.id}"]`);
+      if (!el) return;
+      const models = msModelsByCarrier(c.id);
+      el.innerHTML = models.length
+        ? `<table class="m-table">
+            <thead><tr><th class="m-num">#</th><th>모델명</th><th>출고가</th><th>색상</th><th>상태</th><th class="m-act">관리</th></tr></thead>
+            <tbody>${models.map((m, i) => `
+              <tr data-id="${escapeHtml(m.id)}"${m.visible === false ? ' class="is-hidden"' : ''}>
+                <td class="m-num">${i + 1}</td>
+                <td class="m-name">${escapeHtml(m.name || '(이름 없음)')}</td>
+                <td class="m-price">${m.releasePrice !== '' && m.releasePrice != null ? msFmt(msInt(m.releasePrice)) + '원' : '-'}</td>
+                <td class="m-colors">${Array.isArray(m.colors) && m.colors.length ? escapeHtml(m.colors.join(', ')) : '<span class="m-dim">미지정</span>'}</td>
+                <td class="m-vis">${m.visible === false ? '<span class="m-hidden-tag">숨김</span>' : '노출'}</td>
+                <td class="m-act">
+                  <button class="btn btn-sm" data-act="mtoggle">${m.visible === false ? '노출' : '숨기기'}</button>
+                  <button class="btn btn-sm" data-act="medit">편집</button>
+                  <button class="btn btn-sm btn-danger" data-act="mdel">삭제</button>
+                </td>
+              </tr>`).join('')}</tbody>
+          </table>`
+        : '<div class="hint ms-empty">등록된 모델이 없습니다. [+ 모델 추가] 또는 [엑셀 업로드]로 시작하세요.</div>';
+    });
+    $$('[data-model-list] button[data-act="mtoggle"]').forEach(b => b.addEventListener('click', async () => {
+      const id = b.closest('[data-id]').dataset.id;
+      const m = getMSModels().find(x => x.id === id);
+      if (!m) return;
+      m.visible = m.visible === false;   // 숨김 ↔ 노출 토글
+      renderMSModels();
+      await quickSave(() => DataStore.saveModel(m, null), m.visible === false ? '숨김 처리됨' : '노출됨');
+    }));
+    $$('[data-model-list] button[data-act="medit"]').forEach(b => b.addEventListener('click', () => openModelModal(b.closest('[data-id]').dataset.id)));
+    $$('[data-model-list] button[data-act="mdel"]').forEach(b => b.addEventListener('click', async () => {
+      const id = b.closest('[data-id]').dataset.id;
+      if (!confirm('이 모델을 삭제할까요? 공통지원금 데이터도 같이 사라집니다.')) return;
+      workingData.models = getMSModels().filter(m => m.id !== id);
+      workingData.support = getMSSupport().filter(s => s.modelId !== id);
+      renderMaster();
+      await quickSave(() => DataStore.deleteModel(id), '모델 삭제됨');
+    }));
+  }
+
+  function renderMSPlans() {
+    MS_CARRIERS.forEach(c => {
+      const el = document.querySelector(`[data-plan-list="${c.id}"]`);
+      if (!el) return;
+      const plans = msPlansByCarrier(c.id);
+      el.innerHTML = plans.length
+        ? plans.map(p => `
+          <div class="product-item" data-id="${escapeHtml(p.id)}">
+            <span class="pi-handle">≡</span>
+            <div class="pi-name">${escapeHtml(p.name || '(이름 없음)')}</div>
+            <div class="pi-meta">${p.monthlyFee !== '' && p.monthlyFee != null ? '월 ' + msFmt(msInt(p.monthlyFee)) + '원' : '월요금 미지정'}</div>
+            <button class="btn btn-sm" data-act="pedit">편집</button>
+            <button class="btn btn-sm btn-danger" data-act="pdel">삭제</button>
+          </div>`).join('')
+        : '<div class="hint ms-empty">등록된 요금제가 없습니다.</div>';
+    });
+    $$('[data-plan-list] button[data-act="pedit"]').forEach(b => b.addEventListener('click', () => openPlanModal(b.closest('.product-item').dataset.id)));
+    $$('[data-plan-list] button[data-act="pdel"]').forEach(b => b.addEventListener('click', async () => {
+      const id = b.closest('.product-item').dataset.id;
+      if (!confirm('이 요금제를 삭제할까요? 공통지원금 데이터도 같이 사라집니다.')) return;
+      workingData.plans = getMSPlans().filter(p => p.id !== id);
+      workingData.support = getMSSupport().filter(s => s.planId !== id);
+      renderMaster();
+      await quickSave(() => DataStore.deletePlan(id), '요금제 삭제됨');
+    }));
+  }
+
+  // 공통지원금 표 — woozoo 방식: 모든 칸이 항상 <input>.
+  // 클릭해도 DOM 변형이 없어(이미 input이 있으니) 리플로우가 안 터짐.
+  // 3사 그리드를 모두 만들어 둠 — 통신사 전환은 CSS(content-visibility:hidden)가 처리.
+  // 비활성 패널은 cv:hidden이라 레이아웃이 보존돼 재표시가 빠름(재렌더 안 함).
+  function renderMSSupport() {
+    const support = getMSSupport();
+    // (carrier|model|plan) → amount 맵 — 셀마다 find() 하던 O(n²) 제거
+    const amtMap = {};
+    support.forEach(s => { amtMap[s.carrier + '|' + s.modelId + '|' + s.planId] = s.amount; });
+    const fmtAmt = v => (v != null && v !== '') ? msFmt(msInt(v)) : '';
+    MS_CARRIERS.forEach(c => {
+      const wrap = document.querySelector(`[data-support-wrap="${c.id}"]`);
+      if (!wrap) return;
+      const plans = msPlansByCarrier(c.id);
+      // 공통지원금 표는 노출 모델만 — 숨김 모델은 사이트에 안 나오고, 표가 무거워짐
+      const cModels = msModelsByCarrier(c.id).filter(m => m.visible !== false);
+      if (!cModels.length || !plans.length) {
+        wrap.innerHTML = `<div class="hint ms-empty">${c.label} 모델과 요금제를 먼저 등록하세요.</div>`;
+        return;
+      }
+      // table-layout:fixed라 표 너비를 명시 — 첫열 180 + 공시일 92 + 요금제열 120씩
+      const tableW = 180 + 92 + plans.length * 120;
+      wrap.innerHTML = `<div class="ms-table-scroll"><table class="ms-table" style="width:${tableW}px">
+        <thead><tr><th class="ms-corner">모델 \\ 요금제</th><th class="ms-notice">공시일</th>${plans.map(p => `<th title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</th>`).join('')}</tr></thead>
+        <tbody>${cModels.map(m => `<tr data-model="${escapeHtml(m.id)}">
+          <td class="ms-plan" title="${escapeHtml(m.name)}">${escapeHtml(m.name)}</td>
+          <td class="ms-notice">${m.noticeDate ? escapeHtml(m.noticeDate) : '-'}</td>
+          ${plans.map(p => `<td><input class="ms-sup" data-plan="${escapeHtml(p.id)}" data-carrier="${c.id}" value="${fmtAmt(amtMap[c.id + '|' + m.id + '|' + p.id])}" placeholder="-" inputmode="numeric"></td>`).join('')}
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+      // 위임 핸들러 1세트 — 셀(input)마다 리스너 안 붙임. wrap은 innerHTML 갈려도 유지됨
+      if (!wrap.dataset.supBound) {
+        wrap.dataset.supBound = '1';
+        wrap.addEventListener('focusin', onMSSupportFocus);
+        wrap.addEventListener('focusout', onMSSupportBlur);
+        wrap.addEventListener('keydown', e => {
+          if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('ms-sup')) e.target.blur();
+        });
+      }
+    });
+  }
+
+  // 포커스 — 쉼표 빼고 raw 숫자로(편집 쉽게), 원래값 기억
+  function onMSSupportFocus(e) {
+    const inp = e.target;
+    if (!inp.classList || !inp.classList.contains('ms-sup')) return;
+    inp.dataset.orig = inp.value.replace(/[^0-9-]/g, '');
+    inp.value = inp.dataset.orig;
+    inp.select();
+  }
+
+  // 블러 — 값 다시 포맷, 바뀐 칸만 DB에 행 1개 저장 (woozoo saveSupportCell 방식)
+  function onMSSupportBlur(e) {
+    const inp = e.target;
+    if (!inp.classList || !inp.classList.contains('ms-sup')) return;
+    const raw = inp.value.replace(/[^0-9-]/g, '');
+    const orig = inp.dataset.orig || '';
+    inp.value = raw === '' ? '' : (parseInt(raw, 10) || 0).toLocaleString();
+    if (raw === orig) return;   // 변경 없음 — 저장 스킵
+    const tr = inp.closest('tr');
+    const modelId = tr.dataset.model, planId = inp.dataset.plan, carrier = inp.dataset.carrier;
+    const support = getMSSupport();
+    const idx = support.findIndex(x => x.modelId === modelId && x.planId === planId && x.carrier === carrier);
+    setStatus('저장 중...', true);
+    const done = () => setStatus('저장됨', false);
+    const fail = err => { setStatus('저장 실패', true); toast('저장 실패: ' + (err && err.message || err), true); };
+    if (raw === '') {
+      if (idx >= 0) support.splice(idx, 1);
+      DataStore.deleteSupport(modelId, planId, carrier).then(done).catch(fail);
+    } else {
+      const amt = parseInt(raw, 10) || 0;
+      let entry;
+      if (idx >= 0) { support[idx].amount = amt; entry = support[idx]; }
+      else { entry = { id: msNewId('s'), modelId, planId, carrier, amount: amt }; support.push(entry); }
+      DataStore.saveSupport(entry).then(done).catch(fail);
+    }
+  }
+
+  // ───── 모델 모달 ─────
+  const modelModal = $('#model-modal');
+  let modelModalCarrier = 'skt';
+  function openModelModal(id, carrier) {
+    const m = id ? (getMSModels().find(x => x.id === id) || {}) : {};
+    modelModalCarrier = id ? (m.carrier || 'skt') : (carrier || 'skt');
+    const cLabel = (MS_CARRIERS.find(c => c.id === modelModalCarrier) || {}).label || '';
+    $('#model-modal-title').textContent = (id ? '모델 편집' : '모델 추가') + (cLabel ? ` · ${cLabel}` : '');
+    $('#mm-id').value = m.id || '';
+    $('#mm-name').value = m.name || '';
+    $('#mm-price').value = (m.releasePrice !== '' && m.releasePrice != null) ? msFmt(msInt(m.releasePrice)) : '';
+    $$('.mm-color').forEach((inp, i) => {
+      inp.value = (Array.isArray(m.colors) && m.colors[i]) ? m.colors[i] : '';
+    });
+    $('#mm-delete').style.display = id ? 'inline-block' : 'none';
+    modelModal.classList.add('on');
+  }
+  function closeModelModal() { modelModal.classList.remove('on'); }
+  $('#mm-cancel').addEventListener('click', closeModelModal);
+  modelModal.addEventListener('click', e => { if (e.target === modelModal) closeModelModal(); });
+  $$('[data-add-model]').forEach(b => b.addEventListener('click', () => openModelModal(null, b.dataset.addModel)));
+
+  // ───── 엑셀 내보내기 / 가져오기 (모델, 통신사별) ─────
+  const XLS_HEADER = ['id(수정금지)', '모델명', '출고가', '색상1', '색상2', '색상3', '색상4', '색상5', '숨김(Y)'];
+  function exportModelsXlsx(carrier) {
+    if (typeof XLSX === 'undefined') { toast('엑셀 라이브러리 로딩 중 — 잠시 후 다시', true); return; }
+    const cLabel = (MS_CARRIERS.find(c => c.id === carrier) || {}).label || carrier;
+    const aoa = [XLS_HEADER];
+    msModelsByCarrier(carrier).forEach(m => {
+      const cols = Array.isArray(m.colors) ? m.colors : [];
+      aoa.push([
+        m.id, m.name || '', msInt(m.releasePrice) || '',
+        cols[0] || '', cols[1] || '', cols[2] || '', cols[3] || '', cols[4] || '',
+        m.visible === false ? 'Y' : ''
+      ]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{ wch: 18 }, { wch: 26 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 9 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, cLabel);
+    XLSX.writeFile(wb, `모델_${cLabel}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  let xlsUploadCarrier = null;
+  function importModelsXlsx(carrier, file) {
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const wb = XLSX.read(ev.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false });
+        const list = [];
+        rows.slice(1).forEach(r => {
+          const name = String(r[1] == null ? '' : r[1]).trim();
+          if (!name) return;
+          const colors = [r[3], r[4], r[5], r[6], r[7]]
+            .map(x => String(x == null ? '' : x).trim()).filter(Boolean);
+          list.push({
+            id: String(r[0] == null ? '' : r[0]).trim() || msNewId('m'),
+            name, carrier,
+            releasePrice: msInt(r[2]) || '',
+            colors,
+            visible: String(r[8] == null ? '' : r[8]).trim().toUpperCase() !== 'Y'
+          });
+        });
+        if (!list.length) { toast('엑셀에서 읽을 모델이 없습니다', true); return; }
+        const cLabel = (MS_CARRIERS.find(c => c.id === carrier) || {}).label || carrier;
+        if (!confirm(`${cLabel} 모델을 엑셀의 ${list.length}건으로 전체 교체할까요?\n현재 목록은 사라집니다.`)) return;
+        workingData.models = getMSModels().filter(m => (m.carrier || 'skt') !== carrier).concat(list);
+        renderMaster();
+        await quickSave(() => DataStore.replaceCarrierModels(carrier, list), `${cLabel} 모델 ${list.length}건 교체됨`);
+      } catch (err) {
+        console.error('[xls import]', err);
+        toast('엑셀 처리 실패: ' + (err && err.message ? err.message : err), true);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+  $$('[data-xls-down]').forEach(b => b.addEventListener('click', () => exportModelsXlsx(b.dataset.xlsDown)));
+  $$('[data-xls-up]').forEach(b => b.addEventListener('click', () => {
+    if (typeof XLSX === 'undefined') { toast('엑셀 라이브러리 로딩 중 — 잠시 후 다시', true); return; }
+    xlsUploadCarrier = b.dataset.xlsUp;
+    $('#xls-file').value = '';
+    $('#xls-file').click();
+  }));
+  $('#xls-file').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if (file && xlsUploadCarrier) importModelsXlsx(xlsUploadCarrier, file);
+  });
+  $('#mm-price').addEventListener('input', e => { const n = msInt(e.target.value); e.target.value = n ? n.toLocaleString() : ''; });
+  $('#mm-save').addEventListener('click', async () => {
+    const id = $('#mm-id').value || msNewId('m');
+    const name = $('#mm-name').value.trim();
+    if (!name) { toast('모델명을 입력해주세요', true); return; }
+    const idx = getMSModels().findIndex(x => x.id === id);
+    const prev = idx >= 0 ? getMSModels()[idx] : null;
+    const data = {
+      id, name,
+      carrier: modelModalCarrier,
+      releasePrice: msInt($('#mm-price').value) || '',
+      colors: $$('.mm-color').map(inp => inp.value.trim()).filter(Boolean),
+      noticeDate: prev ? prev.noticeDate : '',   // 공시일은 크롤러 관리값 — 편집 시 보존
+      visible: true
+    };
+    const isNew = idx < 0;
+    if (isNew) workingData.models.push(data); else workingData.models[idx] = data;
+    renderMSModels();
+    await quickSave(() => DataStore.saveModel(data, isNew ? Date.now() : null), '모델 저장됨');
+    closeModelModal();
+  });
+  $('#mm-delete').addEventListener('click', async () => {
+    const id = $('#mm-id').value;
+    if (!id || !confirm('이 모델을 삭제할까요?')) return;
+    workingData.models = getMSModels().filter(m => m.id !== id);
+    workingData.support = getMSSupport().filter(s => s.modelId !== id);
+    renderMaster();
+    await quickSave(() => DataStore.deleteModel(id), '모델 삭제됨');
+    closeModelModal();
+  });
+
+  // ───── 요금제 모달 ─────
+  const planModal = $('#plan-modal');
+  let planModalCarrier = 'skt';
+  function openPlanModal(id, carrier) {
+    const p = id ? (getMSPlans().find(x => x.id === id) || {}) : {};
+    planModalCarrier = id ? (p.carrier || carrier || 'skt') : (carrier || 'skt');
+    const cl = (MS_CARRIERS.find(c => c.id === planModalCarrier) || {}).label || '';
+    $('#plan-modal-title').textContent = (id ? '요금제 편집' : '요금제 추가') + ' — ' + cl;
+    $('#plm-id').value = p.id || '';
+    $('#plm-name').value = p.name || '';
+    $('#plm-fee').value = (p.monthlyFee !== '' && p.monthlyFee != null) ? msFmt(msInt(p.monthlyFee)) : '';
+    $('#plm-delete').style.display = id ? 'inline-block' : 'none';
+    planModal.classList.add('on');
+  }
+  function closePlanModal() { planModal.classList.remove('on'); }
+  $('#plm-cancel').addEventListener('click', closePlanModal);
+  planModal.addEventListener('click', e => { if (e.target === planModal) closePlanModal(); });
+  $$('[data-add-plan]').forEach(b => b.addEventListener('click', () => openPlanModal(null, b.dataset.addPlan)));
+  $('#plm-fee').addEventListener('input', e => { const n = msInt(e.target.value); e.target.value = n ? n.toLocaleString() : ''; });
+  $('#plm-save').addEventListener('click', async () => {
+    const id = $('#plm-id').value || msNewId('pl');
+    const name = $('#plm-name').value.trim();
+    if (!name) { toast('요금제명을 입력해주세요', true); return; }
+    const data = { id, name, monthlyFee: msInt($('#plm-fee').value) || '', carrier: planModalCarrier };
+    const idx = getMSPlans().findIndex(x => x.id === id);
+    const isNew = idx < 0;
+    if (isNew) workingData.plans.push(data); else workingData.plans[idx] = data;
+    renderMSPlans();
+    renderMSSupport();
+    await quickSave(() => DataStore.savePlan(data, isNew ? Date.now() : null), '요금제 저장됨');
+    closePlanModal();
+  });
+  $('#plm-delete').addEventListener('click', async () => {
+    const id = $('#plm-id').value;
+    if (!id || !confirm('이 요금제를 삭제할까요?')) return;
+    workingData.plans = getMSPlans().filter(p => p.id !== id);
+    workingData.support = getMSSupport().filter(s => s.planId !== id);
+    renderMaster();
+    await quickSave(() => DataStore.deletePlan(id), '요금제 삭제됨');
+    closePlanModal();
+  });
+
+  // ─────────────────────────────────────────────────
+  // 인증 게이트 — 로그인 + mobileshop_store_id 태그 확인 후에만 관리자 화면 진입
+  // ─────────────────────────────────────────────────
+  let _adminStarted = false;
+
+  // 관리자 데이터 로드 (인증 통과 후 1회 실행)
+  function startAdmin() {
+    if (_adminStarted) return;
+    _adminStarted = true;
+    $('#login-gate').style.display = 'none';
+    setStatus('불러오는 중...', false);
+    DataStore.init().then(() => {
+      workingData = DataStore.load();
+      if (!workingData.categories) workingData.categories = DEFAULT_CATEGORIES.slice();
+      loadBannersToForm();
+      renderCatTabs();
+      renderProductList();
+      // 본사 관리 표는 지연 렌더 — 시작 탭이 통신사일 때만 즉시 생성
+      if (['skt', 'kt', 'lg'].includes(loadUI().tab)) ensureMasterRendered();
+      setStatus('대기 중', false);
+      pushPreview(); // iframe이 먼저 ready 보냈을 경우 대비
+    }).catch(err => {
+      console.error('[admin init]', err);
+      setStatus('로드 실패', true);
+      toast('데이터 로드 실패 — 콘솔 확인', true);
+    });
+  }
+
+  // 게이트 화면 전환
+  function showGate(view) { // 'checking' | 'login' | 'denied'
+    $('#login-checking').hidden = view !== 'checking';
+    $('#login-form').hidden     = view !== 'login';
+    $('#login-denied').hidden   = view !== 'denied';
+  }
+
+  // 세션 → 태그 확인 → 진입 또는 거부
+  async function gateBySession(session) {
+    if (!session || !session.user) { showGate('login'); return; }
+    const tag = session.user.app_metadata && session.user.app_metadata.mobileshop_store_id;
+    if (!tag) { showGate('denied'); return; }
+    const email = session.user.email || '';
+    $('#acct-email').textContent = email;
+    $('#acct-initial').textContent = email.charAt(0) || '?';
+    startAdmin();
+  }
+
+  // 로그인 폼 제출
+  $('#login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $('#login-email').value.trim();
+    const pw = $('#login-pw').value;
+    const errEl = $('#login-err');
+    const btn = $('#login-submit');
+    errEl.hidden = true;
+    btn.disabled = true; btn.textContent = '로그인 중…';
+    try {
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password: pw });
+      if (error) throw error;
+      await gateBySession(data.session);
+    } catch (err) {
+      errEl.textContent = (err && /invalid/i.test(err.message || ''))
+        ? '이메일 또는 비밀번호가 올바르지 않습니다.'
+        : '로그인 실패: ' + ((err && err.message) || err);
+      errEl.hidden = false;
+    } finally {
+      btn.disabled = false; btn.textContent = '로그인';
+    }
+  });
+
+  // 로그아웃 (헤더 + 거부 화면 공용)
+  async function doLogout() {
+    try { await window.supabaseClient.auth.signOut(); } catch (e) {}
+    location.reload();
+  }
+  $('#btn-logout').addEventListener('click', doLogout);
+  $('#login-denied-out').addEventListener('click', doLogout);
+
+  // 부트 — 기존 세션 확인 (타임아웃: getSession이 매달려도 4초 뒤 로그인 화면으로)
+  (async () => {
+    showGate('checking');
+    try {
+      const sessionP = window.supabaseClient.auth.getSession();
+      const timeoutP = new Promise((_, rej) =>
+        setTimeout(() => rej(new Error('세션 확인 시간 초과')), 4000));
+      const { data } = await Promise.race([sessionP, timeoutP]);
+      await gateBySession(data.session);
+    } catch (err) {
+      console.warn('[admin auth] 세션 확인 지연/실패 — 로그인 화면 표시:', err);
+      showGate('login');
+    }
+  })();
+</script>
+
+</body>
+</html>
