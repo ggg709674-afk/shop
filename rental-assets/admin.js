@@ -438,7 +438,6 @@
       state.products = (data.products || []).filter(p =>
         (p.categories || []).some(c => VISIBLE_CATS.includes(c))
       );
-      _comHomeMap = null;   // 정책표 매칭맵을 상품관리 최신 목록으로 재구성
 
     } catch(e){
       console.error('[admin] App.db() 실패', e);
@@ -2827,20 +2826,25 @@
   function comHomeMap(){
     if (_comHomeMap) return _comHomeMap;
     const m = {};
-    const prods = (state.products && state.products.length)
-      ? state.products
-      : ((window.PRODUCTS_DB && window.PRODUCTS_DB.products) || []);  // 부팅 초기 폴백
-    const add = (model, name, tag) => {
-      if (!model) return;
-      const b = comBaseCode(model).slice(0, 10);
-      if (!m[b]) m[b] = { name, model, tag };
-    };
-    prods.forEach(p => {
-      add(p.model, p.name, p.tag);
-      (p._siblings || []).forEach(s => add(s.model, p.name, p.tag));  // 색상 변형 코드도 매칭
+    // 표시명·표시코드는 원본 db.js 상품을 그대로 사용 → 같은 계열의 다른 상품
+    //   (예: PSG 콜라보 …P)이 각자 고유 이름을 유지한다(= 기존 렌탈 사이트와 동일).
+    //   ※ App.db() 색상그룹은 PSG(P급)를 일반(S급)의 색상변형으로 묶어버려,
+    //     state.products + _siblings 로 만들면 PSG 이름이 부모명에 먹혀
+    //     "초소형 정수기"가 두 번 뜨는 것처럼 보였음(중복 착시).
+    // 단, 노출 4개 카테고리(= 상품관리)에 속한 base10 만 통과 → 일시불/프레임 제외.
+    const raw = (window.PRODUCTS_DB && window.PRODUCTS_DB.products) || [];
+    const allow = new Set(
+      raw.filter(p => (p.categories || []).some(c => VISIBLE_CATS.includes(c)))
+         .map(p => comBaseCode(p.model || '').slice(0, 10))
+         .filter(Boolean)
+    );
+    raw.forEach(p => {
+      if (!p.model) return;
+      const b = comBaseCode(p.model).slice(0, 10);
+      if (!allow.has(b)) return;
+      if (!m[b]) m[b] = { name: p.name, model: p.model, tag: p.tag };
     });
-    // state.products 가 아직 비어 있으면(부팅 폴백) 캐시하지 않고 다음 호출 때 재계산
-    if (Object.keys(m).length && state.products && state.products.length) _comHomeMap = m;
+    if (Object.keys(m).length) _comHomeMap = m;
     return m;
   }
   function comHomeMatch(code){
