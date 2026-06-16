@@ -1,11 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────
-// supabase-client.js — woozoo-apps 프로젝트 클라이언트
+// supabase-client.js — woozoo-shop 프로젝트 클라이언트 (합본 전용, skmagic/woozoo-apps 와 완전 분리)
 // 이 파일은 @supabase/supabase-js (CDN UMD) 로드 직후 실행돼야 함
 // anon key는 브라우저 노출 안전 (Supabase 공식 정책)
 // ─────────────────────────────────────────────────────────────────────
 
-const SUPABASE_URL = 'https://qpexfvwrlwkpjyihlnwz.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwZXhmdndybHdrcGp5aWhsbnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTAwMTIsImV4cCI6MjA5MzQ2NjAxMn0.Aq1b2i5UpQ2Y48nWlnygkkxrw-h8GufAkl8L8K8e0kY';
+const SUPABASE_URL = 'https://nfbpbxfpmcrtxsgvnnhr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mYnBieGZwbWNydHhzZ3ZubmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1ODQ4OTQsImV4cCI6MjA5NzE2MDg5NH0.0JhTeZNkjisxed692QuxbDH4vFcJBJALpOaMpNA-LpM';
 
 if (!window.supabase || !window.supabase.createClient) {
   console.error('[supabase-client] @supabase/supabase-js CDN이 먼저 로드돼야 합니다.');
