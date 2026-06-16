@@ -917,6 +917,10 @@ textarea.adm-input{resize:vertical; min-height:60px; line-height:1.5}
 .adm-cd-table .cd-result strong{color:var(--primary); font-weight:800}
 .adm-cd-table .col-cd-sep{border-left:2px solid var(--line)}
 
+/* 정책표 검수 안내 — 상품관리 대비 누락/매칭 여부 */
+#com-source-hint .com-audit-warn{color:var(--primary,#DE4F41); font-weight:700; cursor:help; white-space:pre-line}
+#com-source-hint .com-audit-ok{color:#2f9e57; font-weight:600}
+
 /* ===== 수수료 확인 테이블 ===== */
 /* 고정 레이아웃 — 카테고리 전환해도 열 너비가 colgroup 기준으로 일정 */
 .adm-com-table{width:auto; min-width:1512px; table-layout:fixed}

@@ -219,13 +219,23 @@
     if (!goodsId) return { error: new Error('goodsId 필요') };
     const row = { goods_id: goodsId, ...patch, updated_at: new Date().toISOString() };
     delete row.store_id;  // 합본 테이블엔 store_id 없음 (혹시 patch에 섞여와도 제거)
-    const { data, error } = await window.sb
-      .from('mobileshop_rental_overrides')
-      .upsert(row, { onConflict: 'goods_id' })
-      .select()
-      .maybeSingle();
-    if (error) console.warn('[skmUpsertOverride]', error);
-    return { data, error };
+    // 스키마에 없는 컬럼(예: featured_rank 미보강 프로젝트)이 섞여 PGRST204 가 나면
+    // 해당 컬럼을 떼고 1회 재시도 → 컬럼 보강 전에도 노출/추천 토글이 동기화되게 함.
+    let attempt = row, lastErr = null;
+    for (let i = 0; i < 5; i++){
+      const { data, error } = await window.sb
+        .from('mobileshop_rental_overrides')
+        .upsert(attempt, { onConflict: 'goods_id' })
+        .select()
+        .maybeSingle();
+      if (!error) return { data, error: null };
+      lastErr = error;
+      const miss = error.code === 'PGRST204' && /'([^']+)' column/.exec(error.message || '');
+      if (miss && miss[1] in attempt){ attempt = { ...attempt }; delete attempt[miss[1]]; continue; }
+      break;
+    }
+    console.warn('[skmUpsertOverride]', lastErr);
+    return { data: null, error: lastErr };
   };
 
   window.skmDeleteOverride = async function(storeId, goodsId){

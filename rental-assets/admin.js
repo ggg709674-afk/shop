@@ -168,13 +168,13 @@
     _syncPending++;
     setSyncStatus('● 동기화 중…');
     try {
+      // 합본(woozoo-shop) 단일 테이블 헬퍼 경유 — store_id 없는 mobileshop_rental_overrides.
+      // (구 admin_overrides 직결 시 새 프로젝트엔 테이블이 없어 동기화 실패)
       if (rowIsEmpty(row)){
-        await window.sb.from('admin_overrides').delete()
-          .eq('store_id', row.store_id)
-          .eq('goods_id', gid);
+        const { error } = await window.skmDeleteOverride(row.store_id, gid);
+        if (error) throw error;
       } else {
-        const { error } = await window.sb.from('admin_overrides')
-          .upsert(row, { onConflict: 'store_id,goods_id' });
+        const { error } = await window.skmUpsertOverride(row.store_id, gid, row);
         if (error) throw error;
       }
       // localStorage 백업
@@ -245,10 +245,10 @@
     try {
       const rows = overridesToRows(state.store.id, state.products, state.overrides);
       if (rows.length){
-        const { error } = await window.sb
-          .from('admin_overrides')
-          .upsert(rows, { onConflict: 'store_id,goods_id' });
-        if (error) throw error;
+        // 합본 단일 테이블(mobileshop_rental_overrides) — store_id 없는 헬퍼 경유(스키마 누락 컬럼 자동 보정)
+        const results = await Promise.all(rows.map(r => window.skmUpsertOverride(r.store_id, r.goods_id, r)));
+        const failed = results.find(x => x && x.error);
+        if (failed) throw failed.error;
       }
       state.dirty = false;
       updateDirtyFlag();
@@ -438,6 +438,8 @@
       state.products = (data.products || []).filter(p =>
         (p.categories || []).some(c => VISIBLE_CATS.includes(c))
       );
+      _comHomeMap = null;   // 정책표 매칭맵을 상품관리 최신 목록으로 재구성
+
     } catch(e){
       console.error('[admin] App.db() 실패', e);
       document.getElementById('products-tbody').innerHTML =
@@ -2480,7 +2482,11 @@
     } else if (db.built_at){
       when = `갱신 ${escape(db.built_at)} · `;
     }
-    hint.innerHTML = `${when}홈페이지 등록 모델 ${models}종 · 색상은 묶어서 표시(요금·수수료 동일)`;
+    const missing = comMissingProducts();
+    const auditTxt = missing.length
+      ? ` · <span class="com-audit-warn" title="${escape(missing.map(p=>p.name).join('\n'))}">⚠ 정책표 누락 ${missing.length}종</span>`
+      : ` · <span class="com-audit-ok">✓ 상품관리 전부 매칭</span>`;
+    hint.innerHTML = `${when}홈페이지 등록 모델 ${models}종 · 색상은 묶어서 표시(요금·수수료 동일)${auditTxt}`;
   }
 
   /* ─── 엑셀 업로드 (드래그앤드랍 / 클릭) ───────────── */
@@ -2809,26 +2815,48 @@
     return { name: m, code: '' };
   }
 
-  /* 수수료표 행을 홈페이지(PRODUCTS_DB) 기준으로 매칭.
+  /* 수수료표 행을 홈페이지 등록 상품(상품관리) 기준으로 매칭.
      제품코드 앞 10자리(=베이스+등급 S/P)로 lookup → 홈페이지 제품명·모델코드 사용.
      이렇게 해야 정책표 표기("스탠드형직수얼음")가 아니라 홈페이지 표기
-     ("FS직수 얼음 정수기 프리스탠딩")로 보이고, PSG 콜라보(…P)도 분리된다. */
+     ("FS직수 얼음 정수기 프리스탠딩")로 보이고, PSG 콜라보(…P)도 분리된다.
+     ※ 기준 = state.products(= 상품관리에 실제 올라간 4개 노출카테고리 상품)만.
+        PRODUCTS_DB 전체를 쓰면 일시불/프레임 등 상품관리에 없는 모델까지
+        정책표에 노출돼 버린다(예: 에코미니·언더싱크·프레임·헤드보드).
+        색상 변형은 _siblings 까지 포함해 누락 없이 매칭. */
   let _comHomeMap = null;
   function comHomeMap(){
     if (_comHomeMap) return _comHomeMap;
     const m = {};
-    const prods = (window.PRODUCTS_DB && window.PRODUCTS_DB.products) || [];
+    const prods = (state.products && state.products.length)
+      ? state.products
+      : ((window.PRODUCTS_DB && window.PRODUCTS_DB.products) || []);  // 부팅 초기 폴백
+    const add = (model, name, tag) => {
+      if (!model) return;
+      const b = comBaseCode(model).slice(0, 10);
+      if (!m[b]) m[b] = { name, model, tag };
+    };
     prods.forEach(p => {
-      if (!p.model) return;
-      const b = comBaseCode(p.model).slice(0, 10);
-      if (!m[b]) m[b] = { name: p.name, model: p.model, tag: p.tag };
+      add(p.model, p.name, p.tag);
+      (p._siblings || []).forEach(s => add(s.model, p.name, p.tag));  // 색상 변형 코드도 매칭
     });
-    _comHomeMap = m;
+    // state.products 가 아직 비어 있으면(부팅 폴백) 캐시하지 않고 다음 호출 때 재계산
+    if (Object.keys(m).length && state.products && state.products.length) _comHomeMap = m;
     return m;
   }
   function comHomeMatch(code){
     if (!code) return null;
     return comHomeMap()[comBaseCode(code).slice(0, 10)] || null;
+  }
+  /* 검수용 — 상품관리(state.products)에 있으나 정책표(comDB)에 매칭 행이 없는 상품.
+     이런 상품은 정책가가 없어 본사 크롤 가격으로 표시된다(누락 안내 대상). */
+  function comMissingProducts(){
+    const db = comDB();
+    if (!db) return [];
+    const have = new Set((db.rows || []).map(r => comBaseCode(r.코드).slice(0, 10)));
+    return (state.products || []).filter(p => {
+      const codes = [p.model, ...((p._siblings || []).map(s => s.model))].filter(Boolean);
+      return !codes.some(c => have.has(comBaseCode(c).slice(0, 10)));
+    });
   }
   /* 표시용 모델명/제품코드 — 홈페이지 매칭 우선, 실패 시 정책표 파싱값.
      매트리스는 사이즈(SS/Q/K)를 모델명 뒤에 붙이고 제품코드는 사이즈별 실제 코드 사용. */

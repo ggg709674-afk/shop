@@ -36,12 +36,14 @@ create table if not exists public.mobileshop_rental_settings (
 -- 오버라이드 — skmagic admin_overrides 호환 컬럼 (store_id 없음)
 create table if not exists public.mobileshop_rental_overrides (
   goods_id text primary key,
-  hidden boolean default false, featured boolean default false, order_index integer,
+  hidden boolean default false, featured boolean default false, featured_rank integer, order_index integer,
   name_override text, benefits_override text[], tag_override text,
   price_regular text, price_sale text, price_compete text, price_card text,
   display_term integer, display_care text, display_mode text,
   memo text, updated_at timestamptz not null default now()
 );
+-- 기존 프로젝트(이미 테이블 생성됨)용 — 추천 순서 컬럼 보강(멱등)
+alter table public.mobileshop_rental_overrides add column if not exists featured_rank integer;
 -- 상담/주문 — skmagic consultations 호환 컬럼 (store_id 없음)
 create table if not exists public.mobileshop_rental_consultations (
   id uuid primary key default gen_random_uuid(),
