@@ -30,7 +30,7 @@
      → rental.html <head> 의 window.RENTAL_STORE_SLUG 를 그대로 사용.
        매장을 바꾸려면 rental.html 의 RENTAL_STORE_SLUG 와 아래 fallback('skmagic')을 함께 수정. */
   window.skmGetSlug = function(){
-    return window.RENTAL_STORE_SLUG || 'skmagic';
+    return window.RENTAL_STORE_SLUG || 'woozoo_shop';
   };
 
   /* ─── 매장 경로 헬퍼 ───────────────────────────────
@@ -115,7 +115,7 @@
   /* ─── 합본 단일샵 — stores 테이블 없음. 합성 매장 객체 반환 ─────
      skmagic 멀티테넌트(분양/매장)는 합본에서 미사용. 단일 매장 '우주커넥트' 고정. */
   const _COMBINED_STORE = {
-    id: 'woozoo', slug: 'woozoo', name: '우주커넥트', type: 'shop',
+    id: 'woozoo_shop', slug: 'woozoo_shop', name: '우주커넥트', type: 'shop',
     parent_store_id: null, margin_group: null,
     biz_no: null, biz_owner: null, mail_order_no: null, address: null,
     phone: null, email: null, biz_hours: null, kakao_url: null,

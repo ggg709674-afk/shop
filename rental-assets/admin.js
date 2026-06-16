@@ -3080,14 +3080,12 @@
        (?store=다른매장 으로 바꿔치기 해도 차단)
      - 연결된 매장 없음(외부 앱 계정 등): 차단 */
   function authorizeAdmin(slug, authCtx){
+    // 합본 단일샵 — 멀티테넌트(분양 매장 간 교차접근) 개념 없음.
+    // 관리자 = 로그인 + app_metadata.mobileshop_store_id 클레임 보유(= RLS 쓰기 권한과 동일 기준).
+    // (손님 회원가입 계정은 이 클레임이 없어 admin UI 진입 차단)
     if (!authCtx || !authCtx.user) return { ok:false, reason:'로그인이 필요합니다.' };
-    if (authCtx.isSuperAdmin) return { ok:true };
-    if (!authCtx.store){
-      return { ok:false, reason:'이 계정에 연결된 매장이 없습니다. 매장 운영자 계정으로 로그인하세요.' };
-    }
-    if (slug && slug !== authCtx.store.slug){
-      return { ok:false, reason:`이 매장(${slug}) 의 관리 권한이 없습니다.` };
-    }
+    var claim = authCtx.user.app_metadata && authCtx.user.app_metadata.mobileshop_store_id;
+    if (!claim) return { ok:false, reason:'관리자 권한이 없는 계정입니다. 관리자 계정으로 로그인하세요.' };
     return { ok:true };
   }
 
@@ -3098,7 +3096,6 @@
     if (!gate || !card) return;
     card.innerHTML =
       '<div class="adm-auth-brand">' +
-        '<img src="./assets/brand/logo.png" alt="SK magic" style="height:28px;width:auto">' +
         '<div>' +
           '<div class="adm-auth-title">접근 권한이 없습니다</div>' +
           '<div class="adm-auth-sub">' + escape(reason || '') + '</div>' +

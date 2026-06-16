@@ -8,7 +8,7 @@
 <script>
   /* ★ 합본 사이트 매장 슬러그 고정 — 멀티테넌트 path 파싱 대신 이 값을 사용.
      매장(데이터)을 바꾸려면 여기와 rental-assets/supabase.js 의 fallback('skmagic')을 함께 수정. */
-  window.RENTAL_STORE_SLUG = 'skmagic';
+  window.RENTAL_STORE_SLUG = 'woozoo_shop';
   /* 임베드 모드 — 샵(/) carousel의 iframe 안에서 열릴 때: 폰 프레임/상단 탭 제거, 콘텐츠만.
      상단 탭(휴대폰/인터넷/렌탈)은 부모 샵이 제공하므로 여기선 숨김. */
   try { if (location.search.indexOf('embed=1') >= 0 || window.self !== window.top) document.documentElement.classList.add('msr-embed'); } catch(e){}
