@@ -1777,7 +1777,7 @@
 
     // 수수료표 업로드 드롭존은 수수료 메뉴에서만 헤더에 노출
     const comUp = document.getElementById('com-upload');
-    if (comUp) comUp.hidden = (meta.kind !== 'commission') || !_isSuper;  // 정책 엑셀 업로드는 본부만
+    if (comUp) comUp.hidden = (meta.kind !== 'commission');  // 합본 단일샵: 운영자가 자기 정책 직접 업로드
     const cdUp = document.getElementById('cd-upload');
     if (cdUp) cdUp.hidden = (meta.kind !== 'carddiscount');
     const hdrDl = document.getElementById('hdr-download');
