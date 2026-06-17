@@ -1280,6 +1280,25 @@
 
 </div><!-- /scroll -->
 
+<script>
+  // 새로고침 FOUC 방지 — 첫 페인트 전에 ?cat= 으로 패널 위치/활성탭을 즉시 맞춤.
+  // (메인 스크립트의 ?cat= 딥링크 처리는 늦게 실행돼 '휴대폰 탭이 잠깐 보였다 넘어가는' 깜빡임이 있었음)
+  (function(){
+    try {
+      var qcat = new URLSearchParams(location.search).get('cat') || '';
+      var order = ['phone','internet','rental'];
+      var idx = order.indexOf(qcat);
+      if (idx > 0) {
+        var p = document.getElementById('panels');
+        if (p) { p.style.transition = 'none'; p.style.left = -(idx * 100) + '%'; }
+        var nav = document.getElementById('cat-nav');
+        if (nav) nav.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.cat === qcat); });
+        if (qcat === 'rental') { var sc = document.querySelector('.scroll'); if (sc) sc.classList.add('on-rental'); }
+      }
+    } catch(e){}
+  })();
+</script>
+
 <!-- 플로팅 상담 FAB (클릭 시 카톡/전화 펼침) -->
 <div class="fab" id="fab">
   <div class="fab-list">
@@ -1496,7 +1515,14 @@
 
   function mountRentalFrame() {
     var f = document.getElementById('rental-frame');
-    if (f && !f.getAttribute('src')) f.setAttribute('src', '/rental?embed=1');
+    if (f && !f.getAttribute('src')) {
+      // 새로고침 복원: 부모 URL 의 렌탈 하위경로(cls/id/view)를 iframe 으로 전달 (없으면 홈)
+      var sp;
+      try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
+      sp.delete('cat');         // 부모 탭 파라미터는 iframe 에 불필요
+      sp.set('embed', '1');
+      f.setAttribute('src', '/rental?' + sp.toString());
+    }
   }
   // 샵 초기 렌더 후 렌탈 iframe 백그라운드 프리로드 → 첫 슬라이드도 매끄럽게
   setTimeout(mountRentalFrame, 1200);
@@ -1555,6 +1581,20 @@
     rLockUntil = performance.now() + 800;
   }, false);
 
+  // 렌탈 iframe 현재 경로(?cls=/?id=)를 부모 URL(?cat=rental&…)에 미러 → 새로고침 시 같은 렌탈 페이지 복원
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'msr-route') return;
+    if (catOrder[currentIdx] !== 'rental') return;
+    try {
+      var ip = new URLSearchParams(e.data.search || '');
+      ip.delete('embed');
+      var op = new URLSearchParams();
+      op.set('cat', 'rental');
+      ip.forEach(function(v, k) { op.set(k, v); });   // cls/id/view 등 보존
+      history.replaceState({}, '', location.pathname + '?' + op.toString());
+    } catch (err) {}
+  }, false);
+
   function syncPanelsHeight() {
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
     if (!active || !panelsEl) return;
@@ -1602,6 +1642,8 @@
 
     currentIdx = newIdx;
     panelsEl.style.left = -(newIdx * 100) + '%';
+    // 현재 탭을 URL(?cat=)에 기록 → 새로고침 시 같은 메뉴로 복원. (렌탈은 iframe 라우트가 cls/id 까지 미러)
+    try { history.replaceState({}, '', location.pathname + '?cat=' + cat); } catch(e){}
     scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화 (iframe이 곧 실제 뷰를 알림)
     scrollEl.classList.remove('rental-detail');  // 상세 모드 해제 (다른 탭으로 가면 글로벌 헤더 복원)
 
@@ -1661,6 +1703,8 @@
     var qcat = '';
     try { qcat = new URLSearchParams(location.search).get('cat') || ''; } catch (e) {}
     if (qcat && qcat !== catOrder[currentIdx] && catOrder.indexOf(qcat) !== -1) {
+      // 렌탈 복원: showCat 이 ?cat=rental 로 URL 을 덮어쓰기 전에, 현재 URL(cls/id 포함) 로 iframe 먼저 마운트
+      if (qcat === 'rental') mountRentalFrame();
       panelsEl.style.transition = 'none';
       showCat(qcat);
       void panelsEl.offsetWidth; // reflow — transition:none 상태로 left 적용 확정

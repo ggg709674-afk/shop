@@ -1616,6 +1616,8 @@ const App = (() => {
         var _hd = document.querySelector('.msr-head'); if (_hd) _hd.classList.remove('compact'); // 페이지 전환 시 헤더 펼침 복원
       }
     }
+    // 합본 임베드: 현재 경로(?cls=/?id=)를 부모 샵에 알림 → 부모가 URL에 미러 → 새로고침 시 같은 페이지 복원
+    try { parent.postMessage({ type:'msr-route', search: location.search }, '*'); } catch(e){}
   }
 
   /* 클릭 가로채기 — 카탈로그 내부 링크(/rental?… 또는 구 *.html?…)는 SPA 처리.
