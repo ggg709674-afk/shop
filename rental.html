@@ -157,10 +157,10 @@
   /* 합본 임베드(폰폭): 탭 3개 균등폭 + 한 줄(줄바꿈 방지) */
   html.msr-embed .detail-tabs .tabbar button{ flex:1; padding:15px 6px; font-size:13.5px; text-align:center; white-space:nowrap; }
 
-  /* ════════ 폰 프레임(~390px)에서는 항상 카탈로그의 '모바일(≤560px) 레이아웃' 그대로 적용 ════════
-     미디어쿼리는 실제 창 폭 기준이라, 넓은 데스크톱 창의 폰 프레임 안에선 발동하지 않음.
-     → style.css 의 @media(max-width:560px) 규칙을 무조건 적용해 실제 폰과 동일하게 렌더(글자·여백·그리드 모두). */
-
+  /* ════════ 좁은 폭(≤767px: 실제 폰 / 폰 프레임 / 좁은 임베드)에서만 모바일 레이아웃 강제 ════════
+     데스크탑(≥768px)에선 이 블록이 빠지고 style.css 의 PC 레이아웃(컨테이너 1200·4열 그리드·2단 히어로)이 적용된다.
+     (이전엔 @media 없이 무조건 적용이라 넓은 데스크탑에서도 모바일로 보였음) */
+  @media (max-width: 767px) {
   /* 카테고리 원형 그리드 (라벨이 세로로 쪼개지지 않게 작은 폰트+세로 카드) */
   .cat-grid{ grid-template-columns:repeat(4,1fr) !important; gap:4px !important; }
   .cat-grid:empty{ min-height:280px !important; }
@@ -209,6 +209,31 @@
 
   /* 카탈로그 카테고리 뷰의 칩 네비(.filter-bar) = 제품 카테고리 전환 (브랜드 서브메뉴와 별개 역할이라 표시) */
   .filter-bar{ padding:12px 0 14px !important; margin-bottom:16px !important; }
+  } /* /@media (max-width:767px) — 모바일 강제 끝 */
+
+  /* ════════ 데스크탑(≥768px) — 단독 /rental 을 PC 레이아웃으로 ════════
+     폰 프레임 해제(풀폭) + 헤더 가로배열(합본 메뉴 유지: 로고·휴대폰/인터넷/렌탈·우측 아이콘).
+     임베드(렌탈 탭)일 땐 .device 가 이미 풀폭이고 .msr-head 는 숨김(부모 헤더 사용)이라 영향 없음. */
+  @media (min-width: 768px) {
+    body{ display:block; padding:0; background:#fff; }
+    .device{ width:100%; max-width:100%; height:100vh; border:0; border-radius:0; box-shadow:none; transform:none; }
+    .device::before{ display:none; }
+    /* 헤더 한 줄 가로배열 (바는 풀폭, 콘텐츠는 1200 중앙) */
+    .msr-head{ display:flex; align-items:center; gap:44px; height:64px;
+      padding-left:max(32px, calc((100% - 1200px) / 2));
+      padding-right:max(32px, calc((100% - 1200px) / 2)); }
+    .msr-top{ display:contents; }
+    .msr-brand{ order:0; font-size:22px; }
+    .msr-cat-nav{ order:1; padding:0; gap:34px; transform:none !important; }
+    .msr-cat-nav a{ font-size:16px; }
+    .msr-top-r{ order:2; margin-left:auto; }
+    /* 스크롤 시 숨김(compact) 효과 비활성 */
+    .msr-head.compact{ clip-path:none; border-bottom-color:var(--line,#E8E8E8); }
+    .msr-head.compact .msr-top{ opacity:1; transform:none; pointer-events:auto; }
+    .msr-head.compact .msr-cat-nav{ transform:none !important; }
+    .scroll.compact-mode .msr-sub{ transform:none; }
+    .msr-sub{ top:64px; }
+  }
 </style>
 </head>
 <body>
