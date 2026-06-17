@@ -852,10 +852,15 @@
   (function(){
     var body = document.body;
     var SHOP = {
-      phone:    ['휴대폰 관리', '휴대폰 배너 · 상품 · 통신사 정책 (다음 단계에서 이식)'],
-      internet: ['인터넷 관리', '인터넷 배너 (다음 단계에서 이식)']
+      phone:    ['휴대폰 관리', '휴대폰 상품 · 통신사 정책 (다음 단계에서 이식)'],
+      internet: ['인터넷 관리', '인터넷 상품 (다음 단계에서 이식)']
     };
     var lastRentalHash = '#products';
+    function hideRentalHeaderTools(){
+      ['com-upload','cd-upload','mg-upload','hdr-download'].forEach(function(id){
+        var el = document.getElementById(id); if (el) el.hidden = true;
+      });
+    }
     function showShopSoon(shop){
       document.querySelectorAll('.adm-panel').forEach(function(p){
         p.hidden = (p.getAttribute('data-panel') !== 'shop-soon');
@@ -865,10 +870,22 @@
       var s = document.getElementById('adm-page-sub');  if (s) s.textContent = meta[1];
       var st = document.getElementById('shop-soon-title'); if (st) st.textContent = meta[0] + ' — 준비 중';
       var sd = document.getElementById('shop-soon-desc');  if (sd) sd.textContent = meta[1];
-      // 헤더의 렌탈 전용 업로드/다운로드 버튼 숨김
-      ['com-upload','cd-upload','mg-upload','hdr-download'].forEach(function(id){
-        var el = document.getElementById(id); if (el) el.hidden = true;
+      hideRentalHeaderTools();
+    }
+    // 휴대폰/인터넷 배너 패널 — 렌탈과 동일한 배너 편집기를 해당 샵 스코프로 띄움
+    function showShopBanner(shop){
+      document.querySelectorAll('.adm-panel').forEach(function(p){
+        p.hidden = (p.getAttribute('data-panel') !== 'banner');
       });
+      var menuKey = (shop === 'phone') ? 'ph-banner' : 'in-banner';
+      document.querySelectorAll('.adm-nav-item').forEach(function(x){
+        x.classList.toggle('on', x.getAttribute('data-shop-menu') === menuKey);
+      });
+      var label = (shop === 'phone') ? '휴대폰' : '인터넷';
+      var t = document.getElementById('adm-page-title'); if (t) t.textContent = label + ' 배너';
+      var s = document.getElementById('adm-page-sub');  if (s) s.textContent = '홈 화면 상단 배너 이미지와 슬라이드 동작을 관리합니다. 홈 페이지에 반영됩니다.';
+      hideRentalHeaderTools();
+      if (window.admInitBannerFor) window.admInitBannerFor(shop);
     }
     var BRAND = { rental:'렌탈 관리', phone:'휴대폰 관리', internet:'인터넷 관리' };
     function setShop(shop){
@@ -886,20 +903,24 @@
         if (location.hash !== lastRentalHash) location.hash = lastRentalHash;
         else window.dispatchEvent(new HashChangeEvent('hashchange'));
       } else {
-        showShopSoon(shop);
+        // 휴대폰/인터넷 진입 시 기본으로 배너 패널 (현재 준비된 기능)
+        showShopBanner(shop);
       }
     }
     document.querySelectorAll('.adm-shop-tab').forEach(function(tb){
       tb.addEventListener('click', function(){ setShop(tb.getAttribute('data-shop')); });
     });
-    // 휴대폰/인터넷 사이드바 메뉴 클릭: admin.js 의 hash 라우팅 차단 + shop-soon 유지
+    // 휴대폰/인터넷 사이드바 메뉴 클릭: admin.js 의 hash 라우팅 차단 + 샵별 패널 직접 처리
     document.addEventListener('click', function(e){
       var it = e.target.closest('.adm-nav-item[data-shop-menu]');
       if (!it) return;
       e.preventDefault();
       e.stopImmediatePropagation();
       var shop = body.getAttribute('data-shop');
-      if (shop === 'phone' || shop === 'internet') showShopSoon(shop);
+      if (shop !== 'phone' && shop !== 'internet') return;
+      var menu = it.getAttribute('data-shop-menu');
+      if (menu === 'ph-banner' || menu === 'in-banner') showShopBanner(shop);
+      else showShopSoon(shop);
     }, true);
   })();
 </script>

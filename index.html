@@ -848,17 +848,11 @@
       document.head.appendChild(link);
     }
     try {
-      // 손님 페이지는 lite 캐시 키 사용 (data-store.js init({master:false}) 참조)
-      var cache = JSON.parse(
-        localStorage.getItem('mobileshop_snapshot_v1_lite') ||
-        localStorage.getItem('mobileshop_snapshot_v1') || 'null'
-      );
-      if (!cache || !cache.banners) return;
-      ['phone', 'internet'].forEach(function(k) {
-        var b = cache.banners[k];
-        // 옛 합성배너 데이터(누끼 PNG 등)는 표시에 안 쓰이므로 preload하지 않음 (renderBanner와 동일 규칙)
-        var isLegacy = b && (b.background || b.eyebrow || b.tags || ('imageScale' in b));
-        if (b && !isLegacy && b.imageUrl) addPreload(b.imageUrl);
+      // 배너 캐시(샵별 key) 에서 현재 뷰포트에 맞는 첫 배너 이미지를 preload → 표시 지연 최소화
+      var isMob = window.matchMedia('(max-width:767px)').matches;
+      ['msr_phone_banner_v1', 'msr_internet_banner_v1'].forEach(function(ck) {
+        var c = JSON.parse(localStorage.getItem(ck) || 'null'); if (!c) return;
+        addPreload(isMob ? (c.mobile || c.pc) : (c.pc || c.mobile));
       });
     } catch (e) { /* 무시 */ }
   })();
@@ -1304,6 +1298,17 @@
         if (qcat === 'rental') { var sc = document.querySelector('.scroll'); if (sc) sc.classList.add('on-rental'); }
       }
     } catch(e){}
+    // 배너 FOUC 방지 — 캐시된 PC/모바일 URL 을 첫 페인트 전에 슬롯에 즉시 적용 (샘플 깜빡임 제거)
+    try {
+      var isMob = window.matchMedia('(max-width:767px)').matches;
+      [['phone','msr_phone_banner_v1'],['internet','msr_internet_banner_v1']].forEach(function(pair){
+        var c = JSON.parse(localStorage.getItem(pair[1]) || 'null'); if (!c) return;
+        var url = isMob ? (c.mobile || c.pc) : (c.pc || c.mobile); if (!url) return;
+        var w = document.querySelector('.banner-wide[data-banner="' + pair[0] + '"]');
+        var im = w && w.querySelector('img.banner-img');
+        if (im) { im.crossOrigin = 'anonymous'; im.src = url; w.hidden = false; }
+      });
+    } catch(e){}
   })();
 </script>
 
@@ -1366,34 +1371,79 @@
     internet: '/sample-banners/internet.svg'
   };
 
-  function bannerImageUrl(banner, key) {
-    // 옛 합성배너 데이터(텍스트/그라데이션/폰누끼 합성용)는 "이미지 등록" 방식과 호환 안 됨
-    // → 그 imageUrl(투명 누끼 PNG 등)은 무시하고 샘플로 대체. 관리자가 새로 저장하면 {imageUrl}만 남아 정상 표시됨.
-    var isLegacy = banner && (banner.background || banner.eyebrow || banner.tags || ('imageScale' in banner));
-    if (!isLegacy && banner && typeof banner.imageUrl === 'string' && banner.imageUrl) return banner.imageUrl;
-    return SAMPLE_BANNERS[key] || '';
-  }
+  /* ===== 휴대폰/인터넷 홈 배너 — 렌탈과 동일한 PC·모바일 SET + 슬라이드 =====
+     데이터: mobileshop_rental_settings (key=banner_phone / banner_internet),
+     payload={mode,interval,items:[{image(PC),imageMobile,link,newTab,enabled}]}.
+     뷰포트(≤767=모바일)에 맞춰 이미지 선택, 여러 장+자동이면 가볍게 회전. 없으면 샘플. */
+  var BANNER_SHOPS = [
+    { key:'phone',    setting:'banner_phone',    cache:'msr_phone_banner_v1' },
+    { key:'internet', setting:'banner_internet', cache:'msr_internet_banner_v1' }
+  ];
+  function bannerIsMobile() { try { return window.matchMedia('(max-width:767px)').matches; } catch(e) { return false; } }
+  function bannerPick(it) { return bannerIsMobile() ? (it.imageMobile || it.image) : (it.image || it.imageMobile); }
 
-  function renderBanner(key, banner) {
-    var $b = document.querySelector('[data-banner="' + key + '"]');
-    if (!$b) return; // 대상 엘리먼트 없으면 조용히 skip
-    var $img = $b.querySelector('img.banner-img');
-    var url = bannerImageUrl(banner, key);
-    if (url && $img) {
-      $img.crossOrigin = 'anonymous'; // preload(crossorigin)와 모드 일치 — 중복 다운로드 방지
-      if ($img.getAttribute('src') !== url) {
-        $img.onload = function() {
-          if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
-        };
-        $img.src = url;
+  async function mountShopBanner(cfg) {
+    var wrap = document.querySelector('.banner-wide[data-banner="' + cfg.key + '"]');
+    if (!wrap) return;
+    var img = wrap.querySelector('img.banner-img');
+    if (!img) return;
+    var items = [], mode = 'auto', interval = 5;
+    try {
+      if (window.supabaseClient) {
+        var res = await window.supabaseClient
+          .from('mobileshop_rental_settings')
+          .select('payload').eq('key', cfg.setting).maybeSingle();
+        var p = res && res.data && res.data.payload;
+        if (p && Array.isArray(p.items)) {
+          items = p.items.filter(function(it) { return it && (it.image || it.imageMobile) && it.enabled !== false; });
+          mode = (p.mode === 'manual') ? 'manual' : 'auto';
+          interval = (p.interval > 0) ? p.interval : 5;
+        }
       }
-      $img.alt = (banner && banner.title) || '배너';
-      $b.hidden = false;
-    } else {
-      if ($img) { $img.onload = null; $img.removeAttribute('src'); }
-      $b.hidden = true;
+    } catch (_) { /* DB 실패 → 캐시/샘플 유지 */ }
+
+    if (!items.length) {
+      // 저장 배너 없음 → 샘플 (캐시 제거해 다음 새로고침에 잔재 안 남김)
+      img.crossOrigin = 'anonymous';
+      img.onload = function() { if (typeof syncPanelsHeight === 'function') syncPanelsHeight(); };
+      img.src = SAMPLE_BANNERS[cfg.key] || '';
+      wrap.hidden = !img.getAttribute('src');
+      try { localStorage.removeItem(cfg.cache); } catch (e) {}
+      return;
+    }
+    // 첫 배너 PC/모바일 URL 캐시 → 다음 새로고침 첫 페인트에 즉시 적용(샘플 깜빡임 제거)
+    try { localStorage.setItem(cfg.cache, JSON.stringify({ pc: items[0].image || items[0].imageMobile || '', mobile: items[0].imageMobile || items[0].image || '' })); } catch (e) {}
+
+    var cur = 0;
+    img.crossOrigin = 'anonymous';
+    function apply(i) {
+      var it = items[i];
+      var src = bannerPick(it);
+      if (img.getAttribute('src') !== src) {
+        img.onload = function() { if (typeof syncPanelsHeight === 'function') syncPanelsHeight(); };
+        img.src = src;
+      }
+      // 링크가 있으면 img 를 <a> 로 감싼다(한 번만 생성, 이후 href 만 갱신)
+      var a = wrap.querySelector('a.banner-link');
+      if (it.link) {
+        if (!a) { a = document.createElement('a'); a.className = 'banner-link'; a.style.display = 'block'; img.parentNode.insertBefore(a, img); a.appendChild(img); }
+        a.href = it.link;
+        if (it.newTab) { a.target = '_blank'; a.rel = 'noopener'; } else { a.removeAttribute('target'); a.removeAttribute('rel'); }
+      } else if (a) { a.parentNode.insertBefore(img, a); a.remove(); }
+    }
+    apply(0);
+    wrap.hidden = false;
+    window.addEventListener('resize', function() { apply(cur); });
+    if (items.length > 1 && mode === 'auto') {
+      var tick = function() { cur = (cur + 1) % items.length; apply(cur); };
+      var timer = setInterval(tick, Math.max(1, interval) * 1000);
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) { clearInterval(timer); timer = null; }
+        else if (!timer) { timer = setInterval(tick, Math.max(1, interval) * 1000); }
+      });
     }
   }
+  function initShopBanners() { BANNER_SHOPS.forEach(function(cfg) { mountShopBanner(cfg); }); }
 
   function renderPhoneProducts(products, categories) {
     var $container = document.getElementById('phone-products');
@@ -1481,10 +1531,7 @@
 
   function renderAll(overrideData) {
     var data = overrideData || DataStore.load();
-    if (data.banners) {
-      renderBanner('phone', data.banners.phone);
-      renderBanner('internet', data.banners.internet);
-    }
+    // 배너는 mobileshop_rental_settings(샵별 key) 의 캐러셀로 별도 마운트 (initShopBanners)
     renderPhoneSubNav(data.categories);
     renderPhoneProducts(data.productsPhone, data.categories);
     if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
@@ -1695,6 +1742,8 @@
   var _initP = DataStore.init({ master: false });
   renderAll();
   _initP.then(renderAll);
+  // 배너는 DataStore(상품/카테고리)와 독립 — settings 테이블에서 직접 마운트 (PC·모바일 SET + 슬라이드)
+  initShopBanners();
 
   // 초기 높이 설정
   window.addEventListener('load', syncPanelsHeight);

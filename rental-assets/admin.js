@@ -2069,29 +2069,22 @@
      데이터: banner_data(payload={mode,interval,items:[{image(PC),imageMobile,link,newTab,enabled}]}), 이미지: Storage banner-assets.
      배너는 PC·모바일 SET — image=PC, imageMobile=모바일. 손님 렌탈 페이지가 뷰포트에 맞춰 적용. */
   const BN_MAX = 10;
-  let bnData = null;       // 편집 중 상태
-  let bnInited = false;
+  let bnData = null;          // 편집 중 상태
+  let bnBound = false;        // 리스너 1회 바인딩 (saveBanners/addBannerSet 가 bnShop 참조 → 샵 바뀌어도 유효)
+  let bnShop = 'rental';      // 현재 편집 대상 샵 (rental|phone|internet)
+  let bnLoadedShop = null;    // 데이터가 로드된 샵
 
-  async function initBanner(){
+  async function initBanner(shop){
+    bnShop = shop || 'rental';
     if (!document.getElementById('adm-bn-list')) return;
-    if (!bnInited){
-      bnInited = true;
-      if (window.skmFetchBanners){
-        try { const r = await window.skmFetchBanners(); if (r && r.payload && Array.isArray(r.payload.items)) bnData = r.payload; } catch(_){}
-      }
-      if (!bnData) bnData = { mode:'auto', interval:3, items:[] };
-      if (!Array.isArray(bnData.items)) bnData.items = [];
-      bnData.mode = (bnData.mode === 'manual') ? 'manual' : 'auto';
-      if (!(bnData.interval > 0)) bnData.interval = 5;
-      // 전환 방식 라디오
+    if (!bnBound){
+      bnBound = true;
+      // 전환 방식 라디오 / 간격 (값은 applyBnSettingsToUI 에서 매 로드마다 동기화)
       document.querySelectorAll('input[name="bn-mode"]').forEach(r => {
-        r.checked = (r.value === bnData.mode);
-        r.addEventListener('change', () => { if (r.checked){ bnData.mode = r.value; updateBnIntervalRow(); } });
+        r.addEventListener('change', () => { if (r.checked && bnData){ bnData.mode = r.value; updateBnIntervalRow(); } });
       });
-      // 간격
       const iv = document.getElementById('bn-interval');
-      if (iv){ iv.value = bnData.interval; iv.addEventListener('input', () => { bnData.interval = Math.max(1, Math.min(60, parseInt(iv.value,10)||5)); }); }
-      updateBnIntervalRow();
+      if (iv) iv.addEventListener('input', () => { if (bnData) bnData.interval = Math.max(1, Math.min(60, parseInt(iv.value,10)||5)); });
       // 배너 추가 (PC·모바일 SET) — 빈 행 생성 후 각 슬롯에 업로드
       const addBtn = document.getElementById('bn-add');
       if (addBtn) addBtn.addEventListener('click', addBannerSet);
@@ -2101,8 +2094,30 @@
         if (b) b.addEventListener('click', saveBanners);
       });
     }
+    // 샵이 바뀌었으면(또는 첫 진입) 해당 샵 배너를 새로 fetch
+    if (bnLoadedShop !== bnShop){
+      bnData = null;
+      if (window.skmFetchBanners){
+        try { const r = await window.skmFetchBanners(bnShop); if (r && r.payload && Array.isArray(r.payload.items)) bnData = r.payload; } catch(_){}
+      }
+      if (!bnData) bnData = { mode:'auto', interval:5, items:[] };
+      if (!Array.isArray(bnData.items)) bnData.items = [];
+      bnData.mode = (bnData.mode === 'manual') ? 'manual' : 'auto';
+      if (!(bnData.interval > 0)) bnData.interval = 5;
+      bnLoadedShop = bnShop;
+    }
+    applyBnSettingsToUI();
     renderBanners();
   }
+  // bnData 의 전환방식/간격을 상단 컨트롤 UI 에 반영 (샵 전환·재로드 시)
+  function applyBnSettingsToUI(){
+    if (!bnData) return;
+    document.querySelectorAll('input[name="bn-mode"]').forEach(r => { r.checked = (r.value === bnData.mode); });
+    const iv = document.getElementById('bn-interval'); if (iv) iv.value = bnData.interval;
+    updateBnIntervalRow();
+  }
+  // 휴대폰/인터넷 탭 컨트롤러(admin.html)에서 호출 — 해당 샵 배너 편집 시작
+  window.admInitBannerFor = function(shop){ return initBanner(shop); };
   function updateBnIntervalRow(){
     const row = document.getElementById('bn-interval-row');
     if (row) row.style.display = (bnData.mode === 'auto') ? '' : 'none';
@@ -2201,7 +2216,7 @@
     const btns = ['bn-save', 'bn-save-top'].map(id => document.getElementById(id)).filter(Boolean);
     btns.forEach(b => b.disabled = true);
     let error = null;
-    if (window.skmSaveBanners){ const r = await window.skmSaveBanners(payload); error = r.error; }
+    if (window.skmSaveBanners){ const r = await window.skmSaveBanners(payload, bnShop); error = r.error; }
     btns.forEach(b => b.disabled = false);
     if (!error){ bnData = payload; renderBanners(); admToast('저장됐어요. 홈 배너에 반영됩니다.'); }
     else alert('저장 실패: ' + (error.message || '권한 또는 네트워크 오류'));

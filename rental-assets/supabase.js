@@ -311,9 +311,13 @@
   window.skmFetchFaq = async function(){ return await _msrGetSetting('faq'); };
   window.skmSaveFaq  = async function(payload){ return _msrSaveSetting('faq', payload); };
 
-  /* ─── 홈 배너/슬라이드 (payload = { mode, interval, items:[...] }) ─── */
-  window.skmFetchBanners = async function(){ return await _msrGetSetting('banner'); };
-  window.skmSaveBanners  = async function(payload){ return _msrSaveSetting('banner', payload); };
+  /* ─── 홈 배너/슬라이드 (payload = { mode, interval, items:[...] }) ───
+     합본 3샵(렌탈/휴대폰/인터넷)이 같은 settings 테이블을 샵별 key 로 공유.
+     인자 없음/'rental' = 렌탈(기존 'banner' 키, 하위호환) / 'phone' / 'internet'. */
+  function _bannerKey(shop){ return shop === 'phone' ? 'banner_phone' : shop === 'internet' ? 'banner_internet' : 'banner'; }
+  window.skmBannerKey = _bannerKey;
+  window.skmFetchBanners = async function(shop){ return await _msrGetSetting(_bannerKey(shop)); };
+  window.skmSaveBanners  = async function(payload, shop){ return _msrSaveSetting(_bannerKey(shop), payload); };
 
   /* ─── 배너 이미지 업로드 (Storage banner-assets) → public URL ───
      배너는 여러 개라 파일명을 매번 고유하게 생성. */
