@@ -863,7 +863,7 @@ textarea.adm-input{resize:vertical; min-height:60px; line-height:1.5}
 .adm-bn-radio{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink-1);cursor:pointer}
 .adm-bn-interval-input{width:64px;text-align:center}
 
-.adm-bn-list{display:flex;flex-direction:column;gap:16px;max-width:680px}
+.adm-bn-list{display:flex;flex-direction:column;gap:16px;max-width:1120px}
 /* 세로 카드형 — 큰 미리보기(PC/모바일)를 한눈에 */
 .adm-bn-row{display:flex;flex-direction:column;align-items:stretch;gap:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
 .adm-bn-order{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:6px}
@@ -872,19 +872,28 @@ textarea.adm-input{resize:vertical; min-height:60px; line-height:1.5}
 .adm-bn-up:disabled,.adm-bn-down:disabled{opacity:.3;cursor:default}
 .adm-bn-num{font-size:13px;font-weight:700;color:var(--ink-2)}
 /* 썸네일 = 실비율 그대로(크롭 X) 중앙정렬 미리보기 */
-.adm-bn-thumb{background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.adm-bn-thumb{position:relative;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
 .adm-bn-thumb img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;margin:auto}
 .adm-bn-thumb.off{opacity:.4;filter:grayscale(.6)}
-/* PC·모바일 2슬롯 SET — 가로로 나란히 배열 (라벨 위, 미리보기 아래) */
+/* 확대(모달) 버튼 — 이미지 위 호버 시 노출 */
+.adm-bn-zoom{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border:none;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.adm-bn-thumb:hover .adm-bn-zoom{opacity:1}
+.adm-bn-zoom svg{width:16px;height:16px;pointer-events:none}
+/* PC·모바일 2슬롯 SET — 가로로 나란히 배열 (PC 가 남는 폭 차지 → 크게) */
 .adm-bn-slots{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:20px}
-.adm-bn-slot{display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;width:auto}
+.adm-bn-slot{display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer}
+.adm-bn-slot.pc{flex:1 1 420px;min-width:0}
+.adm-bn-slot.mobile{flex:0 0 auto}
 .adm-bn-slot-lbl{font-size:12px;font-weight:700;color:var(--ink-2)}
 .adm-bn-slot-lbl .adm-bn-dim{font-style:normal;font-weight:500;color:var(--ink-4);font-size:11px;margin-left:4px}
-.adm-bn-slot.pc .adm-bn-thumb{width:420px;aspect-ratio:2560/560}      /* PC: 실비율 2560×560 */
-.adm-bn-slot.mobile .adm-bn-thumb{width:200px;aspect-ratio:750/234}   /* 모바일: 실비율 750×234 */
-.adm-bn-slot .adm-bn-thumb.empty{aspect-ratio:auto;height:auto;min-height:74px;border-style:dashed;padding:16px}
+.adm-bn-slot.pc .adm-bn-thumb{width:100%;aspect-ratio:2560/560}        /* PC: 슬롯 폭 가득(실비율 2560×560) */
+.adm-bn-slot.mobile .adm-bn-thumb{width:250px;aspect-ratio:750/234}    /* 모바일: 실비율 750×234 */
+.adm-bn-slot .adm-bn-thumb.empty{aspect-ratio:auto;height:auto;min-height:88px;border-style:dashed;padding:16px}
 .adm-bn-plus{font-size:13px;color:var(--ink-4);font-weight:600;text-align:center;line-height:1.5}
 .adm-bn-plus small{font-size:11px;color:var(--ink-5,#aaa);font-weight:500}
+/* 배너 이미지 확대 모달 */
+#bn-preview-modal .adm-modal-card{max-width:min(94vw,1500px);padding:14px;width:auto}
+#bn-preview-img{display:block;max-width:100%;max-height:82vh;width:auto;height:auto;border-radius:8px;margin:0 auto}
 .adm-bn-del{align-self:flex-end}
 .adm-bn-body{min-width:0;display:flex;flex-direction:column;gap:9px}
 .adm-bn-check{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-1);cursor:pointer}

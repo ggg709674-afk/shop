@@ -2093,6 +2093,11 @@
         const b = document.getElementById(id);
         if (b) b.addEventListener('click', saveBanners);
       });
+      // 배너 확대 모달 닫기 (X / 배경 클릭)
+      const pvClose = document.getElementById('bn-preview-close');
+      if (pvClose) pvClose.addEventListener('click', closeBnPreview);
+      const pvModal = document.getElementById('bn-preview-modal');
+      if (pvModal) pvModal.addEventListener('click', e => { if (e.target === pvModal) closeBnPreview(); });
     }
     // 샵이 바뀌었으면(또는 첫 진입) 해당 샵 배너를 새로 fetch
     if (bnLoadedShop !== bnShop){
@@ -2133,7 +2138,7 @@
         const dim = key === 'mobile' ? '750×234' : '2560×560';
         return `<label class="adm-bn-slot ${key}">
             <span class="adm-bn-slot-lbl">${label} <em class="adm-bn-dim">${dim}</em></span>
-            <div class="adm-bn-thumb ${key}${url?'':' empty'}${it.enabled===false?' off':''}">${url?`<img src="${escape(url)}" alt="">`:`<span class="adm-bn-plus">＋ 이미지 업로드<br><small>${dim} 권장</small></span>`}</div>
+            <div class="adm-bn-thumb ${key}${url?'':' empty'}${it.enabled===false?' off':''}">${url?`<img src="${escape(url)}" alt=""><button type="button" class="adm-bn-zoom" data-zoom="${escape(url)}" title="크게 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></button>`:`<span class="adm-bn-plus">＋ 이미지 업로드<br><small>${dim} 권장</small></span>`}</div>
             <input type="file" accept="image/*" class="adm-bn-upfile" data-idx="${i}" data-slot="${key}" hidden>
           </label>`;
       };
@@ -2168,6 +2173,23 @@
       const f = e.target.files && e.target.files[0]; e.target.value = '';
       upBannerSlot(Number(inp.dataset.idx), inp.dataset.slot, f);
     }));
+    // 썸네일 확대(모달) — 라벨의 파일선택은 막고 모달만 열기
+    wrap.querySelectorAll('.adm-bn-zoom').forEach(b => b.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      openBnPreview(b.getAttribute('data-zoom'));
+    }));
+  }
+  function openBnPreview(url){
+    const m = document.getElementById('bn-preview-modal');
+    const img = document.getElementById('bn-preview-img');
+    if (!m || !img || !url) return;
+    img.src = url; m.hidden = false;
+  }
+  function closeBnPreview(){
+    const m = document.getElementById('bn-preview-modal');
+    if (m) m.hidden = true;
+    const img = document.getElementById('bn-preview-img');
+    if (img) img.removeAttribute('src');
   }
   // DOM 입력값(토글/링크)을 bnData 에 반영 (재렌더/저장/이동 전 호출)
   function syncBannersFromDom(){
