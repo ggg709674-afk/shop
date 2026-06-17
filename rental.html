@@ -262,12 +262,32 @@
   </nav>
 </header>
 
-<!-- ===== 배너 (휴대폰/인터넷과 동일한 샘플 배너) ===== -->
+<!-- ===== 배너 (관리자 저장 배너 / 없으면 샘플) ===== -->
 <section>
   <div class="banner-wide">
-    <img class="banner-img" src="/sample-banners/rental.svg" alt="렌탈 배너"/>
+    <img class="banner-img" alt="렌탈 배너"/>
   </div>
 </section>
+<script>
+  /* 새로고침 시 샘플 배너 깜빡임 방지 — 직전에 캐시해 둔 저장배너 URL 을 첫 페인트에 즉시 적용.
+     (캐시 없으면 샘플. 아래 async IIFE 가 최신 배너로 갱신 + 캐시 저장) */
+  (function(){
+    try {
+      var img = document.querySelector('.banner-wide .banner-img');
+      if (!img) return;
+      var c = localStorage.getItem('msr_rental_banner_v1');
+      var src = '/sample-banners/rental.svg';
+      if (c){
+        try {
+          var o = JSON.parse(c);                                  // { pc, mobile }
+          var mob = window.matchMedia('(max-width:767px)').matches;
+          src = (mob ? (o.mobile || o.pc) : (o.pc || o.mobile)) || src;
+        } catch(_){ src = c; }                                    // 구버전(문자열 URL) 호환
+      }
+      img.src = src;
+    } catch(e){ }
+  })();
+</script>
 
 <!-- ===== 브랜드 서브메뉴 (배너 아래 · 휴대폰샵 통신사 서브메뉴와 동일 구조: 색 스와치 + 점 구분) =====
      SK매직만 상품 보유 → 항상 active. 청호나이스/코웨이는 입점 준비중(클릭 시 안내). -->
@@ -756,8 +776,8 @@
 
   /* ===== 홈 상단 배너(.banner-wide) — 관리자(배너/슬라이드) DB 반영 =====
      히어로 슬라이더(#hero-slider)는 합본에서 .banner-wide(단일 가로 띠)로 대체됨.
-     관리자에서 저장한 배너(settings 'banner' = skmFetchBanners)가 있으면 그 이미지를
-     .banner-wide 에 채운다(여러 장+자동이면 가볍게 회전). 없으면 정적 샘플 유지. */
+     배너는 PC·모바일 SET — it.image=PC, it.imageMobile=모바일. 뷰포트에 맞춰 적용
+     (없는 쪽은 서로 폴백). 여러 장+자동이면 가볍게 회전. 없으면 정적 샘플 유지. */
   (async function(){
     const wrap = document.querySelector('.banner-wide');
     const img = wrap && wrap.querySelector('.banner-img');
@@ -767,17 +787,26 @@
       if (window.skmFetchBanners){
         const r = await window.skmFetchBanners();
         if (r && r.payload && Array.isArray(r.payload.items)){
-          items = r.payload.items.filter(it => it && it.image && it.enabled !== false);
+          items = r.payload.items.filter(it => it && (it.image || it.imageMobile) && it.enabled !== false);
           mode = (r.payload.mode === 'manual') ? 'manual' : 'auto';
           interval = (r.payload.interval > 0) ? r.payload.interval : 5;
         }
       }
-    } catch (_) { /* DB 실패 → 정적 샘플 유지 */ }
-    if (!items.length) return;   // 등록된 배너 없으면 하드코딩 샘플 유지
+    } catch (_) { /* DB 실패 → 캐시/샘플 유지 */ }
+    if (!items.length) {
+      // 저장 배너 없음 → 샘플로 교정 + 캐시도 샘플 (다음 새로고침 일관)
+      try { img.src = '/sample-banners/rental.svg'; localStorage.setItem('msr_rental_banner_v1', JSON.stringify({ pc:'/sample-banners/rental.svg', mobile:'/sample-banners/rental.svg' })); } catch(e){}
+      return;
+    }
+    // 첫 배너의 PC/모바일 URL 을 캐시 → 다음 새로고침에 인라인 스크립트가 뷰포트에 맞춰 즉시 적용
+    try { localStorage.setItem('msr_rental_banner_v1', JSON.stringify({ pc: items[0].image || items[0].imageMobile || '', mobile: items[0].imageMobile || items[0].image || '' })); } catch(e){}
 
+    const isMobile = () => { try { return window.matchMedia('(max-width:767px)').matches; } catch(e){ return false; } };
+    const pickSrc = (it) => isMobile() ? (it.imageMobile || it.image) : (it.image || it.imageMobile);
+    let cur = 0;
     function apply(i){
       const it = items[i];
-      img.src = it.image;
+      img.src = pickSrc(it);
       // 링크가 있으면 img 를 <a> 로 감싼다(한 번만 생성, 이후 href 만 갱신)
       let a = wrap.querySelector('a.banner-link');
       if (it.link){
@@ -787,10 +816,11 @@
       } else if (a){ a.parentNode.insertBefore(img, a); a.remove(); }
     }
     apply(0);
+    // 뷰포트 변경(회전/리사이즈) 시 현재 배너의 PC↔모바일 이미지 재선택
+    window.addEventListener('resize', () => apply(cur));
 
     // 여러 장 + 자동 모드면 단일 띠에서 이미지만 가볍게 회전
     if (items.length > 1 && mode === 'auto'){
-      let cur = 0;
       const tick = () => { cur = (cur + 1) % items.length; apply(cur); };
       let timer = setInterval(tick, Math.max(1, interval) * 1000);
       document.addEventListener('visibilitychange', () => {

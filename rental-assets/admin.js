@@ -1495,24 +1495,16 @@
   function applyRoleVisibility(authCtx){
     _isSuper = !!(authCtx && authCtx.isSuperAdmin);
     _myType  = (authCtx && authCtx.store && authCtx.store.type) || null;   // 'dealer' | 'shop' | null
-    const isDealer = _myType === 'dealer';
-    // 본부 전용 그룹(제휴카드·아이콘) — 본부만
-    document.querySelectorAll('[data-group="super"]').forEach(el => { el.hidden = !_isSuper; });
-    // 분양관리(사이트분양) — 본부 또는 분양형만. 단독형(shop)은 숨김
-    document.querySelectorAll('[data-group="deploy"]').forEach(el => { el.hidden = !(_isSuper || isDealer); });
-    // 사이트분양 폼의 유형 select — 본부만(분양형 생성 가능). 분양형은 단독형(shop) 고정
+    // 합본 단일샵: 로그인 운영자 = 본부(오너) → 본부 전용 그룹(판매점마진설정·제휴카드·아이콘)
+    //   항상 노출. (margin 메뉴는 이제 본부 전용 그룹 안에 있어 그룹 토글로 함께 켜짐)
+    document.querySelectorAll('[data-group="super"]').forEach(el => { el.hidden = false; });
+    // 사이트분양(분양관리)은 단일샵에 미사용(스텁) → 계속 숨김
+    document.querySelectorAll('[data-group="deploy"]').forEach(el => { el.hidden = true; });
     const dpType = document.getElementById('dp-type');
-    if (dpType) dpType.hidden = !_isSuper;
-    // 판매점마진설정 = 산하에 줄 마진 → 본부·분양형만 노출. 단독형(shop)·매장미연결은 숨김.
-    // (기본 hidden → 권한 확정 시에만 드러냄: 첫 페인트 번쩍임 + _myType 미상 노출 둘 다 방지)
-    const isShop = _myType === 'shop';
-    const mgItem = document.querySelector('.adm-nav-item[data-menu="margin"]');
-    if (mgItem) mgItem.hidden = !(_isSuper || isDealer);
-    // 가시성 바뀐 메뉴가 현재 선택돼 있으면 상품관리로 보정
+    if (dpType) dpType.hidden = true;
+    // 가시성 바뀐 메뉴가 현재 선택돼 있으면 상품관리로 보정 (숨김 처리되는 분양만)
     const cur = currentMenuFromHash();
-    if ((cur === 'deploy' && !(_isSuper || isDealer)) ||
-        (cur === 'margin' && !(_isSuper || isDealer)) ||
-        ((cur === 'cards' || cur === 'iconlab') && !_isSuper)) {
+    if (cur === 'deploy') {
       location.hash = '#products';
     }
   }
@@ -2074,7 +2066,8 @@
 
   /* ─── 배너/슬라이드 관리 ───────────────────────────
      이미지(업로드)·링크·새창·사용토글·순서 + 자동/수동·간격.
-     데이터: banner_data(payload={mode,interval,items:[{image,link,newTab,enabled}]}), 이미지: Storage banner-assets. */
+     데이터: banner_data(payload={mode,interval,items:[{image(PC),imageMobile,link,newTab,enabled}]}), 이미지: Storage banner-assets.
+     배너는 PC·모바일 SET — image=PC, imageMobile=모바일. 손님 렌탈 페이지가 뷰포트에 맞춰 적용. */
   const BN_MAX = 10;
   let bnData = null;       // 편집 중 상태
   let bnInited = false;
@@ -2099,9 +2092,9 @@
       const iv = document.getElementById('bn-interval');
       if (iv){ iv.value = bnData.interval; iv.addEventListener('input', () => { bnData.interval = Math.max(1, Math.min(60, parseInt(iv.value,10)||5)); }); }
       updateBnIntervalRow();
-      // 이미지 추가
-      const file = document.getElementById('bn-file');
-      if (file) file.addEventListener('change', onBannerImage);
+      // 배너 추가 (PC·모바일 SET) — 빈 행 생성 후 각 슬롯에 업로드
+      const addBtn = document.getElementById('bn-add');
+      if (addBtn) addBtn.addEventListener('click', addBannerSet);
       // 저장 (위·아래 버튼 둘 다)
       ['bn-save', 'bn-save-top'].forEach(id => {
         const b = document.getElementById(id);
@@ -2118,8 +2111,16 @@
     const wrap = document.getElementById('adm-bn-list');
     if (!wrap) return;
     if (!bnData.items.length){
-      wrap.innerHTML = '<p class="adm-empty">등록된 배너가 없어요. 아래 ‘배너 이미지 추가’를 눌러 등록하세요.</p>';
+      wrap.innerHTML = '<p class="adm-empty">등록된 배너가 없어요. 아래 ‘+ 배너 추가’를 눌러 PC·모바일 이미지를 등록하세요.</p>';
     } else {
+      const slot = (it, i, key, label) => {
+        const url = key === 'mobile' ? it.imageMobile : it.image;
+        return `<label class="adm-bn-slot">
+            <span class="adm-bn-slot-lbl">${label}</span>
+            <div class="adm-bn-thumb${url?'':' empty'}${it.enabled===false?' off':''}">${url?`<img src="${escape(url)}" alt="">`:'<span class="adm-bn-plus">+ 업로드</span>'}</div>
+            <input type="file" accept="image/*" class="adm-bn-upfile" data-idx="${i}" data-slot="${key}" hidden>
+          </label>`;
+      };
       wrap.innerHTML = bnData.items.map((it,i) => `
         <div class="adm-bn-row" data-idx="${i}">
           <div class="adm-bn-order">
@@ -2127,7 +2128,10 @@
             <span class="adm-bn-num">${i+1}</span>
             <button class="adm-bn-down" data-idx="${i}" type="button" title="아래로" ${i===bnData.items.length-1?'disabled':''}>▼</button>
           </div>
-          <div class="adm-bn-thumb${it.enabled===false?' off':''}"><img src="${escape(it.image)}" alt=""></div>
+          <div class="adm-bn-slots">
+            ${slot(it, i, 'pc', 'PC')}
+            ${slot(it, i, 'mobile', '모바일')}
+          </div>
           <div class="adm-bn-body">
             <label class="adm-bn-check"><input type="checkbox" class="adm-bn-enabled" data-idx="${i}" ${it.enabled!==false?'checked':''}> 이 배너 사용</label>
             <input type="url" class="adm-input adm-bn-link" data-idx="${i}" value="${escape(it.link||'')}" placeholder="클릭 시 이동할 링크 (비우면 클릭 안 됨)">
@@ -2144,6 +2148,10 @@
       bnData.items.splice(Number(b.dataset.idx), 1);
       renderBanners();
     }));
+    wrap.querySelectorAll('.adm-bn-upfile').forEach(inp => inp.addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0]; e.target.value = '';
+      upBannerSlot(Number(inp.dataset.idx), inp.dataset.slot, f);
+    }));
   }
   // DOM 입력값(토글/링크)을 bnData 에 반영 (재렌더/저장/이동 전 호출)
   function syncBannersFromDom(){
@@ -2158,19 +2166,27 @@
     const t = bnData.items[i]; bnData.items[i] = bnData.items[j]; bnData.items[j] = t;
     renderBanners();
   }
-  async function onBannerImage(e){
-    const file = e.target.files && e.target.files[0];
-    e.target.value = '';
-    if (!file) return;
+  // + 배너 추가 — 빈 SET 행 생성 (PC·모바일 슬롯에 각각 업로드)
+  function addBannerSet(){
     if (bnData.items.length >= BN_MAX){ alert(`배너는 최대 ${BN_MAX}개까지 등록할 수 있어요.`); return; }
+    syncBannersFromDom();
+    bnData.items.push({ image:'', imageMobile:'', link:'', newTab:false, enabled:true });
+    renderBanners();
+    admToast('빈 배너가 추가됐어요. PC·모바일 이미지를 올리고 저장하세요.');
+  }
+  // 슬롯(pc|mobile) 이미지 업로드 → 해당 배너의 image / imageMobile 설정
+  async function upBannerSlot(idx, slot, file){
+    if (!file) return;
     if (!window.skmUploadBannerImage){ alert('업로드 기능을 불러오지 못했어요.'); return; }
     admToast('업로드 중…');
     const { url, error } = await window.skmUploadBannerImage(file);
     if (error){ alert('업로드 실패: ' + (error.message || '권한 또는 네트워크 오류')); return; }
     syncBannersFromDom();
-    bnData.items.push({ image: url, link:'', newTab:false, enabled:true });
+    if (!bnData.items[idx]) return;
+    if (slot === 'mobile') bnData.items[idx].imageMobile = url;
+    else bnData.items[idx].image = url;
     renderBanners();
-    admToast('배너가 추가됐어요. 저장을 눌러 반영하세요.');
+    admToast(`${slot === 'mobile' ? '모바일' : 'PC'} 이미지 업로드됨. 저장을 눌러 반영하세요.`);
   }
   async function saveBanners(){
     syncBannersFromDom();
@@ -2178,8 +2194,8 @@
       mode: bnData.mode === 'manual' ? 'manual' : 'auto',
       interval: Math.max(1, Math.min(60, parseInt(bnData.interval,10)||5)),
       items: bnData.items
-        .map(it => ({ image: it.image, link:(it.link||'').trim(), newTab: !!it.newTab, enabled: it.enabled !== false }))
-        .filter(it => it.image),
+        .map(it => ({ image: it.image || '', imageMobile: it.imageMobile || '', link:(it.link||'').trim(), newTab: !!it.newTab, enabled: it.enabled !== false }))
+        .filter(it => it.image || it.imageMobile),   // PC·모바일 중 최소 한 장
     };
     const btns = ['bn-save', 'bn-save-top'].map(id => document.getElementById(id)).filter(Boolean);
     btns.forEach(b => b.disabled = true);

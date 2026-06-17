@@ -69,9 +69,6 @@
       <a class="adm-nav-item" href="#commission" data-menu="commission">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span> 정책 테이블
       </a>
-      <a class="adm-nav-item" href="#margin" data-menu="margin" hidden>
-        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span> 판매점마진설정
-      </a>
       <a class="adm-nav-item" href="#support" data-menu="support">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span> 고객지원금설정
       </a>
@@ -108,6 +105,9 @@
     </div>
     <div class="adm-nav-group" data-shop="rental" data-group="super" hidden>
       <div class="adm-nav-label">본부 전용</div>
+      <a class="adm-nav-item" href="#margin" data-menu="margin">
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span> 판매점마진설정
+      </a>
       <a class="adm-nav-item" href="#cards" data-menu="cards">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span> 제휴카드 관리
       </a>
@@ -231,10 +231,10 @@
         var curSlug=(!seg||seg==='web'||/\.html?$/i.test(seg)||['admin','_super','assets','products','data'].indexOf(seg)>=0)?'':seg;
         var rc=null; try{ rc=JSON.parse(localStorage.getItem('skm_admin_role')||'null'); }catch(_){}
         if(rc && rc.slug===curSlug){
-          var sup=!!rc.s, dealer=(rc.t==='dealer');
-          document.querySelectorAll('[data-group="super"]').forEach(function(el){el.hidden=!sup;});
-          document.querySelectorAll('[data-group="deploy"]').forEach(function(el){el.hidden=!(sup||dealer);});
-          var mg=document.querySelector('.adm-nav-item[data-menu="margin"]'); if(mg) mg.hidden=!(sup||dealer);
+          // 합본 단일샵: 로그인 운영자 = 본부(오너) → 본부 전용(제휴카드·아이콘·판매점마진) 항상 노출.
+          // 사이트분양(deploy)은 단일샵이라 계속 숨김.
+          document.querySelectorAll('[data-group="super"]').forEach(function(el){el.hidden=false;});
+          document.querySelectorAll('[data-group="deploy"]').forEach(function(el){el.hidden=true;});
           if(rc.chip){
             var ch=document.getElementById('adm-user-chip'); if(ch){ ch.innerHTML=rc.chip; ch.hidden=false; }
             var so=document.getElementById('btn-signout'); if(so) so.hidden=false;
@@ -691,7 +691,7 @@
     <div class="adm-bn-list" id="adm-bn-list"></div>
 
     <div class="adm-bn-actions">
-      <label class="adm-btn adm-bn-add" id="bn-add-label">+ 배너 이미지 추가<input type="file" accept="image/*" id="bn-file" hidden></label>
+      <button class="adm-btn adm-bn-add" id="bn-add" type="button">+ 배너 추가 (PC·모바일)</button>
       <button class="adm-btn adm-btn-primary" id="bn-save">저장</button>
     </div>
   </section>
