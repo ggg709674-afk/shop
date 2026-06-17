@@ -750,69 +750,50 @@
   document.getElementById('wh-2').innerHTML = ICONS.spark();
   document.getElementById('wh-3').innerHTML = ICONS.truck();
 
-  /* ===== Hero Slider — DB(배너) 기반 + 자동/수동 + 1개시 화살표 숨김 =====
-     관리자(배너/슬라이드)에서 등록한 배너가 있으면 그걸로 슬라이드를 재구성.
-     없거나 로드 실패 시 정적 fallback(11/22/33.jpg) 유지. 인라인이라 throw 방지 위해 try-catch. */
+  /* ===== 홈 상단 배너(.banner-wide) — 관리자(배너/슬라이드) DB 반영 =====
+     히어로 슬라이더(#hero-slider)는 합본에서 .banner-wide(단일 가로 띠)로 대체됨.
+     관리자에서 저장한 배너(settings 'banner' = skmFetchBanners)가 있으면 그 이미지를
+     .banner-wide 에 채운다(여러 장+자동이면 가볍게 회전). 없으면 정적 샘플 유지. */
   (async function(){
-    const root = document.getElementById('hero-slider');
-    if (!root) return;
-
-    let cfg = { mode: 'auto', interval: 3 };   // fallback 기본값
+    const wrap = document.querySelector('.banner-wide');
+    const img = wrap && wrap.querySelector('.banner-img');
+    if (!img) return;
+    let items = [], mode = 'auto', interval = 5;
     try {
       if (window.skmFetchBanners){
         const r = await window.skmFetchBanners();
         if (r && r.payload && Array.isArray(r.payload.items)){
-          const items = r.payload.items.filter(it => it && it.image && it.enabled !== false);
-          if (items.length){
-            cfg.mode = (r.payload.mode === 'manual') ? 'manual' : 'auto';
-            cfg.interval = (r.payload.interval > 0) ? r.payload.interval : 5;
-            const esc = s => String(s).replace(/"/g, '&quot;');
-            const track = root.querySelector('.hs-track');
-            const dotsWrap = root.querySelector('.hs-dots');
-            track.innerHTML = items.map((it, i) => {
-              const img = `<img src="${esc(it.image)}" alt="" loading="${i === 0 ? 'eager' : 'lazy'}">`;
-              const inner = it.link ? `<a href="${esc(it.link)}"${it.newTab ? ' target="_blank" rel="noopener"' : ''}>${img}</a>` : img;
-              return `<div class="hs-slide${i === 0 ? ' on' : ''}">${inner}</div>`;
-            }).join('');
-            if (dotsWrap) dotsWrap.innerHTML = items.map((_, i) =>
-              `<button class="hs-dot${i === 0 ? ' on' : ''}" type="button" data-i="${i}" aria-label="${i + 1}번"></button>`).join('');
-          }
+          items = r.payload.items.filter(it => it && it.image && it.enabled !== false);
+          mode = (r.payload.mode === 'manual') ? 'manual' : 'auto';
+          interval = (r.payload.interval > 0) ? r.payload.interval : 5;
         }
       }
-    } catch (_) { /* DB 실패 → 정적 fallback 유지 */ }
+    } catch (_) { /* DB 실패 → 정적 샘플 유지 */ }
+    if (!items.length) return;   // 등록된 배너 없으면 하드코딩 샘플 유지
 
-    const slides = root.querySelectorAll('.hs-slide');
-    const dots = root.querySelectorAll('.hs-dot');
-    if (!slides.length) return;
-
-    const single = slides.length <= 1;
-    if (single){   // 1개면 화살표·점 숨김 + 자동전환 없음
-      root.querySelectorAll('.hs-nav').forEach(n => n.style.display = 'none');
-      const dw = root.querySelector('.hs-dots'); if (dw) dw.style.display = 'none';
+    function apply(i){
+      const it = items[i];
+      img.src = it.image;
+      // 링크가 있으면 img 를 <a> 로 감싼다(한 번만 생성, 이후 href 만 갱신)
+      let a = wrap.querySelector('a.banner-link');
+      if (it.link){
+        if (!a){ a = document.createElement('a'); a.className = 'banner-link'; a.style.display = 'block'; img.parentNode.insertBefore(a, img); a.appendChild(img); }
+        a.href = it.link;
+        if (it.newTab){ a.target = '_blank'; a.rel = 'noopener'; } else { a.removeAttribute('target'); a.removeAttribute('rel'); }
+      } else if (a){ a.parentNode.insertBefore(img, a); a.remove(); }
     }
+    apply(0);
 
-    let cur = 0, timer = null;
-    const AUTO_MS = Math.max(1, cfg.interval) * 1000;
-    function go(idx){
-      idx = (idx + slides.length) % slides.length;
-      slides[cur].classList.remove('on'); dots[cur] && dots[cur].classList.remove('on');
-      cur = idx;
-      slides[cur].classList.add('on'); dots[cur] && dots[cur].classList.add('on');
+    // 여러 장 + 자동 모드면 단일 띠에서 이미지만 가볍게 회전
+    if (items.length > 1 && mode === 'auto'){
+      let cur = 0;
+      const tick = () => { cur = (cur + 1) % items.length; apply(cur); };
+      let timer = setInterval(tick, Math.max(1, interval) * 1000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden){ clearInterval(timer); timer = null; }
+        else if (!timer){ timer = setInterval(tick, Math.max(1, interval) * 1000); }
+      });
     }
-    function next(){ go(cur + 1); }
-    function prev(){ go(cur - 1); }
-    function start(){ stop(); if (cfg.mode === 'auto' && !single) timer = setInterval(next, AUTO_MS); }
-    function stop(){ if (timer){ clearInterval(timer); timer = null; } }
-
-    const nextBtn = root.querySelector('.hs-next'), prevBtn = root.querySelector('.hs-prev');
-    if (nextBtn) nextBtn.addEventListener('click', () => { next(); start(); });
-    if (prevBtn) prevBtn.addEventListener('click', () => { prev(); start(); });
-    dots.forEach(d => d.addEventListener('click', () => { go(parseInt(d.dataset.i, 10) || 0); start(); }));
-    // 탭이 백그라운드일 때만 멈춤 (자동 모드만)
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stop(); else if (cfg.mode === 'auto') start();
-    });
-    start();
   })();
 
   // ===== detail 탭 전환 — location.hash 기반 (#info/#spec/#ship) =====
