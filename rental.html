@@ -123,8 +123,9 @@
   .msr-head.compact .msr-top{ opacity:0; transform:translateY(-12px); pointer-events:none; }
   .msr-head.compact .msr-cat-nav{ transform:translateY(-54px); }
 
-  /* ── 배너 (휴대폰/인터넷과 동일: 고정 비율 가로 띠 + cover) ── */
-  .banner-wide{ display:block; overflow:hidden; width:100%; aspect-ratio:750/260; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
+  /* ── 배너 — 기존 렌탈 단독 홈(.hero-slider)과 동일 치수: 최대 1440px·16:5 비율·중앙정렬 ──
+     (max-width 없이 full-width 면 넓은 모니터에서 배너가 풀스크린 넘게 커짐) */
+  .banner-wide{ display:block; overflow:hidden; width:100%; max-width:1440px; margin-left:auto; margin-right:auto; aspect-ratio:16/5; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
   .banner-wide .banner-img{ display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
   /* 카테고리/상세 뷰에선 배너 숨김 — 홈에서만 노출 (상세페이지에 배너 안 나오게) */
   body:has(main[data-view="category"]:not([hidden])) .banner-wide,
