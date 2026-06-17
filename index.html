@@ -809,9 +809,11 @@
     }
     .device::before { display:none; }                 /* 카메라 펀치홀 제거 */
 
-    /* ── 헤더: 로고 좌측 · 메뉴 중앙 · 아이콘 우측 (바는 풀폭, 콘텐츠는 1200 중앙) ── */
+    /* ── 헤더: 로고 좌측 · 메뉴 중앙 · 아이콘 우측 (바는 풀폭, 콘텐츠는 1200 중앙) ──
+       position:sticky 유지(스크롤 시 헤더 고정 — 렌탈과 동일). sticky 도 absolute 자식(.cat-nav)의
+       기준이 되므로 메뉴 중앙 정렬에 영향 없음. (relative 로 덮으면 헤더가 스크롤에 밀려남) */
     .head {
-      position:relative;
+      position:sticky; top:0;
       display:flex; align-items:center; height:64px;
       padding-left:max(20px, calc((100% - 1280px) / 2));
       padding-right:max(20px, calc((100% - 1280px) / 2));
@@ -840,8 +842,12 @@
     #panel-phone > *, #panel-internet > * {
       max-width:1040px; margin-left:auto; margin-right:auto; width:100%;
     }
-    /* 소메뉴를 배너 위(대메뉴 바로 아래)로 올림 + 중앙 정렬 — 렌탈 브랜드 소메뉴와 동일 동작 (PC) */
-    #panel-phone > .sub-nav, #panel-internet > .sub-nav { order:-1; justify-content:center; }
+    /* 소메뉴 = 렌탈과 동일 — 바(흰배경+하단선)는 풀폭, 버튼은 중앙. 1040 컬럼 제약에서 제외 */
+    #panel-phone > .sub-nav, #panel-internet > .sub-nav {
+      order:-1; justify-content:center; max-width:none;
+      padding-left:max(20px, calc((100% - 1280px) / 2));
+      padding-right:max(20px, calc((100% - 1280px) / 2));
+    }
     /* 배너 = 렌탈과 동일하게 풀블리드(최대 1440·16:5 중앙). 배너 섹션은 1040 컬럼 제약에서 제외 */
     #panel-phone > section:has(.banner-wide),
     #panel-internet > section:has(.banner-wide) { max-width:none; padding:0; }
