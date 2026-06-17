@@ -780,21 +780,27 @@
     }
     .device::before { display:none; }                 /* 카메라 펀치홀 제거 */
 
-    /* ── 헤더: 한 줄 가로배열 (바는 풀폭, 콘텐츠는 1200 중앙) ── */
+    /* ── 헤더: 로고 좌측 · 메뉴 중앙 · 아이콘 우측 (바는 풀폭, 콘텐츠는 1200 중앙) ── */
     .head {
-      display:flex; align-items:center; gap:44px; height:64px;
+      position:relative;
+      display:flex; align-items:center; height:64px;
       padding-left:max(20px, calc((100% - 1280px) / 2));
       padding-right:max(20px, calc((100% - 1280px) / 2));
     }
     .head .top { display:contents; }                   /* 브랜드·아이콘을 head 직속 flex 아이템으로 */
     .brand { order:0; font-size:22px; }
-    .cat-nav { order:1; height:auto; padding:0; gap:34px; transform:none !important; }
+    /* 메뉴는 헤더 폭 기준 정중앙 — 흐름에서 빼고 절대중앙 배치(로고·아이콘 너비 영향 X) */
+    .cat-nav {
+      order:1; height:auto; padding:0; gap:34px;
+      position:absolute; left:50%; top:50%;
+      transform:translate(-50%, -50%) !important;
+    }
     .cat-nav button { font-size:16px; }
     .top-r { order:2; margin-left:auto; display:flex; }
     /* 스크롤 시 숨김(compact) 효과는 데스크탑에서 비활성 — 대메뉴 항상 노출 */
     .head.compact { clip-path:none; border-bottom-color:var(--line); }
     .head.compact .top { opacity:1; transform:none; pointer-events:auto; }
-    .head.compact .cat-nav { transform:none !important; }
+    .head.compact .cat-nav { transform:translate(-50%, -50%) !important; }
     .scroll.compact-mode .sub-nav { transform:none; }
     .sub-nav { top:64px; }
     /* 렌탈 iframe 도 데스크탑에선 compact 끌어올림 비활성 (소메뉴가 부모 .sub-nav 로 통일됨) */
