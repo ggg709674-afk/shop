@@ -884,9 +884,8 @@
     /* 배너 = 렌탈과 동일하게 풀블리드(최대 1440·16:5 중앙). 배너 섹션은 1040 컬럼 제약에서 제외 */
     #panel-phone > section:has(.banner-wide),
     #panel-internet > section:has(.banner-wide) { max-width:none; padding:0; }
-    /* 풀블리드 — 화면 끝까지. 텍스트 오버레이가 들어가므로 2.5:1 + 높이 상한 600
-       (1440→576, 1920~ 600 고정 → 글자 레이아웃 안정) */
-    .banner-wide { aspect-ratio:5/2; height:auto; max-height:600px; max-width:none; margin:0; }
+    /* 단순 — 가운데 정렬 배너(풀블리드/오버레이 없음). 업로드 이미지(2560×560=32:7) 그대로 표시 */
+    .banner-wide { aspect-ratio:32/7; height:auto; max-height:none; max-width:1440px; margin-left:auto; margin-right:auto; }
     /* 렌탈 브랜드 메뉴(2단)도 PC에선 중앙 정렬 — 위 메인메뉴(중앙)와 세로로 맞춤 */
     #rental-sub-nav { justify-content:center; }
   }
@@ -1931,7 +1930,6 @@
   _initP.then(renderAll);
   // 배너는 DataStore(상품/카테고리)와 독립 — settings 테이블에서 직접 마운트 (PC·모바일 SET + 슬라이드)
   initShopBanners();
-  renderBannerOverlays();
   renderShopCards();
 
   // 초기 높이 설정
