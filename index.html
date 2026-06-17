@@ -264,6 +264,35 @@
     object-fit:cover; object-position:center;
   }
 
+  /* ───── 상품 카드 그리드 (렌탈 product-card 레이아웃 이식) ───── */
+  .shop-cards-wrap { width:100%; padding:16px 16px 40px; }
+  .product-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .product-grid .empty-cards { grid-column:1/-1; text-align:center; color:var(--g2); padding:48px 0; font-size:14px; }
+  .product-card {
+    background:var(--w); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; display:flex; flex-direction:column;
+    text-decoration:none; color:inherit; transition:border-color .18s, box-shadow .18s;
+  }
+  .product-card:hover { border-color:var(--accent); box-shadow:var(--shadow-card); }
+  .product-card .thumb { position:relative; aspect-ratio:1/1; background:var(--bg-soft); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .product-card .thumb img { width:100%; height:100%; object-fit:contain; padding:16px; transition:transform .3s; }
+  .product-card:hover .thumb img { transform:scale(1.04); }
+  .product-card .thumb .ph-glyph { width:44%; height:auto; color:var(--g3); }
+  .product-card .thumb .badges { position:absolute; top:10px; left:10px; z-index:2; display:flex; gap:4px; }
+  .product-card .thumb .badge { background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; }
+  .product-card .body { padding:14px 14px 16px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .product-card .model { font-size:12px; color:var(--g2); }
+  .product-card .name { font-size:15px; font-weight:700; line-height:1.4; color:var(--ink); min-height:42px; word-break:keep-all; }
+  .product-card .price-row { margin-top:auto; padding-top:10px; border-top:1px dashed var(--line); display:flex; align-items:baseline; justify-content:flex-end; gap:6px; flex-wrap:wrap; }
+  .product-card .price-row .del { font-size:12px; color:var(--g3); text-decoration:line-through; margin-right:auto; }
+  .product-card .price-row .now { font-size:13px; color:var(--g1); }
+  .product-card .price-row .now strong { font-size:19px; color:var(--ink); letter-spacing:-.5px; }
+  @media (min-width:560px) { .product-grid { grid-template-columns:repeat(3,1fr); gap:14px; } }
+  @media (min-width:768px) {
+    .product-grid { grid-template-columns:repeat(4,1fr); gap:20px; }
+    #panel-phone > .shop-cards-wrap, #panel-internet > .shop-cards-wrap { max-width:1280px; padding-left:20px; padding-right:20px; padding-bottom:60px; }
+  }
+
   /* ───── HERO 카드 (화이트) ───── */
   .hero {
     background:#FFFFFF;
@@ -908,6 +937,13 @@
       <button class="on">전체</button>
     </nav>
 
+    <!-- 상품 카드 그리드 (렌탈 레이아웃) -->
+    <div class="shop-cards-wrap">
+      <div class="product-grid shop-cards" id="phone-cards"></div>
+    </div>
+
+    <!-- 이하 옛 섹션은 숨김 (배너+카드 그리드 레이아웃으로 전환) -->
+    <div class="legacy-sections" hidden>
     <!-- 통신사별 인기 단말 -->
     <div class="sec">
       <div class="sec-t">통신사별 인기 단말</div>
@@ -1022,6 +1058,7 @@
         <span class="ft-c">© 2026 우주커넥트. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>
       </div>
     </footer>
+    </div><!-- /legacy-sections -->
 
   </div><!-- /panel-phone -->
 
@@ -1050,6 +1087,13 @@
       <button>셀프설치</button>
     </nav>
 
+    <!-- 상품 카드 그리드 (렌탈 레이아웃) -->
+    <div class="shop-cards-wrap">
+      <div class="product-grid shop-cards" id="internet-cards"></div>
+    </div>
+
+    <!-- 이하 옛 섹션은 숨김 (배너+카드 그리드 레이아웃으로 전환) -->
+    <div class="legacy-sections" hidden>
     <!-- HERO (인터넷) -->
     <section class="pad">
       <div class="hero">
@@ -1263,6 +1307,7 @@
         <span class="ft-c">© 2026 우주커넥트. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>
       </div>
     </footer>
+    </div><!-- /legacy-sections -->
 
   </div><!-- /panel-internet -->
 
@@ -1447,6 +1492,48 @@
     }
   }
   function initShopBanners() { BANNER_SHOPS.forEach(function(cfg) { mountShopBanner(cfg); }); }
+
+  /* ===== 상품 카드 그리드 (렌탈 레이아웃) — 현재는 레이아웃 확인용 샘플 카드 =====
+     실제 휴대폰/인터넷 상품 데이터가 들어오면 이 배열 대신 DataStore 상품을 렌더. */
+  var SHOP_CARD_SAMPLES = {
+    phone: [
+      { name:'갤럭시 S26 울트라', tag:'SKT',    badge:'인기',   del:'월 51,900원', label:'번호이동', price:'39,900' },
+      { name:'아이폰 17 Pro',     tag:'KT',     badge:'',       del:'월 58,000원', label:'번호이동', price:'44,000' },
+      { name:'갤럭시 Z 플립 7',   tag:'LG U+',  badge:'',       del:'',            label:'기기변경', price:'33,000' },
+      { name:'갤럭시 S26+',       tag:'SKT',    badge:'',       del:'월 46,900원', label:'번호이동', price:'34,900' },
+      { name:'아이폰 17',         tag:'KT',     badge:'',       del:'',            label:'번호이동', price:'29,000' },
+      { name:'갤럭시 A36',        tag:'알뜰폰', badge:'가성비', del:'',            label:'번호이동', price:'9,900' }
+    ],
+    internet: [
+      { name:'SK 기가 인터넷 1G',  tag:'SK브로드밴드', badge:'결합', del:'월 33,000원', label:'결합가', price:'22,000' },
+      { name:'KT 인터넷 + IoTV',   tag:'KT',           badge:'',     del:'월 41,800원', label:'결합가', price:'29,700' },
+      { name:'LG U+ 인터넷 500M',  tag:'LG U+',        badge:'',     del:'',            label:'월',     price:'27,500' }
+    ]
+  };
+  var PH_GLYPH = '<svg class="ph-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
+  function shopCardHtml(it) {
+    return '<a class="product-card" href="javascript:void(0)">'
+      + '<div class="thumb">'
+        + (it.badge ? '<div class="badges"><span class="badge">' + escapeHtml(it.badge) + '</span></div>' : '')
+        + PH_GLYPH
+      + '</div>'
+      + '<div class="body">'
+        + '<div class="model">' + escapeHtml(it.tag) + '</div>'
+        + '<div class="name">' + escapeHtml(it.name) + '</div>'
+        + '<div class="price-row">'
+          + (it.del ? '<span class="del">' + escapeHtml(it.del) + '</span>' : '')
+          + '<span class="now"><small>' + escapeHtml(it.label) + '</small> 월 <strong>' + escapeHtml(it.price) + '</strong>원</span>'
+        + '</div>'
+      + '</div>'
+    + '</a>';
+  }
+  function renderShopCards() {
+    [['phone-cards', SHOP_CARD_SAMPLES.phone], ['internet-cards', SHOP_CARD_SAMPLES.internet]].forEach(function(pair) {
+      var el = document.getElementById(pair[0]); if (!el) return;
+      var list = pair[1] || [];
+      el.innerHTML = list.length ? list.map(shopCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+    });
+  }
 
   function renderPhoneProducts(products, categories) {
     var $container = document.getElementById('phone-products');
@@ -1747,6 +1834,7 @@
   _initP.then(renderAll);
   // 배너는 DataStore(상품/카테고리)와 독립 — settings 테이블에서 직접 마운트 (PC·모바일 SET + 슬라이드)
   initShopBanners();
+  renderShopCards();
 
   // 초기 높이 설정
   window.addEventListener('load', syncPanelsHeight);
