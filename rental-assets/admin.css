@@ -863,25 +863,30 @@ textarea.adm-input{resize:vertical; min-height:60px; line-height:1.5}
 .adm-bn-radio{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink-1);cursor:pointer}
 .adm-bn-interval-input{width:64px;text-align:center}
 
-.adm-bn-list{display:flex;flex-direction:column;gap:12px;max-width:820px}
-.adm-bn-row{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
-.adm-bn-order{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px}
+.adm-bn-list{display:flex;flex-direction:column;gap:16px;max-width:680px}
+/* 세로 카드형 — 큰 미리보기(PC/모바일)를 한눈에 */
+.adm-bn-row{display:flex;flex-direction:column;align-items:stretch;gap:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
+.adm-bn-order{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:6px}
 .adm-bn-up,.adm-bn-down{width:26px;height:24px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink-3);cursor:pointer;font-size:11px;line-height:1}
 .adm-bn-up:hover:not(:disabled),.adm-bn-down:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
 .adm-bn-up:disabled,.adm-bn-down:disabled{opacity:.3;cursor:default}
-.adm-bn-num{font-size:12px;font-weight:700;color:var(--ink-3)}
-/* 썸네일 — 16:5 비율 미리보기 (원본보다 축소해서 표시) */
-.adm-bn-thumb{flex:0 0 auto;width:340px;aspect-ratio:16/5;background:var(--surface);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.adm-bn-num{font-size:13px;font-weight:700;color:var(--ink-2)}
+/* 썸네일 = 실제 노출(16:5) 미리보기 */
+.adm-bn-thumb{aspect-ratio:16/5;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
 .adm-bn-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .adm-bn-thumb.off{opacity:.4;filter:grayscale(.6)}
-/* PC·모바일 2슬롯 SET */
-.adm-bn-slots{flex:0 0 auto;display:flex;flex-direction:column;gap:8px}
-.adm-bn-slot{display:flex;align-items:center;gap:8px;cursor:pointer}
-.adm-bn-slot-lbl{flex:0 0 auto;width:44px;font-size:11px;font-weight:700;color:var(--ink-3);text-align:right}
-.adm-bn-slot .adm-bn-thumb{width:220px}
-.adm-bn-thumb.empty{display:flex;align-items:center;justify-content:center;border-style:dashed}
-.adm-bn-plus{font-size:12px;color:var(--ink-4);font-weight:600}
-.adm-bn-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
+/* PC·모바일 2슬롯 SET — 라벨 위, 큰 미리보기 아래 (세로) */
+.adm-bn-slots{display:flex;flex-direction:column;gap:14px}
+.adm-bn-slot{display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;width:100%}
+.adm-bn-slot-lbl{font-size:12px;font-weight:700;color:var(--ink-2)}
+.adm-bn-slot-lbl .adm-bn-dim{font-style:normal;font-weight:500;color:var(--ink-4);font-size:11px;margin-left:4px}
+.adm-bn-slot .adm-bn-thumb{width:100%}                 /* PC: 카드 폭 가득(큰 미리보기) */
+.adm-bn-slot.mobile .adm-bn-thumb{max-width:320px}     /* 모바일: 폰 폭처럼 좁게 미리보기 */
+.adm-bn-thumb.empty{display:flex;align-items:center;justify-content:center;border-style:dashed;min-height:90px}
+.adm-bn-plus{font-size:13px;color:var(--ink-4);font-weight:600;text-align:center;line-height:1.5}
+.adm-bn-plus small{font-size:11px;color:var(--ink-5,#aaa);font-weight:500}
+.adm-bn-del{align-self:flex-end}
+.adm-bn-body{min-width:0;display:flex;flex-direction:column;gap:9px}
 .adm-bn-check{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-1);cursor:pointer}
 .adm-bn-link{height:36px;font-size:13px}
 .adm-bn-del{flex:0 0 auto;align-self:flex-start;height:34px;padding:0 14px;font-size:13px}
