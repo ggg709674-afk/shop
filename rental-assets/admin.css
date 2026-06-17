@@ -871,18 +871,18 @@ textarea.adm-input{resize:vertical; min-height:60px; line-height:1.5}
 .adm-bn-up:hover:not(:disabled),.adm-bn-down:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
 .adm-bn-up:disabled,.adm-bn-down:disabled{opacity:.3;cursor:default}
 .adm-bn-num{font-size:13px;font-weight:700;color:var(--ink-2)}
-/* 썸네일 = 실제 노출(16:5) 미리보기 */
-.adm-bn-thumb{aspect-ratio:16/5;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
-.adm-bn-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+/* 썸네일 = 실비율 그대로(크롭 X) 중앙정렬 미리보기 */
+.adm-bn-thumb{background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.adm-bn-thumb img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;margin:auto}
 .adm-bn-thumb.off{opacity:.4;filter:grayscale(.6)}
-/* PC·모바일 2슬롯 SET — 라벨 위, 큰 미리보기 아래 (세로) */
-.adm-bn-slots{display:flex;flex-direction:column;gap:14px}
-.adm-bn-slot{display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;width:100%}
+/* PC·모바일 2슬롯 SET — 가로로 나란히 배열 (라벨 위, 미리보기 아래) */
+.adm-bn-slots{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:20px}
+.adm-bn-slot{display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;width:auto}
 .adm-bn-slot-lbl{font-size:12px;font-weight:700;color:var(--ink-2)}
 .adm-bn-slot-lbl .adm-bn-dim{font-style:normal;font-weight:500;color:var(--ink-4);font-size:11px;margin-left:4px}
-.adm-bn-slot .adm-bn-thumb{width:100%}                 /* PC: 카드 폭 가득(큰 미리보기) */
-.adm-bn-slot.mobile .adm-bn-thumb{max-width:320px}     /* 모바일: 폰 폭처럼 좁게 미리보기 */
-.adm-bn-thumb.empty{display:flex;align-items:center;justify-content:center;border-style:dashed;min-height:90px}
+.adm-bn-slot.pc .adm-bn-thumb{width:420px;aspect-ratio:2560/560}      /* PC: 실비율 2560×560 */
+.adm-bn-slot.mobile .adm-bn-thumb{width:200px;aspect-ratio:750/234}   /* 모바일: 실비율 750×234 */
+.adm-bn-slot .adm-bn-thumb.empty{aspect-ratio:auto;height:auto;min-height:74px;border-style:dashed;padding:16px}
 .adm-bn-plus{font-size:13px;color:var(--ink-4);font-weight:600;text-align:center;line-height:1.5}
 .adm-bn-plus small{font-size:11px;color:var(--ink-5,#aaa);font-weight:500}
 .adm-bn-del{align-self:flex-end}
