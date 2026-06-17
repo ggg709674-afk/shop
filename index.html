@@ -1535,8 +1535,10 @@
       var b = e.target.closest('button'); if (!b) return;
       var soon = b.getAttribute('data-soon');
       if (soon){ alert(soon + ' 상품은 입점 준비 중이에요.'); return; }
-      // SK매직: 이미 노출 중 — 활성 표시만 갱신
+      // SK매직: 활성 표시 갱신 + 렌탈 iframe 을 홈(배너 화면)으로 복귀
       rsub.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      var rf = document.getElementById('rental-frame');
+      if (rf && rf.contentWindow) { try { rf.contentWindow.postMessage({ type:'msr-nav', to:'home' }, '*'); } catch(err){} }
     });
   })();
 

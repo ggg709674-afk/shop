@@ -1729,6 +1729,20 @@ const App = (() => {
         route();
       }
     });
+    // 합본 임베드: 부모 샵 브랜드메뉴('SK매직')에서 홈(배너 화면)으로 보내는 요청.
+    // SPA 내비게이션이라 reload 없이 홈으로 복귀(상세/카테고리 어디서든).
+    window.addEventListener('message', (e) => {
+      if (!e || !e.data || e.data.type !== 'msr-nav' || e.data.to !== 'home') return;
+      const embed = location.search.indexOf('embed') >= 0;
+      const target = RENTAL_PATH + (embed ? '?embed=1' : '');
+      if (location.pathname + location.search === target) { // 이미 홈이면 맨 위로만
+        try { window.scrollTo(0, 0); } catch (_) {}
+        return;
+      }
+      history.pushState({}, '', target);
+      if (document.startViewTransition) document.startViewTransition(() => route());
+      else route();
+    });
     await route();
   }
 
