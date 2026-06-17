@@ -2130,10 +2130,10 @@
     } else {
       const slot = (it, i, key, label) => {
         const url = key === 'mobile' ? it.imageMobile : it.image;
-        const dim = key === 'mobile' ? '750×234' : '1440×450';
+        const dim = key === 'mobile' ? '750×234' : '2560×560';
         return `<label class="adm-bn-slot ${key}">
             <span class="adm-bn-slot-lbl">${label} <em class="adm-bn-dim">${dim}</em></span>
-            <div class="adm-bn-thumb ${key}${url?'':' empty'}${it.enabled===false?' off':''}">${url?`<img src="${escape(url)}" alt="">`:'<span class="adm-bn-plus">＋ 이미지 업로드<br><small>16:5 비율 권장</small></span>'}</div>
+            <div class="adm-bn-thumb ${key}${url?'':' empty'}${it.enabled===false?' off':''}">${url?`<img src="${escape(url)}" alt="">`:`<span class="adm-bn-plus">＋ 이미지 업로드<br><small>${dim} 권장</small></span>`}</div>
             <input type="file" accept="image/*" class="adm-bn-upfile" data-idx="${i}" data-slot="${key}" hidden>
           </label>`;
       };
