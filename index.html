@@ -811,8 +811,8 @@
     #panel-phone > *, #panel-internet > * {
       max-width:1040px; margin-left:auto; margin-right:auto; width:100%;
     }
-    /* 소메뉴를 배너 위(대메뉴 바로 아래)로 올려 렌탈처럼 대메뉴·소메뉴를 붙임 (PC) */
-    #panel-phone > .sub-nav, #panel-internet > .sub-nav { order:-1; }
+    /* 소메뉴를 배너 위(대메뉴 바로 아래)로 올림 + 중앙 정렬 — 렌탈 브랜드 소메뉴와 동일 동작 (PC) */
+    #panel-phone > .sub-nav, #panel-internet > .sub-nav { order:-1; justify-content:center; }
     .banner-wide { aspect-ratio:auto; height:auto; max-height:360px; }
     /* 렌탈 브랜드 메뉴(2단)도 PC에선 중앙 정렬 — 위 메인메뉴(중앙)와 세로로 맞춤 */
     #rental-sub-nav { justify-content:center; }
