@@ -1727,6 +1727,16 @@ const App = (() => {
         route();
       }
     });
+    // 부모 샵(합본)의 3단 상품군 탭 클릭 → 카테고리 전환 (reload 없이 in-frame route)
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'msr-nav') return;
+      const cls = e.data.cls || '';
+      const url = RENTAL_PATH + (cls ? ('?cls=' + cls) : '?view=category');
+      if (url === location.pathname + location.search) return;
+      history.pushState({}, '', url);
+      if (document.startViewTransition) { document.startViewTransition(() => route()); }
+      else { route(); }
+    });
     await route();
   }
 
