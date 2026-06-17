@@ -264,6 +264,39 @@
     object-fit:cover; object-position:center;
   }
 
+  /* ───── 배너 텍스트 오버레이 (배경 이미지 위에 제목·버튼·혜택을 HTML 로 얹음) ─────
+     배경은 글자 없는 이미지만 올리면 됨 → 비율 자유, 글자 선명·수정·모바일 대응. */
+  .banner-wide { position:relative; }
+  .banner-ov {
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    display:flex; flex-direction:column; justify-content:center;
+    padding-left:max(24px, calc((100% - 1280px) / 2));
+    padding-right:24px;
+    background:linear-gradient(90deg, rgba(255,255,255,.85) 0%, rgba(255,255,255,.5) 36%, rgba(255,255,255,0) 60%);
+  }
+  .bo-eye { font-size:14px; font-weight:700; letter-spacing:.14em; color:var(--bo-accent,#2E6FD0); margin-bottom:14px; }
+  .bo-title { font-size:34px; font-weight:800; line-height:1.32; color:var(--ink); margin:0 0 14px; word-break:keep-all; }
+  .bo-title b { color:var(--bo-accent,#2E6FD0); font-weight:800; }
+  .bo-sub { font-size:16px; color:var(--g1); margin:0 0 22px; }
+  .bo-cta {
+    pointer-events:auto; align-self:flex-start; display:inline-flex; align-items:center; gap:8px;
+    background:var(--bo-accent,#2E6FD0); color:#fff; font-size:15px; font-weight:600;
+    padding:13px 28px; border-radius:30px; text-decoration:none;
+  }
+  .bo-cta span { font-size:18px; line-height:1; }
+  .bo-benefits { display:flex; align-items:center; gap:26px; margin-top:30px; }
+  .bo-bf { display:flex; align-items:center; gap:11px; }
+  .bo-bf .bo-ic { width:34px; height:34px; flex:0 0 34px; color:var(--bo-accent,#2E6FD0); }
+  .bo-bf .bo-ic svg { width:100%; height:100%; }
+  .bo-bf b { font-size:14px; color:var(--ink); display:block; line-height:1.35; }
+  .bo-bf span { font-size:12px; color:var(--g2); }
+  .bo-bf-sep { width:1px; align-self:stretch; background:var(--line); margin:3px 0; }
+  @media (max-width:900px) {
+    .bo-title { font-size:23px; } .bo-eye { font-size:12px; margin-bottom:9px; }
+    .bo-sub { font-size:13px; margin-bottom:16px; } .bo-cta { padding:10px 20px; font-size:13px; }
+    .bo-benefits { display:none; }
+  }
+
   /* ───── 상품 카드 그리드 (렌탈 product-card 레이아웃 이식) ───── */
   .shop-cards-wrap { width:100%; padding:16px 16px 40px; }
   .product-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
@@ -851,8 +884,9 @@
     /* 배너 = 렌탈과 동일하게 풀블리드(최대 1440·16:5 중앙). 배너 섹션은 1040 컬럼 제약에서 제외 */
     #panel-phone > section:has(.banner-wide),
     #panel-internet > section:has(.banner-wide) { max-width:none; padding:0; }
-    /* 풀블리드 — 화면 끝까지. PC 기준 2560×560 = 32:7 비율 (1920→420, 2560→560) */
-    .banner-wide { aspect-ratio:32/7; height:auto; max-height:none; max-width:none; margin:0; }
+    /* 풀블리드 — 화면 끝까지. 텍스트 오버레이가 들어가므로 2.5:1 + 높이 상한 600
+       (1440→576, 1920~ 600 고정 → 글자 레이아웃 안정) */
+    .banner-wide { aspect-ratio:5/2; height:auto; max-height:600px; max-width:none; margin:0; }
     /* 렌탈 브랜드 메뉴(2단)도 PC에선 중앙 정렬 — 위 메인메뉴(중앙)와 세로로 맞춤 */
     #rental-sub-nav { justify-content:center; }
   }
@@ -1500,6 +1534,62 @@
   }
   function initShopBanners() { BANNER_SHOPS.forEach(function(cfg) { mountShopBanner(cfg); }); }
 
+  /* ===== 배너 텍스트 오버레이 — 배경(이미지) 위에 제목·버튼·혜택을 코드로 얹음 =====
+     문구·색·버튼·혜택을 여기서 수정. (추후 관리자 입력칸으로 연결 가능) */
+  var BANNER_OVERLAY = {
+    phone: {
+      accent: '#2E6FD0',
+      eyebrow: 'MOBILE IS MAGIC',
+      title: '일상을 바꾸는 선택,<br>최신 <b>휴대폰</b> : 특별한 혜택',
+      sub: '최신 스마트폰을 합리적인 가격으로 만나보세요.',
+      ctaText: '자세히 보기', ctaHref: '#',
+      benefits: [
+        { icon:'percent', t:'최대 할인 혜택', s:'통신사 제휴 할인' },
+        { icon:'gift',    t:'다양한 사은품',  s:'기기별 특별 혜택' },
+        { icon:'truck',   t:'빠른 배송/개통', s:'당일 발송·당일 개통' }
+      ]
+    },
+    internet: {
+      accent: '#2E6FD0',
+      eyebrow: 'INTERNET IS MAGIC',
+      title: '집에서 더 빠르게,<br>인터넷 <b>결합</b> 특별 혜택',
+      sub: '인터넷+TV 묶고 매달 통신비를 아껴보세요.',
+      ctaText: '결합 견적 받기', ctaHref: '#',
+      benefits: [
+        { icon:'percent', t:'결합 할인',   s:'휴대폰+인터넷 묶음' },
+        { icon:'gift',    t:'설치 사은품', s:'상품권·현금 지원' },
+        { icon:'truck',   t:'빠른 설치',   s:'신청 후 평균 2일' }
+      ]
+    }
+  };
+  var BO_ICONS = {
+    percent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.3"/><circle cx="16.5" cy="16.5" r="2.3"/><line x1="18" y1="6" x2="6" y2="18"/></svg>',
+    gift:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+    truck:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
+  };
+  function bannerOverlayHtml(cfg) {
+    var bf = cfg.benefits.map(function(b, i) {
+      return (i > 0 ? '<div class="bo-bf-sep"></div>' : '')
+        + '<div class="bo-bf"><span class="bo-ic">' + (BO_ICONS[b.icon] || '')
+        + '</span><div><b>' + escapeHtml(b.t) + '</b><span>' + escapeHtml(b.s) + '</span></div></div>';
+    }).join('');
+    return '<div class="banner-ov" style="--bo-accent:' + cfg.accent + '">'
+      + '<div class="bo-eye">' + escapeHtml(cfg.eyebrow) + '</div>'
+      + '<h2 class="bo-title">' + cfg.title + '</h2>'
+      + '<p class="bo-sub">' + escapeHtml(cfg.sub) + '</p>'
+      + '<a class="bo-cta" href="' + escapeHtml(cfg.ctaHref || '#') + '">' + escapeHtml(cfg.ctaText) + ' <span>›</span></a>'
+      + '<div class="bo-benefits">' + bf + '</div>'
+    + '</div>';
+  }
+  function renderBannerOverlays() {
+    ['phone', 'internet'].forEach(function(key) {
+      var w = document.querySelector('.banner-wide[data-banner="' + key + '"]');
+      if (!w || w.querySelector('.banner-ov')) return; // 중복 방지
+      var cfg = BANNER_OVERLAY[key]; if (!cfg) return;
+      w.insertAdjacentHTML('beforeend', bannerOverlayHtml(cfg));
+    });
+  }
+
   /* ===== 상품 카드 그리드 (렌탈 레이아웃) — 현재는 레이아웃 확인용 샘플 카드 =====
      실제 휴대폰/인터넷 상품 데이터가 들어오면 이 배열 대신 DataStore 상품을 렌더. */
   var SHOP_CARD_SAMPLES = {
@@ -1841,6 +1931,7 @@
   _initP.then(renderAll);
   // 배너는 DataStore(상품/카테고리)와 독립 — settings 테이블에서 직접 마운트 (PC·모바일 SET + 슬라이드)
   initShopBanners();
+  renderBannerOverlays();
   renderShopCards();
 
   // 초기 높이 설정
