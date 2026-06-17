@@ -136,11 +136,11 @@
      상세 전용 앱바(iframe 내부 sticky)가 상단을 담당. 브랜드 필터도 iframe 측에서 숨김. */
   .scroll.rental-detail .head { display:none; }
   .scroll.rental-detail #panel-rental { transform:none !important; }
-  /* compact(로고 숨김) 시 렌탈 iframe을 위로 올려 탭 바로 아래에 붙임 — 휴대폰/인터넷의 sub-nav 슬라이드업(-44px)과 동일 원리 */
-  .scroll.compact-mode #panel-rental { transform: translateY(-50px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
-  /* 렌탈+compact: 헤더(흰 배경 89px)가 올라온 iframe 상단(브랜드메뉴)을 덮으므로, 헤더를 탭만 남게 clip.
-     브랜드메뉴 top을 휴대폰/인터넷 서브메뉴(39px)와 정확히 맞추기 위해 50px 잘라냄(iframe top=89-50=39). */
-  .scroll.compact-mode.on-rental .head { clip-path: inset(0 0 50px 0); }
+  /* 렌탈 상세 뷰에선 브랜드 소메뉴도 숨김 (상세 전용 앱바가 상단 담당) */
+  .scroll.rental-detail #rental-sub-nav { display:none; }
+  /* compact(모바일) 시 소메뉴(.sub-nav)는 표준 규칙으로 -44px 슬라이드되고,
+     그 아래 iframe도 동일하게 따라 올라가 헤더 바로 아래에 붙음. (데스크탑은 compact 비활성→아래에서 무력화) */
+  .scroll.compact-mode #rental-frame { transform: translateY(-44px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
   .head.compact .top {
     opacity:0;
     transform:translateY(-12px);
@@ -797,9 +797,8 @@
     .head.compact .cat-nav { transform:none !important; }
     .scroll.compact-mode .sub-nav { transform:none; }
     .sub-nav { top:64px; }
-    /* 렌탈 전용 compact 트릭(헤더 clip · iframe 끌어올림)도 데스크탑에선 끔 → 휴대폰/인터넷과 동일하게 대메뉴 유지 */
-    .scroll.compact-mode.on-rental .head { clip-path:none; }
-    .scroll.compact-mode #panel-rental { transform:none; }
+    /* 렌탈 iframe 도 데스크탑에선 compact 끌어올림 비활성 (소메뉴가 부모 .sub-nav 로 통일됨) */
+    .scroll.compact-mode #rental-frame { transform:none; }
 
     /* ── 콘텐츠 중앙 컬럼 ── */
     #panel-phone > *, #panel-internet > * {
@@ -1246,8 +1245,17 @@
 
   </div><!-- /panel-internet -->
 
-  <!-- ╔═══════ 패널: 렌탈 (SK매직 카탈로그 iframe 임베드) ═══════╗ -->
+  <!-- ╔═══════ 패널: 렌탈 (SK매직 카탈로그 iframe 임베드) ═══════╗
+       소메뉴(브랜드)는 휴대폰/인터넷과 동일하게 '부모' .sub-nav 로 둠 → 3탭 구조 통일.
+       iframe 안 자체 브랜드바(.msr-sub)는 임베드 시 숨김(rental.html). -->
   <div class="panel" id="panel-rental">
+    <nav class="sub-nav" id="rental-sub-nav">
+      <button class="on" data-brand="skm"><span class="swatch" style="background:#11A8A0"></span>SK매직</button>
+      <span class="sub-dot"></span>
+      <button data-soon="청호나이스"><span class="swatch" style="background:#2E6FD0"></span>청호나이스</button>
+      <span class="sub-dot"></span>
+      <button data-soon="코웨이"><span class="swatch" style="background:#1C4E8A"></span>코웨이</button>
+    </nav>
     <iframe id="rental-frame" title="렌탈" loading="lazy"></iframe>
   </div><!-- /panel-rental -->
 
@@ -1476,6 +1484,19 @@
   // 샵 초기 렌더 후 렌탈 iframe 백그라운드 프리로드 → 첫 슬라이드도 매끄럽게
   setTimeout(mountRentalFrame, 1200);
 
+  // 렌탈 브랜드 소메뉴(부모 .sub-nav) — SK매직만 운영, 청호/코웨이는 준비중 안내
+  (function(){
+    var rsub = document.getElementById('rental-sub-nav');
+    if (!rsub) return;
+    rsub.addEventListener('click', function(e){
+      var b = e.target.closest('button'); if (!b) return;
+      var soon = b.getAttribute('data-soon');
+      if (soon){ alert(soon + ' 상품은 입점 준비 중이에요.'); return; }
+      // SK매직: 이미 노출 중 — 활성 표시만 갱신
+      rsub.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    });
+  })();
+
   // 렌탈 iframe 스크롤 → 샵 헤더 compact 토글 (휴대폰/인터넷과 '동일한' .head.compact 공유 상태 사용 → 탭 전환해도 유지)
   var rPrevY = 0, rAccum = 0, rLastSign = 0, rLockUntil = 0;
   function setCompact(on) {
@@ -1521,18 +1542,19 @@
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
     if (!active || !panelsEl) return;
     if (catOrder[currentIdx] === 'rental') {
-      // 렌탈 iframe — 헤더 아래 공간을 채움. compact(로고 숨김) 시 헤더 ~35px라 iframe은 그만큼 더 키우고
-      // #panel-rental를 transform으로 위로 올려(sub-nav가 올라가는 것과 동일) 탭 바로 아래에 붙임.
+      // 렌탈 = [부모 .head][부모 .sub-nav(브랜드)][iframe 카탈로그] (휴대폰/인터넷과 동일 구조).
+      // iframe 은 헤더+소메뉴 아래 남은 공간을 채움.
       var frame = document.getElementById('rental-frame');
       var compact = headEl.classList.contains('compact');
       var detail = scrollEl.classList.contains('rental-detail');
-      // 데스크탑(≥768px)은 헤더가 항상 64px 고정(compact 숨김 비활성) → 헤더 높이 64 기준.
-      // 모바일은 기존대로 헤더(89/compact39) 아래 공간.
+      // 데스크탑(≥768px)은 헤더 64px 고정(compact 비활성). 모바일은 헤더(89/compact39).
       var isDesktop = window.matchMedia('(min-width:768px)').matches;
       var headH = isDesktop ? 64 : (compact ? 39 : 89);
+      var rsub = document.getElementById('rental-sub-nav');
+      var subH = (rsub && !detail) ? (rsub.offsetHeight || 43) : 0;   // 브랜드 소메뉴 높이
       // 상세 모드: 글로벌 헤더 숨김 → iframe이 화면 전체.
-      var fh = detail ? scrollEl.clientHeight : (scrollEl.clientHeight - headH);
-      if (fh < 0) fh = scrollEl.clientHeight;
+      var fh = detail ? scrollEl.clientHeight : (scrollEl.clientHeight - headH - subH);
+      if (fh < 100) fh = scrollEl.clientHeight;
       if (frame) frame.style.height = fh + 'px';
       panelsEl.style.height = (detail ? scrollEl.clientHeight : (scrollEl.clientHeight - (isDesktop ? 64 : 89))) + 'px'; // 패널 레이아웃 고정(.scroll 오버플로 방지)
     } else {
