@@ -1511,88 +1511,48 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
       else showShopSoon(shop);
     }, true);
     // ── 새로고침 후 상태 복원 ──────────────────────────
-    // admin.js 는 DOMContentLoaded 에서 applyMenuFromHash() 를 호출해
-    // nav .on 과 페이지 제목을 초기화한다. 따라서 복원은 DOMContentLoaded
-    // 리스너(admin.js 이후 등록 → 이후 실행)에서 수행한다.
-    // 또한 async init() 완료 후 2차 applyMenuFromHash() 가 다시 덮어쓰므로
-    // 3초간 watchdog 으로 nav/title 을 재적용한다.
     (function(){
       var savedShop = lsGet('adm_shop');
-      var savedMenu = lsGet('adm_menu');
       if (!savedShop || savedShop === 'rental') return;
 
-      var TITLE_MAP = {
-        'ph-models':'모델관리','ph-plans':'요금제관리','ph-support':'공통지원금',
-        'ph-banner':'휴대폰 배너','in-banner':'인터넷 배너'
-      };
-      var SUB_MAP = {
-        'ph-models':'통신사별 스마트폰 모델과 출고가를 관리합니다.',
-        'ph-plans':'통신사별 요금제와 기본요금을 관리합니다.',
-        'ph-support':'모델 × 요금제별 공시지원금을 관리합니다.',
-        'ph-banner':'홈 화면 상단 배너 이미지와 슬라이드 동작을 관리합니다.',
-        'in-banner':'홈 화면 상단 배너 이미지와 슬라이드 동작을 관리합니다.'
-      };
-
-      function phRestore(){
-        setShop(savedShop);
-        var sm = savedMenu;
-        if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support'){
-          if (window.showPhonePanel) window.showPhonePanel(sm);
-        } else if (sm && sm !== 'ph-banner' && sm !== 'in-banner'){
-          showShopSoon(savedShop);
-          document.querySelectorAll('.adm-nav-item').forEach(function(x){
-            x.classList.toggle('on', x.getAttribute('data-shop-menu') === sm);
-          });
-        }
-        // ph-banner / in-banner 는 setShop 내 showShopBanner 가 처리
-      }
-
-      function phFixAll(){
-        // admin.js가 applyMenuFromHash()로 패널·nav·title을 덮어쓴 경우 전체 복원
-        // ※ MO callback은 이미 rentalOpen=true 확인 후 호출하므로 early return 없음
-        var sm = savedMenu || (savedShop === 'phone' ? 'ph-banner' : 'in-banner');
-        // 복원
-        if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support'){
-          if (window.showPhonePanel) window.showPhonePanel(sm);
-        } else if (sm === 'ph-banner' || sm === 'in-banner'){
+      // 현재 메뉴키에 맞는 패널 표시
+      function applyPanel(sm){
+        if (!sm || sm === 'ph-banner' || sm === 'in-banner'){
           showShopBanner(savedShop);
+        } else if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support'){
+          if (window.showPhonePanel) window.showPhonePanel(sm);
         } else {
           showShopSoon(savedShop);
-          document.querySelectorAll('.adm-nav-item').forEach(function(x){
-            x.classList.toggle('on', x.getAttribute('data-shop-menu') === sm);
-          });
         }
+      }
+
+      // 렌탈 패널이 노출됐는지 검사 (ph-banner/in-banner일 땐 banner 패널은 OK)
+      var RENTAL_IDS = ['products','commission','carddiscount','cards','iconlab',
+                        'faq','store','soon','consult','margin','support','deploy'];
+      function rentalPanelOpen(curSm){
+        var ids = (curSm === 'ph-banner' || curSm === 'in-banner')
+                  ? RENTAL_IDS
+                  : RENTAL_IDS.concat(['banner']);
+        return ids.some(function(id){
+          var el = document.querySelector('[data-panel="' + id + '"]');
+          return el && !el.hidden;
+        });
       }
 
       document.addEventListener('DOMContentLoaded', function(){
-        phRestore();   // admin.js 1차 applyMenuFromHash 이후 전체 복원
-        // preload 속성 제거 — 이후 CSS override 불필요
         document.documentElement.removeAttribute('data-preload-shop');
+        setShop(savedShop);                       // 탭 복원
+        applyPanel(lsGet('adm_menu'));             // 패널 복원
 
-        // admin.js 2차 applyMenuFromHash가 임의 렌탈 패널을 다시 열 때
-        // MutationObserver로 즉각 감지 → phFixAll() 재복원
-        var RENTAL_PANELS = ['products','commission','carddiscount','cards','iconlab',
-                             'faq','banner','store','soon','consult','margin','support','deploy'];
-        var _restoring = false;
-        var mo = new MutationObserver(function(){
-          if (_restoring) return;
-          if (body.getAttribute('data-shop') !== savedShop){ mo.disconnect(); return; }
-          // 렌탈 패널 중 하나라도 보이면 즉시 재복원
-          var rentalOpen = RENTAL_PANELS.some(function(id){
-            var el = document.querySelector('[data-panel="' + id + '"]');
-            return el && !el.hidden;
-          });
-          if (!rentalOpen) return;
-          _restoring = true;
-          phFixAll();
-          _restoring = false;
-        });
-        RENTAL_PANELS.forEach(function(id){
-          var el = document.querySelector('[data-panel="' + id + '"]');
-          if (el) mo.observe(el, { attributes: true, attributeFilter: ['hidden'] });
-        });
-        // 30초 후 자동 해제 (admin.js async applyMenuFromHash 대기)
-        setTimeout(function(){ mo.disconnect(); }, 30000);
+        // admin.js async 2차 applyMenuFromHash 대응 — 200ms 간격 최대 20회(4초) 폴링
+        var tries = 0;
+        var iv = setInterval(function(){
+          if (++tries > 20 || body.getAttribute('data-shop') !== savedShop){
+            clearInterval(iv); return;
+          }
+          var curSm = lsGet('adm_menu') || (savedShop === 'phone' ? 'ph-banner' : 'in-banner');
+          if (rentalPanelOpen(curSm)) applyPanel(curSm);
+        }, 200);
       });
     })();
   })();
