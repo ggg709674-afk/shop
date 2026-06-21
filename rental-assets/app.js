@@ -756,6 +756,7 @@ const App = (() => {
             ${escape(CATEGORY_META[c.dispClsfNo]?.label || c.name)}
           </a>`));
       bar.innerHTML = chips.join('');
+      try { localStorage.setItem('msr_filterbar_v1', bar.innerHTML); } catch(e) {}
     }
 
     // products — cls 지정시 해당 카테고리, '전체'면 VISIBLE 4종 합집합만
@@ -1224,6 +1225,10 @@ const App = (() => {
   async function renderDetail() {
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
+    // 상품 전환 시 detail-info 높이 고정 → 옵션 토글로 CTA 튀는 현상 방지
+    const infoEl = document.querySelector('.detail-info');
+    const prevH = infoEl ? infoEl.offsetHeight : 0;
+    if (infoEl && prevH > 200) infoEl.style.minHeight = prevH + 'px';
     const data = await db();
     // dedup으로 카드에서 사라진 goodsId도 직접 URL 진입 가능해야 함 → _raw_products fallback
     const p = data.products.find(x => x.goodsId === id)
@@ -1537,6 +1542,8 @@ const App = (() => {
 
     // 페이지 타이틀
     document.title = `${p.name} | SK매직 인증파트너점`;
+    // 렌더 완료 후 높이 고정 해제
+    if (infoEl) requestAnimationFrame(() => { infoEl.style.minHeight = ''; });
   }
 
   /* ================== SPA Router ==================
