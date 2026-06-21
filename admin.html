@@ -3,12 +3,39 @@
 <head>
 <!-- 첫 페인트 전 탭 깜빡임 방지: localStorage에서 shop 읽어 body에 미리 설정 -->
 <script>
-(function(){try{var s=localStorage.getItem('adm_shop');if(s&&s!=='rental')document.documentElement.setAttribute('data-preload-shop',s);}catch(e){}}());
+(function(){
+  try {
+    var s = localStorage.getItem('adm_shop');
+    if (s && s !== 'rental') {
+      var h = document.documentElement;
+      h.setAttribute('data-preload-shop', s);
+      // 저장된 메뉴에 맞는 패널도 미리 지정 — JS 오기 전 정확한 패널 표시
+      var m = localStorage.getItem('adm_menu') || '';
+      var panel = (m === 'ph-models') ? 'ph-models'
+                : (m === 'ph-plans')  ? 'ph-plans'
+                : (m === 'ph-support')? 'ph-support'
+                : 'banner';
+      h.setAttribute('data-preload-panel', panel);
+    }
+  } catch(e) {}
+}());
 </script>
 <style>
-/* 탭 깜빡임 방지: preload 중 렌탈 탭이 .on으로 잠깐 표시될 때만 억제 */
-html[data-preload-shop="phone"]    .adm-shop-tab.on[data-shop="rental"] { color: rgba(255,255,255,.35)!important; border-bottom-color:transparent!important; }
-html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color: rgba(255,255,255,.35)!important; border-bottom-color:transparent!important; }
+/* ── preload 깜빡임 방지 ── */
+/* 렌탈 탭 선택 억제 */
+html[data-preload-shop="phone"]    .adm-shop-tab.on[data-shop="rental"],
+html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:rgba(255,255,255,.35)!important; border-bottom-color:transparent!important; }
+/* 정확한 탭 미리 선택된 것처럼 표시 */
+html[data-preload-shop="phone"]    .adm-shop-tab[data-shop="phone"],
+html[data-preload-shop="internet"] .adm-shop-tab[data-shop="internet"] { color:#fff!important; border-bottom-color:var(--primary)!important; }
+html[data-preload-shop="phone"]    .adm-shop-tab[data-shop="phone"] .dot,
+html[data-preload-shop="internet"] .adm-shop-tab[data-shop="internet"] .dot { background:var(--primary)!important; opacity:1!important; }
+/* 패널 전체 숨기고 저장된 패널만 표시 — admin.js 1차 applyMenuFromHash가 렌탈 패널 여는 것 차단 */
+html[data-preload-panel] .adm-panel                              { display:none!important; }
+html[data-preload-panel="banner"]     [data-panel="banner"]      { display:block!important; }
+html[data-preload-panel="ph-models"]  [data-panel="ph-models"]   { display:block!important; }
+html[data-preload-panel="ph-plans"]   [data-panel="ph-plans"]    { display:block!important; }
+html[data-preload-panel="ph-support"] [data-panel="ph-support"]  { display:block!important; }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1528,6 +1555,7 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
 
       document.addEventListener('DOMContentLoaded', function(){
         document.documentElement.removeAttribute('data-preload-shop');
+        document.documentElement.removeAttribute('data-preload-panel');
         setShop(savedShop);                       // 탭 복원
         applyPanel(lsGet('adm_menu'));             // 패널 복원
 
