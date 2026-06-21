@@ -881,7 +881,9 @@
       padding-left:max(20px, calc((100% - 1280px) / 2));
       padding-right:max(20px, calc((100% - 1280px) / 2));
     }
-    /* 배너 섹션 — 상품 컬럼(1280px)과 동일하게 정렬. 내부 .banner-wide 는 섹션 폭을 채움 */
+    /* 배너 섹션 강제 고정 — 상품 컬럼(1280px)과 동일 너비·여백 */
+    .bn-wrap { max-width:1280px !important; margin-left:auto !important; margin-right:auto !important; width:100%; overflow:hidden; padding:0; }
+    .bn-wrap .banner-wide { max-width:none; width:100%; }
     .banner-wide { aspect-ratio:16/5; height:auto; max-height:none; width:100%; }
     /* 렌탈 브랜드 메뉴(2단)도 PC에선 중앙 정렬 — 위 메인메뉴(중앙)와 세로로 맞춤 */
     #rental-sub-nav { justify-content:center; }
@@ -963,7 +965,7 @@
   <div class="panel" id="panel-phone">
 
     <!-- 가로 와이드 배너 — 관리자 등록 이미지만 표시 (없으면 숨김) -->
-    <section>
+    <section class="bn-wrap">
       <div class="banner-wide" data-banner="phone" hidden>
         <img class="banner-img" alt="배너"/>
       </div>
@@ -1104,7 +1106,7 @@
   <div class="panel" id="panel-internet">
 
     <!-- 가로 와이드 배너 — 관리자 등록 이미지만 표시 (없으면 숨김) -->
-    <section>
+    <section class="bn-wrap">
       <div class="banner-wide" data-banner="internet" hidden>
         <img class="banner-img" alt="배너"/>
       </div>
