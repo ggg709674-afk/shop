@@ -1178,15 +1178,27 @@ html[data-preload-shop] body { visibility:hidden; }
     phStatus('모델 목록 읽는 중…');
     var {data:models,error}=await dest.from('mobileshop_models').select('id,name,carrier,colors');
     if(error){phStatus('❌ '+error.message,true);return;}
-    var carriers=[...new Set(models.map(function(m){return m.carrier;}))];
-    var sktModels=models.filter(function(m){return m.carrier==='skt';});
-    var sktEmpty=sktModels.filter(function(m){return !m.colors||!m.colors.length;});
-    console.log('[색상채우기] 통신사 목록:',carriers);
-    console.log('[색상채우기] SKT 전체:',sktModels.length,'/ 색상 빈 것:',sktEmpty.length);
-    console.log('[색상채우기] SKT 빈 이름들:',sktEmpty.slice(0,5).map(function(m){return m.name;}));
-    var nonSkt=models.filter(function(m){return m.carrier!=='skt'&&m.colors&&m.colors.length;});
-    console.log('[색상채우기] 색상 있는 비SKT:',nonSkt.length,'/ 예시 이름:',nonSkt.slice(0,5).map(function(m){return m.name+'('+m.carrier+')'}));
-    phStatus('통신사: ['+carriers.join(',')+'] | SKT 빈 색상: '+sktEmpty.length+'개 | 비SKT 색상있음: '+nonSkt.length+'개 → 콘솔 확인');
+    function normName(s){return s.replace(/\s*\((kt|skt|lg[^)]*)\)\s*$/i,'').replace(/(\d+)GB\b/g,'$1G').trim();}
+    var byNorm={};
+    models.forEach(function(m){var k=normName(m.name);if(!byNorm[k])byNorm[k]={};byNorm[k][m.carrier]=m;});
+    var updates=[];
+    models.filter(function(m){return m.carrier==='skt';}).forEach(function(skt){
+      if(skt.colors&&skt.colors.length)return;
+      var k=normName(skt.name);
+      var donor=(byNorm[k]||{})['kt']||((byNorm[k]||{})['lg']);
+      if(!donor||!donor.colors||!donor.colors.length)return;
+      updates.push({id:skt.id,colors:donor.colors,name:skt.name});
+    });
+    if(!updates.length){phStatus('채울 항목 없음');return;}
+    phStatus('색상 업데이트 중 ('+updates.length+'개)…');
+    var ok=0,fail=0;
+    for(var i=0;i<updates.length;i++){
+      var u=updates[i];
+      var {error:e}=await dest.from('mobileshop_models').update({colors:u.colors}).eq('id',u.id);
+      if(e){console.warn(u.name,e);fail++;}else{ok++;}
+    }
+    phData.loaded=false;phData.loading=false;await phLoad();
+    phStatus('✅ 완료 — '+ok+'개 색상 채움'+(fail?', 실패 '+fail+'개':''));
   }
   /* ─ 렌더: 모델 ─ */
   function phRenderModels(carrier){
