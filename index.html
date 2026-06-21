@@ -848,11 +848,11 @@
     .head {
       position:sticky; top:0;
       display:flex; align-items:center; height:64px;
-      padding-left:max(36px, calc((100% - 1280px) / 2));
-      padding-right:max(36px, calc((100% - 1280px) / 2));
+      padding-left:max(20px, calc((100% - 1280px) / 2));
+      padding-right:max(20px, calc((100% - 1280px) / 2));
     }
     .head .top { display:contents; }                   /* 브랜드·아이콘을 head 직속 flex 아이템으로 */
-    .brand { order:0; font-size:22px; }
+    .brand { order:0; font-size:22px; margin-left:24px; }
     /* 메뉴는 헤더 폭 기준 정중앙 — 흐름에서 빼고 절대중앙 배치(로고·아이콘 너비 영향 X) */
     .cat-nav {
       order:1; height:auto; padding:0; gap:34px;
@@ -878,8 +878,8 @@
     /* 소메뉴 = 렌탈과 동일 — 바(흰배경+하단선)는 풀폭, 버튼은 중앙. 1040 컬럼 제약에서 제외 */
     #panel-phone > .sub-nav, #panel-internet > .sub-nav {
       order:-1; justify-content:center; max-width:none;
-      padding-left:max(36px, calc((100% - 1280px) / 2));
-      padding-right:max(36px, calc((100% - 1280px) / 2));
+      padding-left:max(20px, calc((100% - 1280px) / 2));
+      padding-right:max(20px, calc((100% - 1280px) / 2));
     }
     /* 배너 = 렌탈과 동일하게 풀블리드(최대 1440·16:5 중앙). 배너 섹션은 1040 컬럼 제약에서 제외 */
     #panel-phone > section:has(.banner-wide),
@@ -894,8 +894,8 @@
      1단 = 공통 .head(대메뉴). 2단(브랜드)은 #panel-rental 안에 두어 렌탈 탭에서만 노출.
      1·2단 + 상품리스트 좌측 정렬을 max-width 1280 중앙(좌우 20px)으로 일치. */
   #rental-sub-nav {
-    padding-left: max(36px, calc((100% - 1280px) / 2));
-    padding-right: max(36px, calc((100% - 1280px) / 2));
+    padding-left: max(20px, calc((100% - 1280px) / 2));
+    padding-right: max(20px, calc((100% - 1280px) / 2));
   }
   /* 2단 — 브랜드 선택 (높이 40px / 14.5px / 활성 #DE4F41 굵게 / 비활성 회색) */
   .rental-brand { height:40px; box-sizing:border-box; padding-top:0; padding-bottom:0; }
