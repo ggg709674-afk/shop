@@ -860,7 +860,9 @@ html[data-preload-shop] body { visibility:hidden; }
 
   <!-- ===== 휴대폰 본부전용 — 모델관리 ===== -->
   <section class="adm-panel" data-panel="ph-models" hidden>
-    <p class="adm-panel-hint">통신사별 <strong>스마트폰 모델</strong>과 출고가를 관리합니다. 엑셀로 일괄 편집할 수 있어요.</p>
+    <p class="adm-panel-hint">통신사별 <strong>스마트폰 모델</strong>과 출고가를 관리합니다. 엑셀로 일괄 편집할 수 있어요.
+      <button class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-import-btn" style="margin-left:12px">📥 mobile-shop에서 불러오기</button>
+    </p>
     <div class="ph-status" id="ph-status"></div>
     <nav class="ph-carrier-tabs" data-ph-group="models">
       <button class="ph-carrier-tab on" data-pcarrier="skt">SKT</button>
@@ -1171,6 +1173,62 @@ html[data-preload-shop] body { visibility:hidden; }
       phData.loading=false;
     }
   }
+  /* ─ mobile-shop → 현재 DB 초기 임포트 ─ */
+  async function phImportFromMobileShop(){
+    var SRC_URL='https://qpexfvwrlwkpjyihlnwz.supabase.co';
+    var SRC_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwZXhmdndybHdrcGp5aWhsbnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTAwMTIsImV4cCI6MjA5MzQ2NjAxMn0.Aq1b2i5UpQ2Y48nWlnygkkxrw-h8GufAkl8L8K8e0kY';
+    if(!confirm('mobile-shop 데이터를 현재 DB로 불러옵니다.\n기존 데이터와 병합(upsert)됩니다. 계속할까요?'))return;
+    phStatus('mobile-shop 연결 중…');
+    try{
+      var src=window.supabase.createClient(SRC_URL,SRC_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+      // 모델
+      phStatus('모델 읽는 중…');
+      var mRes=await src.from('mobileshop_models').select('id,name,carrier,colors,release_price,rep_plan,gift,image_url,prices,sort_order,visible');
+      if(mRes.error)throw mRes.error;
+      // 요금제
+      phStatus('요금제 읽는 중…');
+      var pRes=await src.from('mobileshop_plans').select('id,name,monthly_fee,carrier,sort_order');
+      if(pRes.error)throw pRes.error;
+      // 공통지원금 (페이지네이션)
+      phStatus('공통지원금 읽는 중…');
+      var supRows=[],sfrom=0;
+      while(true){
+        var sg=await src.from('mobileshop_support').select('id,model_id,plan_id,carrier,amount').range(sfrom,sfrom+999);
+        if(sg.error)throw sg.error;
+        if(!sg.data||!sg.data.length)break;
+        supRows.push.apply(supRows,sg.data);
+        if(sg.data.length<1000)break;
+        sfrom+=1000;
+      }
+      var dest=sb();
+      if(!dest)throw new Error('로그인이 필요합니다.');
+      if(mRes.data&&mRes.data.length){
+        phStatus('모델 저장 중 ('+mRes.data.length+'건)…');
+        var r=await dest.from('mobileshop_models').upsert(mRes.data,{onConflict:'id'});
+        if(r.error)throw r.error;
+      }
+      if(pRes.data&&pRes.data.length){
+        phStatus('요금제 저장 중 ('+pRes.data.length+'건)…');
+        var r2=await dest.from('mobileshop_plans').upsert(pRes.data,{onConflict:'id'});
+        if(r2.error)throw r2.error;
+      }
+      if(supRows.length){
+        phStatus('공통지원금 저장 중 ('+supRows.length+'건)…');
+        // 1000건씩 나눠서 upsert
+        for(var i=0;i<supRows.length;i+=500){
+          var chunk=supRows.slice(i,i+500);
+          var r3=await dest.from('mobileshop_support').upsert(chunk,{onConflict:'id'});
+          if(r3.error)throw r3.error;
+        }
+      }
+      phData.loaded=false;
+      phData.loading=false;
+      await phLoad();
+      phStatus('✅ 불러오기 완료 — 모델 '+(mRes.data&&mRes.data.length||0)+'건, 요금제 '+(pRes.data&&pRes.data.length||0)+'건, 공통지원금 '+supRows.length+'건');
+    }catch(e){
+      phStatus('❌ 오류: '+(e.message||String(e)),true);
+    }
+  }
   /* ─ 렌더: 모델 ─ */
   function phRenderModels(carrier){
     var wrap=document.querySelector('[data-ph-model-list="'+carrier+'"]');if(!wrap)return;
@@ -1415,6 +1473,8 @@ html[data-preload-shop] body { visibility:hidden; }
       return;
     }
     var t=e.target;
+    // mobile-shop 불러오기
+    if(t.id==='ph-import-btn'){phImportFromMobileShop();return;}
     // 모델 추가
     var am=t.closest('[data-ph-add-model]');if(am){phOpenModelModal(null,am.getAttribute('data-ph-add-model'));return;}
     // 모델 편집
