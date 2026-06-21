@@ -1339,6 +1339,7 @@
   window.showPhonePanel=async function(menuKey){
     var group=menuKey.replace('ph-','');
     document.querySelectorAll('.adm-panel').forEach(function(p){p.hidden=(p.getAttribute('data-panel')!==menuKey);});
+    document.querySelectorAll('.adm-nav-item').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-shop-menu')===menuKey);});
     var TITLES={models:'모델관리',plans:'요금제관리',support:'공통지원금'};
     var SUBS={models:'통신사별 스마트폰 모델과 출고가를 관리합니다.',plans:'통신사별 요금제와 기본요금을 관리합니다.',support:'모델 × 요금제별 공시지원금을 관리합니다.'};
     var t=phEl('adm-page-title');var s=phEl('adm-page-sub');
@@ -1453,10 +1454,14 @@
       if (window.admInitBannerFor) window.admInitBannerFor(shop);
     }
     var BRAND = { rental:'렌탈 관리', phone:'휴대폰 관리', internet:'인터넷 관리' };
+    function lsSave(key,val){try{localStorage.setItem(key,val);}catch(e){}}
+    function lsGet(key){try{return localStorage.getItem(key)||'';}catch(e){return '';}}
     function setShop(shop){
       var prev = body.getAttribute('data-shop');
       if (prev === 'rental' && location.hash && location.hash !== '#') lastRentalHash = location.hash;
       body.setAttribute('data-shop', shop);
+      lsSave('adm_shop', shop);
+      if (shop === 'rental') lsSave('adm_menu', '');
       document.querySelectorAll('.adm-shop-tab').forEach(function(tb){
         tb.classList.toggle('on', tb.getAttribute('data-shop') === shop);
       });
@@ -1484,10 +1489,27 @@
       var shop = body.getAttribute('data-shop');
       if (shop !== 'phone' && shop !== 'internet') return;
       var menu = it.getAttribute('data-shop-menu');
+      lsSave('adm_menu', menu);
       if (menu === 'ph-banner' || menu === 'in-banner') showShopBanner(shop);
       else if (menu === 'ph-models' || menu === 'ph-plans' || menu === 'ph-support') { if (window.showPhonePanel) window.showPhonePanel(menu); }
       else showShopSoon(shop);
     }, true);
+    // ── 새로고침 후 상태 복원 ──────────────────────────
+    (function(){
+      var savedShop = lsGet('adm_shop');
+      var savedMenu = lsGet('adm_menu');
+      if (!savedShop || savedShop === 'rental') return; // 렌탈은 hash가 자동 복원
+      setShop(savedShop); // 탭 전환 + 기본 배너 표시
+      if (!savedMenu || savedMenu === 'ph-banner' || savedMenu === 'in-banner') return; // 기본값과 동일
+      if (savedMenu === 'ph-models' || savedMenu === 'ph-plans' || savedMenu === 'ph-support') {
+        if (window.showPhonePanel) window.showPhonePanel(savedMenu);
+      } else {
+        showShopSoon(savedShop);
+        document.querySelectorAll('.adm-nav-item').forEach(function(x){
+          x.classList.toggle('on', x.getAttribute('data-shop-menu') === savedMenu);
+        });
+      }
+    })();
   })();
 </script>
 </body>
