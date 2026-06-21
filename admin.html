@@ -33,12 +33,8 @@ html[data-preload-shop="internet"] .adm-shop-tab[data-shop="internet"] .dot { ba
 /* 사이드바 nav-group 깜빡임 방지 — body[data-shop] 세팅 전 렌탈 메뉴 노출 차단 */
 html[data-preload-shop="phone"]    .adm-nav-group[data-shop]:not([data-shop="phone"]),
 html[data-preload-shop="internet"] .adm-nav-group[data-shop]:not([data-shop="internet"]) { display:none!important; }
-/* 패널 전체 숨기고 저장된 패널만 표시 — admin.js 1차 applyMenuFromHash가 렌탈 패널 여는 것 차단 */
-html[data-preload-panel] .adm-panel                              { display:none!important; }
-html[data-preload-panel="banner"]     [data-panel="banner"]      { display:block!important; }
-html[data-preload-panel="ph-models"]  [data-panel="ph-models"]   { display:block!important; }
-html[data-preload-panel="ph-plans"]   [data-panel="ph-plans"]    { display:block!important; }
-html[data-preload-panel="ph-support"] [data-panel="ph-support"]  { display:block!important; }
+/* 메인 콘텐츠 전체 숨김 — JS가 올바른 상태 세팅 완료 후 드러남. 렌탈 패널 순간 노출 완전 차단 */
+html[data-preload-shop] .adm-main { visibility:hidden; }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1558,10 +1554,11 @@ html[data-preload-panel="ph-support"] [data-panel="ph-support"]  { display:block
       }
 
       document.addEventListener('DOMContentLoaded', function(){
-        document.documentElement.removeAttribute('data-preload-shop');
-        document.documentElement.removeAttribute('data-preload-panel');
         setShop(savedShop);                       // 탭 복원
         applyPanel(lsGet('adm_menu'));             // 패널 복원
+        // JS 상태 세팅 완료 후 preload CSS 해제 → adm-main 드러남 (flash 없음)
+        document.documentElement.removeAttribute('data-preload-shop');
+        document.documentElement.removeAttribute('data-preload-panel');
 
         // admin.js async 2차 applyMenuFromHash 대응:
         // 2차 호출이 banner.hidden = true 로 덮어쓰는 순간 MO가 즉시 감지 → 복원.
