@@ -871,7 +871,7 @@ html[data-preload-shop] body { visibility:hidden; }
       <div class="ph-card">
         <div class="ph-card-h">SKT 모델 <span class="ph-card-sub">엑셀 행 순서 = 표시 순서</span>
           <div class="ph-card-actions">
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-fill-colors-btn">KT/LG에서 색상 채우기</button>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-fill-colors-btn">KT/LG 동기화 (이름·순서·색상)</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="skt">엑셀 다운</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="skt">엑셀 업로드</button>
             <button class="adm-btn adm-btn-primary ph-btn-sm" data-ph-add-model="skt">+ 모델 추가</button>
@@ -1176,29 +1176,45 @@ html[data-preload-shop] body { visibility:hidden; }
   async function phFillSktColors(){
     var dest=sb();if(!dest){alert('로그인이 필요합니다.');return;}
     phStatus('모델 목록 읽는 중…');
-    var {data:models,error}=await dest.from('mobileshop_models').select('id,name,carrier,colors');
+    var {data:models,error}=await dest.from('mobileshop_models').select('id,name,carrier,colors,sort_order');
     if(error){phStatus('❌ '+error.message,true);return;}
-    function normName(s){return s.replace(/\s*\((kt|skt|lg[^)]*)\)\s*$/i,'').replace(/(\d+)GB\b/g,'$1G').trim();}
+    function normName(s){
+      return s.replace(/\s*\((kt|skt|lg[^)]*)\)\s*$/i,'')
+              .replace(/울트라/g,'Ultra').replace(/\b(\d+)GB\b/g,'$1G').replace(/\b(\d+)TB\b/g,'$1T').trim();
+    }
+    function canonName(s){return s.replace(/\s*\((kt|skt|lg[^)]*)\)\s*$/i,'').trim();}
     var byNorm={};
-    models.forEach(function(m){var k=normName(m.name);if(!byNorm[k])byNorm[k]={};byNorm[k][m.carrier]=m;});
+    models.forEach(function(m){
+      if(m.carrier==='skt')return;
+      var k=normName(m.name);
+      if(!byNorm[k])byNorm[k]={};
+      if(!byNorm[k][m.carrier])byNorm[k][m.carrier]=m;
+    });
     var updates=[];
     models.filter(function(m){return m.carrier==='skt';}).forEach(function(skt){
-      if(skt.colors&&skt.colors.length)return;
       var k=normName(skt.name);
       var donor=(byNorm[k]||{})['kt']||((byNorm[k]||{})['lg']);
-      if(!donor||!donor.colors||!donor.colors.length)return;
-      updates.push({id:skt.id,colors:donor.colors,name:skt.name});
+      if(!donor)return;
+      var upd={id:skt.id};
+      var newName=canonName(donor.name);
+      if(skt.name!==newName)upd.name=newName;
+      if(skt.sort_order!==donor.sort_order)upd.sort_order=donor.sort_order;
+      if(!skt.colors||!skt.colors.length)upd.colors=donor.colors;
+      if(Object.keys(upd).length>1)updates.push(upd);
     });
-    if(!updates.length){phStatus('채울 항목 없음');return;}
-    phStatus('색상 업데이트 중 ('+updates.length+'개)…');
+    if(!updates.length){phStatus('변경 없음');return;}
+    phStatus('업데이트 중 ('+updates.length+'개)…');
     var ok=0,fail=0;
     for(var i=0;i<updates.length;i++){
-      var u=updates[i];
-      var {error:e}=await dest.from('mobileshop_models').update({colors:u.colors}).eq('id',u.id);
-      if(e){console.warn(u.name,e);fail++;}else{ok++;}
+      var u=updates[i];var id=u.id;var payload={};
+      if(u.name!==undefined)payload.name=u.name;
+      if(u.sort_order!==undefined)payload.sort_order=u.sort_order;
+      if(u.colors!==undefined)payload.colors=u.colors;
+      var {error:e}=await dest.from('mobileshop_models').update(payload).eq('id',id);
+      if(e){console.warn(id,e);fail++;}else{ok++;}
     }
     phData.loaded=false;phData.loading=false;await phLoad();
-    phStatus('✅ 완료 — '+ok+'개 색상 채움'+(fail?', 실패 '+fail+'개':''));
+    phStatus('✅ 완료 — '+ok+'개 동기화'+(fail?', 실패 '+fail+'개':''));
   }
   /* ─ 렌더: 모델 ─ */
   function phRenderModels(carrier){
