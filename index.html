@@ -972,6 +972,7 @@
 
     <!-- 휴대폰 소분류 (sticky, 카테고리 동적 렌더) -->
     <nav class="sub-nav" id="phone-sub-nav">
+      <script>!function(){try{var h=localStorage.getItem('ph_subnav_v1');if(h)document.currentScript.parentNode.innerHTML=h;}catch(e){}}();</script>
       <button class="on">전체</button>
     </nav>
 
@@ -1711,6 +1712,7 @@
       html += '<button>' + (c.swatch ? '<span class="swatch ' + escapeHtml(c.swatch) + '"></span>' : '') + escapeHtml(c.label) + '</button>';
     });
     $nav.innerHTML = html;
+    try { localStorage.setItem('ph_subnav_v1', html); } catch(e) {}
   }
 
   function renderAll(overrideData) {
