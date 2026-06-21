@@ -1556,9 +1556,23 @@ html[data-preload-shop] body { visibility:hidden; }
       document.addEventListener('DOMContentLoaded', function(){
         setShop(savedShop);                       // 탭 복원
         applyPanel(lsGet('adm_menu'));             // 패널 복원
-        // JS 상태 세팅 완료 후 preload CSS 해제 → adm-main 드러남 (flash 없음)
-        document.documentElement.removeAttribute('data-preload-shop');
-        document.documentElement.removeAttribute('data-preload-panel');
+
+        // admin.css는 매번 ?v=Date.now()로 재다운로드됨(line 1124).
+        // CSS 재로드 완료 전에 body를 드러내면 "스타일 없는" flash 발생.
+        // → CSS가 준비됐을 때만 preload 해제.
+        var revealed = false;
+        function reveal(){
+          if (revealed) return; revealed = true;
+          document.documentElement.removeAttribute('data-preload-shop');
+          document.documentElement.removeAttribute('data-preload-panel');
+        }
+        var cssEl = document.getElementById('adm-css');
+        if (!cssEl || cssEl.sheet) {
+          reveal();
+        } else {
+          cssEl.addEventListener('load', reveal, { once: true });
+          setTimeout(reveal, 5000); // 안전망: 5초 후 강제 해제
+        }
 
         // admin.js async 2차 applyMenuFromHash 대응:
         // 2차 호출이 banner.hidden = true 로 덮어쓰는 순간 MO가 즉시 감지 → 복원.
