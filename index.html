@@ -971,10 +971,8 @@
     </section>
 
     <!-- 휴대폰 소분류 (sticky, 카테고리 동적 렌더) -->
-    <nav class="sub-nav" id="phone-sub-nav">
-      <script>!function(){try{var h=localStorage.getItem('ph_subnav_v1');if(h)document.currentScript.parentNode.innerHTML=h;}catch(e){}}();</script>
-      <button class="on">전체</button>
-    </nav>
+    <nav class="sub-nav" id="phone-sub-nav"><button class="on">전체</button></nav>
+    <script>!function(){try{var h=localStorage.getItem('ph_subnav_v1');var n=document.getElementById('phone-sub-nav');if(h&&n)n.innerHTML=h;}catch(e){}}();</script>
 
     <!-- 상품 카드 그리드 (렌탈 레이아웃) -->
     <div class="shop-cards-wrap">
