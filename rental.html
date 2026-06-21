@@ -125,8 +125,10 @@
   .msr-head.compact .msr-top{ opacity:0; transform:translateY(-12px); pointer-events:none; }
   .msr-head.compact .msr-cat-nav{ transform:translateY(-54px); }
 
-  /* ── 배너 — 상품 컨테이너(1200px)에 맞춰 가운데 정렬 ── */
+  /* ── 배너 — 상품 컨테이너에 맞춰 가운데 정렬
+       일반: 1200px(컨테이너 동일) / embed: 1280px(embed 컨테이너 동일) ── */
   .banner-wide{ display:block; overflow:hidden; width:100%; max-width:var(--container,1200px); margin-left:auto; margin-right:auto; aspect-ratio:16/5; background:#fff; border-bottom:1px solid var(--line,#E8E8E8); }
+  html.msr-embed .banner-wide{ max-width:1280px; }
   .banner-wide .banner-img{ display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
   /* 카테고리/상세 뷰에선 배너 숨김 — 홈에서만 노출 (상세페이지에 배너 안 나오게) */
   body:has(main[data-view="category"]:not([hidden])) .banner-wide,
