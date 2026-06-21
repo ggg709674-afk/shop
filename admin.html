@@ -1526,33 +1526,25 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
         }
       }
 
-      // 렌탈 패널이 노출됐는지 검사 (ph-banner/in-banner일 땐 banner 패널은 OK)
-      var RENTAL_IDS = ['products','commission','carddiscount','cards','iconlab',
-                        'faq','store','soon','consult','margin','support','deploy'];
-      function rentalPanelOpen(curSm){
-        var ids = (curSm === 'ph-banner' || curSm === 'in-banner')
-                  ? RENTAL_IDS
-                  : RENTAL_IDS.concat(['banner']);
-        return ids.some(function(id){
-          var el = document.querySelector('[data-panel="' + id + '"]');
-          return el && !el.hidden;
-        });
-      }
-
       document.addEventListener('DOMContentLoaded', function(){
         document.documentElement.removeAttribute('data-preload-shop');
         setShop(savedShop);                       // 탭 복원
         applyPanel(lsGet('adm_menu'));             // 패널 복원
 
-        // admin.js async 2차 applyMenuFromHash 대응 — 200ms 간격 최대 20회(4초) 폴링
-        var tries = 0;
-        var iv = setInterval(function(){
-          if (++tries > 20 || body.getAttribute('data-shop') !== savedShop){
-            clearInterval(iv); return;
-          }
-          var curSm = lsGet('adm_menu') || (savedShop === 'phone' ? 'ph-banner' : 'in-banner');
-          if (rentalPanelOpen(curSm)) applyPanel(curSm);
-        }, 200);
+        // admin.js async 2차 applyMenuFromHash 대응:
+        // 2차 호출이 banner.hidden = true 로 덮어쓰는 순간 MO가 즉시 감지 → 복원.
+        // 폴링 방식 대비: 타이밍 레이스 없음, 시각적 flash 없음.
+        var bannerPanel = document.querySelector('[data-panel="banner"]');
+        if (bannerPanel) {
+          var mo = new MutationObserver(function(_, observer){
+            if (body.getAttribute('data-shop') === 'rental') { observer.disconnect(); return; }
+            if (!bannerPanel.hidden) return; // 이미 표시 중이면 OK
+            observer.disconnect();           // 복원 후 해제 (이후 정상 조작 방해 안 함)
+            applyPanel(lsGet('adm_menu'));
+          });
+          mo.observe(bannerPanel, { attributes: true, attributeFilter: ['hidden'] });
+          setTimeout(function(){ mo.disconnect(); }, 10000); // 안전망: 10초 후 해제
+        }
       });
     })();
   })();
