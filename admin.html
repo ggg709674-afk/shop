@@ -30,6 +30,9 @@ html[data-preload-shop="phone"]    .adm-shop-tab[data-shop="phone"],
 html[data-preload-shop="internet"] .adm-shop-tab[data-shop="internet"] { color:#fff!important; border-bottom-color:var(--primary)!important; }
 html[data-preload-shop="phone"]    .adm-shop-tab[data-shop="phone"] .dot,
 html[data-preload-shop="internet"] .adm-shop-tab[data-shop="internet"] .dot { background:var(--primary)!important; opacity:1!important; }
+/* 사이드바 nav-group 깜빡임 방지 — body[data-shop] 세팅 전 렌탈 메뉴 노출 차단 */
+html[data-preload-shop="phone"]    .adm-nav-group[data-shop]:not([data-shop="phone"]),
+html[data-preload-shop="internet"] .adm-nav-group[data-shop]:not([data-shop="internet"]) { display:none!important; }
 /* 패널 전체 숨기고 저장된 패널만 표시 — admin.js 1차 applyMenuFromHash가 렌탈 패널 여는 것 차단 */
 html[data-preload-panel] .adm-panel                              { display:none!important; }
 html[data-preload-panel="banner"]     [data-panel="banner"]      { display:block!important; }
