@@ -2135,7 +2135,7 @@
     } else {
       const slot = (it, i, key, label) => {
         const url = key === 'mobile' ? it.imageMobile : it.image;
-        const dim = key === 'mobile' ? '750×234' : '2560×560';
+        const dim = key === 'mobile' ? '750×234' : '1280×400';
         return `<label class="adm-bn-slot ${key}">
             <span class="adm-bn-slot-lbl">${label} <em class="adm-bn-dim">${dim}</em></span>
             <div class="adm-bn-thumb ${key}${url?'':' empty'}${it.enabled===false?' off':''}">${url?`<img src="${escape(url)}" alt=""><button type="button" class="adm-bn-zoom" data-zoom="${escape(url)}" title="크게 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></button>`:`<span class="adm-bn-plus">＋ 이미지 업로드<br><small>${dim} 권장</small></span>`}</div>

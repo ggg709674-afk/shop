@@ -881,11 +881,8 @@
       padding-left:max(20px, calc((100% - 1280px) / 2));
       padding-right:max(20px, calc((100% - 1280px) / 2));
     }
-    /* 배너 = 렌탈과 동일하게 풀블리드(최대 1440·16:5 중앙). 배너 섹션은 1040 컬럼 제약에서 제외 */
-    #panel-phone > section:has(.banner-wide),
-    #panel-internet > section:has(.banner-wide) { max-width:none; padding:0; }
-    /* 단순 — 가운데 정렬 배너(풀블리드/오버레이 없음). 업로드 이미지(2560×560=32:7) 그대로 표시 */
-    .banner-wide { aspect-ratio:16/5; height:auto; max-height:none; max-width:1280px; margin-left:auto; margin-right:auto; }
+    /* 배너 섹션 — 상품 컬럼(1280px)과 동일하게 정렬. 내부 .banner-wide 는 섹션 폭을 채움 */
+    .banner-wide { aspect-ratio:16/5; height:auto; max-height:none; width:100%; }
     /* 렌탈 브랜드 메뉴(2단)도 PC에선 중앙 정렬 — 위 메인메뉴(중앙)와 세로로 맞춤 */
     #rental-sub-nav { justify-content:center; }
   }
