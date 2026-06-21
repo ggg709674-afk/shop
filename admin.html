@@ -1118,7 +1118,7 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
   function phToast(msg){var el=phEl('adm-toast');if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(function(){el.hidden=true;},2500);}
   /* ─ 데이터 ─ */
   var phData={loaded:false,models:[],plans:[],support:[]};
-  function sb(){return window.supabaseClient;}
+  function sb(){return window.supabaseClient||window.sb||null;}
   function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,visible:r.visible!==false};}
   function rowToPlan(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'',monthlyFee:r.monthly_fee==null?'':r.monthly_fee};}
   function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount};}
@@ -1569,20 +1569,28 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
         // preload 속성 제거 — 이후 CSS override 불필요
         document.documentElement.removeAttribute('data-preload-shop');
 
-        // admin.js 2차 applyMenuFromHash가 products 패널을 다시 열 때
-        // MutationObserver로 즉각 감지 → phFixAll() 재복원 (polling 불필요)
-        var productsEl = document.querySelector('[data-panel="products"]');
-        if (!productsEl) return;
+        // admin.js 2차 applyMenuFromHash가 임의 렌탈 패널을 다시 열 때
+        // MutationObserver로 즉각 감지 → phFixAll() 재복원
+        var RENTAL_PANELS = ['products','commission','carddiscount','cards','iconlab',
+                             'faq','banner','store','soon','consult','margin','support','deploy'];
         var _restoring = false;
         var mo = new MutationObserver(function(){
           if (_restoring) return;
           if (body.getAttribute('data-shop') !== savedShop){ mo.disconnect(); return; }
-          if (productsEl.hidden) return; // products가 숨겨진 상태면 무시
+          // 렌탈 패널 중 하나라도 보이면 즉시 재복원
+          var rentalOpen = RENTAL_PANELS.some(function(id){
+            var el = document.querySelector('[data-panel="' + id + '"]');
+            return el && !el.hidden;
+          });
+          if (!rentalOpen) return;
           _restoring = true;
-          phFixAll(); // 즉시 재복원
+          phFixAll();
           _restoring = false;
         });
-        mo.observe(productsEl, { attributes: true, attributeFilter: ['hidden'] });
+        RENTAL_PANELS.forEach(function(id){
+          var el = document.querySelector('[data-panel="' + id + '"]');
+          if (el) mo.observe(el, { attributes: true, attributeFilter: ['hidden'] });
+        });
         // 10초 후 자동 해제
         setTimeout(function(){ mo.disconnect(); }, 10000);
       });
