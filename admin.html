@@ -1180,7 +1180,8 @@ html[data-preload-shop] body { visibility:hidden; }
     if(error){phStatus('❌ '+error.message,true);return;}
     function normName(s){
       return s.replace(/\s*\((kt|skt|lg[^)]*)\)\s*$/i,'')
-              .replace(/울트라/g,'Ultra').replace(/\b(\d+)GB\b/g,'$1G').replace(/\b(\d+)TB\b/g,'$1T').trim();
+              .replace(/울트라/g,'Ultra').replace(/플립/g,'Flip').replace(/폴드/g,'Fold')
+              .replace(/\b(\d+)GB\b/g,'$1G').replace(/\b(\d+)TB\b/g,'$1T').trim();
     }
     function canonName(s){return s.replace(/\s*\((kt|skt|lg[^)]*)\)\s*$/i,'').trim();}
     var byNorm={};
