@@ -872,23 +872,21 @@ textarea.adm-input{resize:vertical; min-height:60px; line-height:1.5}
 .adm-bn-up:disabled,.adm-bn-down:disabled{opacity:.3;cursor:default}
 .adm-bn-num{font-size:13px;font-weight:700;color:var(--ink-2)}
 /* 썸네일 = 실비율 그대로(크롭 X) 중앙정렬 미리보기 */
-.adm-bn-thumb{position:relative;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
-.adm-bn-thumb img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;margin:auto}
+.adm-bn-thumb{position:relative;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.adm-bn-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .adm-bn-thumb.off{opacity:.4;filter:grayscale(.6)}
 /* 확대(모달) 버튼 — 이미지 위 호버 시 노출 */
 .adm-bn-zoom{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border:none;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
 .adm-bn-thumb:hover .adm-bn-zoom{opacity:1}
 .adm-bn-zoom svg{width:16px;height:16px;pointer-events:none}
-/* PC·모바일 2슬롯 SET — 가로로 나란히 배열 (PC 가 남는 폭 차지 → 크게) */
-.adm-bn-slots{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:20px}
-.adm-bn-slot{display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer}
-.adm-bn-slot.pc{flex:1 1 420px;min-width:0}
-.adm-bn-slot.mobile{flex:0 0 auto}
+/* PC·모바일 2슬롯 — 가로 나란히, flex:1로 동일폭 → 동일비율이라 높이도 동일 */
+.adm-bn-slots{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:flex-start;gap:16px}
+.adm-bn-slot{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;cursor:pointer}
 .adm-bn-slot-lbl{font-size:12px;font-weight:700;color:var(--ink-2)}
 .adm-bn-slot-lbl .adm-bn-dim{font-style:normal;font-weight:500;color:var(--ink-4);font-size:11px;margin-left:4px}
-.adm-bn-slot.pc .adm-bn-thumb{width:100%;aspect-ratio:2560/560}        /* PC: 슬롯 폭 가득(실비율 2560×560) */
-.adm-bn-slot.mobile .adm-bn-thumb{width:250px;aspect-ratio:750/234}    /* 모바일: 실비율 750×234 */
-.adm-bn-slot .adm-bn-thumb.empty{aspect-ratio:auto;height:auto;min-height:88px;border-style:dashed;padding:16px}
+.adm-bn-slot.pc .adm-bn-thumb{width:100%;aspect-ratio:1280/400}
+.adm-bn-slot.mobile .adm-bn-thumb{width:100%;aspect-ratio:750/234}
+.adm-bn-slot .adm-bn-thumb.empty{aspect-ratio:auto;height:auto;min-height:72px;border-style:dashed;padding:16px}
 .adm-bn-plus{font-size:13px;color:var(--ink-4);font-weight:600;text-align:center;line-height:1.5}
 .adm-bn-plus small{font-size:11px;color:var(--ink-5,#aaa);font-weight:500}
 /* 배너 이미지 확대 모달 */
