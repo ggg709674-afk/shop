@@ -6,9 +6,9 @@
 (function(){try{var s=localStorage.getItem('adm_shop');if(s&&s!=='rental')document.documentElement.setAttribute('data-preload-shop',s);}catch(e){}}());
 </script>
 <style>
-/* 탭 깜빡임 방지: preload 중 렌탈 탭 .on 임시 해제 + 저장된 탭 활성화 */
-html[data-preload-shop="phone"]  .adm-shop-tab[data-shop="rental"]   { color: inherit; border-bottom-color: transparent; }
-html[data-preload-shop="internet"] .adm-shop-tab[data-shop="rental"] { color: inherit; border-bottom-color: transparent; }
+/* 탭 깜빡임 방지: preload 중 렌탈 탭이 .on으로 잠깐 표시될 때만 억제 */
+html[data-preload-shop="phone"]    .adm-shop-tab.on[data-shop="rental"] { color: rgba(255,255,255,.35)!important; border-bottom-color:transparent!important; }
+html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color: rgba(255,255,255,.35)!important; border-bottom-color:transparent!important; }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -22,6 +22,8 @@ html[data-preload-shop="internet"] .adm-shop-tab[data-shop="rental"] { color: in
 <link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png?v=2">
 <style>
 /* ═══ 휴대폰 본부전용 — 모델·요금제·공통지원금 패널 ═══ */
+/* 휴대폰·인터넷 탭 nav 커서 */
+.adm-nav-item[data-shop-menu]{cursor:pointer;}
 .ph-carrier-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;}
 .ph-carrier-tab{padding:9px 18px;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--ink-3);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:-1px;transition:color .15s;}
 .ph-carrier-tab:hover{color:var(--ink-1);}
@@ -1564,14 +1566,25 @@ html[data-preload-shop="internet"] .adm-shop-tab[data-shop="rental"] { color: in
 
       document.addEventListener('DOMContentLoaded', function(){
         phRestore();   // admin.js 1차 applyMenuFromHash 이후 전체 복원
-        // admin.js async init 완료 후 2차 applyMenuFromHash가 패널+nav+title 덮어쓰므로 감시
-        var n = 0;
-        var wid = setInterval(function(){
-          if (++n > 12 || body.getAttribute('data-shop') !== savedShop){
-            clearInterval(wid); return;
-          }
-          phFixAll();
-        }, 300);
+        // preload 속성 제거 — 이후 CSS override 불필요
+        document.documentElement.removeAttribute('data-preload-shop');
+
+        // admin.js 2차 applyMenuFromHash가 products 패널을 다시 열 때
+        // MutationObserver로 즉각 감지 → phFixAll() 재복원 (polling 불필요)
+        var productsEl = document.querySelector('[data-panel="products"]');
+        if (!productsEl) return;
+        var _restoring = false;
+        var mo = new MutationObserver(function(){
+          if (_restoring) return;
+          if (body.getAttribute('data-shop') !== savedShop){ mo.disconnect(); return; }
+          if (productsEl.hidden) return; // products가 숨겨진 상태면 무시
+          _restoring = true;
+          phFixAll(); // 즉시 재복원
+          _restoring = false;
+        });
+        mo.observe(productsEl, { attributes: true, attributeFilter: ['hidden'] });
+        // 10초 후 자동 해제
+        setTimeout(function(){ mo.disconnect(); }, 10000);
       });
     })();
   })();
