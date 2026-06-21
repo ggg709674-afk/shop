@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="ko">
 <head>
+<!-- 첫 페인트 전 탭 깜빡임 방지: localStorage에서 shop 읽어 body에 미리 설정 -->
+<script>
+(function(){try{var s=localStorage.getItem('adm_shop');if(s&&s!=='rental')document.documentElement.setAttribute('data-preload-shop',s);}catch(e){}}());
+</script>
+<style>
+/* 탭 깜빡임 방지: preload 중 렌탈 탭 .on 임시 해제 + 저장된 탭 활성화 */
+html[data-preload-shop="phone"]  .adm-shop-tab[data-shop="rental"]   { color: inherit; border-bottom-color: transparent; }
+html[data-preload-shop="internet"] .adm-shop-tab[data-shop="rental"] { color: inherit; border-bottom-color: transparent; }
+</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>우주커넥트 — 관리자</title>
@@ -1531,27 +1540,37 @@
         // ph-banner / in-banner 는 setShop 내 showShopBanner 가 처리
       }
 
-      function phFixNav(){
-        // admin.js 가 nav .on 과 제목을 덮어쓴 경우에만 최소 복원
+      function phFixAll(){
+        // admin.js가 applyMenuFromHash()로 패널·nav·title을 덮어쓴 경우 전체 복원
         var sm = savedMenu || (savedShop === 'phone' ? 'ph-banner' : 'in-banner');
-        if (document.querySelector('.adm-nav-item[data-shop-menu="' + sm + '"].on')) return;
-        document.querySelectorAll('.adm-nav-item').forEach(function(x){
-          x.classList.toggle('on', x.getAttribute('data-shop-menu') === sm);
-        });
-        var t = document.getElementById('adm-page-title');
-        var s = document.getElementById('adm-page-sub');
-        if (t && TITLE_MAP[sm]) t.textContent = TITLE_MAP[sm];
-        if (s && SUB_MAP[sm])   s.textContent = SUB_MAP[sm];
+        // nav가 올바르고 올바른 패널이 보이면 아무것도 안 함
+        var navOk  = !!document.querySelector('.adm-nav-item[data-shop-menu="' + sm + '"].on');
+        var panelEl = document.querySelector('[data-panel="' + sm + '"]') ||
+                      (sm === 'ph-banner' || sm === 'in-banner' ? document.querySelector('[data-panel="banner"]') : null);
+        var panelOk = panelEl && !panelEl.hidden;
+        if (navOk && panelOk) return;
+        // 상태가 날아갔으면 전체 복원
+        if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support'){
+          if (window.showPhonePanel) window.showPhonePanel(sm);
+        } else if (sm === 'ph-banner' || sm === 'in-banner'){
+          showShopBanner(savedShop);
+        } else {
+          showShopSoon(savedShop);
+          document.querySelectorAll('.adm-nav-item').forEach(function(x){
+            x.classList.toggle('on', x.getAttribute('data-shop-menu') === sm);
+          });
+        }
       }
 
       document.addEventListener('DOMContentLoaded', function(){
-        phRestore();                // admin.js 1차 applyMenuFromHash 이후 전체 복원
+        phRestore();   // admin.js 1차 applyMenuFromHash 이후 전체 복원
+        // admin.js async init 완료 후 2차 applyMenuFromHash가 패널+nav+title 덮어쓰므로 감시
         var n = 0;
         var wid = setInterval(function(){
-          if (++n > 10 || body.getAttribute('data-shop') !== savedShop){
-            clearInterval(wid); return; // 3초 경과 또는 탭 전환 시 종료
+          if (++n > 12 || body.getAttribute('data-shop') !== savedShop){
+            clearInterval(wid); return;
           }
-          phFixNav();               // nav / title 만 재적용
+          phFixAll();
         }, 300);
       });
     })();
