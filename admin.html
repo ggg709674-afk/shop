@@ -1495,20 +1495,65 @@
       else showShopSoon(shop);
     }, true);
     // ── 새로고침 후 상태 복원 ──────────────────────────
+    // admin.js 는 DOMContentLoaded 에서 applyMenuFromHash() 를 호출해
+    // nav .on 과 페이지 제목을 초기화한다. 따라서 복원은 DOMContentLoaded
+    // 리스너(admin.js 이후 등록 → 이후 실행)에서 수행한다.
+    // 또한 async init() 완료 후 2차 applyMenuFromHash() 가 다시 덮어쓰므로
+    // 3초간 watchdog 으로 nav/title 을 재적용한다.
     (function(){
       var savedShop = lsGet('adm_shop');
       var savedMenu = lsGet('adm_menu');
-      if (!savedShop || savedShop === 'rental') return; // 렌탈은 hash가 자동 복원
-      setShop(savedShop); // 탭 전환 + 기본 배너 표시
-      if (!savedMenu || savedMenu === 'ph-banner' || savedMenu === 'in-banner') return; // 기본값과 동일
-      if (savedMenu === 'ph-models' || savedMenu === 'ph-plans' || savedMenu === 'ph-support') {
-        if (window.showPhonePanel) window.showPhonePanel(savedMenu);
-      } else {
-        showShopSoon(savedShop);
-        document.querySelectorAll('.adm-nav-item').forEach(function(x){
-          x.classList.toggle('on', x.getAttribute('data-shop-menu') === savedMenu);
-        });
+      if (!savedShop || savedShop === 'rental') return;
+
+      var TITLE_MAP = {
+        'ph-models':'모델관리','ph-plans':'요금제관리','ph-support':'공통지원금',
+        'ph-banner':'휴대폰 배너','in-banner':'인터넷 배너'
+      };
+      var SUB_MAP = {
+        'ph-models':'통신사별 스마트폰 모델과 출고가를 관리합니다.',
+        'ph-plans':'통신사별 요금제와 기본요금을 관리합니다.',
+        'ph-support':'모델 × 요금제별 공시지원금을 관리합니다.',
+        'ph-banner':'홈 화면 상단 배너 이미지와 슬라이드 동작을 관리합니다.',
+        'in-banner':'홈 화면 상단 배너 이미지와 슬라이드 동작을 관리합니다.'
+      };
+
+      function phRestore(){
+        setShop(savedShop);
+        var sm = savedMenu;
+        if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support'){
+          if (window.showPhonePanel) window.showPhonePanel(sm);
+        } else if (sm && sm !== 'ph-banner' && sm !== 'in-banner'){
+          showShopSoon(savedShop);
+          document.querySelectorAll('.adm-nav-item').forEach(function(x){
+            x.classList.toggle('on', x.getAttribute('data-shop-menu') === sm);
+          });
+        }
+        // ph-banner / in-banner 는 setShop 내 showShopBanner 가 처리
       }
+
+      function phFixNav(){
+        // admin.js 가 nav .on 과 제목을 덮어쓴 경우에만 최소 복원
+        var sm = savedMenu || (savedShop === 'phone' ? 'ph-banner' : 'in-banner');
+        if (document.querySelector('.adm-nav-item[data-shop-menu="' + sm + '"].on')) return;
+        document.querySelectorAll('.adm-nav-item').forEach(function(x){
+          x.classList.toggle('on', x.getAttribute('data-shop-menu') === sm);
+        });
+        var t = document.getElementById('adm-page-title');
+        var s = document.getElementById('adm-page-sub');
+        if (t && TITLE_MAP[sm]) t.textContent = TITLE_MAP[sm];
+        if (s && SUB_MAP[sm])   s.textContent = SUB_MAP[sm];
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        phRestore();                // admin.js 1차 applyMenuFromHash 이후 전체 복원
+        var n = 0;
+        var wid = setInterval(function(){
+          if (++n > 10 || body.getAttribute('data-shop') !== savedShop){
+            clearInterval(wid); return; // 3초 경과 또는 탭 전환 시 종료
+          }
+          phFixNav();               // nav / title 만 재적용
+        }, 300);
+      });
     })();
   })();
 </script>
