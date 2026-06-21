@@ -1117,27 +1117,32 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
   function phStatus(msg,isErr){var el=phEl('ph-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
   function phToast(msg){var el=phEl('adm-toast');if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(function(){el.hidden=true;},2500);}
   /* ─ 데이터 ─ */
-  var phData={loaded:false,models:[],plans:[],support:[]};
+  var phData={loaded:false,loading:false,models:[],plans:[],support:[]};
   function sb(){return window.supabaseClient||window.sb||null;}
   function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,visible:r.visible!==false};}
   function rowToPlan(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'',monthlyFee:r.monthly_fee==null?'':r.monthly_fee};}
   function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount};}
   async function phLoad(){
-    if(phData.loaded)return;
-    phStatus('데이터 로딩 중…');
-    var client=sb();
-    if(!client){phStatus('supabaseClient 없음',true);throw new Error('no client');}
-    var mRes=await client.from('mobileshop_models').select('*').order('sort_order',{ascending:true});
-    var pRes=await client.from('mobileshop_plans').select('*').order('sort_order',{ascending:true});
-    if(mRes.error)throw mRes.error;
-    if(pRes.error)throw pRes.error;
-    phData.models=(mRes.data||[]).map(rowToModel);
-    phData.plans=(pRes.data||[]).map(rowToPlan);
-    var sup=[],from=0;
-    while(true){var sg=await client.from('mobileshop_support').select('*').range(from,from+999);if(sg.error)throw sg.error;if(!sg.data||!sg.data.length)break;sup.push.apply(sup,sg.data.map(rowToSupport));if(sg.data.length<1000)break;from+=1000;}
-    phData.support=sup;
-    phData.loaded=true;
-    phStatus('');
+    if(phData.loaded||phData.loading)return;
+    phData.loading=true;
+    try{
+      phStatus('데이터 로딩 중…');
+      var client=sb();
+      if(!client){phStatus('supabaseClient 없음',true);throw new Error('no client');}
+      var mRes=await client.from('mobileshop_models').select('*').order('sort_order',{ascending:true});
+      var pRes=await client.from('mobileshop_plans').select('*').order('sort_order',{ascending:true});
+      if(mRes.error)throw mRes.error;
+      if(pRes.error)throw pRes.error;
+      phData.models=(mRes.data||[]).map(rowToModel);
+      phData.plans=(pRes.data||[]).map(rowToPlan);
+      var sup=[],from=0;
+      while(true){var sg=await client.from('mobileshop_support').select('*').range(from,from+999);if(sg.error)throw sg.error;if(!sg.data||!sg.data.length)break;sup.push.apply(sup,sg.data.map(rowToSupport));if(sg.data.length<1000)break;from+=1000;}
+      phData.support=sup;
+      phData.loaded=true;
+      phStatus('');
+    }finally{
+      phData.loading=false;
+    }
   }
   /* ─ 렌더: 모델 ─ */
   function phRenderModels(carrier){
@@ -1544,14 +1549,9 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
 
       function phFixAll(){
         // admin.js가 applyMenuFromHash()로 패널·nav·title을 덮어쓴 경우 전체 복원
+        // ※ MO callback은 이미 rentalOpen=true 확인 후 호출하므로 early return 없음
         var sm = savedMenu || (savedShop === 'phone' ? 'ph-banner' : 'in-banner');
-        // nav가 올바르고 올바른 패널이 보이면 아무것도 안 함
-        var navOk  = !!document.querySelector('.adm-nav-item[data-shop-menu="' + sm + '"].on');
-        var panelEl = document.querySelector('[data-panel="' + sm + '"]') ||
-                      (sm === 'ph-banner' || sm === 'in-banner' ? document.querySelector('[data-panel="banner"]') : null);
-        var panelOk = panelEl && !panelEl.hidden;
-        if (navOk && panelOk) return;
-        // 상태가 날아갔으면 전체 복원
+        // 복원
         if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support'){
           if (window.showPhonePanel) window.showPhonePanel(sm);
         } else if (sm === 'ph-banner' || sm === 'in-banner'){
@@ -1591,8 +1591,8 @@ html[data-preload-shop="internet"] .adm-shop-tab.on[data-shop="rental"] { color:
           var el = document.querySelector('[data-panel="' + id + '"]');
           if (el) mo.observe(el, { attributes: true, attributeFilter: ['hidden'] });
         });
-        // 10초 후 자동 해제
-        setTimeout(function(){ mo.disconnect(); }, 10000);
+        // 30초 후 자동 해제 (admin.js async applyMenuFromHash 대기)
+        setTimeout(function(){ mo.disconnect(); }, 30000);
       });
     })();
   })();
