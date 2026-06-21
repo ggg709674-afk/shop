@@ -67,16 +67,16 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-status.err{color:var(--danger);}
 .ph-hint{color:var(--ink-3);font-size:13px;padding:16px 0;}
 /* 모델 테이블 */
-.m-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+.m-table{width:auto;min-width:100%;border-collapse:collapse;font-size:13px;}
 .m-table th{font-size:11px;font-weight:700;color:var(--ink-3);padding:6px 10px;text-align:left;border-bottom:1px solid var(--line);background:var(--surface);}
-.m-table td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.m-table td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .m-table tr:last-child td{border-bottom:0;}
 .m-table tbody tr{content-visibility:auto;contain-intrinsic-size:auto 40px;}
 .m-table tr.is-hidden{opacity:.45;}
-.m-num{width:28px;text-align:center;color:var(--ink-4);font-size:12px;}
-.m-name{font-weight:600;color:var(--ink-1);}
-.m-price{width:100px;text-align:right;color:var(--ink-2);font-size:12px;}
-.m-colors{width:200px;font-size:12px;color:var(--ink-3);}
+.m-num{width:28px;text-align:center;color:var(--ink-4);font-size:12px;white-space:nowrap;}
+.m-name{font-weight:600;color:var(--ink-1);white-space:nowrap;}
+.m-price{width:108px;text-align:right;color:var(--ink-2);font-size:12px;white-space:nowrap;}
+.m-colors{width:220px;max-width:220px;font-size:12px;color:var(--ink-3);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .m-vis{width:56px;text-align:center;font-size:12px;}
 .m-act{width:108px;text-align:right;white-space:nowrap;}
 .m-act .adm-btn+.adm-btn{margin-left:4px;}
@@ -90,8 +90,8 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 공통지원금 표 */
 .ms-table-scroll{max-height:68vh;overflow:auto;border:1px solid var(--line);border-radius:8px;}
 .ms-table{table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:12.5px;}
-.ms-table th{font-size:11px;font-weight:700;color:var(--ink-3);padding:5px 6px;text-align:center;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;background:#fff;width:100px;position:sticky;top:0;z-index:2;}
-.ms-table td{padding:4px 6px;text-align:center;border-bottom:1px solid var(--surface);background:#fff;width:100px;}
+.ms-table th{font-size:11px;font-weight:700;color:var(--ink-3);padding:5px 6px;text-align:center;border-bottom:1px solid var(--line);white-space:normal;word-break:keep-all;background:#fff;width:112px;position:sticky;top:0;z-index:2;}
+.ms-table td{padding:4px 6px;text-align:center;border-bottom:1px solid var(--surface);background:#fff;width:112px;}
 .ms-table tr:last-child td{border-bottom:0;}
 .ms-table tbody tr{content-visibility:auto;contain-intrinsic-size:auto 33px;}
 .ms-table .ms-plan,.ms-table .ms-corner{position:sticky;left:0;width:160px;font-weight:600;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-right:1px solid var(--line);}
