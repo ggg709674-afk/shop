@@ -1603,6 +1603,13 @@ const App = (() => {
     const view = getViewFromUrl();
     document.documentElement.classList.toggle('is-detail', view === 'detail');
     document.querySelectorAll('[data-view]').forEach(el => { el.hidden = (el.dataset.view !== view); });
+    // hidden 속성으로 msr-head/sub/banner 즉시 토글 — CSS body:has() 보다 확실
+    var _mh = document.querySelector('.msr-head');
+    var _ms = document.querySelector('.msr-sub');
+    var _bw = document.querySelector('.banner-wide');
+    if (_mh) _mh.hidden = (view === 'detail');
+    if (_ms) _ms.hidden = (view === 'detail');
+    if (_bw) _bw.hidden = (view !== 'home');
     // 매장 검증 — 슬러그가 있는데 등록된 매장이 아니면 안내 (가짜 슬러그로 카탈로그 뜨는 것 방지)
     await loadOverrides();
     if ((window.skmGetSlug && window.skmGetSlug()) && _storeMissing) { renderStoreNotFound(); return; }
@@ -1694,6 +1701,13 @@ const App = (() => {
       history.pushState({}, '', norm);
       // 색상 chip 클릭은 같은 상품군 내 이동 → 스크롤 위치 유지
       const keepScroll = a.classList.contains('cp-chip');
+      // 상세로 이동 시 view transition old-state 캡처 전에 헤더 즉시 숨김
+      // → old-state에 msr-head가 포함되지 않아 fade-out 플래시 없음
+      if (/[?&]id=/.test(norm) && getViewFromUrl() !== 'detail') {
+        var _ph = document.querySelector('.msr-head'); if (_ph) _ph.hidden = true;
+        var _ps = document.querySelector('.msr-sub');  if (_ps) _ps.hidden = true;
+        var _pb = document.querySelector('.banner-wide'); if (_pb) _pb.hidden = true;
+      }
       if (document.startViewTransition) {
         document.startViewTransition(() => route({ keepScroll }));
       } else {

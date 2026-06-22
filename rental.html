@@ -76,10 +76,6 @@
   html.is-detail .banner-wide{ display:none !important; } /* 새로고침 시 배너 즉시 숨김 — body:has 보다 먼저 적용되어 detail-appbar가 첫 페인트부터 상단에 고정 */
   html.is-detail .detail-appbar{ display:flex !important; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:400; height:56px; padding:0 max(20px, calc((100% - 1280px) / 2)); background:#fff; border-bottom:1px solid #f2f2f2; }
   html.is-detail main[data-view="detail"]{ display:block !important; } /* 첫 페인트부터 detail 본문 높이 확보 → 전체 화면 점프 방지 */
-  /* View Transition: msr-head 즉시 교체 — cross-fade 동안 메인메뉴 잠깐 보이는 플래시 방지
-     홈→상세 전환 시 old-state에 msr-head(휴대폰|인터넷|렌탈 탭)가 fade-out되며 보이는 현상 제거. */
-  .msr-head{ view-transition-name: msr-header; }
-  ::view-transition-old(msr-header), ::view-transition-new(msr-header){ animation: none; }
   .detail-appbar .dab-back{
     display:inline-flex; align-items:center; gap:1px;
     background:none; border:0; padding:0; margin:0;
@@ -262,7 +258,7 @@
 
 <!-- ===== 모바일샵 공통 상단 메뉴 (휴대폰샵 .head 복제: 브랜드행 + 휴대폰|인터넷|렌탈 탭) =====
      휴대폰/인터넷 탭은 모바일샵 손님페이지(/)의 ?cat= 딥링크로 이동, 렌탈 탭이 현재(active). -->
-<header class="msr-head">
+<header class="msr-head" hidden>
   <div class="msr-top">
     <a class="msr-brand" href="/"><svg class="msr-brand-spark" viewBox="0 0 16 16" style="color:var(--primary,#DE4F41)"><path fill="currentColor" d="M8 1C7.3 7.3 7.3 7.3 1 8C7.3 8.7 7.3 8.7 8 15C8.7 8.7 8.7 8.7 15 8C8.7 7.3 8.7 7.3 8 1Z"/></svg>우주<span>커넥트</span></a>
     <div class="msr-top-r">
@@ -277,10 +273,13 @@
     <a class="on" href="/rental">렌탈</a>
   </nav>
 </header>
+<script>
+  (function(){try{if(!new URLSearchParams(location.search).get('id'))document.querySelector('.msr-head').removeAttribute('hidden');}catch(e){}}());
+</script>
 
 <!-- ===== 배너 (관리자 저장 배너 / 없으면 샘플) ===== -->
 <section>
-  <div class="banner-wide">
+  <div class="banner-wide" hidden>
     <img class="banner-img" alt="렌탈 배너"/>
   </div>
 </section>
@@ -302,18 +301,27 @@
       }
       img.src = src;
     } catch(e){ }
+    // 홈 외에는 배너 숨김 (상세·카테고리)
+    try{
+      var pp=new URLSearchParams(location.search);
+      if(!pp.get('id')&&!pp.get('cls')&&pp.get('view')!=='category')
+        document.querySelector('.banner-wide').removeAttribute('hidden');
+    }catch(e){}
   })();
 </script>
 
 <!-- ===== 브랜드 서브메뉴 (배너 아래 · 휴대폰샵 통신사 서브메뉴와 동일 구조: 색 스와치 + 점 구분) =====
      SK매직만 상품 보유 → 항상 active. 청호나이스/코웨이는 입점 준비중(클릭 시 안내). -->
-<nav class="msr-sub">
+<nav class="msr-sub" hidden>
   <a href="/rental" class="active"><span class="msr-bswatch skm"></span>SK매직</a>
   <span class="msr-dot"></span>
   <a href="#" class="msr-soon" data-soon="청호나이스"><span class="msr-bswatch cho"></span>청호나이스</a>
   <span class="msr-dot"></span>
   <a href="#" class="msr-soon" data-soon="코웨이"><span class="msr-bswatch coway"></span>코웨이</a>
 </nav>
+<script>
+  (function(){try{if(!new URLSearchParams(location.search).get('id'))document.querySelector('.msr-sub').removeAttribute('hidden');}catch(e){}}());
+</script>
 
 <!-- ============================================================
      VIEW: HOME
