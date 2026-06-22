@@ -1037,6 +1037,10 @@ html[data-preload-shop] body { visibility:hidden; }
   <!-- ===== 휴대폰 — 상품관리 ===== -->
   <section class="adm-panel" data-panel="ph-products" hidden>
     <p class="adm-panel-hint">공통지원금과 동일한 순서로 <strong>휴대폰 상품</strong>을 관리합니다. 색상별 이미지·노출 여부를 설정하세요.</p>
+    <div style="margin-bottom:8px;">
+      <button class="adm-btn adm-btn-secondary" type="button" id="ph-kt-import-btn" onclick="phKtBulkImport()">KT 이미지 자동등록</button>
+      <span id="ph-kt-import-status" style="font-size:12px;color:var(--ink-3);margin-left:10px;"></span>
+    </div>
     <div class="ph-status" id="ph-prod-status"></div>
     <nav class="ph-carrier-tabs" data-ph-group="products">
       <button class="ph-carrier-tab on" data-pcarrier="skt">SKT</button>
@@ -1702,6 +1706,106 @@ html[data-preload-shop] body { visibility:hidden; }
     }catch(err){
       phEl('ph-pm-saving').textContent='';
       phProdStatus('이미지 업로드 실패: '+(err.message||err),true);
+    }
+  }
+  async function phKtBulkImport(){
+    var btn=phEl('ph-kt-import-btn');
+    var statusEl=phEl('ph-kt-import-status');
+    if(btn)btn.disabled=true;
+    statusEl.textContent='KT 데이터 로딩 중…';
+    try{
+      var r=await fetch('./scripts/kt-image-data.json?v='+Date.now());
+      if(!r.ok)throw new Error('JSON 로드 실패: '+r.status);
+      var KT_DATA=await r.json();
+
+      var MODEL_PATTERNS=[
+        {re:/갤럭시 S26 Ultra/,p:'WL00076861'},
+        {re:/갤럭시 S26\+/,p:'WL00076860'},
+        {re:/갤럭시 S26 /,p:'WL00077073'},
+        {re:/갤럭시 S25 Ultra/,p:'WL00073118'},
+        {re:/갤럭시 S25\+/,p:'WL00073117'},
+        {re:/갤럭시 S25 (엣지|Edge)/i,p:'WL00074517'},
+        {re:/갤럭시 S25 FE/,p:'WL00076056'},
+        {re:/갤럭시 S25 /,p:'WL00073115'},
+        {re:/갤럭시 S24 Ultra/,p:'WL00069691'},
+        {re:/갤럭시 S24 FE/,p:'WL00072753'},
+        {re:/갤럭시 Z Fold7/,p:'WL00075257'},
+        {re:/갤럭시 Z Flip7 FE/i,p:'WL00074993'},
+        {re:/갤럭시 Z Flip7/i,p:'WL00074994'},
+        {re:/갤럭시 Z Fold6|갤럭시 Z 폴드6/,p:'WL00071923'},
+        {re:/갤럭시 Z Flip6|갤럭시 Z 플립6/,p:'WL00071921'},
+        {re:/iPhone 17 Pro Max/,p:'WL00075906'},
+        {re:/iPhone 17 Pro/,p:'WL00075905'},
+        {re:/iPhone 17e/i,p:'WL00077028'},
+        {re:/iPhone Air/i,p:'WL00075904'},
+        {re:/iPhone 17 /,p:'WL00075903'},
+        {re:/iPhone 16 Pro Max/,p:'WL00072554'},
+        {re:/iPhone 16 Pro/,p:'WL00072553'},
+        {re:/iPhone 16 Plus/,p:'WL00072552'},
+        {re:/iPhone 16e/i,p:'WL00073518'},
+        {re:/iPhone 16 /,p:'WL00072551'},
+      ];
+      function findProdNo(name){
+        for(var i=0;i<MODEL_PATTERNS.length;i++){if(MODEL_PATTERNS[i].re.test(name))return MODEL_PATTERNS[i].p;}
+        return null;
+      }
+      function normC(name){return(name||'').toLowerCase().replace(/\s+/g,'').replace(/[·•]/g,'');}
+      function findKtImgs(dbColorName,colorMap){
+        var dn=normC(dbColorName);
+        var entries=Object.entries(colorMap);
+        for(var i=0;i<entries.length;i++){
+          var kn=normC(entries[i][0]);
+          if(kn===dn||kn.includes(dn)||dn.includes(kn))return entries[i][1];
+        }
+        return null;
+      }
+
+      var models=phData.models;
+      var updated=0,skipped=0,fail=0;
+      statusEl.textContent='0/'+models.length+' 처리 중…';
+
+      for(var i=0;i<models.length;i++){
+        var model=models[i];
+        var prodNo=findProdNo(model.name);
+        if(!prodNo||!KT_DATA[prodNo]){skipped++;continue;}
+        var ktColors=KT_DATA[prodNo];
+        var dbColors=phNormColors(model.colors);
+        var anyChanged=false;
+        var newColors;
+
+        if(dbColors.length===0){
+          newColors=Object.entries(ktColors).map(function(e){return{name:e[0],visible:true,images:e[1]};});
+          anyChanged=newColors.length>0;
+        }else{
+          newColors=dbColors.map(function(c){
+            var imgs=findKtImgs(c.name,ktColors);
+            if(imgs&&JSON.stringify(imgs)!==JSON.stringify(c.images)){
+              anyChanged=true;
+              return Object.assign({},c,{images:imgs});
+            }
+            return c;
+          });
+        }
+
+        if(anyChanged){
+          var res=await sb().from('mobileshop_models').update({colors:newColors}).eq('id',model.id);
+          if(res.error){console.error(model.id,res.error);fail++;}
+          else{model.colors=newColors;updated++;}
+          if(updated%5===0)statusEl.textContent=updated+'개 완료…';
+          await new Promise(function(r){setTimeout(r,30);});
+        }
+      }
+
+      var msg=updated+'개 업데이트 / 스킵 '+skipped+'개'+(fail?' / 실패 '+fail+'개':'');
+      statusEl.textContent=msg;
+      phToast('KT 이미지 자동등록 완료 — '+updated+'개');
+      // 목록 새로고침
+      ['skt','kt','lg'].forEach(function(c){phRenderProducts(c);});
+    }catch(err){
+      statusEl.textContent='오류: '+(err.message||err);
+      console.error(err);
+    }finally{
+      if(btn)btn.disabled=false;
     }
   }
   async function phSaveProduct(){
