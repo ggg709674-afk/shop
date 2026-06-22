@@ -1588,7 +1588,7 @@ html[data-preload-shop] body { visibility:hidden; }
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table"><thead><tr>'
       +'<th class="ph-prod-num">#</th>'
-      +'<th>모델명 / 색상 노출</th><th class="ph-prod-vis">노출</th>'
+      +'<th>모델명</th><th style="text-align:center;">색상 노출</th><th class="ph-prod-vis">노출</th>'
       +'<th class="ph-prod-sort">정렬</th><th class="ph-prod-act">수정</th>'
       +'</tr></thead><tbody>';
     list.forEach(function(m,i){
@@ -1597,7 +1597,7 @@ html[data-preload-shop] body { visibility:hidden; }
         var dot='background:'+phColorDot(c.name)+';';
         return'<label class="ph-prod-color-chip" style="cursor:pointer;">'
           +'<input type="checkbox" data-ph-prod-cvis="'+m.id+':'+ci+'"'+(c.visible?' checked':'')
-          +' style="margin:0 3px 0 0;vertical-align:middle;"> '
+          +' style="margin:0 3px 0 0;vertical-align:middle;">'
           +'<span class="ph-prod-color-dot" style="'+dot+'"></span>'
           +phEsc(c.name)+'</label>';
       }).join('');
@@ -1610,7 +1610,8 @@ html[data-preload-shop] body { visibility:hidden; }
         :'<span class="ph-btn-sm" style="opacity:.2">↓</span>';
       html+='<tr class="'+(m.visible?'':'is-hidden')+'">'
         +'<td class="ph-prod-num">'+(i+1)+'</td>'
-        +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div><div class="ph-prod-color-chips">'+chipHtml+'</div></td>'
+        +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>'
+        +'<td><div class="ph-prod-color-chips" style="justify-content:center;">'+chipHtml+'</div></td>'
         +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-toggle="'+m.id+'"'+(m.visible?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
         +'<td class="ph-prod-sort">'+upBtn+' '+dnBtn+'</td>'
         +'<td class="ph-prod-act"><button class="ph-btn-sm adm-btn adm-btn-primary" data-ph-prod-edit="'+m.id+'">수정</button></td>'
