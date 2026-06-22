@@ -1667,7 +1667,6 @@ html[data-preload-shop] body { visibility:hidden; }
         +'</div>'
         +'<div class="ph-pm-color-actions">'
         +'<button class="ph-pm-upload-btn" type="button" data-pm-upload="'+i+'">이미지</button>'
-        +'<label class="ph-pm-color-vis"><input type="checkbox" data-pm-vis="'+i+'"'+(c.visible?' checked':'')+'>노출</label>'
         +'</div>'
         +'</div>';
     });
@@ -1690,10 +1689,6 @@ html[data-preload-shop] body { visibility:hidden; }
     var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
     var name=phEl('ph-pm-name').value.trim();if(!name){alert('모델명을 입력하세요.');return;}
     var visible=phEl('ph-pm-visible').checked;
-    document.querySelectorAll('[data-pm-vis]').forEach(function(cb){
-      var ci=parseInt(cb.getAttribute('data-pm-vis'));
-      if(_phProdColors[ci])_phProdColors[ci].visible=cb.checked;
-    });
     var colors=_phProdColors.slice();
     phEl('ph-pm-saving').textContent='저장 중…';
     try{
