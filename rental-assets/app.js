@@ -1679,6 +1679,53 @@ const App = (() => {
     else { history.pushState({}, '', RENTAL_PATH); route(); }
   }
 
+  // touchstart/mousedown에서 미리 부모 헤더를 숨겨 1프레임 플래시 방지
+  // touchstart → click 사이 50~300ms 동안 브라우저가 리페인트 완료 → VT 캡처 시 이미 숨김
+  function attachPointerHint() {
+    if (window.parent === window) return;
+    var _pscroll;
+    function getPS() {
+      if (!_pscroll) try { _pscroll = window.parent.document.querySelector('.scroll'); } catch(e_) {}
+      return _pscroll;
+    }
+    function isDetailLink(target) {
+      var a = target && target.closest && target.closest('a[href]');
+      if (!a) return false;
+      var norm = navTarget(a.getAttribute('href'));
+      return norm && /[?&]id=/.test(norm) && getViewFromUrl() !== 'detail';
+    }
+
+    document.addEventListener('touchstart', function(e) {
+      var touch = e.touches && e.touches[0];
+      if (!touch || !isDetailLink(touch.target)) return;
+      var p = getPS(); if (!p) return;
+      p.classList.add('rental-detail');
+      var startY = touch.pageY;
+
+      function onMove(me) {
+        if (Math.abs(me.touches[0].pageY - startY) > 15) {
+          cleanup();
+          if (getViewFromUrl() !== 'detail') p.classList.remove('rental-detail');
+        }
+      }
+      function onEnd() { cleanup(); }
+      function onCancel() { cleanup(); if (getViewFromUrl() !== 'detail') p.classList.remove('rental-detail'); }
+      function cleanup() {
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
+        document.removeEventListener('touchcancel', onCancel);
+      }
+      document.addEventListener('touchmove', onMove, { passive: true });
+      document.addEventListener('touchend', onEnd, { passive: true, once: true });
+      document.addEventListener('touchcancel', onCancel, { passive: true, once: true });
+    }, { passive: true });
+
+    document.addEventListener('mousedown', function(e) {
+      if (e.button !== 0 || !isDetailLink(e.target)) return;
+      var p = getPS(); if (p) p.classList.add('rental-detail');
+    });
+  }
+
   function attachClickHandler() {
     document.addEventListener('click', (e) => {
       // 수정 키(Ctrl/Cmd/Shift) + 클릭은 새 탭 등 브라우저 기본 동작 유지
@@ -1744,6 +1791,7 @@ const App = (() => {
         if (cb && cb.payload && cb.payload.discounts) _cardDiscounts = cb.payload.discounts;
       }
     } catch (_) {}
+    attachPointerHint();
     attachClickHandler();
     // 상세 앱바 — '뒤로'(보던 목록 위치 복원) / '상담'(본문 상담 버튼 위임 트리거)
     var _dabBack = document.getElementById('dab-back');
