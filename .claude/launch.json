@@ -6,6 +6,6 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "-l", "4319", "C:\\Users\\xxx\\Desktop\\mobile-shop-rental"],
       "port": 4319
-    }
+    },
   ]
 }
