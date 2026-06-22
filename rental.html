@@ -74,6 +74,7 @@
   html.is-detail .msr-head{ display:none !important; }
   html.is-detail .msr-sub{ display:none !important; }
   html.is-detail .detail-appbar{ display:flex !important; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:400; height:56px; padding:0 max(20px, calc((100% - 1280px) / 2)); background:#fff; border-bottom:1px solid #f2f2f2; }
+  html.is-detail main[data-view="detail"]{ display:block !important; } /* 첫 페인트부터 detail 본문 높이 확보 → 전체 화면 점프 방지 */
   .detail-appbar .dab-back{
     display:inline-flex; align-items:center; gap:1px;
     background:none; border:0; padding:0; margin:0;
@@ -425,20 +426,20 @@
   </section>
 </main>
 
+<!-- 상세 전용 sticky 앱바 — main 밖 형제로 배치: html.is-detail CSS가 부모 hidden에 막히지 않고 첫 페인트부터 작동 -->
+<header class="detail-appbar">
+  <button type="button" class="dab-back" id="dab-back" aria-label="이전 목록으로 돌아가기">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span>뒤로</span>
+  </button>
+  <div class="dab-title" id="dab-title"></div>
+  <button type="button" class="dab-consult" id="dab-consult">상담</button>
+</header>
+
 <!-- ============================================================
      VIEW: DETAIL
 ============================================================ -->
 <main data-view="detail" hidden>
-  <!-- 상세 전용 sticky 앱바 (합본 임베드 모드 전용) — ←뒤로 / 상품명 / 상담.
-       탐색요소(로고·대탭·브랜드필터)는 부모 샵이 숨기고, 이 앱바가 상단을 담당 → '결정 모드' 집중 UI. -->
-  <header class="detail-appbar">
-    <button type="button" class="dab-back" id="dab-back" aria-label="이전 목록으로 돌아가기">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      <span>뒤로</span>
-    </button>
-    <div class="dab-title" id="dab-title"></div>
-    <button type="button" class="dab-consult" id="dab-consult">상담</button>
-  </header>
   <section class="container detail-wrap">
     <div class="breadcrumb" id="crumb"><span class="loader"></span></div>
 
