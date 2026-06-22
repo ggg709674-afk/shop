@@ -1720,10 +1720,7 @@ const App = (() => {
       document.addEventListener('touchcancel', onCancel, { passive: true, once: true });
     }, { passive: true });
 
-    document.addEventListener('mousedown', function(e) {
-      if (e.button !== 0 || !isDetailLink(e.target)) return;
-      var p = getPS(); if (p) p.classList.add('rental-detail');
-    });
+    // mousedown은 제거 — rental-detail 추가 시 iframe 레이아웃이 이동해 click이 빗나감
   }
 
   function attachClickHandler() {
