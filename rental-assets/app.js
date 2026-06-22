@@ -1707,11 +1707,16 @@ const App = (() => {
         var _ph = document.querySelector('.msr-head'); if (_ph) _ph.hidden = true;
         var _ps = document.querySelector('.msr-sub');  if (_ps) _ps.hidden = true;
         var _pb = document.querySelector('.banner-wide'); if (_pb) _pb.hidden = true;
-        // 합본(iframe) 모드: startViewTransition 전에 부모 샵 헤더 숨김 메시지를 먼저 보냄
-        // postMessage는 async이므로 2프레임 대기 → 부모가 msr-view 처리+페인트 완료 후 전환 시작
+        // 합본(iframe) 모드: postMessage는 async라 25ms 지연 발생 → 부모 .head 플래시.
+        // same-origin이므로 부모 DOM을 직접 동기 조작: rental-detail 클래스 즉시 추가.
+        // 그 후 rAF 2회 대기 → 부모가 .head display:none 페인트 완료 → 그 다음 view transition 시작.
         if (window.parent !== window) {
-          try { parent.postMessage({ type: 'msr-view', view: 'detail', cls: '' }, '*'); } catch(e_) {}
-          await new Promise(function(r) { requestAnimationFrame(function() { requestAnimationFrame(r); }); });
+          try {
+            var _pscroll = window.parent.document.querySelector('.scroll');
+            if (_pscroll) _pscroll.classList.add('rental-detail');
+          } catch(e_) {}
+          await new Promise(function(r) { requestAnimationFrame(r); });
+          await new Promise(function(r) { requestAnimationFrame(r); });
         }
       }
       if (document.startViewTransition) {
