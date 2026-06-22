@@ -1598,13 +1598,14 @@ const App = (() => {
   }
 
   async function route(opts) {
+    // view 전환·is-detail 토글을 await 이전에 동기적으로 실행
+    // → SPA 네비 시 loadOverrides await 동안 msr-head 플래시 없음
+    const view = getViewFromUrl();
+    document.documentElement.classList.toggle('is-detail', view === 'detail');
+    document.querySelectorAll('[data-view]').forEach(el => { el.hidden = (el.dataset.view !== view); });
     // 매장 검증 — 슬러그가 있는데 등록된 매장이 아니면 안내 (가짜 슬러그로 카탈로그 뜨는 것 방지)
     await loadOverrides();
     if ((window.skmGetSlug && window.skmGetSlug()) && _storeMissing) { renderStoreNotFound(); return; }
-    const view = getViewFromUrl();
-    document.documentElement.classList.toggle('is-detail', view === 'detail');
-    // 모든 view 숨김 → 해당 view만 표시
-    document.querySelectorAll('[data-view]').forEach(el => { el.hidden = (el.dataset.view !== view); });
     // title은 렌더 전에 미리 — detail은 renderDetail 안에서 상품명으로 다시 override됨
     if (view !== 'detail') document.title = VIEW_TITLES[view] || VIEW_TITLES.home;
     // 렌더
