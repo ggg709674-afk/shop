@@ -1695,21 +1695,21 @@ const App = (() => {
       e.preventDefault();
       // 목록(홈/카테고리)에서 상세(?id=)로 들어갈 때 보던 스크롤 위치 저장 → 상세 '뒤로'로 복원.
       // 상세→상세(연관상품) 이동 시엔 최초 목록 위치를 유지(덮어쓰지 않음).
-      if (/[?&]id=/.test(norm) && getViewFromUrl() !== 'detail') {
+      // pushState 전에 현재 뷰 캡처 — pushState 후엔 location.search가 바뀌어 getViewFromUrl()이 'detail' 반환
+      const wasDetail = getViewFromUrl() === 'detail';
+      if (/[?&]id=/.test(norm) && !wasDetail) {
         _detailBack = { url: location.pathname + location.search + location.hash, y: _skmScrollPos() };
       }
       history.pushState({}, '', norm);
       // 색상 chip 클릭은 같은 상품군 내 이동 → 스크롤 위치 유지
       const keepScroll = a.classList.contains('cp-chip');
-      // 상세로 이동 시 view transition old-state 캡처 전에 헤더 즉시 숨김
-      // → old-state에 msr-head가 포함되지 않아 fade-out 플래시 없음
-      if (/[?&]id=/.test(norm) && getViewFromUrl() !== 'detail') {
+      // 목록→상세 전환: view transition old-state 캡처 전에 헤더/배너 즉시 숨김
+      if (/[?&]id=/.test(norm) && !wasDetail) {
         var _ph = document.querySelector('.msr-head'); if (_ph) _ph.hidden = true;
         var _ps = document.querySelector('.msr-sub');  if (_ps) _ps.hidden = true;
         var _pb = document.querySelector('.banner-wide'); if (_pb) _pb.hidden = true;
-        // 합본(iframe) 모드: postMessage는 async라 25ms 지연 발생 → 부모 .head 플래시.
-        // same-origin이므로 부모 DOM을 직접 동기 조작: rental-detail 클래스 즉시 추가.
-        // 그 후 rAF 2회 대기 → 부모가 .head display:none 페인트 완료 → 그 다음 view transition 시작.
+        // 합본(iframe) 모드: same-origin이므로 부모 DOM 직접 동기 조작
+        // → rental-detail 클래스 즉시 추가 후 rAF 2회 대기(부모 페인트 완료) → 그 다음 view transition
         if (window.parent !== window) {
           try {
             var _pscroll = window.parent.document.querySelector('.scroll');
