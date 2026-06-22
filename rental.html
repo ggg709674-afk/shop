@@ -73,8 +73,13 @@
   /* is-detail: head 인라인 스크립트가 body:has() 보다 먼저 설정 → 첫 페인트부터 헤더 플래시 방지 */
   html.is-detail .msr-head{ display:none !important; }
   html.is-detail .msr-sub{ display:none !important; }
+  html.is-detail .banner-wide{ display:none !important; } /* 새로고침 시 배너 즉시 숨김 — body:has 보다 먼저 적용되어 detail-appbar가 첫 페인트부터 상단에 고정 */
   html.is-detail .detail-appbar{ display:flex !important; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:400; height:56px; padding:0 max(20px, calc((100% - 1280px) / 2)); background:#fff; border-bottom:1px solid #f2f2f2; }
   html.is-detail main[data-view="detail"]{ display:block !important; } /* 첫 페인트부터 detail 본문 높이 확보 → 전체 화면 점프 방지 */
+  /* View Transition: msr-head 즉시 교체 — cross-fade 동안 메인메뉴 잠깐 보이는 플래시 방지
+     홈→상세 전환 시 old-state에 msr-head(휴대폰|인터넷|렌탈 탭)가 fade-out되며 보이는 현상 제거. */
+  .msr-head{ view-transition-name: msr-header; }
+  ::view-transition-old(msr-header), ::view-transition-new(msr-header){ animation: none; }
   .detail-appbar .dab-back{
     display:inline-flex; align-items:center; gap:1px;
     background:none; border:0; padding:0; margin:0;
