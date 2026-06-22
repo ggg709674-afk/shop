@@ -1680,7 +1680,7 @@ const App = (() => {
   }
 
   function attachClickHandler() {
-    document.addEventListener('click', async (e) => {
+    document.addEventListener('click', (e) => {
       // 수정 키(Ctrl/Cmd/Shift) + 클릭은 새 탭 등 브라우저 기본 동작 유지
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
       const a = e.target.closest('a[href]');
@@ -1703,20 +1703,18 @@ const App = (() => {
       history.pushState({}, '', norm);
       // 색상 chip 클릭은 같은 상품군 내 이동 → 스크롤 위치 유지
       const keepScroll = a.classList.contains('cp-chip');
-      // 목록→상세 전환: view transition old-state 캡처 전에 헤더/배너 즉시 숨김
+      // 목록→상세 전환: 헤더/배너 즉시 숨김 (동기)
       if (/[?&]id=/.test(norm) && !wasDetail) {
         var _ph = document.querySelector('.msr-head'); if (_ph) _ph.hidden = true;
         var _ps = document.querySelector('.msr-sub');  if (_ps) _ps.hidden = true;
         var _pb = document.querySelector('.banner-wide'); if (_pb) _pb.hidden = true;
-        // 합본(iframe) 모드: same-origin이므로 부모 DOM 직접 동기 조작
-        // → rental-detail 클래스 즉시 추가 후 rAF 2회 대기(부모 페인트 완료) → 그 다음 view transition
+        // 합본(iframe) 모드: same-origin → 부모 DOM 직접 동기 조작
+        // CSS display:none은 동기 적용, 부모 .head는 iframe의 VT 캡처 외부 → 대기 불필요
         if (window.parent !== window) {
           try {
             var _pscroll = window.parent.document.querySelector('.scroll');
             if (_pscroll) _pscroll.classList.add('rental-detail');
           } catch(e_) {}
-          await new Promise(function(r) { requestAnimationFrame(r); });
-          await new Promise(function(r) { requestAnimationFrame(r); });
         }
       }
       if (document.startViewTransition) {
