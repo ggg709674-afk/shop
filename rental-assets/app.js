@@ -1680,7 +1680,7 @@ const App = (() => {
   }
 
   function attachClickHandler() {
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', async (e) => {
       // 수정 키(Ctrl/Cmd/Shift) + 클릭은 새 탭 등 브라우저 기본 동작 유지
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
       const a = e.target.closest('a[href]');
@@ -1707,6 +1707,12 @@ const App = (() => {
         var _ph = document.querySelector('.msr-head'); if (_ph) _ph.hidden = true;
         var _ps = document.querySelector('.msr-sub');  if (_ps) _ps.hidden = true;
         var _pb = document.querySelector('.banner-wide'); if (_pb) _pb.hidden = true;
+        // 합본(iframe) 모드: startViewTransition 전에 부모 샵 헤더 숨김 메시지를 먼저 보냄
+        // postMessage는 async이므로 2프레임 대기 → 부모가 msr-view 처리+페인트 완료 후 전환 시작
+        if (window.parent !== window) {
+          try { parent.postMessage({ type: 'msr-view', view: 'detail', cls: '' }, '*'); } catch(e_) {}
+          await new Promise(function(r) { requestAnimationFrame(function() { requestAnimationFrame(r); }); });
+        }
       }
       if (document.startViewTransition) {
         document.startViewTransition(() => route({ keepScroll }));
