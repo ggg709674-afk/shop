@@ -744,6 +744,7 @@ const App = (() => {
       headIcon.className = 'cat-page-icon cat-color-box';
     }
     if (title) title.textContent = meta ? meta.label : '전체 상품';
+    try { localStorage.setItem('msr_cathead_v1', JSON.stringify({cls:cls||'', icon:headIcon?headIcon.innerHTML:'', iconClass:headIcon?headIcon.className:'', title:title?title.textContent:''})); } catch(e) {}
 
     // filter chips — VISIBLE 카테고리만 + '전체'
     // '전체'는 cls 없이도 category view에 머물러야 함 → ?view=category 명시
@@ -1437,6 +1438,7 @@ const App = (() => {
           && opts.care_types.some(ct => (ct.contracts || []).length > 0)) {
         optBlock.hidden = false;
         renderOptionsUI(opts, p, meta);
+        try { var _oid=new URLSearchParams(location.search).get('id'); if(_oid) localStorage.setItem('msr_opts_v1_'+_oid, optBlock.innerHTML); } catch(e) {}
       } else {
         optBlock.hidden = true;
         _optState.lastOpts = null;
@@ -1600,6 +1602,7 @@ const App = (() => {
     await loadOverrides();
     if ((window.skmGetSlug && window.skmGetSlug()) && _storeMissing) { renderStoreNotFound(); return; }
     const view = getViewFromUrl();
+    document.documentElement.classList.toggle('is-detail', view === 'detail');
     // 모든 view 숨김 → 해당 view만 표시
     document.querySelectorAll('[data-view]').forEach(el => { el.hidden = (el.dataset.view !== view); });
     // title은 렌더 전에 미리 — detail은 renderDetail 안에서 상품명으로 다시 override됨
