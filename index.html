@@ -934,6 +934,17 @@
 
 <div class="device">
 <div class="scroll">
+<script>
+/* 새로고침/직접 URL 접근 시 첫 페인트 전에 헤더 숨김 — iframe postMessage보다 빠름 */
+(function(){
+  try {
+    var p = new URLSearchParams(location.search);
+    if (p.get('cat') === 'rental' && p.get('id')) {
+      document.currentScript.parentElement.classList.add('rental-detail');
+    }
+  } catch(e_) {}
+})();
+</script>
 
   <!-- ╔═══════ 헤더 (sticky, 무채색 글래스) ═══════╗ -->
   <header class="head">
