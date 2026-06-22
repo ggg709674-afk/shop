@@ -1587,21 +1587,19 @@ html[data-preload-shop] body { visibility:hidden; }
     var list=_phProdShowHidden[carrier]?all:all.filter(function(m){return m.visible;});
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table"><thead><tr>'
-      +'<th class="ph-prod-num">#</th><th class="ph-prod-img-cell">이미지</th>'
-      +'<th>모델명 / 색상</th><th class="ph-prod-vis">노출</th>'
+      +'<th class="ph-prod-num">#</th>'
+      +'<th>모델명 / 색상 노출</th><th class="ph-prod-vis">노출</th>'
       +'<th class="ph-prod-sort">정렬</th><th class="ph-prod-act">수정</th>'
       +'</tr></thead><tbody>';
     list.forEach(function(m,i){
       var colors=phNormColors(m.colors);
-      var repImg=colors.find(function(c){return c.imageUrl;});
-      var imgHtml=repImg
-        ?'<img class="ph-prod-thumb" src="'+phEsc(repImg.imageUrl)+'" alt="" loading="lazy">'
-        :'<span class="ph-prod-thumb-empty">📷</span>';
-      var chipHtml=colors.map(function(c){
+      var chipHtml=colors.map(function(c,ci){
         var dot='background:'+phColorDot(c.name)+';';
-        var hcls=c.visible?'':'hidden-chip';
-        return'<span class="ph-prod-color-chip '+hcls+'"><span class="ph-prod-color-dot" style="'+dot+'"></span>'
-          +phEsc(c.name)+(c.visible?'':'<span style="font-size:9px;margin-left:2px">숨김</span>')+'</span>';
+        return'<label class="ph-prod-color-chip" style="cursor:pointer;">'
+          +'<input type="checkbox" data-ph-prod-cvis="'+m.id+':'+ci+'"'+(c.visible?' checked':'')
+          +' style="margin:0 3px 0 0;vertical-align:middle;"> '
+          +'<span class="ph-prod-color-dot" style="'+dot+'"></span>'
+          +phEsc(c.name)+'</label>';
       }).join('');
       var allIdx=all.findIndex(function(x){return x.id===m.id;});
       var upBtn=allIdx>0
@@ -1612,7 +1610,6 @@ html[data-preload-shop] body { visibility:hidden; }
         :'<span class="ph-btn-sm" style="opacity:.2">↓</span>';
       html+='<tr class="'+(m.visible?'':'is-hidden')+'">'
         +'<td class="ph-prod-num">'+(i+1)+'</td>'
-        +'<td class="ph-prod-img-cell">'+imgHtml+'</td>'
         +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div><div class="ph-prod-color-chips">'+chipHtml+'</div></td>'
         +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-toggle="'+m.id+'"'+(m.visible?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
         +'<td class="ph-prod-sort">'+upBtn+' '+dnBtn+'</td>'
@@ -1621,6 +1618,21 @@ html[data-preload-shop] body { visibility:hidden; }
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
+  }
+  async function phProdColorToggle(modelId,colorIdx,checked){
+    var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
+    var colors=phNormColors(m.colors);
+    if(!colors[colorIdx])return;
+    colors[colorIdx].visible=checked;
+    try{
+      var res=await sb().from('mobileshop_models').update({colors:colors}).eq('id',modelId);
+      if(res.error)throw res.error;
+      m.colors=colors;
+    }catch(err){
+      colors[colorIdx].visible=!checked;
+      m.colors=colors;
+      phProdStatus('저장 실패: '+(err.message||err),true);
+    }
   }
   /* ─ 상품 모달 ─ */
   var _phProdColors=[];
@@ -1808,6 +1820,11 @@ html[data-preload-shop] body { visibility:hidden; }
     // 숨김 포함 체크박스
     var sh=e.target.closest('[data-ph-prod-show-hidden]');
     if(sh){var c=sh.getAttribute('data-ph-prod-show-hidden');_phProdShowHidden[c]=e.target.checked;phRenderProducts(c);return;}
+    // 색상별 노출 인라인 체크박스
+    if(e.target.hasAttribute('data-ph-prod-cvis')){
+      var parts=e.target.getAttribute('data-ph-prod-cvis').split(':');
+      phProdColorToggle(parts[0],parseInt(parts[1]),e.target.checked);return;
+    }
     // 상품 노출 토글 스위치
     var pvt=e.target.closest('[data-ph-prod-toggle]');
     if(pvt){phProdToggleVis(pvt.getAttribute('data-ph-prod-toggle'));return;}
