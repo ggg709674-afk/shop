@@ -24,6 +24,8 @@
   /* ===== 합본 전용 — 렌탈을 휴대폰샵과 동일한 폰 프레임 + 흰톤 메뉴로 통일 =====
      mobile-shop index.html 의 .device(폰 프레임) / .head(상단 메뉴) / .sub-nav(서브바)를
      그대로 옮김. 클래스 충돌 방지 위해 메뉴는 msr- 프리픽스. */
+  /* hidden 속성 강제 — author CSS(display:flex 등)가 UA [hidden]{display:none}을 덮어쓰는 것 방지 */
+  [hidden]{ display:none !important; }
 
   /* ── 데스크톱 폰 프레임 (≤480px 풀스크린) ── */
   body{
