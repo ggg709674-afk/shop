@@ -1,0 +1,525 @@
+// admin.html 콘솔에서 실행 — KT 이미지 DB 등록 (sb 세션 사용)
+(async function() {
+  const KT_DATA = {
+  "WL00076861": {
+    "블랙": [
+      "https://image.shop.kt.com/upload/product/WL00076861/1775639035138.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571787119.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571792817.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571798443.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571803734.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571809421.png"
+    ],
+    "스카이 블루": [
+      "https://image.shop.kt.com/upload/product/WL00076861/1775639043870.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571863562.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571869130.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571876540.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571882917.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571888371.png"
+    ],
+    "코발트 바이올렛": [
+      "https://image.shop.kt.com/upload/product/WL00076861/1775639052387.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571935863.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571941928.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571947526.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571952763.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771571958210.png"
+    ],
+    "화이트": [
+      "https://image.shop.kt.com/upload/product/WL00076861/1775639060967.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771572008699.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771572014469.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771572020570.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771572026220.png",
+      "https://image.shop.kt.com/upload/product/WL00076861/1771572032058.png"
+    ]
+  },
+  "WL00076860": {
+    "블랙": [
+      "https://image.shop.kt.com/upload/product/WL00076860/1775638955576.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571137316.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571143269.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571148949.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571154482.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571160148.png"
+    ],
+    "스카이 블루": [
+      "https://image.shop.kt.com/upload/product/WL00076860/1775638963722.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571315571.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571321516.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571330059.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571335504.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571341294.png"
+    ],
+    "코발트 바이올렛": [
+      "https://image.shop.kt.com/upload/product/WL00076860/1775638973048.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571389419.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571394918.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571400513.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571405753.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571411318.png"
+    ],
+    "화이트": [
+      "https://image.shop.kt.com/upload/product/WL00076860/1775638981944.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571462712.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571468193.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571474384.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571480503.png",
+      "https://image.shop.kt.com/upload/product/WL00076860/1771571486023.png"
+    ]
+  },
+  "WL00077073": {
+    "블랙": [
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297460753.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297463580.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297462655.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297461700.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297454962.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297455919.png"
+    ],
+    "스카이 블루": [
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297471210.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297474069.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297473118.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297472175.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297465452.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297466403.png"
+    ],
+    "코발트 바이올렛": [
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297482113.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297485153.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297484150.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297483154.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297475975.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297476976.png"
+    ],
+    "화이트": [
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297492960.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297495863.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297494912.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297493928.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297487125.png",
+      "https://image.shop.kt.com/upload/product/WL00077073/1773297488125.png"
+    ]
+  },
+  "WL00073118": {
+    "티타늄 그레이 ": [
+      "https://image.shop.kt.com/upload/product/WL00073118/1767946516003.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846505572.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846511336.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846517329.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846522949.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846528850.png"
+    ],
+    "티타늄 블랙 ": [
+      "https://image.shop.kt.com/upload/product/WL00073118/1767946530913.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846546335.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846552688.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846559524.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846565149.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846570933.png"
+    ],
+    "티타늄 실버블루": [
+      "https://image.shop.kt.com/upload/product/WL00073118/1767946544190.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846596847.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846602469.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846609934.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846615500.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846621250.png"
+    ],
+    "티타늄 화이트실버": [
+      "https://image.shop.kt.com/upload/product/WL00073118/1767946561214.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846636896.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846642619.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846648265.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846654312.png",
+      "https://image.shop.kt.com/upload/product/WL00073118/1736846659777.png"
+    ]
+  },
+  "WL00076056": {
+    "네이비": [
+      "https://image.shop.kt.com/upload/product/WL00076056/1781482790949.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781482718315.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781482734677.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781482743238.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781482749796.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781482756398.png"
+    ],
+    "아이스블루": [
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483077629.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483084538.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483091835.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483098435.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483104473.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483110703.png"
+    ],
+    "제트블랙": [
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483157177.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1758173033670.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483168470.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483174906.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483181332.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483187603.png"
+    ],
+    "화이트": [
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483232465.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483239296.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483245444.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483252011.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483258010.png",
+      "https://image.shop.kt.com/upload/product/WL00076056/1781483264320.png"
+    ]
+  },
+  "WL00073115": {
+    "네이비": [
+      "https://image.shop.kt.com/upload/product/WL00073115/1767946430842.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845544014.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845550502.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845556198.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845562164.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845568607.png"
+    ],
+    "민트": [
+      "https://image.shop.kt.com/upload/product/WL00073115/1767946441380.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845584900.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845590835.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845596387.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1766365536873.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845608466.png"
+    ],
+    "실버 쉐도우": [
+      "https://image.shop.kt.com/upload/product/WL00073115/1767946464882.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845626315.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845632130.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845637662.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845645125.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1736845651181.png"
+    ],
+    "아이스블루": [
+      "https://image.shop.kt.com/upload/product/WL00073115/1767946486122.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1737608673192.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1737608679142.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1737608685356.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1737608692242.png",
+      "https://image.shop.kt.com/upload/product/WL00073115/1737608698724.png"
+    ]
+  },
+  "WL00075257": {
+    "블루 쉐도우": [
+      "https://image.shop.kt.com/upload/product/WL00075257/1767946707339.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919515304.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919521508.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919527604.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919534045.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919540420.png"
+    ],
+    "실버 쉐도우": [
+      "https://image.shop.kt.com/upload/product/WL00075257/1767946718279.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919614932.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919621208.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919627445.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919634131.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919640107.png"
+    ],
+    "제트블랙": [
+      "https://image.shop.kt.com/upload/product/WL00075257/1767946731070.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919710262.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919716886.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919722511.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919728832.png",
+      "https://image.shop.kt.com/upload/product/WL00075257/1757919772438.png"
+    ]
+  },
+  "WL00074993": {
+    "블랙": [
+      "https://image.shop.kt.com/upload/product/WL00074993/1767661365570.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934274404.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934280468.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934286323.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934292578.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934301379.png"
+    ],
+    "화이트": [
+      "https://image.shop.kt.com/upload/product/WL00074993/1767661373892.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934342301.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934347447.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934355199.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934363181.png",
+      "https://image.shop.kt.com/upload/product/WL00074993/1751934370952.png"
+    ]
+  },
+  "WL00074994": {
+    "블루 쉐도우": [
+      "https://image.shop.kt.com/upload/product/WL00074994/1767946759165.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934454781.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934471879.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934506391.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934514051.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934520390.png"
+    ],
+    "제트블랙": [
+      "https://image.shop.kt.com/upload/product/WL00074994/1767946768956.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934696401.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934704120.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934710289.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934718046.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934724279.png"
+    ],
+    "코랄레드": [
+      "https://image.shop.kt.com/upload/product/WL00074994/1767946777362.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934755348.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934760941.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934781191.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934786974.png",
+      "https://image.shop.kt.com/upload/product/WL00074994/1751934793133.png"
+    ]
+  },
+  "WL00071923": {
+    "핑크": [
+      "https://image.shop.kt.com/upload/product/WL00071923/1778636802228.png",
+      "https://image.shop.kt.com/upload/product/WL00071923/1721896862262.png",
+      "https://image.shop.kt.com/upload/product/WL00071923/1721896874587.png",
+      "https://image.shop.kt.com/upload/product/WL00071923/1721896891903.png",
+      "https://image.shop.kt.com/upload/product/WL00071923/1721896910564.png",
+      "https://image.shop.kt.com/upload/product/WL00071923/1721896924350.png"
+    ]
+  },
+  "WL00071921": {
+    "블루": [
+      "https://image.shop.kt.com/upload/product/WL00071921/1735015765867.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897475467.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897484296.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897492177.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897502471.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897511228.png"
+    ],
+    "민트": [
+      "https://image.shop.kt.com/upload/product/WL00071921/1735015779539.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1722316285320.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1722316294810.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1722316278499.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1722316227406.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1722316237133.png"
+    ],
+    "실버 쉐도우": [
+      "https://image.shop.kt.com/upload/product/WL00071921/1735015791978.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897651881.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897658877.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897665641.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897673892.png",
+      "https://image.shop.kt.com/upload/product/WL00071921/1721897681032.png"
+    ]
+  },
+  "WL00075906": {
+    "딥 블루": [
+      "https://image.shop.kt.com/upload/product/WL00075906/1767946211599.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487054200.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487053389.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487052591.png"
+    ],
+    "실버": [
+      "https://image.shop.kt.com/upload/product/WL00075906/1767946220996.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487061442.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487060583.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487059788.png"
+    ],
+    "코스믹 오렌지": [
+      "https://image.shop.kt.com/upload/product/WL00075906/1767946230360.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487068829.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487068011.png",
+      "https://image.shop.kt.com/upload/product/WL00075906/1757487067183.png"
+    ]
+  },
+  "WL00075905": {
+    "딥 블루": [
+      "https://image.shop.kt.com/upload/product/WL00075905/1767946162026.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487017509.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487016630.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487015795.png"
+    ],
+    "실버": [
+      "https://image.shop.kt.com/upload/product/WL00075905/1767946171480.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487024872.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487024075.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487023265.png"
+    ],
+    "코스믹 오렌지": [
+      "https://image.shop.kt.com/upload/product/WL00075905/1767946180749.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487032156.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487031337.png",
+      "https://image.shop.kt.com/upload/product/WL00075905/1757487030499.png"
+    ]
+  },
+  "WL00077028": {
+    "블랙": [
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503665909.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503671906.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503677519.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503683099.png"
+    ],
+    "핑크": [
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503781351.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503788732.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503857498.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503867617.png"
+    ],
+    "화이트": [
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503939014.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503945287.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503951097.png",
+      "https://image.shop.kt.com/upload/product/WL00077028/1772503956608.png"
+    ]
+  },
+  "WL00075904": {
+    "라이트 골드": [
+      "https://image.shop.kt.com/upload/product/WL00075904/1767946255050.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486956663.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486955807.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486954981.png"
+    ],
+    "스페이스 블랙": [
+      "https://image.shop.kt.com/upload/product/WL00075904/1767946265478.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486964293.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486963466.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486962614.png"
+    ],
+    "스카이 블루": [
+      "https://image.shop.kt.com/upload/product/WL00075904/1767946275504.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486971765.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486970929.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486970092.png"
+    ],
+    "클라우드 화이트": [
+      "https://image.shop.kt.com/upload/product/WL00075904/1767946285227.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486979322.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486978492.png",
+      "https://image.shop.kt.com/upload/product/WL00075904/1757486977667.png"
+    ]
+  },
+  "WL00075903": {
+    "세이지": [
+      "https://image.shop.kt.com/upload/product/WL00075903/1767946086651.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486895156.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486894334.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486893498.png"
+    ],
+    "블랙": [
+      "https://image.shop.kt.com/upload/product/WL00075903/1767946103450.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486902641.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486901806.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486900979.png"
+    ],
+    "미스트 블루": [
+      "https://image.shop.kt.com/upload/product/WL00075903/1767946112629.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486910163.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486909335.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486908505.png"
+    ],
+    "라벤더": [
+      "https://image.shop.kt.com/upload/product/WL00075903/1767946122822.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486917579.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486916760.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486915950.png"
+    ],
+    "화이트": [
+      "https://image.shop.kt.com/upload/product/WL00075903/1767946135518.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486924953.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486924134.png",
+      "https://image.shop.kt.com/upload/product/WL00075903/1757486923342.png"
+    ]
+  },
+  "WL00073518": {
+    "블랙  ": [
+      "https://image.shop.kt.com/upload/product/WL00073518/1767946316119.png",
+      "https://image.shop.kt.com/upload/product/WL00073518/1740043201017.png",
+      "https://image.shop.kt.com/upload/product/WL00073518/1742199051516.png",
+      "https://image.shop.kt.com/upload/product/WL00073518/1742199039111.png"
+    ],
+    "화이트  ": [
+      "https://image.shop.kt.com/upload/product/WL00073518/1767946325289.png",
+      "https://image.shop.kt.com/upload/product/WL00073518/1740043234245.png",
+      "https://image.shop.kt.com/upload/product/WL00073518/1742199076629.png",
+      "https://image.shop.kt.com/upload/product/WL00073518/1742199089955.png"
+    ]
+  }
+};
+
+  function normColor(name) {
+    return (name||'').toLowerCase().replace(/\s+/g,'').replace(/[·•]/g,'');
+  }
+
+  function findKtColor(dbColorName, colorMap) {
+    const dbNorm = normColor(dbColorName);
+    for (const [ktName, imgs] of Object.entries(colorMap)) {
+      const ktNorm = normColor(ktName);
+      if (ktNorm === dbNorm || ktNorm.includes(dbNorm) || dbNorm.includes(ktNorm)) {
+        return imgs;
+      }
+    }
+    return null;
+  }
+
+  const MODEL_PATTERNS = [{"pattern":"/갤럭시 S26 Ultra/","prodNo":"WL00076861"},{"pattern":"/갤럭시 S26\\+/","prodNo":"WL00076860"},{"pattern":"/갤럭시 S26 /","prodNo":"WL00077073"},{"pattern":"/갤럭시 S25 Ultra/","prodNo":"WL00073118"},{"pattern":"/갤럭시 S25\\+/","prodNo":"WL00073117"},{"pattern":"/갤럭시 S25 (엣지|Edge)/i","prodNo":"WL00074517"},{"pattern":"/갤럭시 S25 FE/","prodNo":"WL00076056"},{"pattern":"/갤럭시 S25 /","prodNo":"WL00073115"},{"pattern":"/갤럭시 S24 Ultra/","prodNo":"WL00069691"},{"pattern":"/갤럭시 S24 FE/","prodNo":"WL00072753"},{"pattern":"/갤럭시 Z Fold7/","prodNo":"WL00075257"},{"pattern":"/갤럭시 Z Flip7 FE/i","prodNo":"WL00074993"},{"pattern":"/갤럭시 Z Flip7/i","prodNo":"WL00074994"},{"pattern":"/갤럭시 Z Fold6|갤럭시 Z 폴드6/","prodNo":"WL00071923"},{"pattern":"/갤럭시 Z Flip6|갤럭시 Z 플립6/","prodNo":"WL00071921"},{"pattern":"/iPhone 17 Pro Max/","prodNo":"WL00075906"},{"pattern":"/iPhone 17 Pro/","prodNo":"WL00075905"},{"pattern":"/iPhone 17e/i","prodNo":"WL00077028"},{"pattern":"/iPhone Air/i","prodNo":"WL00075904"},{"pattern":"/iPhone 17 /","prodNo":"WL00075903"},{"pattern":"/iPhone 16 Pro Max/","prodNo":"WL00072554"},{"pattern":"/iPhone 16 Pro/","prodNo":"WL00072553"},{"pattern":"/iPhone 16 Plus/","prodNo":"WL00072552"},{"pattern":"/iPhone 16e/i","prodNo":"WL00073518"},{"pattern":"/iPhone 16 /","prodNo":"WL00072551"}];
+  function findProdNo(modelName) {
+    for (const { pattern, prodNo } of MODEL_PATTERNS) {
+      const re = eval(pattern);
+      if (re.test(modelName)) return prodNo;
+    }
+    return null;
+  }
+
+  function normColors(arr) {
+    return (arr||[]).map(c => {
+      if (typeof c === 'string') return { name: c, visible: true, images: [] };
+      const imgs = Array.isArray(c.images) ? c.images : (c.imageUrl ? [c.imageUrl] : []);
+      return { name: c.name||'', visible: c.visible!==false, images: imgs };
+    });
+  }
+
+  // 모든 모델 조회
+  const { data: models, error } = await window.sb
+    .from('mobileshop_models')
+    .select('id,name,carrier,colors');
+  if (error) { console.error('조회 실패:', error); return; }
+
+  console.log('총 모델:', models.length);
+  let updated = 0, skipped = 0;
+
+  for (const model of models) {
+    const prodNo = findProdNo(model.name);
+    if (!prodNo || !KT_DATA[prodNo]) { skipped++; continue; }
+
+    const ktColors = KT_DATA[prodNo];
+    let dbColors = normColors(model.colors);
+    let anyChanged = false;
+    let newColors;
+
+    if (dbColors.length === 0) {
+      // DB 색상 없음 → KT 색상으로 생성
+      newColors = Object.entries(ktColors).map(([n,imgs]) => ({name:n, visible:true, images:imgs}));
+      anyChanged = newColors.length > 0;
+    } else {
+      newColors = dbColors.map(c => {
+        const ktImgs = findKtColor(c.name, ktColors);
+        if (ktImgs && JSON.stringify(ktImgs) !== JSON.stringify(c.images)) {
+          anyChanged = true;
+          return { ...c, images: ktImgs };
+        }
+        return c;
+      });
+    }
+
+    if (anyChanged) {
+      const { error: e2 } = await window.sb
+        .from('mobileshop_models')
+        .update({ colors: newColors })
+        .eq('id', model.id);
+      if (e2) { console.error('업데이트 실패', model.id, e2); }
+      else { console.log('✓', model.id, model.name, '('+model.carrier+')'); updated++; }
+      await new Promise(r => setTimeout(r, 50));
+    }
+  }
+
+  console.log('완료: 업데이트', updated, '/ 스킵', skipped);
+})();
