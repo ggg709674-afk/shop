@@ -328,6 +328,92 @@
     #panel-phone > .shop-cards-wrap, #panel-internet > .shop-cards-wrap { max-width:none; padding-left:max(20px, calc((100% - 1280px) / 2)); padding-right:max(20px, calc((100% - 1280px) / 2)); padding-bottom:60px; }
   }
 
+  /* ───── 휴대폰 갤러리 모달 (하단 드로어) ───── */
+  #ph-gm { position:absolute; inset:0; z-index:200; display:flex; align-items:flex-end; pointer-events:none; }
+  #ph-gm.on { pointer-events:auto; }
+  #ph-gm .ph-gm-bd { position:absolute; inset:0; background:rgba(0,0,0,.45); opacity:0; transition:opacity .25s; }
+  #ph-gm.on .ph-gm-bd { opacity:1; }
+  #ph-gm .ph-gm-panel {
+    position:relative; width:100%; background:#fff; border-radius:20px 20px 0 0;
+    max-height:88%; overflow-y:auto;
+  }
+  #ph-gm .ph-gm-handle { width:36px; height:4px; background:#e0e0e0; border-radius:2px; margin:12px auto 0; }
+  #ph-gm .ph-gm-head { display:flex; align-items:center; justify-content:space-between; padding:12px 18px 0; }
+  #ph-gm .ph-gm-label { font-size:11px; font-weight:700; color:var(--g2); text-transform:uppercase; letter-spacing:.04em; }
+  #ph-gm .ph-gm-close { font-size:22px; color:var(--g2); padding:2px 4px; line-height:1; }
+  /* 메인 이미지 */
+  #ph-gm .ph-gm-main { position:relative; margin:12px 18px 10px; aspect-ratio:1/1; background:var(--bg-soft); border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  #ph-gm .ph-gm-main img { max-width:88%; max-height:88%; object-fit:contain; }
+  #ph-gm .ph-gm-main .ph-gm-ph { width:40%; color:var(--g3); }
+  /* 배지 */
+  #ph-gm .ph-gm-badge-row { position:absolute; top:10px; left:10px; z-index:2; }
+  #ph-gm .ph-gm-bdg { display:inline-flex; flex-direction:column; align-items:flex-start; background:var(--accent); color:#fff; border-radius:6px; padding:4px 8px; line-height:1.25; }
+  #ph-gm .ph-gm-bdg small { font-size:10px; font-weight:600; }
+  #ph-gm .ph-gm-bdg strong { font-size:14px; font-weight:800; }
+  /* 썸네일 6슬롯 */
+  #ph-gm .ph-gm-thumbs { display:grid; grid-template-columns:repeat(6,1fr); gap:7px; padding:0 18px 14px; }
+  #ph-gm .ph-gm-thumb { aspect-ratio:1/1; border:1.5px dashed #ddd; border-radius:9px; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:default; background:var(--bg-soft); }
+  #ph-gm .ph-gm-thumb.filled { border-style:solid; border-color:#e0e0e0; cursor:pointer; }
+  #ph-gm .ph-gm-thumb.on { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  #ph-gm .ph-gm-thumb img { width:100%; height:100%; object-fit:contain; padding:5px; }
+  /* 상품 정보 */
+  #ph-gm .ph-gm-info { padding:4px 18px 28px; }
+  #ph-gm .ph-gm-carrier { font-size:12px; color:var(--g2); margin-bottom:3px; }
+  #ph-gm .ph-gm-name { font-size:18px; font-weight:800; color:var(--ink); line-height:1.3; word-break:keep-all; }
+  #ph-gm .ph-gm-price-row { margin-top:10px; font-size:14px; color:var(--g1); }
+  #ph-gm .ph-gm-price-row strong { font-size:21px; font-weight:800; color:var(--accent); letter-spacing:-.03em; }
+
+  /* ───── 휴대폰 상세 뷰 (슬라이드 인) ───── */
+  #ph-detail {
+    position:absolute; inset:0; z-index:200;
+    background:var(--bg); overflow-y:auto; overflow-x:hidden;
+    transform:translateX(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  #ph-detail.on { transform:none; }
+  .ph-det-bar {
+    position:sticky; top:0; z-index:10; background:var(--bg);
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:12px; padding:12px 16px; min-height:52px;
+  }
+  .ph-det-back {
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    background:var(--bg-soft); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .ph-det-back svg { width:18px; height:18px; }
+  .ph-det-bar-title { font-size:15px; font-weight:600; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ph-det-main {
+    width:100%; aspect-ratio:1/1; background:var(--bg-soft);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .ph-det-main img { width:100%; height:100%; object-fit:contain; padding:24px; }
+  .ph-det-main svg { width:38%; color:var(--g3); }
+  .ph-det-thumbs {
+    display:grid; grid-template-columns:repeat(6,1fr); gap:6px;
+    padding:10px 14px; border-top:1px solid var(--line);
+  }
+  .ph-det-thumb {
+    aspect-ratio:1/1; border-radius:10px; border:2px solid var(--line);
+    background:var(--bg-soft); cursor:pointer; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; transition:border-color .15s;
+  }
+  .ph-det-thumb.on { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  .ph-det-thumb img { width:100%; height:100%; object-fit:contain; padding:4px; }
+  .ph-det-thumb.empty { opacity:.22; cursor:default; }
+  .ph-det-body { padding:20px 16px 48px; }
+  .ph-det-carrier-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:12px; color:var(--g2); }
+  .ph-det-name { font-size:21px; font-weight:800; line-height:1.3; word-break:keep-all; margin-bottom:20px; }
+  .ph-det-price-box { background:var(--bg-soft); border-radius:14px; padding:16px; margin-bottom:24px; display:flex; flex-direction:column; gap:0; }
+  .ph-det-price-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+  .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
+  .ph-det-price-label { font-size:13px; color:var(--g1); }
+  .ph-det-price-val { font-size:16px; font-weight:700; color:var(--ink); }
+  .ph-det-cta {
+    display:block; width:100%; padding:16px; border:none; border-radius:14px;
+    background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
+  }
+
   /* ───── HERO 카드 (화이트) ───── */
   .hero {
     background:#FFFFFF;
@@ -1437,6 +1523,39 @@
   <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
+<!-- 휴대폰 상품 갤러리 모달 -->
+<div id="ph-gm" role="dialog" aria-modal="true" aria-label="상품 이미지">
+  <div class="ph-gm-bd" id="ph-gm-bd"></div>
+  <div class="ph-gm-panel">
+    <div class="ph-gm-handle"></div>
+    <div class="ph-gm-head">
+      <span class="ph-gm-label" id="ph-gm-label">상품 이미지</span>
+      <button class="ph-gm-close" id="ph-gm-close" aria-label="닫기">×</button>
+    </div>
+    <div class="ph-gm-main" id="ph-gm-main"></div>
+    <div class="ph-gm-thumbs" id="ph-gm-thumbs"></div>
+    <div class="ph-gm-info" id="ph-gm-info"></div>
+  </div>
+</div>
+
+<!-- 휴대폰 상세 뷰 -->
+<div id="ph-detail">
+  <div class="ph-det-bar">
+    <button class="ph-det-back" id="ph-det-back" aria-label="뒤로">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="ph-det-bar-title" id="ph-det-bar-title"></div>
+  </div>
+  <div class="ph-det-main" id="ph-det-main"></div>
+  <div class="ph-det-thumbs" id="ph-det-thumbs"></div>
+  <div class="ph-det-body">
+    <div class="ph-det-carrier-row"><span class="swatch" id="ph-det-swatch"></span><span id="ph-det-carrier"></span></div>
+    <div class="ph-det-name" id="ph-det-name"></div>
+    <div class="ph-det-price-box" id="ph-det-prices"></div>
+    <button class="ph-det-cta">상담 문의하기</button>
+  </div>
+</div>
+
 </div><!-- /device -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1618,10 +1737,18 @@
   };
   var PH_GLYPH = '<svg class="ph-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
   function shopCardHtml(it) {
-    return '<a class="product-card" href="javascript:void(0)">'
+    var imgs = Array.isArray(it.images) ? it.images.filter(Boolean).slice(0,6) : [];
+    var thumbUrl = imgs[0] || it.imageUrl || '';
+    var dataAttrs = ' data-card-name="' + escapeHtml(it.name) + '"'
+      + ' data-card-carrier="' + escapeHtml(it.tag || '') + '"'
+      + ' data-card-price="' + escapeHtml(it.price || '') + '"'
+      + ' data-card-label="' + escapeHtml(it.label || '') + '"'
+      + ' data-card-badge="' + escapeHtml(it.badge || '') + '"'
+      + (imgs.length ? ' data-card-imgs="' + escapeHtml(JSON.stringify(imgs)) + '"' : '');
+    return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
         + (it.badge ? '<div class="badges"><span class="badge">' + escapeHtml(it.badge) + '</span></div>' : '')
-        + PH_GLYPH
+        + (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" alt="' + escapeHtml(it.name) + '">' : PH_GLYPH)
       + '</div>'
       + '<div class="body">'
         + '<div class="model">' + escapeHtml(it.tag) + '</div>'
@@ -1633,12 +1760,39 @@
       + '</div>'
     + '</a>';
   }
+  var CARRIER_LABEL = { skt:'SKT', kt:'KT', lg:'LG U+', mvno:'알뜰폰' };
   function renderShopCards() {
-    [['phone-cards', SHOP_CARD_SAMPLES.phone], ['internet-cards', SHOP_CARD_SAMPLES.internet]].forEach(function(pair) {
-      var el = document.getElementById(pair[0]); if (!el) return;
-      var list = pair[1] || [];
-      el.innerHTML = list.length ? list.map(shopCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
-    });
+    // 휴대폰 — DB 모델 데이터 우선, 없으면 샘플
+    var storeModels = (DataStore.load().models || []).filter(function(m) { return m.visible !== false; });
+    var phEl = document.getElementById('phone-cards');
+    if (phEl) {
+      var phList;
+      if (storeModels.length > 0) {
+        phList = storeModels.map(function(m) {
+          var firstColor = (m.colors || []).find(function(c) { return Array.isArray(c.images) && c.images.some(Boolean); });
+          var images = firstColor ? firstColor.images.filter(Boolean).slice(0,6) : [];
+          return {
+            name: m.name,
+            tag: CARRIER_LABEL[m.carrier] || m.carrier,
+            badge: '',
+            del: '',
+            label: '번호이동',
+            price: '상담',
+            images: images,
+            imageUrl: images[0] || ''
+          };
+        });
+      } else {
+        phList = SHOP_CARD_SAMPLES.phone;
+      }
+      phEl.innerHTML = phList.length ? phList.map(shopCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+    }
+    // 인터넷 — 샘플 고정
+    var inEl = document.getElementById('internet-cards');
+    if (inEl) {
+      var inList = SHOP_CARD_SAMPLES.internet;
+      inEl.innerHTML = inList.length ? inList.map(shopCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+    }
   }
 
   function renderPhoneProducts(products, categories) {
@@ -1933,12 +2087,141 @@
     }
   }
 
+  // ── 갤러리 모달 ──
+  var _phGm = document.getElementById('ph-gm');
+  var _phGmMain = document.getElementById('ph-gm-main');
+  var _phGmThumbs = document.getElementById('ph-gm-thumbs');
+  var _phGmInfo = document.getElementById('ph-gm-info');
+  var _phGmLabel = document.getElementById('ph-gm-label');
+  var _phGmImgs = [];
+  var PH_GLYPH_LG = '<svg class="ph-gm-ph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
+
+  function openPhGm(card) {
+    var name    = card.getAttribute('data-card-name') || '';
+    var carrier = card.getAttribute('data-card-carrier') || '';
+    var price   = card.getAttribute('data-card-price') || '';
+    var label   = card.getAttribute('data-card-label') || '번호이동';
+    var badge   = card.getAttribute('data-card-badge') || '';
+    try { _phGmImgs = JSON.parse(card.getAttribute('data-card-imgs') || '[]'); } catch(e) { _phGmImgs = []; }
+    if (!Array.isArray(_phGmImgs)) _phGmImgs = [];
+
+    // 메인 이미지
+    var mainUrl = _phGmImgs[0] || '';
+    _phGmMain.innerHTML =
+      (badge ? '<div class="ph-gm-badge-row"><span class="ph-gm-bdg"><small>' + escapeHtml(badge) + '</small></span></div>' : '')
+      + (mainUrl ? '<img src="' + escapeHtml(mainUrl) + '" alt="' + escapeHtml(name) + '">' : PH_GLYPH_LG);
+
+    // 6 썸네일
+    var tHtml = '';
+    for (var i = 0; i < 6; i++) {
+      var u = _phGmImgs[i] || '';
+      tHtml += '<div class="ph-gm-thumb' + (u ? ' filled' : '') + (i === 0 && u ? ' on' : '') + '" data-gi="' + i + '">'
+        + (u ? '<img src="' + escapeHtml(u) + '" alt="">' : '')
+        + '</div>';
+    }
+    _phGmThumbs.innerHTML = tHtml;
+
+    // 상품 정보
+    _phGmLabel.textContent = carrier || '상품 이미지';
+    _phGmInfo.innerHTML =
+      (carrier ? '<div class="ph-gm-carrier">' + escapeHtml(carrier) + '</div>' : '')
+      + '<div class="ph-gm-name">' + escapeHtml(name) + '</div>'
+      + (price && price !== '상담' ? '<div class="ph-gm-price-row">' + escapeHtml(label) + ' 월 <strong>' + escapeHtml(price) + '</strong>원</div>' : '');
+
+    _phGm.classList.add('on');
+    var scrollEl = document.querySelector('.scroll');
+    if (scrollEl) scrollEl.style.overflow = 'hidden';
+  }
+
+  function closePhGm() {
+    _phGm.classList.remove('on');
+    var scrollEl = document.querySelector('.scroll');
+    if (scrollEl) scrollEl.style.overflow = '';
+  }
+
+  document.getElementById('ph-gm-bd').addEventListener('click', closePhGm);
+  document.getElementById('ph-gm-close').addEventListener('click', closePhGm);
+
+  _phGmThumbs.addEventListener('click', function(e) {
+    var th = e.target.closest('.ph-gm-thumb.filled');
+    if (!th) return;
+    var idx = parseInt(th.getAttribute('data-gi') || '0', 10);
+    var u = _phGmImgs[idx] || '';
+    if (!u) return;
+    _phGmThumbs.querySelectorAll('.ph-gm-thumb').forEach(function(t) { t.classList.remove('on'); });
+    th.classList.add('on');
+    _phGmMain.innerHTML = '<img src="' + escapeHtml(u) + '" alt="">';
+  });
+
+  // ── 휴대폰 상세 뷰 ──
+  var _phDetImgs = [];
+  var PH_DET_GLYPH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
+  var CARRIER_SWATCH = { 'SKT':'skt', 'KT':'kt', 'LG U+':'lg', '알뜰폰':'' };
+
+  function openPhDetail(card) {
+    var name    = card.getAttribute('data-card-name') || '';
+    var carrier = card.getAttribute('data-card-carrier') || '';
+    var price   = card.getAttribute('data-card-price') || '';
+    var label   = card.getAttribute('data-card-label') || '번호이동';
+    try { _phDetImgs = JSON.parse(card.getAttribute('data-card-imgs') || '[]'); } catch(e) { _phDetImgs = []; }
+    if (!Array.isArray(_phDetImgs)) _phDetImgs = [];
+
+    document.getElementById('ph-det-bar-title').textContent = name;
+    document.getElementById('ph-det-name').textContent = name;
+    document.getElementById('ph-det-carrier').textContent = carrier;
+    document.getElementById('ph-det-swatch').className = 'swatch ' + (CARRIER_SWATCH[carrier] || '');
+
+    var mainUrl = _phDetImgs[0] || '';
+    document.getElementById('ph-det-main').innerHTML = mainUrl
+      ? '<img src="' + escapeHtml(mainUrl) + '" alt="' + escapeHtml(name) + '">'
+      : PH_DET_GLYPH;
+
+    var tHtml = '';
+    for (var i = 0; i < 6; i++) {
+      var u = _phDetImgs[i] || '';
+      tHtml += '<div class="ph-det-thumb' + (!u ? ' empty' : '') + (i === 0 && u ? ' on' : '') + '" data-gi="' + i + '">'
+        + (u ? '<img src="' + escapeHtml(u) + '" alt="">' : '') + '</div>';
+    }
+    document.getElementById('ph-det-thumbs').innerHTML = tHtml;
+
+    var priceLabel = (price && price !== '상담') ? '월 ' + escapeHtml(price) + '원' : '상담';
+    document.getElementById('ph-det-prices').innerHTML =
+      '<div class="ph-det-price-row"><span class="ph-det-price-label">번호이동</span><span class="ph-det-price-val">' + priceLabel + '</span></div>'
+      + '<div class="ph-det-price-row"><span class="ph-det-price-label">기기변경</span><span class="ph-det-price-val">상담</span></div>';
+
+    var det = document.getElementById('ph-detail');
+    det.scrollTop = 0;
+    det.classList.add('on');
+  }
+
+  function closePhDetail() {
+    document.getElementById('ph-detail').classList.remove('on');
+  }
+
+  document.getElementById('ph-det-back').addEventListener('click', closePhDetail);
+
+  document.getElementById('ph-det-thumbs').addEventListener('click', function(e) {
+    var th = e.target.closest('.ph-det-thumb:not(.empty)');
+    if (!th) return;
+    var idx = parseInt(th.getAttribute('data-gi') || '0', 10);
+    var u = _phDetImgs[idx] || '';
+    if (!u) return;
+    document.querySelectorAll('#ph-det-thumbs .ph-det-thumb').forEach(function(t) { t.classList.remove('on'); });
+    th.classList.add('on');
+    document.getElementById('ph-det-main').innerHTML = '<img src="' + escapeHtml(u) + '" alt="">';
+  });
+
+  document.getElementById('phone-cards').addEventListener('click', function(e) {
+    var card = e.target.closest('.product-card');
+    if (card) { e.preventDefault(); openPhDetail(card); }
+  });
+
   // admin 연동:
   //   1) init() 호출 즉시 localStorage 캐시로 1차 렌더 (이전 방문 시 받아둔 데이터)
   //   2) Supabase fresh fetch 완료 후 재렌더 (변경분 반영)
   var _initP = DataStore.init({ master: false });
   renderAll();
-  _initP.then(renderAll);
+  _initP.then(function() { renderAll(); renderShopCards(); });
   // 배너는 DataStore(상품/카테고리)와 독립 — settings 테이블에서 직접 마운트 (PC·모바일 SET + 슬라이드)
   initShopBanners();
   renderShopCards();
