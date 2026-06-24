@@ -1093,8 +1093,12 @@ const App = (() => {
         const baseLabel = isCompete
           ? '타사 보상가<small class="label-note">(타 브랜드 이용중이신 고객)</small>'
           : '월 렌탈료';
-        // 반값 보조표기 — 신규=정책표(형태·의무·계열), 타사보상=별첨(의무 5년↑ 3개월)
-        const halfMo = isCompete ? ((c.의무 >= 60) ? 3 : 0) : comHalfMonths(c);
+        // 반값 보조표기 — 신규=정책표(형태·의무·계열), 타사보상=별첨(원코크/초소형 계열 의무5년↑ 3개월)
+        const halfMo = isCompete ? (() => {
+          if (c.의무 < 60) return 0;
+          const _m = String(c.모델 || '');
+          return ((/원코크/.test(_m) || /초소형/.test(_m)) && !/플러스/.test(_m)) ? 3 : 0;
+        })() : comHalfMonths(c);
         const halfLine = (months, amount) => (months && amount != null)
           ? `<span class="val-half">처음 ${months}개월 ${fmt(Math.round(amount / 2))}원</span>` : '';
         let html = `
