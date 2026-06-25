@@ -99,6 +99,8 @@ html[data-preload-shop] body { visibility:hidden; }
 .ms-table td.ms-plan{z-index:1;}
 .ms-table thead .ms-corner{z-index:3;}
 .ms-table .ms-notice{font-size:11px;color:var(--ink-3);display:block;}
+.ms-table .ms-notice-hd{width:88px;position:sticky;top:0;z-index:2;}
+.ms-table .ms-notice-cell{width:88px;font-size:11px;color:var(--ink-3);text-align:center;white-space:nowrap;}
 .ms-table input.ms-sup{width:100%;box-sizing:border-box;padding:4px 4px;border:0;background:transparent;font-size:12.5px;text-align:right;font-family:inherit;cursor:text;}
 .ms-table input.ms-sup:focus{background:var(--surface);outline:1px solid var(--primary);}
 /* 모달 */
@@ -1294,7 +1296,7 @@ html[data-preload-shop] body { visibility:hidden; }
   /* ─ 데이터 ─ */
   var phData={loaded:false,loading:false,models:[],plans:[],support:[]};
   function sb(){return window.supabaseClient||window.sb||null;}
-  function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,visible:r.visible!==false};}
+  function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,noticeDate:r.notice_date||'',visible:r.visible!==false};}
   function rowToPlan(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'',monthlyFee:r.monthly_fee==null?'':r.monthly_fee};}
   function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount};}
   async function phLoad(){
@@ -1411,9 +1413,9 @@ html[data-preload-shop] body { visibility:hidden; }
         return'<td><input class="ms-sup" type="text" value="'+(s.amount!==''?phFmt(s.amount):'')+'"'
           +' data-ph-sup-mid="'+m.id+'" data-ph-sup-pid="'+p.id+'" data-ph-sup-carrier="'+carrier+'" data-ph-sup-id="'+(s.id||'')+'" inputmode="numeric"></td>';
       }).join('');
-      return'<tr><td class="ms-plan">'+m.name+'</td>'+cells+'</tr>';
+      return'<tr><td class="ms-plan">'+m.name+'</td><td class="ms-notice-cell">'+(m.noticeDate||'-')+'</td>'+cells+'</tr>';
     }).join('');
-    wrap.innerHTML='<div class="ms-table-scroll"><table class="ms-table"><thead><tr><th class="ms-corner">모델 / 요금제</th>'+headCols+'</tr></thead><tbody>'+bodyRows+'</tbody></table></div>';
+    wrap.innerHTML='<div class="ms-table-scroll"><table class="ms-table"><thead><tr><th class="ms-corner">모델 / 요금제</th><th class="ms-notice-hd">공시일</th>'+headCols+'</tr></thead><tbody>'+bodyRows+'</tbody></table></div>';
   }
   /* ─ 모델 모달 ─ */
   function phOpenModelModal(id,carrier){
