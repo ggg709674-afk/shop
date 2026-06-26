@@ -232,22 +232,11 @@
 
   /* 카탈로그 카테고리 뷰의 칩 네비(.filter-bar) = 제품 카테고리 전환 (브랜드 서브메뉴와 별개 역할이라 표시) */
   .filter-bar{ padding:12px 0 14px !important; margin-bottom:16px !important; }
-  /* 모바일 상세 슬라이드 전환 */
-  main[data-view="detail"] {
-    display:block !important;
-    position:fixed; inset:0; z-index:200;
-    overflow-y:auto; background:#fff;
-    transform:translateX(100%);
-    pointer-events:none;
-    padding-top:56px;
-  }
-  main[data-view="detail"]:not([hidden]) {
-    pointer-events:auto;
-  }
-  html.is-detail .detail-appbar {
-    position:fixed !important;
-    top:0; width:100%; z-index:500 !important;
-  }
+  /* 모바일 상세 진입/퇴장 애니메이션 — 레이아웃 변경 없이 keyframe만 */
+  @keyframes msr-slide-in { from { opacity:0; transform:translateX(48px); } to { opacity:1; transform:none; } }
+  @keyframes msr-slide-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateX(48px); } }
+  main[data-view="detail"]:not([hidden]) { animation:msr-slide-in .28s cubic-bezier(.4,0,.2,1); }
+  main[data-view="detail"].msr-sliding-out { animation:msr-slide-out .25s cubic-bezier(.4,0,.2,1) forwards; }
   } /* /@media (max-width:767px) — 모바일 강제 끝 */
 
   /* ════════ 데스크탑(≥768px) — 단독 /rental 을 PC 레이아웃으로 ════════
