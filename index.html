@@ -1901,7 +1901,7 @@ if(location.search.indexOf('ph=')!==-1){
       { name:'갤럭시 Z 플립 7',   tag:'LG U+',  badge:'',       del:'',            label:'기기변경', price:'33,000' },
       { name:'갤럭시 S26+',       tag:'SKT',    badge:'',       del:'월 46,900원', label:'번호이동', price:'34,900' },
       { name:'아이폰 17',         tag:'KT',     badge:'',       del:'',            label:'번호이동', price:'29,000' },
-      { name:'갤럭시 A36',        tag:'알뜰폰', badge:'가성비', del:'',            label:'번호이동', price:'9,900' }
+      { name:'갤럭시 A36',        tag:'알뜰유심', badge:'가성비', del:'',            label:'번호이동', price:'9,900' }
     ],
     internet: [
       { name:'SK 기가 인터넷 1G',  tag:'SK브로드밴드', badge:'결합', del:'월 33,000원', label:'결합가', price:'22,000' },
@@ -1937,8 +1937,8 @@ if(location.search.indexOf('ph=')!==-1){
       + '</div>'
     + '</a>';
   }
-  var CARRIER_LABEL = { skt:'SKT', kt:'KT', lg:'LG U+', mvno:'알뜰폰' };
-  // 통신사 로고 이미지 (SKT 우선 적용, KT/LG U+/알뜰폰은 추후)
+  var CARRIER_LABEL = { skt:'SKT', kt:'KT', lg:'LG U+', mvno:'알뜰유심' };
+  // 통신사 로고 이미지 (SKT 우선 적용, KT/LG U+/알뜰유심은 추후)
   var CARRIER_LOGOS = {
     'SKT': 'assets/carrier-skt.png',
   };
@@ -1995,7 +1995,7 @@ if(location.search.indexOf('ph=')!==-1){
           { id: 'skt', label: 'SKT', swatch: 'skt' },
           { id: 'kt', label: 'KT', swatch: 'kt' },
           { id: 'lg', label: 'LG U+', swatch: 'lg' },
-          { id: 'mvno', label: '알뜰폰', swatch: '' }
+          { id: 'mvno', label: '알뜰유심', swatch: '' }
         ];
     var groups = {};
     featuredOnly.forEach(function(p) {
@@ -2055,7 +2055,7 @@ if(location.search.indexOf('ph=')!==-1){
           { id: 'skt', label: 'SKT', swatch: 'skt' },
           { id: 'kt', label: 'KT', swatch: 'kt' },
           { id: 'lg', label: 'LG U+', swatch: 'lg' },
-          { id: 'mvno', label: '알뜰폰', swatch: '' }
+          { id: 'mvno', label: '알뜰유심', swatch: '' }
         ];
     var html = '<button class="on">전체</button>';
     cats.forEach(function(c) {
@@ -2370,7 +2370,7 @@ if(location.search.indexOf('ph=')!==-1){
   // ── 휴대폰 상세 뷰 ──
   var _phDetImgs = [];
   var PH_DET_GLYPH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
-  var CARRIER_SWATCH = { 'SKT':'skt', 'KT':'kt', 'LG U+':'lg', '알뜰폰':'' };
+  var CARRIER_SWATCH = { 'SKT':'skt', 'KT':'kt', 'LG U+':'lg', '알뜰유심':'' };
 
   function openPhDetail(card) {
     var name    = card.getAttribute('data-card-name') || '';

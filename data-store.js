@@ -26,7 +26,7 @@ const DEFAULT_CATEGORIES = [
   { id: 'skt',  label: 'SKT',   swatch: 'skt',  sort_order: 10 },
   { id: 'kt',   label: 'KT',    swatch: 'kt',   sort_order: 20 },
   { id: 'lg',   label: 'LG U+', swatch: 'lg',   sort_order: 30 },
-  { id: 'mvno', label: '알뜰폰', swatch: '',     sort_order: 40 }
+  { id: 'mvno', label: '알뜰유심', swatch: '',     sort_order: 40 }
 ];
 
 // 레거시 호환 (구 코드가 CARRIER_META 참조)
@@ -34,7 +34,7 @@ const CARRIER_META = {
   skt:  { label: 'SKT',   swatch: 'skt'  },
   kt:   { label: 'KT',    swatch: 'kt'   },
   lg:   { label: 'LG U+', swatch: 'lg'   },
-  mvno: { label: '알뜰폰', swatch: ''    }
+  mvno: { label: '알뜰유심', swatch: ''    }
 };
 
 const STORAGE_BUCKET = 'mobileshop-images';
