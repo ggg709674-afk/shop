@@ -1607,6 +1607,18 @@ const App = (() => {
     const view = getViewFromUrl();
     document.documentElement.classList.toggle('is-detail', view === 'detail');
     document.querySelectorAll('[data-view]').forEach(el => { el.hidden = (el.dataset.view !== view); });
+    // 모바일: 상세 진입 슬라이드 애니메이션
+    if (view === 'detail' && window.innerWidth < 768) {
+      var _detEl = document.querySelector('main[data-view="detail"]');
+      if (_detEl) {
+        _detEl.style.transform = 'translateX(100%)';
+        _detEl.style.transition = 'none';
+        requestAnimationFrame(function() { requestAnimationFrame(function() {
+          _detEl.style.transition = 'transform .3s cubic-bezier(.4,0,.2,1)';
+          _detEl.style.transform = 'translateX(0)';
+        }); });
+      }
+    }
     // hidden 속성으로 msr-head/sub/banner 즉시 토글 — CSS body:has() 보다 확실
     var _mh = document.querySelector('.msr-head');
     var _ms = document.querySelector('.msr-sub');
@@ -1679,6 +1691,21 @@ const App = (() => {
   }
   function goBackFromDetail() {
     if (_detailBack) { _pendingScroll = _detailBack.y || 0; _detailBack = null; }
+    // 모바일: 슬라이드 아웃 후 이동
+    if (window.innerWidth < 768) {
+      var _detEl = document.querySelector('main[data-view="detail"]');
+      if (_detEl) {
+        _detEl.style.transition = 'transform .3s cubic-bezier(.4,0,.2,1)';
+        _detEl.style.transform = 'translateX(100%)';
+        setTimeout(function() {
+          _detEl.style.transform = '';
+          _detEl.style.transition = '';
+          if (history.length > 1) { history.back(); }
+          else { history.pushState({}, '', RENTAL_PATH); route(); }
+        }, 300);
+        return;
+      }
+    }
     if (history.length > 1) { history.back(); }
     else { history.pushState({}, '', RENTAL_PATH); route(); }
   }

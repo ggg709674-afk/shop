@@ -238,12 +238,10 @@
     position:fixed; inset:0; z-index:200;
     overflow-y:auto; background:#fff;
     transform:translateX(100%);
-    transition:transform .3s cubic-bezier(.4,0,.2,1);
     pointer-events:none;
     padding-top:56px;
   }
   main[data-view="detail"]:not([hidden]) {
-    transform:translateX(0);
     pointer-events:auto;
   }
   html.is-detail .detail-appbar {
