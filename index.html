@@ -388,7 +388,7 @@
   .ph-det-body { padding:20px 16px 48px; }
   .ph-det-carrier-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:12px; color:var(--g2); min-height:20px; }
   .ph-det-name { font-size:21px; font-weight:800; line-height:1.3; word-break:keep-all; margin-bottom:20px; min-height:28px; }
-  .ph-det-price-box { background:var(--bg-soft); border-radius:14px; padding:16px; margin-bottom:24px; display:flex; flex-direction:column; gap:0; }
+  .ph-det-price-box { background:var(--bg-soft); border-radius:14px; padding:16px; margin-bottom:24px; display:flex; flex-direction:column; gap:0; min-height:112px; }
   .ph-det-price-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
   .ph-det-price-label { font-size:13px; color:var(--g1); }
@@ -1556,7 +1556,7 @@ if(location.search.indexOf('ph=')!==-1){
     <div class="ph-det-right">
       <div class="ph-det-carrier-row"><span class="swatch" id="ph-det-swatch"></span><span id="ph-det-carrier"></span></div>
       <div class="ph-det-name" id="ph-det-name"></div>
-      <script>(function(){var p=window._phPreload;if(!p)return;var c=document.getElementById('ph-det-carrier');var n=document.getElementById('ph-det-name');var t=document.getElementById('ph-det-bar-title');if(c)c.textContent=p.c||'';if(n)n.textContent=p.n||'';if(t&&(p.c||p.n))t.innerHTML=(p.c?'<span class="ph-det-bar-prefix">'+p.c+'</span> ':'')+p.n;})();</script>
+      <script>(function(){var p=window._phPreload;if(!p)return;var c=document.getElementById('ph-det-carrier');var n=document.getElementById('ph-det-name');var t=document.getElementById('ph-det-bar-title');var pr=document.getElementById('ph-det-prices');if(c)c.textContent=p.c||'';if(n)n.textContent=p.n||'';if(t&&(p.c||p.n))t.innerHTML=(p.c?'<span class="ph-det-bar-prefix">'+p.c+'</span> ':'')+p.n;try{var pid=new URLSearchParams(location.search).get('ph');if(pr&&p.prices&&p.id&&p.id===pid)pr.innerHTML=p.prices;}catch(e){}})();</script>
       <div class="ph-det-opts">
         <div class="ph-det-opt-row">
           <div class="ph-det-opt-label">가입 유형</div>
@@ -2140,7 +2140,6 @@ if(location.search.indexOf('ph=')!==-1){
     document.getElementById('ph-det-name').textContent = name;
     document.getElementById('ph-det-carrier').textContent = carrier;
     document.getElementById('ph-det-swatch').className = 'swatch ' + (CARRIER_SWATCH[carrier] || '');
-    try { sessionStorage.setItem('ph_last', JSON.stringify({c: carrier, n: name})); } catch(e) {}
 
     var mainUrl = _phDetImgs[0] || '';
     document.getElementById('ph-det-main').innerHTML = mainUrl
@@ -2182,6 +2181,7 @@ if(location.search.indexOf('ph=')!==-1){
       var url = location.pathname + '?ph=' + encodeURIComponent(modelId);
       if (location.search !== '?ph=' + encodeURIComponent(modelId)) history.pushState({ ph: modelId }, '', url);
     }
+    try { sessionStorage.setItem('ph_last', JSON.stringify({c:carrier, n:name, id:modelId, prices:document.getElementById('ph-det-prices').innerHTML})); } catch(e) {}
   }
 
   function closePhDetail() {
