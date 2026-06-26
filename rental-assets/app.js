@@ -1616,7 +1616,10 @@ const App = (() => {
     document.documentElement.classList.toggle('is-detail', view === 'detail');
     // detail: hidden 속성 대신 .on 클래스로 position:fixed 오버레이 토글 (#ph-detail 방식)
     var _detMain = document.querySelector('main[data-view="detail"]');
-    if (_detMain) _detMain.classList.toggle('on', view === 'detail');
+    if (_detMain) {
+      if (view === 'detail') _detMain.scrollTop = 0; // 이전 스크롤(footer) 즉시 초기화 → 슬라이드 인 첫 프레임에 footer 노출 방지
+      _detMain.classList.toggle('on', view === 'detail');
+    }
     // detail 진입: 고정 오버레이가 뒤를 덮으므로 다른 뷰 숨기지 않음 (레이아웃 점프 방지)
     if (view !== 'detail') {
       document.querySelectorAll('[data-view]:not([data-view="detail"])').forEach(el => {
