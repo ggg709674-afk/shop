@@ -12,7 +12,7 @@
   /* 임베드 모드 — 샵(/) carousel의 iframe 안에서 열릴 때: 폰 프레임/상단 탭 제거, 콘텐츠만.
      상단 탭(휴대폰/인터넷/렌탈)은 부모 샵이 제공하므로 여기선 숨김. */
   try { if (location.search.indexOf('embed=1') >= 0 || window.self !== window.top) document.documentElement.classList.add('msr-embed'); } catch(e){}
-  try { if (new URLSearchParams(location.search).get('id')) document.documentElement.classList.add('is-detail'); } catch(e){}
+  try { if (new URLSearchParams(location.search).get('id')) { document.documentElement.classList.add('is-detail'); document.documentElement.classList.add('restoring-det'); } } catch(e){}
 </script>
 <link rel="stylesheet" href="/rental-assets/style.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png">
@@ -78,7 +78,7 @@
   html.is-detail .banner-wide{ display:none !important; } /* 새로고침 시 배너 즉시 숨김 — body:has 보다 먼저 적용되어 detail-appbar가 첫 페인트부터 상단에 고정 */
   html.is-detail .detail-appbar{ display:flex !important; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:400; height:56px; padding:0 max(20px, calc((100% - 1280px) / 2)); background:#fff; border-bottom:1px solid #f2f2f2; }
   html.is-detail main[data-view="detail"]{ display:block !important; }
-  @media (max-width:767px){ html.is-detail main[data-view="detail"]{ transform:none !important; transition:none !important; } }
+  @media (max-width:767px){ html.restoring-det main[data-view="detail"]{ transform:none !important; transition:none !important; } }
   /* View Transition: msr-head old-state 즉시 투명화
      startViewTransition 은 픽셀 캡처 → pre-hide DOM 변경이 픽셀에 반영되기 전에 캡처됨.
      별도 named group으로 분리하고 old-state opacity:0으로 강제 → 홈→상세 전환 시 msr-head 페이드아웃 없음. */

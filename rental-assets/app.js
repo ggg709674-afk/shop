@@ -1640,6 +1640,8 @@ const App = (() => {
     }
     // 합본 임베드: 현재 경로(?cls=/?id=)를 부모 샵에 알림 → 부모가 URL에 미러 → 새로고침 시 같은 페이지 복원
     try { parent.postMessage({ type:'msr-route', search: location.search }, '*'); } catch(e){}
+    // 페이지 로드 시 플래시 방지용 restoring-det 제거 — 이후 전환부터 CSS transition 활성화
+    document.documentElement.classList.remove('restoring-det');
   }
 
   /* 클릭 가로채기 — 카탈로그 내부 링크(/rental?… 또는 구 *.html?…)는 SPA 처리.
