@@ -339,15 +339,26 @@
   .ph-det-bar {
     position:sticky; top:0; z-index:10; background:var(--bg);
     border-bottom:1px solid var(--line);
-    display:flex; align-items:center; gap:12px; padding:12px 16px; min-height:52px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; height:56px;
   }
   .ph-det-back {
-    width:34px; height:34px; border-radius:50%; flex-shrink:0;
-    background:var(--bg-soft); border:1px solid var(--line);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    display:inline-flex; align-items:center; gap:1px;
+    background:none; border:none; padding:0; margin:0;
+    font-size:15px; font-weight:500; color:var(--ink); cursor:pointer; flex-shrink:0;
   }
-  .ph-det-back svg { width:18px; height:18px; }
-  .ph-det-bar-title { font-size:15px; font-weight:600; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ph-det-back svg { width:22px; height:22px; margin-left:-4px; }
+  .ph-det-bar-title {
+    position:absolute; left:50%; transform:translateX(-50%);
+    max-width:56%; font-size:16px; font-weight:600; color:var(--ink); letter-spacing:-.02em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    pointer-events:none; text-align:center;
+  }
+  .ph-det-bar-consult {
+    flex-shrink:0; background:var(--accent); color:#fff;
+    font-size:13px; font-weight:600; line-height:1;
+    padding:8px 15px; border:none; border-radius:999px; cursor:pointer;
+  }
   .ph-det-main {
     width:100%; aspect-ratio:1/1; background:var(--bg-soft);
     display:flex; align-items:center; justify-content:center; overflow:hidden;
@@ -390,7 +401,7 @@
   .ph-det-chip.on { border-color:var(--accent); background:var(--accent); color:#fff; }
   /* PC 2컬럼 레이아웃 */
   @media (min-width:768px) {
-    .ph-det-bar { max-width:1200px; margin:0 auto; padding:16px 48px; }
+    .ph-det-bar { padding:0 max(20px, calc((100% - 1200px) / 2)); }
     .ph-det-content {
       display:grid; grid-template-columns:1fr 400px; align-items:start;
       max-width:1200px; margin:0 auto; padding:40px 48px 80px; gap:0;
@@ -1517,9 +1528,11 @@
 <div id="ph-detail">
   <div class="ph-det-bar">
     <button class="ph-det-back" id="ph-det-back" aria-label="뒤로">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span>뒤로</span>
     </button>
     <div class="ph-det-bar-title" id="ph-det-bar-title"></div>
+    <button class="ph-det-bar-consult">상담</button>
   </div>
   <div class="ph-det-content">
     <div class="ph-det-left">
