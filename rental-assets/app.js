@@ -2023,7 +2023,11 @@ const App = (() => {
   };
 })();
 window.RentalApp = App;
-// 임베드 모드: 딥링크 새로고침 시 RentalApp 로드 전 openRentalDet 호출을 보류했다가 여기서 실행
+// 임베드(부모 네이티브) 모드: RentalApp 로드 전에 들어온 렌탈 라우트/상세 요청을 여기서 flush
+if (window.RENTAL_EMBEDDED && window._needRentalRoute && typeof window.applyRentalRoute === 'function') {
+  window._needRentalRoute = false;
+  window.applyRentalRoute();
+}
 if (window.RENTAL_EMBEDDED && window._pendingRentalDet) {
   var _pd = window._pendingRentalDet;
   window._pendingRentalDet = null;

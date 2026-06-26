@@ -135,15 +135,11 @@
   .scroll.on-rental ~ .top-btn { display:none !important; }
   /* 렌탈 상세/카테고리 뷰에선 샵 헤더(탭) 아래 라인 제거 (홈에선 유지) — iframe이 msr-view 메시지로 알림 */
   .scroll.rental-subview .head { border-bottom-color:transparent; }
-  /* 렌탈 '상세' 뷰 = 결정 모드 — 글로벌 헤더(로고+대탭) 완전 숨김. iframe이 전체를 차지하고
-     상세 전용 앱바(iframe 내부 sticky)가 상단을 담당. 브랜드 필터도 iframe 측에서 숨김. */
-  .scroll.rental-detail .head { display:none; }
+  /* 렌탈 '상세' 뷰 = 결정 모드. #rental-det 오버레이(position:fixed; inset:0; z-index:600)가
+     화면 전체를 덮으므로 글로벌 헤더/브랜드 소메뉴를 숨길 필요가 없다.
+     (과거 iframe이 상세를 직접 차지하던 구조의 잔재 — display:none 으로 숨기면 슬라이드 도중
+      하단 콘텐츠가 위로 튀는 '흔들림'이 생긴다. 휴대폰 상세(#ph-detail)는 안 숨겨서 부드러움.) */
   .scroll.rental-detail #panel-rental { transform:none !important; }
-  /* 렌탈 상세 뷰에선 브랜드 소메뉴도 숨김 (상세 전용 앱바가 상단 담당) */
-  .scroll.rental-detail #rental-sub-nav { display:none; }
-  /* compact(모바일) 시 소메뉴(.sub-nav)는 표준 규칙으로 -44px 슬라이드되고,
-     그 아래 iframe도 동일하게 따라 올라가 헤더 바로 아래에 붙음. (데스크탑은 compact 비활성→아래에서 무력화) */
-  .scroll.compact-mode #rental-frame { transform: translateY(-44px); transition: transform .42s cubic-bezier(.4,0,.2,1); }
   .head.compact .top {
     opacity:0;
     transform:translateY(-12px);
@@ -241,13 +237,12 @@
      (비활성 휴대폰/인터넷 패널이 .panels 높이를 넘쳐 .scroll이 푸터 아래로 과다 스크롤되던 것 차단)
      .panels가 아닌 .scroll에 overflow:hidden을 걸어야 compact 시 head clip 영역(panels-top 위쪽)에
      올라오는 sub-nav(소메뉴)가 잘리지 않음. */
-  .scroll.on-rental { overflow:hidden; }
+  /* 렌탈도 부모 .scroll 네이티브 스크롤 사용 (iframe 제거 — overflow:hidden 잠금 해제) */
   .panel {
     width:33.3333%; flex-shrink:0;
   }
-  /* 렌탈 패널 = SK매직 카탈로그를 iframe으로 임베드 (carousel 슬라이드로 진입) */
+  /* 렌탈 패널 = SK매직 카탈로그를 부모 DOM에 네이티브 렌더 */
   #panel-rental { align-self:stretch; overflow:visible; }
-  #rental-frame { width:100%; border:0; display:block; background:#fff; }
 
   /* ───── 공통 컨테이너 ───── */
   .pad { padding:0 20px; }
@@ -1025,8 +1020,6 @@
     .head.compact .cat-nav { transform:translate(-50%, -50%) !important; }
     .scroll.compact-mode .sub-nav { transform:none; }
     .sub-nav { top:64px; }
-    /* 렌탈 iframe 도 데스크탑에선 compact 끌어올림 비활성 (소메뉴가 부모 .sub-nav 로 통일됨) */
-    .scroll.compact-mode #rental-frame { transform:none; }
 
     /* ── 콘텐츠 중앙 컬럼 ── */
     #panel-phone, #panel-internet { display:flex; flex-direction:column; }
@@ -1536,7 +1529,40 @@ if(location.search.indexOf('ph=')!==-1){
       <span class="sub-dot"></span>
       <button data-soon="코웨이"><span class="swatch" style="background:#1C4E8A"></span>코웨이</button>
     </nav>
-    <iframe id="rental-frame" title="렌탈" loading="lazy"></iframe>
+    <!-- 렌탈 홈 (iframe 제거 — 부모 DOM 네이티브 렌더, RentalApp.renderHome) -->
+    <main data-view="home" id="rental-home" hidden>
+      <section class="section home-cat">
+        <div class="container">
+          <div class="cat-grid" id="cat-grid"></div>
+        </div>
+      </section>
+      <section class="section best-section" id="best-section" style="background:var(--surface)">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2 id="best-title"><span id="best-month">5</span>월 인기 상품</h2>
+              <p class="sub">실시간 조회수 + 구독 신청 데이터를 합쳐 골랐어요.</p>
+            </div>
+            <a class="more" href="/?cat=rental&view=category">전체보기 <span id="ic-arr2"></span></a>
+          </div>
+          <div class="product-grid" id="best-grid"></div>
+        </div>
+      </section>
+      <div class="container" id="cat-sections" style="padding-bottom:60px"></div>
+    </main>
+
+    <!-- 렌탈 카테고리 -->
+    <main data-view="category" id="rental-category" hidden>
+      <section class="container" style="padding-top:36px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+          <div id="cat-icon" class="cat-page-icon" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center"></div>
+          <h1 id="cat-title" style="font-size:32px;letter-spacing:-0.5px;margin:0;font-weight:800">전체 상품</h1>
+        </div>
+        <div style="color:var(--ink-4);font-size:13px;margin-bottom:18px"><span id="cat-count">—</span> · 가격은 월 구독료 기준입니다.</div>
+        <div class="filter-bar" id="filter-bar"></div>
+        <div class="product-grid" id="cat-products"></div>
+      </section>
+    </main>
   </div><!-- /panel-rental -->
 
   </div><!-- /panels -->
@@ -2195,17 +2221,39 @@ if(location.search.indexOf('ph=')!==-1){
     scrollEl.classList.toggle('compact-mode', on);
   }
 
-  function mountRentalFrame() {
-    var f = document.getElementById('rental-frame');
-    if (f && !f.getAttribute('src')) {
-      var sp;
-      try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
-      sp.delete('cat');
-      sp.delete('id'); // 상세는 #rental-det div가 처리 — rental-frame은 홈/카테고리만
-      sp.set('embed', '1');
-      f.setAttribute('src', '/rental?' + sp.toString());
-    }
+  // ───── 렌탈 네이티브 렌더 (iframe 제거 — RentalApp을 부모 DOM에 직접 구동) ─────
+  function rentalViewShow(view) {
+    var home = document.getElementById('rental-home');
+    var cat  = document.getElementById('rental-category');
+    if (home) home.hidden = (view !== 'home');
+    if (cat)  cat.hidden  = (view !== 'category');
   }
+  function _afterRentalRender() {
+    if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
+    // 비동기 렌더(db fetch) 완료 후 한 번 더 — 첫 렌더 시 높이 정확히 반영
+    requestAnimationFrame(function(){ if (typeof syncPanelsHeight === 'function') syncPanelsHeight(); });
+  }
+  function renderRentalHome() {
+    if (typeof window.RentalApp === 'undefined') { window._needRentalRoute = true; return; }
+    rentalViewShow('home');
+    try { Promise.resolve(window.RentalApp.renderHome()).then(_afterRentalRender).catch(_afterRentalRender); } catch (e) { _afterRentalRender(); }
+  }
+  function renderRentalCategory() {
+    if (typeof window.RentalApp === 'undefined') { window._needRentalRoute = true; return; }
+    rentalViewShow('category');
+    try { Promise.resolve(window.RentalApp.renderCategory()).then(_afterRentalRender).catch(_afterRentalRender); } catch (e) { _afterRentalRender(); }
+  }
+  // 현재 URL(?cat=rental&cls=/&id=)에 맞는 렌탈 뷰 표시
+  function applyRentalRoute() {
+    if (typeof window.RentalApp === 'undefined') { window._needRentalRoute = true; return; }
+    var sp;
+    try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
+    var id = sp.get('id');
+    if (id) { renderRentalHome(); openRentalDet(id, true); return; } // 상세 복원(뒤=홈)
+    if (sp.get('cls') || sp.get('view') === 'category') renderRentalCategory();
+    else renderRentalHome();
+  }
+  window.applyRentalRoute = applyRentalRoute;
 
   /* ───── 렌탈 상세 오버레이 (div, iframe 없음 — #ph-detail 방식) ───── */
   function openRentalDet(id, noAnim) {
@@ -2237,21 +2285,33 @@ if(location.search.indexOf('ph=')!==-1){
     try { history.pushState({}, '', '/?cat=rental'); } catch(e) {}
   }
 
-  window.addEventListener('message', function(e) {
-    if (!e.data) return;
-    if (e.data.type === 'rental-detail-enter' && e.data.id) {
-      openRentalDet(e.data.id);
-    } else if (e.data.type === 'rental-detail-back') {
-      closeRentalDet();
+  // 렌탈 패널(홈/카테고리) 내 링크 클릭 위임 — 카테고리카드/상품카드/필터칩/전체보기/브레드크럼
+  document.getElementById('panel-rental').addEventListener('click', function(e) {
+    var a = e.target.closest('a[href]');
+    if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+    var href = a.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#') return;
+    var u; try { u = new URL(href, location.href); } catch (_) { return; }
+    var id = u.searchParams.get('id');
+    var cls = u.searchParams.get('cls');
+    var isCat = !!cls || u.searchParams.get('view') === 'category';
+    if (!id && !isCat && !/(cat=rental|\/rental)/.test(href)) return;
+    e.preventDefault();
+    if (id) { openRentalDet(id); return; }
+    if (isCat) {
+      history.pushState({}, '', cls ? ('/?cat=rental&cls=' + encodeURIComponent(cls)) : '/?cat=rental&view=category');
+      renderRentalCategory();
+    } else {
+      history.pushState({}, '', '/?cat=rental');
+      renderRentalHome();
     }
-  }, false);
+    try { scrollEl.scrollTop = 0; } catch (_) {}
+  });
 
-  // #rental-det 뒤로/상담 버튼 — startRouter()를 호출하지 않는 임베드 모드에서 직접 설정
+  // #rental-det 뒤로/상담 버튼
   (function() {
     var _back = document.getElementById('dab-back');
-    if (_back) _back.addEventListener('click', function(e) {
-      e.preventDefault(); closeRentalDet();
-    });
+    if (_back) _back.addEventListener('click', function(e) { e.preventDefault(); closeRentalDet(); });
     var _consult = document.getElementById('dab-consult');
     if (_consult) _consult.addEventListener('click', function(e) {
       e.preventDefault();
@@ -2259,7 +2319,7 @@ if(location.search.indexOf('ph=')!==-1){
     });
   })();
 
-  // #rental-det 내 링크 클릭 위임 — ?id= (색상 chip), /?cat=rental (홈·카테고리)
+  // #rental-det 내 링크 — ?id=(색상 chip)=상세 이동 / cat=rental·/rental=상세 닫고 목록 복귀
   (function() {
     var _rd = document.getElementById('rental-det');
     if (!_rd) return;
@@ -2267,19 +2327,14 @@ if(location.search.indexOf('ph=')!==-1){
       var a = e.target.closest('a[href]');
       if (!a) return;
       var _href = a.getAttribute('href') || '';
-      // ?id= → 상세 내비게이션 (색상 chip 등)
       var _im = _href.match(/[?&]id=([^&#]+)/);
       if (_im) { e.preventDefault(); openRentalDet(decodeURIComponent(_im[1])); return; }
-      // /?cat=rental or /?cat=rental&cls=xxx → 상세 닫고 렌탈 탭으로
-      if (_href.indexOf('cat=rental') >= 0) {
+      if (_href.indexOf('cat=rental') >= 0 || /\/rental(\?|$)/.test(_href)) {
         e.preventDefault();
         closeRentalDet();
         var _cls = (_href.match(/[?&]cls=([^&#]+)/) || [])[1];
-        if (_cls) {
-          var f = document.getElementById('rental-frame');
-          if (f) { f.setAttribute('src', '/rental?cls=' + decodeURIComponent(_cls) + '&embed=1'); }
-        }
-        return;
+        if (_cls) { history.pushState({}, '', '/?cat=rental&cls=' + decodeURIComponent(_cls)); renderRentalCategory(); }
+        else { history.pushState({}, '', '/?cat=rental'); renderRentalHome(); }
       }
     });
   })();
@@ -2290,8 +2345,6 @@ if(location.search.indexOf('ph=')!==-1){
       det.classList.remove('on');
     }
   }, false);
-  // 샵 초기 렌더 후 렌탈 iframe 백그라운드 프리로드 → 첫 슬라이드도 매끄럽게
-  setTimeout(mountRentalFrame, 1200);
 
   // 렌탈 브랜드 소메뉴(부모 .sub-nav) — SK매직만 운영, 청호/코웨이는 준비중 안내
   (function(){
@@ -2301,94 +2354,22 @@ if(location.search.indexOf('ph=')!==-1){
       var b = e.target.closest('button'); if (!b) return;
       var soon = b.getAttribute('data-soon');
       if (soon){ alert(soon + ' 상품은 입점 준비 중이에요.'); return; }
-      // SK매직: 활성 표시 갱신 + 렌탈 iframe 을 홈(배너 화면)으로 복귀
+      // SK매직: 활성 표시 갱신 + 렌탈 홈으로 복귀
       rsub.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
-      var rf = document.getElementById('rental-frame');
-      if (rf && rf.contentWindow) { try { rf.contentWindow.postMessage({ type:'msr-nav', to:'home' }, '*'); } catch(err){} }
+      closeRentalDet();
+      history.pushState({}, '', '/?cat=rental');
+      renderRentalHome();
     });
   })();
 
-  // 렌탈 iframe 스크롤 → 샵 헤더 compact 토글 (휴대폰/인터넷과 '동일한' .head.compact 공유 상태 사용 → 탭 전환해도 유지)
-  var rPrevY = 0, rAccum = 0, rLastSign = 0, rLockUntil = 0;
-  function setCompact(on) {
-    if (headEl.classList.contains('compact') === on) return;
-    headEl.classList.toggle('compact', on);
-    scrollEl.classList.toggle('compact-mode', on);
-    if (catOrder[currentIdx] === 'rental') syncPanelsHeight(); // iframe 높이 재조정
-  }
-  window.addEventListener('message', function(e) {
-    if (!e.data || e.data.type !== 'msr-scroll') return;
-    if (catOrder[currentIdx] !== 'rental') return;
-    if (scrollEl.classList.contains('rental-detail')) return; // 상세 모드: 헤더 숨김 상태라 compact 토글 불필요(목록 compact 상태 보존)
-    var y = e.data.y || 0;
-    // 진입 직후 iframe 스크롤 리셋/클램프가 compact를 잘못 토글하지 않도록 lockout
-    if (performance.now() < rLockUntil) { rPrevY = y; rAccum = 0; return; }
-    var dy = y - rPrevY; rPrevY = y;
-    // 큰 점프(app.js의 scrollTo(0,0) 같은 프로그램적 리셋)는 사용자 스크롤이 아니므로 무시 — compact 유지
-    if (Math.abs(dy) > 120) { rAccum = 0; return; }
-    var sign = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
-    if (sign !== 0 && sign !== rLastSign) { rAccum = 0; rLastSign = sign; }
-    rAccum += dy;
-    var isC = headEl.classList.contains('compact');
-    if (y < 30) { if (isC) setCompact(false); rAccum = 0; }
-    else if (rAccum > 12 && !isC && y > 130) { setCompact(true); rAccum = 0; }
-    else if (rAccum < -12 && isC) { setCompact(false); rAccum = 0; }
-  }, false);
-
-  // 렌탈 iframe의 현재 뷰 알림 → 상세/카테고리면 샵 헤더 라인 제거 (홈이면 유지)
-  window.addEventListener('message', function(e) {
-    if (!e.data || e.data.type !== 'msr-view') return;
-    var onRental = catOrder[currentIdx] === 'rental';
-    scrollEl.classList.toggle('rental-subview', onRental && e.data.view !== 'home');
-    // '상세' 뷰 = 결정 모드: 글로벌 헤더 숨기고 iframe 전체 높이로 (상세 전용 앱바가 상단 담당)
-    var isDetail = onRental && e.data.view === 'detail';
-    var wasDetail = scrollEl.classList.contains('rental-detail');
-    scrollEl.classList.toggle('rental-detail', isDetail);
-    if (isDetail !== wasDetail) syncPanelsHeight(); // 헤더 표시/숨김에 따라 iframe 높이 재조정
-    // 뷰 전환(카탈로그→상세 등) 시 iframe 스크롤 리셋(scrollTo 0)이 compact를 풀어 로고가 보였다 사라지는 현상 방지 → 잠깐 lockout
-    rLockUntil = performance.now() + 800;
-  }, false);
-
-  // 렌탈 iframe 현재 경로(?cls=/?id=)를 부모 URL(?cat=rental&…)에 미러 → 새로고침 시 같은 렌탈 페이지 복원
-  window.addEventListener('message', function(e) {
-    if (!e.data || e.data.type !== 'msr-route') return;
-    if (catOrder[currentIdx] !== 'rental') return;
-    // 렌탈 상세 오버레이가 열려있으면 URL 덮어쓰기 금지 (rental-frame 목록 라우트가 ?id= 를 지우지 않게)
-    var _rd = document.getElementById('rental-det');
-    if (_rd && _rd.classList.contains('on')) return;
-    try {
-      var ip = new URLSearchParams(e.data.search || '');
-      ip.delete('embed');
-      ip.delete('detail-only');
-      var op = new URLSearchParams();
-      op.set('cat', 'rental');
-      ip.forEach(function(v, k) { op.set(k, v); });
-      history.replaceState({}, '', location.pathname + '?' + op.toString());
-    } catch (err) {}
-  }, false);
+  // (렌탈 iframe 제거: msr-scroll/msr-view/msr-route 핸들러 삭제 — 렌탈도 부모 .scroll 네이티브 스크롤로
+  //  휴대폰/인터넷과 동일하게 compact·URL 처리됨)
 
   function syncPanelsHeight() {
     var active = document.getElementById('panel-' + catOrder[currentIdx]);
     if (!active || !panelsEl) return;
-    if (catOrder[currentIdx] === 'rental') {
-      // 렌탈 = [부모 .head][2단 브랜드][3단 상품군 탭][iframe 카탈로그].
-      // iframe 은 1단+2단+3단 아래 남은 공간을 채움.
-      var frame = document.getElementById('rental-frame');
-      var compact = headEl.classList.contains('compact');
-      var detail = scrollEl.classList.contains('rental-detail');
-      // 데스크탑(≥768px)은 헤더 64px 고정(compact 비활성). 모바일은 헤더(89/compact39).
-      var isDesktop = window.matchMedia('(min-width:768px)').matches;
-      var headH = isDesktop ? 64 : (compact ? 39 : 89);
-      var rsub = document.getElementById('rental-sub-nav');
-      var subH = (rsub && !detail) ? (rsub.offsetHeight || 40) : 0; // 2단(브랜드) 높이
-      // 상세 모드: 글로벌 헤더 숨김 → iframe이 화면 전체.
-      var fh = detail ? scrollEl.clientHeight : (scrollEl.clientHeight - headH - subH);
-      if (fh < 100) fh = scrollEl.clientHeight;
-      if (frame) frame.style.height = fh + 'px';
-      panelsEl.style.height = (detail ? scrollEl.clientHeight : (scrollEl.clientHeight - (isDesktop ? 64 : 89))) + 'px'; // 패널 레이아웃 고정(.scroll 오버플로 방지)
-    } else {
-      panelsEl.style.height = active.scrollHeight + 'px';
-    }
+    // 렌탈도 네이티브 콘텐츠 → 휴대폰/인터넷과 동일하게 활성 패널 높이로 맞춤
+    panelsEl.style.height = active.scrollHeight + 'px';
   }
 
   function showCat(cat) {
@@ -2403,9 +2384,7 @@ if(location.search.indexOf('ph=')!==-1){
     if (oldCat === 'phone' || oldCat === 'internet') {
       panelMem[oldCat] = { top: scrollEl.scrollTop, compact: wasCompact };
     } else if (oldCat === 'rental') {
-      var ry = 0;
-      try { var rf0 = document.getElementById('rental-frame'); if (rf0 && rf0.contentWindow) ry = rf0.contentWindow.scrollY || 0; } catch(e){}
-      panelMem.rental = { y: ry, compact: wasCompact };
+      panelMem.rental = { top: scrollEl.scrollTop, compact: wasCompact };
     }
 
     catNav.querySelectorAll('button').forEach(function(b) {
@@ -2424,31 +2403,14 @@ if(location.search.indexOf('ph=')!==-1){
         if (cat === 'phone' && typeof syncPhoneCarrierUrl === 'function') syncPhoneCarrierUrl();
       }
     } catch(e){}
-    scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화 (iframe이 곧 실제 뷰를 알림)
+    scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화
     scrollEl.classList.remove('rental-detail');  // 상세 모드 해제 (다른 탭으로 가면 글로벌 헤더 복원)
 
-    if (cat === 'rental') {
-      // 렌탈도 완전 독립 — 자기 iframe 스크롤 위치 + 로고(compact) 상태를 복원 (다른 탭 영향 안받음).
-      scrollEl.classList.add('on-rental');
-      rAccum = 0; rLastSign = 0;
-      scrollEl.scrollTop = 0;
-      applyCompactState(panelMem.rental.compact);
-      var ty = panelMem.rental.y;
-      rPrevY = ty;
-      rLockUntil = performance.now() + 700; // 복원 직후 iframe 스크롤 알림이 compact를 재토글하지 않도록
-      syncPanelsHeight();
-      try {
-        var rf = document.getElementById('rental-frame');
-        if (rf && rf.contentWindow) rf.contentWindow.scrollTo(0, ty);
-      } catch(e){}
-      return;
-    }
-
-    // 휴대폰/인터넷 — 들어가는 탭의 '자기' 스크롤 위치 + 로고 상태를 복원 (완전 독립).
-    // 다른 탭에서 내려놨든 로고를 숨겼든 영향받지 않고, 이 탭이 마지막에 있던 그대로 보여줌.
-    scrollEl.classList.remove('on-rental');
+    // 모든 탭 공통 — 자기 스크롤/로고(compact) 상태 복원 (완전 독립). 렌탈도 네이티브라 동일 처리.
+    scrollEl.classList.toggle('on-rental', cat === 'rental');
     var mem = panelMem[cat] || { top: 0, compact: false };
     applyCompactState(mem.compact);
+    if (cat === 'rental') applyRentalRoute(); // 현재 URL에 맞는 렌탈 뷰(홈/카테고리/상세) 렌더
     syncPanelsHeight();
     // scrollTop 복원 시 scroll 핸들러가 방향로직으로 compact를 토글하지 않도록 lockout
     lockUntil = performance.now() + 500;
@@ -2619,28 +2581,22 @@ if(location.search.indexOf('ph=')!==-1){
 
   catNav.querySelectorAll('button').forEach(function(b) {
     b.addEventListener('click', function() {
-      // 렌탈 탭 → 같은 carousel의 3번째 패널(iframe)로 슬라이드. 첫 진입 시 iframe 로드.
-      if (b.dataset.cat === 'rental') { mountRentalFrame(); }
-      showCat(b.dataset.cat);
+      showCat(b.dataset.cat); // 렌탈 탭은 showCat→applyRentalRoute가 네이티브 렌더 처리
     });
   });
 
-  // ?cat= 딥링크 — /?cat=internet 등으로 진입 시 해당 패널 즉시 표시 (애니메이션 없음)
+  // ?cat= 딥링크 — /?cat=rental&cls=/&id= 등으로 진입 시 해당 패널 즉시 표시 (애니메이션 없음)
   (function() {
     var qcat = '';
     try { qcat = new URLSearchParams(location.search).get('cat') || ''; } catch (e) {}
     if (qcat && qcat !== catOrder[currentIdx] && catOrder.indexOf(qcat) !== -1) {
-      if (qcat === 'rental') mountRentalFrame();
       panelsEl.style.transition = 'none';
-      showCat(qcat);
+      showCat(qcat); // rental이면 applyRentalRoute가 URL(cls/id)에 맞는 뷰 렌더 (RentalApp 미로드 시 _needRentalRoute로 지연)
       void panelsEl.offsetWidth;
       panelsEl.style.transition = '';
-    }
-    // 렌탈 상세 딥링크 — /?cat=rental&id=xxx 새로고침 시 det-frame 즉시 표시 (애니메이션 없음)
-    if (qcat === 'rental') {
-      var qid = '';
-      try { qid = new URLSearchParams(location.search).get('id') || ''; } catch(e) {}
-      if (qid) openRentalDet(qid, true); // noAnim=true
+    } else if (qcat === 'rental') {
+      // 이미 rental이 현재 패널이면 showCat이 early-return → 직접 라우트 적용
+      applyRentalRoute();
     }
   })();
 
