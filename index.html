@@ -1991,19 +1991,13 @@ if(location.search.indexOf('ph=')!==-1){
     if (!det) return;
     if (noAnim) document.documentElement.classList.add('rental-det-restoring');
 
-    // renderDetail() 완료 신호(rental-det-ready) 후 슬라이드 인 → 제목 채워진 상태로 등장
-    var _rdTimer = setTimeout(function() { det.classList.add('on'); }, 3000); // 네트워크 느릴 때 fallback
-    function _rdReady(e) {
-      if (!e.data || e.data.type !== 'rental-det-ready') return;
-      clearTimeout(_rdTimer);
-      window.removeEventListener('message', _rdReady);
+    det.onload = function() {
+      det.onload = null;
       det.classList.add('on');
       if (noAnim) requestAnimationFrame(function() {
         requestAnimationFrame(function() { document.documentElement.classList.remove('rental-det-restoring'); });
       });
-    }
-    window.addEventListener('message', _rdReady);
-
+    };
     det.src = '/rental?id=' + encodeURIComponent(id) + '&embed=1&detail-only=1';
   }
 
