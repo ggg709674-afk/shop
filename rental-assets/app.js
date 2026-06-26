@@ -1347,8 +1347,10 @@ const App = (() => {
     document.getElementById('p-name').textContent = p.name || '';
     // 상세 앱바 중앙 상품명 (합본 임베드 전용 헤더)
     var _dabT = document.getElementById('dab-title'); if (_dabT) _dabT.innerHTML = '<span class="dab-prefix">SK매직</span> ' + (p.name || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-    // 다음 로드(새로고침/뒤로+재진입) 시 앱바 깜빡임 방지용 캐시 — 폰 상세 sessionStorage 방식과 동일
-    try { var _detId2 = new URLSearchParams(location.search).get('id'); if (_detId2 && p.name) sessionStorage.setItem('rental_det_last', JSON.stringify({id:_detId2, name:p.name})); } catch(e_){}
+    // localStorage 에 캐시 (sessionStorage 는 iframe 별 격리 → 공유 불가)
+    try { var _detId2 = new URLSearchParams(location.search).get('id'); if (_detId2 && p.name) localStorage.setItem('rental_det_last', JSON.stringify({id:_detId2, name:p.name})); } catch(e_){}
+    // 부모에게 데이터 로드 완료 신호 → 부모가 이 시점에 패널 슬라이드 인 (제목 이미 채워진 상태로 등장)
+    if (window.self !== window.top) { try { parent.postMessage({type:'rental-det-ready'}, '*'); } catch(e_){} }
     // 상품명 우측 색상명 — p._colorName 우선, 없으면 모델 코드 hint fallback
     // 비데(100000024)는 다 흰색 단품이라 색상명 생략.
     const colorNameEl = document.getElementById('p-color-name');

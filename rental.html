@@ -13,9 +13,9 @@
      상단 탭(휴대폰/인터넷/렌탈)은 부모 샵이 제공하므로 여기선 숨김. */
   try { if (location.search.indexOf('embed=1') >= 0 || window.self !== window.top) document.documentElement.classList.add('msr-embed'); } catch(e){}
   try { if (new URLSearchParams(location.search).get('id')) { document.documentElement.classList.add('is-detail'); document.documentElement.classList.add('restoring-det'); } } catch(e){}
-  // 새로고침 시 앱바 제목 깜빡임 방지 — renderDetail() 완료 전에 sessionStorage 캐시로 즉시 복원 (폰 상세와 동일한 방식)
+  // 새로고침 시 앱바 제목 깜빡임 방지 — localStorage 캐시로 즉시 복원 (sessionStorage는 iframe별 격리라 사용 불가)
   try {
-    var _rdp = JSON.parse(sessionStorage.getItem('rental_det_last') || 'null');
+    var _rdp = JSON.parse(localStorage.getItem('rental_det_last') || 'null');
     var _rdpId = new URLSearchParams(location.search).get('id');
     window._rentalDetPreload = (_rdp && _rdp.id === _rdpId) ? _rdp : null;
   } catch(e_) { window._rentalDetPreload = null; }
