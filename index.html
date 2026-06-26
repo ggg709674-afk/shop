@@ -1956,7 +1956,20 @@ if(location.search.indexOf('ph=')!==-1){
   }
   // ───── 휴대폰: 통신사별 인기단말 메인(전체) + 통신사 필터 그리드 ─────
   var PHONE_HOME_PREVIEW = 4;   // 통신사 섹션당 미리보기 개수 (최대 두 줄=8까지 가능)
-  var _phCarrier = 'all';       // 현재 선택 통신사 ('all'=메인)
+  // 현재 선택 통신사 ('all'=메인). 새로고침 유지: URL ?carrier= 에서 초기값 복원
+  var _phCarrier = (function() { try { return new URLSearchParams(location.search).get('carrier') || 'all'; } catch (e) { return 'all'; } })();
+  // 통신사 선택 상태를 URL(?cat=phone&carrier=)에 기록 (휴대폰 탭에서만, ph 등 다른 파라미터 보존)
+  function syncPhoneCarrierUrl() {
+    try {
+      var sp = new URLSearchParams(location.search);
+      var cat = sp.get('cat');
+      if (cat && cat !== 'phone') return;
+      if (_phCarrier && _phCarrier !== 'all') { sp.set('cat', 'phone'); sp.set('carrier', _phCarrier); }
+      else { sp.delete('carrier'); }
+      var qs = sp.toString();
+      history.replaceState({}, '', location.pathname + (qs ? '?' + qs : ''));
+    } catch (e) {}
+  }
   var SAMPLE_LABEL_TO_ID = { 'SKT':'skt', 'KT':'kt', 'LG U+':'lg', '알뜰유심':'mvno' };
 
   function _modelToCardItem(m) {
@@ -2037,6 +2050,7 @@ if(location.search.indexOf('ph=')!==-1){
       if (home) home.hidden = true;
       if (grid) grid.hidden = false;
     }
+    syncPhoneCarrierUrl();   // 새로고침 유지: 선택 통신사를 URL에 기록
     if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
   }
 
@@ -2406,6 +2420,8 @@ if(location.search.indexOf('ph=')!==-1){
       var _sp = new URLSearchParams(location.search);
       if (cat !== 'rental' || !_sp.get('id')) {
         history.replaceState({}, '', location.pathname + '?cat=' + cat);
+        // 휴대폰 탭으로 돌아오면 선택 통신사도 URL에 다시 반영
+        if (cat === 'phone' && typeof syncPhoneCarrierUrl === 'function') syncPhoneCarrierUrl();
       }
     } catch(e){}
     scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화 (iframe이 곧 실제 뷰를 알림)
@@ -2499,15 +2515,28 @@ if(location.search.indexOf('ph=')!==-1){
     // URL 상태 저장
     var modelId = card.getAttribute('data-model-id') || '';
     if (modelId) {
-      var url = location.pathname + '?ph=' + encodeURIComponent(modelId);
-      if (location.search !== '?ph=' + encodeURIComponent(modelId)) history.pushState({ ph: modelId }, '', url);
+      // 기존 파라미터(cat/carrier) 보존하면서 ph만 추가, 렌탈 잔재(cls/id) 제거
+      var sp; try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
+      sp.delete('cls'); sp.delete('id'); sp.set('ph', modelId);
+      var url = location.pathname + '?' + sp.toString();
+      if (location.pathname + location.search !== url) history.pushState({ ph: modelId }, '', url);
     }
     try { sessionStorage.setItem('ph_last', JSON.stringify({c:carrier, n:name, id:modelId, prices:document.getElementById('ph-det-prices').innerHTML})); } catch(e) {}
   }
 
   function closePhDetail() {
     document.getElementById('ph-detail').classList.remove('on');
-    if (location.search.indexOf('ph=') !== -1) history.pushState({}, '', location.pathname);
+    // ph만 제거하고 cat/carrier 등은 보존 (닫은 뒤 통신사 그리드로 복귀 유지)
+    try {
+      var sp = new URLSearchParams(location.search);
+      if (sp.has('ph')) {
+        sp.delete('ph');
+        var qs = sp.toString();
+        history.pushState({}, '', location.pathname + (qs ? '?' + qs : ''));
+      }
+    } catch (e) {
+      if (location.search.indexOf('ph=') !== -1) history.pushState({}, '', location.pathname);
+    }
   }
 
   document.getElementById('ph-det-back').addEventListener('click', closePhDetail);
