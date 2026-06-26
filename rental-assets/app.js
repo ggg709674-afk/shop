@@ -1701,6 +1701,11 @@ const App = (() => {
     return Math.max((sc && sc.scrollTop) || 0, window.scrollY || 0, (document.documentElement && document.documentElement.scrollTop) || 0);
   }
   function goBackFromDetail() {
+    // detail-only 모드(rental-det-frame): 부모에게 닫기 요청
+    if (location.search.indexOf('detail-only=1') >= 0 && window.self !== window.top) {
+      try { parent.postMessage({ type: 'rental-detail-back' }, '*'); } catch(e_) {}
+      return;
+    }
     if (_detailBack) { _pendingScroll = _detailBack.y || 0; _detailBack = null; }
     if (history.length > 1) { history.back(); }
     else { history.pushState({}, '', RENTAL_PATH); route(); }
@@ -1764,10 +1769,17 @@ const App = (() => {
         return;
       }
       e.preventDefault();
-      // 목록(홈/카테고리)에서 상세(?id=)로 들어갈 때 보던 스크롤 위치 저장 → 상세 '뒤로'로 복원.
-      // 상세→상세(연관상품) 이동 시엔 최초 목록 위치를 유지(덮어쓰지 않음).
-      // pushState 전에 현재 뷰 캡처 — pushState 후엔 location.search가 바뀌어 getViewFromUrl()이 'detail' 반환
       const wasDetail = getViewFromUrl() === 'detail';
+      // 합본 iframe 모드에서 상세 진입: SPA 내비 대신 부모에게 오버레이 요청 (#ph-detail 방식)
+      if (/[?&]id=/.test(norm) && !wasDetail && window.self !== window.top) {
+        var _detId = '';
+        try { _detId = new URLSearchParams(new URL(norm, location.href).search).get('id') || ''; } catch(e_){}
+        if (_detId) {
+          try { parent.postMessage({ type: 'rental-detail-enter', id: _detId }, '*'); } catch(e_) {}
+          return;
+        }
+      }
+      // 목록(홈/카테고리)에서 상세(?id=)로 들어갈 때 보던 스크롤 위치 저장 → 상세 '뒤로'로 복원.
       if (/[?&]id=/.test(norm) && !wasDetail) {
         _detailBack = { url: location.pathname + location.search + location.hash, y: _skmScrollPos() };
       }

@@ -343,6 +343,22 @@
     #ph-detail.on { opacity:1; visibility:visible; }
     body.restoring-ph #ph-detail { opacity:1; visibility:visible; transition:none; }
   }
+  /* ───── 렌탈 상세 오버레이 (#ph-detail 과 동일한 패턴, iframe) ───── */
+  #rental-det-frame {
+    position:fixed; inset:0; z-index:600;
+    width:100%; height:100%; border:0; display:block;
+    background:#fff;
+    transform:translateX(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    pointer-events:none;
+  }
+  #rental-det-frame.on { transform:translateX(0); pointer-events:auto; }
+  html.rental-det-restoring #rental-det-frame { transform:none !important; transition:none !important; }
+  @media (min-width:768px) {
+    #rental-det-frame { transform:none; opacity:0; visibility:hidden; transition:opacity .18s, visibility .18s; pointer-events:none; }
+    #rental-det-frame.on { opacity:1; visibility:visible; pointer-events:auto; }
+    html.rental-det-restoring #rental-det-frame { opacity:1; visibility:visible; transition:none; }
+  }
   .ph-det-bar {
     position:sticky; top:0; z-index:10; background:var(--bg);
     border-bottom:1px solid var(--line);
@@ -1538,6 +1554,9 @@ if(location.search.indexOf('ph=')!==-1){
   <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
+<!-- 렌탈 상세 오버레이 (#ph-detail 과 동일한 방식 — 부모 레벨 position:fixed iframe) -->
+<iframe id="rental-det-frame" src="about:blank" title="렌탈 상세"></iframe>
+
 <!-- 휴대폰 상세 뷰 -->
 <div id="ph-detail">
   <div class="ph-det-bar">
@@ -1957,14 +1976,57 @@ if(location.search.indexOf('ph=')!==-1){
   function mountRentalFrame() {
     var f = document.getElementById('rental-frame');
     if (f && !f.getAttribute('src')) {
-      // 새로고침 복원: 부모 URL 의 렌탈 하위경로(cls/id/view)를 iframe 으로 전달 (없으면 홈)
       var sp;
       try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
-      sp.delete('cat');         // 부모 탭 파라미터는 iframe 에 불필요
+      sp.delete('cat');
+      sp.delete('id'); // 상세는 rental-det-frame이 처리 — rental-frame은 홈/카테고리만
       sp.set('embed', '1');
       f.setAttribute('src', '/rental?' + sp.toString());
     }
   }
+
+  /* ───── 렌탈 상세 오버레이 (#ph-detail 과 동일한 방식) ───── */
+  function openRentalDet(id, noAnim) {
+    var det = document.getElementById('rental-det-frame');
+    if (!det) return;
+    if (noAnim) document.documentElement.classList.add('rental-det-restoring');
+    det.src = '/rental?id=' + encodeURIComponent(id) + '&embed=1&detail-only=1';
+    det.onload = function() {
+      det.classList.add('on');
+      det.onload = null;
+      if (noAnim) requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          document.documentElement.classList.remove('rental-det-restoring');
+        });
+      });
+    };
+  }
+
+  function closeRentalDet() {
+    var det = document.getElementById('rental-det-frame');
+    if (!det || !det.classList.contains('on')) return;
+    det.classList.remove('on');
+    setTimeout(function() { try { det.src = 'about:blank'; } catch(e){} }, 350);
+    try { history.pushState({}, '', '/?cat=rental'); } catch(e) {}
+  }
+
+  window.addEventListener('message', function(e) {
+    if (!e.data) return;
+    if (e.data.type === 'rental-detail-enter' && e.data.id) {
+      try { history.pushState({}, '', '/?cat=rental&id=' + encodeURIComponent(e.data.id)); } catch(er){}
+      openRentalDet(e.data.id);
+    } else if (e.data.type === 'rental-detail-back') {
+      closeRentalDet();
+    }
+  }, false);
+
+  window.addEventListener('popstate', function() {
+    var det = document.getElementById('rental-det-frame');
+    if (det && det.classList.contains('on') && !new URLSearchParams(location.search).get('id')) {
+      det.classList.remove('on');
+      setTimeout(function() { try { det.src = 'about:blank'; } catch(e){} }, 350);
+    }
+  }, false);
   // 샵 초기 렌더 후 렌탈 iframe 백그라운드 프리로드 → 첫 슬라이드도 매끄럽게
   setTimeout(mountRentalFrame, 1200);
 
@@ -2028,12 +2090,16 @@ if(location.search.indexOf('ph=')!==-1){
   window.addEventListener('message', function(e) {
     if (!e.data || e.data.type !== 'msr-route') return;
     if (catOrder[currentIdx] !== 'rental') return;
+    // 렌탈 상세 오버레이가 열려있으면 URL 덮어쓰기 금지 (rental-frame 목록 라우트가 ?id= 를 지우지 않게)
+    var _rd = document.getElementById('rental-det-frame');
+    if (_rd && _rd.classList.contains('on')) return;
     try {
       var ip = new URLSearchParams(e.data.search || '');
       ip.delete('embed');
+      ip.delete('detail-only');
       var op = new URLSearchParams();
       op.set('cat', 'rental');
-      ip.forEach(function(v, k) { op.set(k, v); });   // cls/id/view 등 보존
+      ip.forEach(function(v, k) { op.set(k, v); });
       history.replaceState({}, '', location.pathname + '?' + op.toString());
     } catch (err) {}
   }, false);
@@ -2263,12 +2329,17 @@ if(location.search.indexOf('ph=')!==-1){
     var qcat = '';
     try { qcat = new URLSearchParams(location.search).get('cat') || ''; } catch (e) {}
     if (qcat && qcat !== catOrder[currentIdx] && catOrder.indexOf(qcat) !== -1) {
-      // 렌탈 복원: showCat 이 ?cat=rental 로 URL 을 덮어쓰기 전에, 현재 URL(cls/id 포함) 로 iframe 먼저 마운트
       if (qcat === 'rental') mountRentalFrame();
       panelsEl.style.transition = 'none';
       showCat(qcat);
-      void panelsEl.offsetWidth; // reflow — transition:none 상태로 left 적용 확정
+      void panelsEl.offsetWidth;
       panelsEl.style.transition = '';
+    }
+    // 렌탈 상세 딥링크 — /?cat=rental&id=xxx 새로고침 시 det-frame 즉시 표시 (애니메이션 없음)
+    if (qcat === 'rental') {
+      var qid = '';
+      try { qid = new URLSearchParams(location.search).get('id') || ''; } catch(e) {}
+      if (qid) openRentalDet(qid, true); // noAnim=true
     }
   })();
 
