@@ -303,7 +303,7 @@
   }
 
   /* ───── 상품 카드 그리드 (렌탈 product-card 레이아웃 이식) ───── */
-  .shop-cards-wrap { width:100%; padding:16px 16px 40px; }
+  .shop-cards-wrap { width:100%; padding:16px 16px 40px; scroll-margin-top:120px; }
   .product-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
   .product-grid .empty-cards { grid-column:1/-1; text-align:center; color:var(--g2); padding:48px 0; font-size:14px; }
   .product-card {
@@ -2543,22 +2543,23 @@ if(location.search.indexOf('ph=')!==-1){
     if (card) { e.preventDefault(); openPhDetail(card); }
   });
 
-  // 통신사 sub-nav 클릭 → 전체(메인 섹션) ↔ 통신사 전체 그리드 전환
+  // 통신사 sub-nav 클릭 → 전체(메인 섹션) ↔ 통신사 전체 그리드 전환 (제자리 전환, 스크롤 안 함)
   document.getElementById('phone-sub-nav').addEventListener('click', function(e) {
     var btn = e.target.closest('button');
     if (!btn) return;
     selectPhoneCarrier(btn.getAttribute('data-cat') || 'all');
-    var wrap = document.querySelector('#panel-phone .shop-cards-wrap');
-    if (wrap) wrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
   });
 
-  // 메인 섹션: "전체 →" → 해당 통신사 그리드로 전환 / 카드 클릭 → 상세
+  // 메인 섹션: "전체 →" → 해당 통신사 그리드로 전환(목록 상단으로 스크롤) / 카드 클릭 → 상세
   document.getElementById('phone-home').addEventListener('click', function(e) {
     var more = e.target.closest('[data-go-carrier]');
     if (more) {
       e.preventDefault();
       var sub = document.querySelector('#phone-sub-nav button[data-cat="' + more.getAttribute('data-go-carrier') + '"]');
       if (sub) sub.click(); else selectPhoneCarrier(more.getAttribute('data-go-carrier'));
+      // sticky 헤더+sub-nav 높이만큼 여백(scroll-margin-top) 두고 목록 상단으로
+      var wrap = document.querySelector('#panel-phone .shop-cards-wrap');
+      if (wrap) wrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
       return;
     }
     var card = e.target.closest('.product-card');
