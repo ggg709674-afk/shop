@@ -319,6 +319,7 @@
   .product-card .thumb .badges { position:absolute; top:10px; right:10px; z-index:2; display:flex; gap:4px; }
   .product-card .thumb .badge { background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; }
   /* 통신사 로고 — 카드 좌상단 */
+  .product-card .thumb .thumb-name { position:absolute; top:10px; left:0; right:0; z-index:2; padding:0 12px; text-align:center; font-size:11px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .product-card .thumb .c-logo-wrap { position:absolute; top:13px; left:13px; z-index:3; width:23px; display:block; }
   .product-card .thumb .c-logo-wrap img { position:static; top:auto; width:100%; height:auto; display:block; }
   .product-card .body { padding:14px 14px 16px; display:flex; flex-direction:column; gap:6px; flex:1; }
@@ -1922,6 +1923,7 @@ if(location.search.indexOf('ph=')!==-1){
     return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
         + carrierBadge(it.tag)
+        + '<div class="thumb-name">' + escapeHtml(it.name) + '</div>'
         + (it.badge ? '<div class="badges"><span class="badge">' + escapeHtml(it.badge) + '</span></div>' : '')
         + (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" alt="' + escapeHtml(it.name) + '">' : PH_GLYPH)
       + '</div>'
