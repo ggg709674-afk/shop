@@ -653,6 +653,10 @@ const App = (() => {
 
   /* ================== Home ================== */
   async function renderHome() {
+    // 이미 렌더됐으면 재빌드 스킵 — 상세→홈 뒤로 시 grid 깜빡임 방지
+    const grid0 = document.getElementById('cat-grid');
+    if (grid0 && grid0.children.length > 0) return;
+
     const data = await db();
     const visibleCats = orderedVisibleCats(data.categories);
 
@@ -728,9 +732,13 @@ const App = (() => {
   }
 
   /* ================== Category ================== */
+  var _lastRenderedCls = null;
   async function renderCategory() {
     const params = new URLSearchParams(location.search);
     const cls = params.get('cls');
+    // 같은 카테고리로 뒤로 왔을 때 재빌드 스킵 (상세→카테고리 복귀 시 깜빡임 방지)
+    if (cls === _lastRenderedCls) return;
+    _lastRenderedCls = cls;
     const data = await db();
     const title = document.getElementById('cat-title');
     const meta = CATEGORY_META[cls];
@@ -1820,7 +1828,10 @@ const App = (() => {
     // (카탈로그 링크는 SPA 클릭핸들러가 처리하므로 catalog 옵션은 끈다.)
     if (window.skmLocalizeLinks) window.skmLocalizeLinks();
     window.addEventListener('popstate', () => {
-      if (document.startViewTransition) {
+      // detail 나올 때: CSS transform 애니메이션과 VT 동시 충돌 방지 → VT 스킵
+      var _det = document.querySelector('main[data-view="detail"]');
+      var exitingDetail = _det && _det.classList.contains('on') && getViewFromUrl() !== 'detail';
+      if (document.startViewTransition && !exitingDetail) {
         document.startViewTransition(() => route());
       } else {
         route();
