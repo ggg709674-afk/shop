@@ -2142,15 +2142,28 @@ if(location.search.indexOf('ph=')!==-1){
     }
   }, false);
 
-  // #rental-det 내 ?id= 링크(색상 chip 등) 클릭 위임
+  // #rental-det 내 링크 클릭 위임 — ?id= (색상 chip), /?cat=rental (홈·카테고리)
   (function() {
     var _rd = document.getElementById('rental-det');
-    if (_rd) _rd.addEventListener('click', function(e) {
+    if (!_rd) return;
+    _rd.addEventListener('click', function(e) {
       var a = e.target.closest('a[href]');
       if (!a) return;
       var _href = a.getAttribute('href') || '';
-      var _m = _href.match(/[?&]id=([^&#]+)/);
-      if (_m) { e.preventDefault(); openRentalDet(decodeURIComponent(_m[1])); }
+      // ?id= → 상세 내비게이션 (색상 chip 등)
+      var _im = _href.match(/[?&]id=([^&#]+)/);
+      if (_im) { e.preventDefault(); openRentalDet(decodeURIComponent(_im[1])); return; }
+      // /?cat=rental or /?cat=rental&cls=xxx → 상세 닫고 렌탈 탭으로
+      if (_href.indexOf('cat=rental') >= 0) {
+        e.preventDefault();
+        closeRentalDet();
+        var _cls = (_href.match(/[?&]cls=([^&#]+)/) || [])[1];
+        if (_cls) {
+          var f = document.getElementById('rental-frame');
+          if (f) { f.setAttribute('src', '/rental?cls=' + decodeURIComponent(_cls) + '&embed=1'); }
+        }
+        return;
+      }
     });
   })();
 

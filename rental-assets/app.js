@@ -1269,9 +1269,11 @@ const App = (() => {
 
     // breadcrumb
     const cls = (p.categories || [])[0];
+    const _homeHref = window.RENTAL_EMBEDDED ? '/?cat=rental' : RENTAL_PATH;
+    const _catHref  = window.RENTAL_EMBEDDED ? ('/?cat=rental&cls=' + cls) : (RENTAL_PATH + '?cls=' + cls);
     document.getElementById('crumb').innerHTML = `
-      <a href="${RENTAL_PATH}">홈</a> &nbsp;›&nbsp;
-      <a href="${RENTAL_PATH}?cls=${cls}">${escape(categoryName(cls))}</a> &nbsp;›&nbsp;
+      <a href="${_homeHref}">홈</a> &nbsp;›&nbsp;
+      <a href="${_catHref}">${escape(categoryName(cls))}</a> &nbsp;›&nbsp;
       <span>${escape(p.name)}</span>`;
 
     // gallery
