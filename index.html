@@ -336,6 +336,8 @@
     transition:transform .3s cubic-bezier(.4,0,.2,1);
   }
   #ph-detail.on { transform:none; }
+  /* 새로고침 복원 시 flash 방지 — 트랜지션 없이 즉시 표시 */
+  body.restoring-ph #ph-detail { transform:none; transition:none; }
   .ph-det-bar {
     position:sticky; top:0; z-index:10; background:var(--bg);
     border-bottom:1px solid var(--line);
@@ -1019,6 +1021,7 @@
 </script>
 </head>
 <body>
+<script>if(location.search.indexOf('ph=')!==-1)document.body.classList.add('restoring-ph');</script>
 
 <div class="device">
 <div class="scroll">
@@ -2160,6 +2163,7 @@
     var det = document.getElementById('ph-detail');
     det.scrollTop = 0;
     det.classList.add('on');
+    document.body.classList.remove('restoring-ph');
     // URL 상태 저장
     var modelId = card.getAttribute('data-model-id') || '';
     if (modelId) {
