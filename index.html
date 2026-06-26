@@ -1763,6 +1763,7 @@
       + ' data-card-price="' + escapeHtml(it.price || '') + '"'
       + ' data-card-label="' + escapeHtml(it.label || '') + '"'
       + ' data-card-badge="' + escapeHtml(it.badge || '') + '"'
+      + (it.id ? ' data-model-id="' + escapeHtml(String(it.id)) + '"' : '')
       + (imgs.length ? ' data-card-imgs="' + escapeHtml(JSON.stringify(imgs)) + '"' : '');
     return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
@@ -1791,6 +1792,7 @@
           var firstColor = (m.colors || []).find(function(c) { return Array.isArray(c.images) && c.images.some(Boolean); });
           var images = firstColor ? firstColor.images.filter(Boolean).slice(0,6) : [];
           return {
+            id: m.id,
             name: m.name,
             tag: CARRIER_LABEL[m.carrier] || m.carrier,
             badge: '',
@@ -2158,13 +2160,27 @@
     var det = document.getElementById('ph-detail');
     det.scrollTop = 0;
     det.classList.add('on');
+    // URL 상태 저장
+    var modelId = card.getAttribute('data-model-id') || '';
+    if (modelId) {
+      var url = location.pathname + '?ph=' + encodeURIComponent(modelId);
+      if (location.search !== '?ph=' + encodeURIComponent(modelId)) history.pushState({ ph: modelId }, '', url);
+    }
   }
 
   function closePhDetail() {
     document.getElementById('ph-detail').classList.remove('on');
+    if (location.search.indexOf('ph=') !== -1) history.pushState({}, '', location.pathname);
   }
 
   document.getElementById('ph-det-back').addEventListener('click', closePhDetail);
+
+  // 브라우저 뒤로가기로 상세 닫기
+  window.addEventListener('popstate', function(e) {
+    if (!e.state || !e.state.ph) {
+      document.getElementById('ph-detail').classList.remove('on');
+    }
+  });
 
   // 옵션 칩 토글
   document.getElementById('ph-detail').addEventListener('click', function(e) {
@@ -2195,7 +2211,15 @@
   //   2) Supabase fresh fetch 완료 후 재렌더 (변경분 반영)
   var _initP = DataStore.init({ master: false });
   renderAll();
-  _initP.then(function() { renderAll(); renderShopCards(); });
+  _initP.then(function() {
+    renderAll(); renderShopCards();
+    // URL에 ?ph=ID 있으면 해당 상세 자동 복원
+    var phId = new URLSearchParams(location.search).get('ph');
+    if (phId) {
+      var card = document.querySelector('#phone-cards .product-card[data-model-id="' + CSS.escape(phId) + '"]');
+      if (card) { openPhDetail(card); history.replaceState({ ph: phId }, '', location.href); }
+    }
+  });
   // 배너는 DataStore(상품/카테고리)와 독립 — settings 테이블에서 직접 마운트 (PC·모바일 SET + 슬라이드)
   initShopBanners();
   renderShopCards();
