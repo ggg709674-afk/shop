@@ -1607,7 +1607,6 @@ const App = (() => {
     const view = getViewFromUrl();
     document.documentElement.classList.toggle('is-detail', view === 'detail');
     document.querySelectorAll('[data-view]').forEach(el => { el.hidden = (el.dataset.view !== view); });
-    document.querySelector('main[data-view="detail"]')?.classList.remove('msr-sliding-out');
     // hidden 속성으로 msr-head/sub/banner 즉시 토글 — CSS body:has() 보다 확실
     var _mh = document.querySelector('.msr-head');
     var _ms = document.querySelector('.msr-sub');
@@ -1680,18 +1679,6 @@ const App = (() => {
   }
   function goBackFromDetail() {
     if (_detailBack) { _pendingScroll = _detailBack.y || 0; _detailBack = null; }
-    // 모바일: CSS keyframe 슬라이드 아웃 후 이동
-    if (window.innerWidth < 768) {
-      var _detEl = document.querySelector('main[data-view="detail"]');
-      if (_detEl) {
-        _detEl.classList.add('msr-sliding-out');
-        setTimeout(function() {
-          if (history.length > 1) { history.back(); }
-          else { history.pushState({}, '', RENTAL_PATH); route(); }
-        }, 260);
-        return;
-      }
-    }
     if (history.length > 1) { history.back(); }
     else { history.pushState({}, '', RENTAL_PATH); route(); }
   }

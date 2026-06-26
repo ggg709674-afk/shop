@@ -77,7 +77,8 @@
   html.is-detail .msr-sub{ display:none !important; }
   html.is-detail .banner-wide{ display:none !important; } /* 새로고침 시 배너 즉시 숨김 — body:has 보다 먼저 적용되어 detail-appbar가 첫 페인트부터 상단에 고정 */
   html.is-detail .detail-appbar{ display:flex !important; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:400; height:56px; padding:0 max(20px, calc((100% - 1280px) / 2)); background:#fff; border-bottom:1px solid #f2f2f2; }
-  html.is-detail main[data-view="detail"]{ display:block !important; } /* 첫 페인트부터 detail 본문 높이 확보 → 전체 화면 점프 방지 */
+  html.is-detail main[data-view="detail"]{ display:block !important; }
+  @media (max-width:767px){ html.is-detail main[data-view="detail"]{ transform:none !important; transition:none !important; } }
   /* View Transition: msr-head old-state 즉시 투명화
      startViewTransition 은 픽셀 캡처 → pre-hide DOM 변경이 픽셀에 반영되기 전에 캡처됨.
      별도 named group으로 분리하고 old-state opacity:0으로 강제 → 홈→상세 전환 시 msr-head 페이드아웃 없음. */
@@ -232,11 +233,19 @@
 
   /* 카탈로그 카테고리 뷰의 칩 네비(.filter-bar) = 제품 카테고리 전환 (브랜드 서브메뉴와 별개 역할이라 표시) */
   .filter-bar{ padding:12px 0 14px !important; margin-bottom:16px !important; }
-  /* 모바일 상세 진입/퇴장 애니메이션 — 레이아웃 변경 없이 keyframe만 */
-  @keyframes msr-slide-in { from { opacity:0; transform:translateX(48px); } to { opacity:1; transform:none; } }
-  @keyframes msr-slide-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateX(48px); } }
-  main[data-view="detail"]:not([hidden]) { animation:msr-slide-in .28s cubic-bezier(.4,0,.2,1); }
-  main[data-view="detail"].msr-sliding-out { animation:msr-slide-out .25s cubic-bezier(.4,0,.2,1) forwards; }
+  /* 모바일 상세: 휴대폰 #ph-detail 방식 — position:fixed 오버레이 + CSS transform 전환 */
+  main[data-view="detail"] {
+    display:block !important;
+    position:fixed; inset:0; z-index:200;
+    overflow-y:auto; overflow-x:hidden;
+    background:#fff;
+    transform:translateX(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  main[data-view="detail"]:not([hidden]) { transform:translateX(0); }
+  /* msr-head/sub: 고정 오버레이가 덮으므로 숨기지 않음 — 숨기면 뒤 레이아웃이 점프 */
+  body:has(main[data-view="detail"]:not([hidden])) .msr-head { display:block !important; }
+  body:has(main[data-view="detail"]:not([hidden])) .msr-sub { display:block !important; }
   } /* /@media (max-width:767px) — 모바일 강제 끝 */
 
   /* ════════ 데스크탑(≥768px) — 단독 /rental 을 PC 레이아웃으로 ════════
@@ -452,20 +461,18 @@
   </section>
 </main>
 
-<!-- 상세 전용 sticky 앱바 — main 밖 형제로 배치: html.is-detail CSS가 부모 hidden에 막히지 않고 첫 페인트부터 작동 -->
-<header class="detail-appbar">
-  <button type="button" class="dab-back" id="dab-back" aria-label="이전 목록으로 돌아가기">
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    <span>뒤로</span>
-  </button>
-  <div class="dab-title" id="dab-title"></div>
-  <button type="button" class="dab-consult" id="dab-consult">상담</button>
-</header>
-
 <!-- ============================================================
-     VIEW: DETAIL
+     VIEW: DETAIL  (appbar은 main 안에 — position:fixed 오버레이와 함께 슬라이드)
 ============================================================ -->
 <main data-view="detail" hidden>
+  <header class="detail-appbar">
+    <button type="button" class="dab-back" id="dab-back" aria-label="이전 목록으로 돌아가기">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span>뒤로</span>
+    </button>
+    <div class="dab-title" id="dab-title"></div>
+    <button type="button" class="dab-consult" id="dab-consult">상담</button>
+  </header>
   <section class="container detail-wrap">
     <div class="breadcrumb" id="crumb"><span class="loader"></span></div>
 
