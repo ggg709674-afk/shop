@@ -78,6 +78,8 @@
   html.is-detail .banner-wide{ display:none !important; } /* 새로고침 시 배너 즉시 숨김 — body:has 보다 먼저 적용되어 detail-appbar가 첫 페인트부터 상단에 고정 */
   html.is-detail .detail-appbar{ display:flex !important; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:400; height:56px; padding:0 max(20px, calc((100% - 1280px) / 2)); background:#fff; border-bottom:1px solid #f2f2f2; }
   html.is-detail main[data-view="detail"]{ display:block !important; }
+  html.is-detail main[data-view="home"],
+  html.is-detail main[data-view="category"]{ display:none !important; }
   @media (max-width:767px){ html.restoring-det main[data-view="detail"]{ transform:none !important; transition:none !important; } }
   /* View Transition: msr-head old-state 즉시 투명화
      startViewTransition 은 픽셀 캡처 → pre-hide DOM 변경이 픽셀에 반영되기 전에 캡처됨.
