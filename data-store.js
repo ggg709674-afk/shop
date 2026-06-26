@@ -66,11 +66,22 @@ const DataStore = {
         const sb = window.supabaseClient;
         if (!sb) throw new Error('supabaseClient 없음 (supabase-client.js 먼저 로드)');
 
-        const [bRes, pRes, cRes] = await Promise.all([
+        // 공개 페이지: banners + products + categories + 모델 이미지(경량)
+        // admin: banners + products + categories (이후 loadMaster 블록에서 full 로드)
+        const baseReqs = [
           sb.from('mobileshop_banners').select('id, data'),
           sb.from('mobileshop_products_phone').select('*').order('sort_order', { ascending: true }),
           sb.from('mobileshop_categories').select('*').order('sort_order', { ascending: true })
-        ]);
+        ];
+        if (!loadMaster) {
+          baseReqs.push(
+            sb.from('mobileshop_models').select('id,name,carrier,visible,sort_order,colors').order('sort_order', { ascending: true })
+          );
+        }
+        const baseResults = await Promise.all(baseReqs);
+        const [bRes, pRes, cRes] = baseResults;
+        const mPubRes = !loadMaster ? baseResults[3] : null;
+
         if (bRes.error) throw bRes.error;
         if (pRes.error) throw pRes.error;
         if (cRes.error) throw cRes.error;
@@ -89,6 +100,16 @@ const DataStore = {
 
         // 마스터 데이터 (모델/요금제/공통지원금) — admin 전용. 손님 페이지는 안 받음.
         let models = [], plans = [], support = [];
+        // 공개 페이지: 모델 이름+이미지(colors)만 경량 로드 (갤러리용)
+        if (mPubRes && !mPubRes.error && mPubRes.data) {
+          models = mPubRes.data.map(row => ({
+            id: row.id,
+            name: row.name || '',
+            carrier: row.carrier || 'skt',
+            visible: row.visible !== false,
+            colors: Array.isArray(row.colors) ? row.colors : []
+          }));
+        }
         if (loadMaster) {
           try {
             // 1차 — 모델/요금제 + 공통지원금 행 수(count)를 한 번에 병렬 요청
