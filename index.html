@@ -363,7 +363,36 @@
   /* #rental-det 내부 — rental SPA view 래퍼를 정적 위치로 고정 */
   #rental-det main[data-view="detail"] { display:block !important; position:static !important; transform:none !important; }
   #rental-det .msr-head, #rental-det .msr-sub, #rental-det .banner-wide { display:none !important; }
-  #rental-det .detail-appbar { display:flex !important; }
+  /* ── 렌탈 상세 앱바 — rental.html 인라인에 있던 CSS를 index.html 로 이식 (style.css에 없음) ── */
+  #rental-det .detail-appbar {
+    display:flex !important; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:400;
+    height:56px; padding:0 max(20px, calc((100% - 1280px) / 2));
+    background:#fff; border-bottom:1px solid #f2f2f2;
+  }
+  #rental-det .detail-appbar .dab-back {
+    display:inline-flex; align-items:center; gap:1px;
+    background:none; border:0; padding:0; margin:0;
+    color:#222; font-size:15px; font-weight:500; line-height:1;
+    flex-shrink:0; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #rental-det .detail-appbar .dab-back svg { margin-left:-4px; }
+  #rental-det .detail-appbar .dab-back:active { opacity:.5; }
+  #rental-det .detail-appbar .dab-title {
+    position:absolute; left:50%; transform:translateX(-50%);
+    max-width:56%; text-align:center;
+    font-size:16px; font-weight:600; color:#222; letter-spacing:-.02em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    pointer-events:none;
+  }
+  #rental-det .detail-appbar .dab-prefix { color:#bbb; font-weight:400; margin-right:6px; }
+  #rental-det .detail-appbar .dab-consult {
+    flex-shrink:0; background:var(--primary,#DE4F41); color:#fff;
+    font-size:13px; font-weight:600; line-height:1;
+    padding:8px 15px; border:0; border-radius:999px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #rental-det .detail-appbar .dab-consult:active { filter:brightness(.92); }
   .ph-det-bar {
     position:sticky; top:0; z-index:10; background:var(--bg);
     border-bottom:1px solid var(--line);
