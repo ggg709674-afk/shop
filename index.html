@@ -2123,6 +2123,18 @@
     }
     document.getElementById('ph-det-thumbs').innerHTML = tHtml;
 
+    // 렌탈과 동일: mouseenter로 즉시 이미지 전환
+    document.getElementById('ph-det-thumbs').querySelectorAll('.ph-det-thumb:not(.empty)').forEach(function(el) {
+      el.addEventListener('mouseenter', function() {
+        var idx = parseInt(el.getAttribute('data-gi') || '0', 10);
+        var u = _phDetImgs[idx] || '';
+        if (!u) return;
+        document.querySelectorAll('#ph-det-thumbs .ph-det-thumb').forEach(function(t) { t.classList.remove('on'); });
+        el.classList.add('on');
+        document.getElementById('ph-det-main').innerHTML = '<img src="' + escapeHtml(u) + '" alt="">';
+      });
+    });
+
     var priceLabel = (price && price !== '상담') ? '월 ' + escapeHtml(price) + '원' : '상담';
     document.getElementById('ph-det-prices').innerHTML =
       '<div class="ph-det-price-row"><span class="ph-det-price-label">번호이동</span><span class="ph-det-price-val">' + priceLabel + '</span></div>'
