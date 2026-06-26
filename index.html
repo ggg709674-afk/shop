@@ -313,14 +313,14 @@
   }
   .product-card:hover { border-color:var(--accent); box-shadow:var(--shadow-card); }
   .product-card .thumb { position:relative; aspect-ratio:1/1; background:var(--bg-soft); overflow:hidden; display:flex; align-items:center; justify-content:center; }
-  .product-card .thumb img { position:relative; inset:auto; top:10px; width:72%; height:72%; object-fit:contain; padding:0; transition:transform .3s; }
+  .product-card .thumb img { position:relative; inset:auto; top:16px; width:72%; height:72%; object-fit:contain; padding:0; transition:transform .3s; }
   .product-card:hover .thumb img { transform:scale(1.04); }
   .product-card .thumb .ph-glyph { width:44%; height:auto; color:var(--g3); }
   .product-card .thumb .badges { position:absolute; top:10px; right:10px; z-index:2; display:flex; gap:4px; }
   .product-card .thumb .badge { background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; }
   /* 통신사 로고 — 카드 좌상단 */
   .product-card .thumb .c-logo-wrap { position:absolute; top:13px; left:13px; z-index:3; width:23px; display:block; }
-  .product-card .thumb .c-logo-wrap img { width:100%; height:auto; display:block; }
+  .product-card .thumb .c-logo-wrap img { position:static; top:auto; width:100%; height:auto; display:block; }
   .product-card .body { padding:14px 14px 16px; display:flex; flex-direction:column; gap:6px; flex:1; }
   .product-card .model { font-size:12px; color:var(--g2); }
   .product-card .name { font-size:15px; font-weight:700; line-height:1.4; color:var(--ink); min-height:42px; word-break:keep-all; }
