@@ -336,8 +336,13 @@
     transition:transform .3s cubic-bezier(.4,0,.2,1);
   }
   #ph-detail.on { transform:none; }
-  /* 새로고침 복원 시 flash 방지 — 트랜지션 없이 즉시 표시 */
   body.restoring-ph #ph-detail { transform:none; transition:none; }
+  /* PC: 슬라이드 대신 순간 전환 */
+  @media (min-width:768px) {
+    #ph-detail { transform:none; opacity:0; visibility:hidden; transition:opacity .18s, visibility .18s; }
+    #ph-detail.on { opacity:1; visibility:visible; }
+    body.restoring-ph #ph-detail { opacity:1; visibility:visible; transition:none; }
+  }
   .ph-det-bar {
     position:sticky; top:0; z-index:10; background:var(--bg);
     border-bottom:1px solid var(--line);
