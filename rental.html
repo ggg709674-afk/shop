@@ -13,6 +13,12 @@
      상단 탭(휴대폰/인터넷/렌탈)은 부모 샵이 제공하므로 여기선 숨김. */
   try { if (location.search.indexOf('embed=1') >= 0 || window.self !== window.top) document.documentElement.classList.add('msr-embed'); } catch(e){}
   try { if (new URLSearchParams(location.search).get('id')) { document.documentElement.classList.add('is-detail'); document.documentElement.classList.add('restoring-det'); } } catch(e){}
+  // 새로고침 시 앱바 제목 깜빡임 방지 — renderDetail() 완료 전에 sessionStorage 캐시로 즉시 복원 (폰 상세와 동일한 방식)
+  try {
+    var _rdp = JSON.parse(sessionStorage.getItem('rental_det_last') || 'null');
+    var _rdpId = new URLSearchParams(location.search).get('id');
+    window._rentalDetPreload = (_rdp && _rdp.id === _rdpId) ? _rdp : null;
+  } catch(e_) { window._rentalDetPreload = null; }
 </script>
 <link rel="stylesheet" href="/rental-assets/style.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/rental-assets/brand/favicon-32.png">
@@ -479,6 +485,7 @@
       <span>뒤로</span>
     </button>
     <div class="dab-title" id="dab-title"></div>
+    <script>(function(){var p=window._rentalDetPreload;if(!p)return;var t=document.getElementById('dab-title');if(t)t.innerHTML='<span class="dab-prefix">SK매직</span> '+p.name.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});})();</script>
     <button type="button" class="dab-consult" id="dab-consult">상담</button>
   </header>
   <section class="container detail-wrap">
