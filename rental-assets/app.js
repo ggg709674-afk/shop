@@ -1338,7 +1338,7 @@ const App = (() => {
     }
     document.getElementById('p-name').textContent = p.name || '';
     // 상세 앱바 중앙 상품명 (합본 임베드 전용 헤더)
-    var _dabT = document.getElementById('dab-title'); if (_dabT) _dabT.textContent = 'SK매직 ' + (p.name || '');
+    var _dabT = document.getElementById('dab-title'); if (_dabT) _dabT.innerHTML = '<span class="dab-prefix">SK매직</span> ' + (p.name || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
     // 상품명 우측 색상명 — p._colorName 우선, 없으면 모델 코드 hint fallback
     // 비데(100000024)는 다 흰색 단품이라 색상명 생략.
     const colorNameEl = document.getElementById('p-color-name');

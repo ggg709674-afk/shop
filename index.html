@@ -354,6 +354,7 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     pointer-events:none; text-align:center;
   }
+  .ph-det-bar-prefix { color:var(--g3); font-weight:400; }
   .ph-det-bar-consult {
     flex-shrink:0; background:var(--accent); color:#fff;
     font-size:13px; font-weight:600; line-height:1;
@@ -2118,7 +2119,8 @@
     try { _phDetImgs = JSON.parse(card.getAttribute('data-card-imgs') || '[]'); } catch(e) { _phDetImgs = []; }
     if (!Array.isArray(_phDetImgs)) _phDetImgs = [];
 
-    document.getElementById('ph-det-bar-title').textContent = (carrier ? carrier + ' ' : '') + name;
+    document.getElementById('ph-det-bar-title').innerHTML =
+      (carrier ? '<span class="ph-det-bar-prefix">' + escapeHtml(carrier) + '</span> ' : '') + escapeHtml(name);
     document.getElementById('ph-det-name').textContent = name;
     document.getElementById('ph-det-carrier').textContent = carrier;
     document.getElementById('ph-det-swatch').className = 'swatch ' + (CARRIER_SWATCH[carrier] || '');
