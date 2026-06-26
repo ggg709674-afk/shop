@@ -1606,14 +1606,21 @@ const App = (() => {
     // → SPA 네비 시 loadOverrides await 동안 msr-head 플래시 없음
     const view = getViewFromUrl();
     document.documentElement.classList.toggle('is-detail', view === 'detail');
-    document.querySelectorAll('[data-view]').forEach(el => { el.hidden = (el.dataset.view !== view); });
-    // hidden 속성으로 msr-head/sub/banner 즉시 토글 — CSS body:has() 보다 확실
+    // 모바일에서 detail 진입: position:fixed 오버레이가 뒤를 덮으므로
+    // 다른 뷰(홈/카테고리)를 숨기지 않음 → 뒤 화면이 배경으로 남아 iOS 스타일 전환
+    var enteringDetMob = (view === 'detail') && window.innerWidth < 768;
+    document.querySelectorAll('[data-view]').forEach(el => {
+      if (enteringDetMob && el.dataset.view !== 'detail') return;
+      el.hidden = (el.dataset.view !== view);
+    });
     var _mh = document.querySelector('.msr-head');
     var _ms = document.querySelector('.msr-sub');
     var _bw = document.querySelector('.banner-wide');
-    if (_mh) _mh.hidden = (view === 'detail');
-    if (_ms) _ms.hidden = (view === 'detail');
-    if (_bw) _bw.hidden = (view !== 'home');
+    if (!enteringDetMob) {
+      if (_mh) _mh.hidden = (view === 'detail');
+      if (_ms) _ms.hidden = (view === 'detail');
+      if (_bw) _bw.hidden = (view !== 'home');
+    }
     // 매장 검증 — 슬러그가 있는데 등록된 매장이 아니면 안내 (가짜 슬러그로 카탈로그 뜨는 것 방지)
     await loadOverrides();
     if ((window.skmGetSlug && window.skmGetSlug()) && _storeMissing) { renderStoreNotFound(); return; }
