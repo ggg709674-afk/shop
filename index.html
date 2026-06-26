@@ -316,8 +316,11 @@
   .product-card .thumb img { position:static; inset:auto; width:72%; height:72%; object-fit:contain; padding:0; transition:transform .3s; }
   .product-card:hover .thumb img { transform:scale(1.04); }
   .product-card .thumb .ph-glyph { width:44%; height:auto; color:var(--g3); }
-  .product-card .thumb .badges { position:absolute; top:10px; left:10px; z-index:2; display:flex; gap:4px; }
+  .product-card .thumb .badges { position:absolute; top:10px; right:10px; z-index:2; display:flex; gap:4px; }
   .product-card .thumb .badge { background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; }
+  /* 통신사 로고 — 카드 좌상단 */
+  .product-card .thumb .c-logo-wrap { position:absolute; top:8px; left:8px; z-index:3; width:30px; display:block; }
+  .product-card .thumb .c-logo-wrap svg { width:100%; height:auto; display:block; }
   .product-card .body { padding:14px 14px 16px; display:flex; flex-direction:column; gap:6px; flex:1; }
   .product-card .model { font-size:12px; color:var(--g2); }
   .product-card .name { font-size:15px; font-weight:700; line-height:1.4; color:var(--ink); min-height:42px; word-break:keep-all; }
@@ -1918,6 +1921,7 @@ if(location.search.indexOf('ph=')!==-1){
       + (imgs.length ? ' data-card-imgs="' + escapeHtml(JSON.stringify(imgs)) + '"' : '');
     return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
+        + carrierBadge(it.tag)
         + (it.badge ? '<div class="badges"><span class="badge">' + escapeHtml(it.badge) + '</span></div>' : '')
         + (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" alt="' + escapeHtml(it.name) + '">' : PH_GLYPH)
       + '</div>'
@@ -1932,6 +1936,25 @@ if(location.search.indexOf('ph=')!==-1){
     + '</a>';
   }
   var CARRIER_LABEL = { skt:'SKT', kt:'KT', lg:'LG U+', mvno:'알뜰폰' };
+  var CARRIER_LOGOS = {
+    'SKT': '<svg viewBox="0 0 50 56" xmlns="http://www.w3.org/2000/svg">'
+      + '<path fill="#FF6A00" d="M4 11A9 9 0 0 1 13 2h24a9 9 0 0 1 9 9v15a9 9 0 0 1-9 9h-8v18a3 3 0 0 1-6 0V35h-8a9 9 0 0 1-9-9z"/>'
+      + '<path fill="#E60012" d="M13 12a6 6 0 0 1 6-6h12a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6h-5v24a2 2 0 0 1-4 0V30h-5a6 6 0 0 1-6-6z"/>'
+      + '</svg>',
+    'KT': '<svg viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg">'
+      + '<text y="23" font-size="25" font-weight="900" fill="#E20025" font-family="Arial Black,Arial,sans-serif" letter-spacing="-1">KT</text>'
+      + '</svg>',
+    'LG U+': '<svg viewBox="0 0 58 26" xmlns="http://www.w3.org/2000/svg">'
+      + '<text y="21" font-size="17" font-weight="900" fill="#A50034" font-family="Arial Black,Arial,sans-serif">LG U+</text>'
+      + '</svg>',
+    '알뜰폰': '<svg viewBox="0 0 52 22" xmlns="http://www.w3.org/2000/svg">'
+      + '<text y="17" font-size="12" font-weight="700" fill="#666" font-family="Pretendard,Apple SD Gothic Neo,sans-serif">알뜰폰</text>'
+      + '</svg>',
+  };
+  function carrierBadge(tag) {
+    var svg = CARRIER_LOGOS[tag || ''];
+    return svg ? '<span class="c-logo-wrap">' + svg + '</span>' : '';
+  }
   function renderShopCards() {
     // 휴대폰 — DB 모델 데이터 우선, 없으면 샘플
     var storeModels = (DataStore.load().models || []).filter(function(m) { return m.visible !== false; });
