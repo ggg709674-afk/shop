@@ -1621,6 +1621,10 @@ const App = (() => {
       if (_ms) _ms.hidden = (view === 'detail');
       if (_bw) _bw.hidden = (view !== 'home');
     }
+    // PC detail 진입: opacity:0으로 즉시 숨김 → 렌더 완료 후 페이드인 (조각 맞추기 방지)
+    var _detEl = (view === 'detail' && window.innerWidth >= 768)
+      ? document.querySelector('main[data-view="detail"]') : null;
+    if (_detEl) _detEl.style.opacity = '0';
     // 매장 검증 — 슬러그가 있는데 등록된 매장이 아니면 안내 (가짜 슬러그로 카탈로그 뜨는 것 방지)
     await loadOverrides();
     if ((window.skmGetSlug && window.skmGetSlug()) && _storeMissing) { renderStoreNotFound(); return; }
@@ -1629,7 +1633,16 @@ const App = (() => {
     // 렌더
     if (view === 'home')          await renderHome();
     else if (view === 'category') await renderCategory();
-    else if (view === 'detail')   await renderDetail();
+    else if (view === 'detail') {
+      await renderDetail();
+      if (_detEl) {
+        requestAnimationFrame(function() {
+          _detEl.style.transition = 'opacity .2s ease';
+          _detEl.style.opacity = '';
+          setTimeout(function() { _detEl.style.transition = ''; }, 250);
+        });
+      }
+    }
     // 부수효과
     updateGnbActive();
     // 색상 chip 클릭 등 같은 상품군 내 이동은 스크롤 유지 (UX: 사용자가 보고있던 위치 보존)
@@ -1774,7 +1787,9 @@ const App = (() => {
           } catch(e_) {}
         }
       }
-      if (document.startViewTransition) {
+      // detail 진입 시 VT 스킵 — VT가 홈을 old-state로 캡처해 cross-fade로 보여주는 문제 방지
+      var enteringDetail = /[?&]id=/.test(norm) && !wasDetail;
+      if (document.startViewTransition && !enteringDetail) {
         document.startViewTransition(() => route({ keepScroll }));
       } else {
         route({ keepScroll });
