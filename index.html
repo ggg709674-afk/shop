@@ -2118,7 +2118,7 @@
     try { _phDetImgs = JSON.parse(card.getAttribute('data-card-imgs') || '[]'); } catch(e) { _phDetImgs = []; }
     if (!Array.isArray(_phDetImgs)) _phDetImgs = [];
 
-    document.getElementById('ph-det-bar-title').textContent = name;
+    document.getElementById('ph-det-bar-title').textContent = (carrier ? carrier + ' ' : '') + name;
     document.getElementById('ph-det-name').textContent = name;
     document.getElementById('ph-det-carrier').textContent = carrier;
     document.getElementById('ph-det-swatch').className = 'swatch ' + (CARRIER_SWATCH[carrier] || '');
