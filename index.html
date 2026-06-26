@@ -46,7 +46,9 @@
     --sk:#D45A6F;
   }
   *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  /* rental-assets/style.css 의 html{overflow-y:scroll;scrollbar-gutter:stable} + body{animation} 덮어쓰기 */
+  html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; overflow-y:auto !important; scrollbar-gutter:auto !important; background:var(--bg-soft) !important; }
+  body { animation:none !important; }
   body {
     font-family:'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
     background:var(--bg-soft);
@@ -2075,7 +2077,11 @@ if(location.search.indexOf('ph=')!==-1){
   /* ───── 렌탈 상세 오버레이 (div, iframe 없음 — #ph-detail 방식) ───── */
   function openRentalDet(id, noAnim) {
     var det = document.getElementById('rental-det');
-    if (!det || typeof window.RentalApp === 'undefined') return;
+    if (!det) return;
+    if (typeof window.RentalApp === 'undefined') {
+      window._pendingRentalDet = { id: id, noAnim: !!noAnim };
+      return;
+    }
     if (noAnim) document.documentElement.classList.add('rental-det-restoring');
     try { history.pushState({}, '', '/?cat=rental&id=' + encodeURIComponent(id)); } catch(e_) {}
     var inner = det.querySelector('main[data-view="detail"]') || det;

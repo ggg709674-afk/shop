@@ -2021,3 +2021,9 @@ const App = (() => {
   };
 })();
 window.RentalApp = App;
+// 임베드 모드: 딥링크 새로고침 시 RentalApp 로드 전 openRentalDet 호출을 보류했다가 여기서 실행
+if (window.RENTAL_EMBEDDED && window._pendingRentalDet) {
+  var _pd = window._pendingRentalDet;
+  window._pendingRentalDet = null;
+  typeof window.openRentalDet === 'function' && window.openRentalDet(_pd.id, _pd.noAnim);
+}
