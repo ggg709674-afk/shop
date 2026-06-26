@@ -2142,6 +2142,19 @@ if(location.search.indexOf('ph=')!==-1){
     }
   }, false);
 
+  // #rental-det 뒤로/상담 버튼 — startRouter()를 호출하지 않는 임베드 모드에서 직접 설정
+  (function() {
+    var _back = document.getElementById('dab-back');
+    if (_back) _back.addEventListener('click', function(e) {
+      e.preventDefault(); closeRentalDet();
+    });
+    var _consult = document.getElementById('dab-consult');
+    if (_consult) _consult.addEventListener('click', function(e) {
+      e.preventDefault();
+      var b = document.getElementById('p-consult-btn'); if (b) b.click();
+    });
+  })();
+
   // #rental-det 내 링크 클릭 위임 — ?id= (색상 chip), /?cat=rental (홈·카테고리)
   (function() {
     var _rd = document.getElementById('rental-det');
