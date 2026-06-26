@@ -1606,25 +1606,24 @@ const App = (() => {
     // → SPA 네비 시 loadOverrides await 동안 msr-head 플래시 없음
     const view = getViewFromUrl();
     document.documentElement.classList.toggle('is-detail', view === 'detail');
-    // 모바일에서 detail 진입: position:fixed 오버레이가 뒤를 덮으므로
-    // 다른 뷰(홈/카테고리)를 숨기지 않음 → 뒤 화면이 배경으로 남아 iOS 스타일 전환
-    var enteringDetMob = (view === 'detail') && window.innerWidth < 768;
-    document.querySelectorAll('[data-view]').forEach(el => {
-      if (enteringDetMob && el.dataset.view !== 'detail') return;
-      el.hidden = (el.dataset.view !== view);
-    });
+    // detail: hidden 속성 대신 .on 클래스로 position:fixed 오버레이 토글 (#ph-detail 방식)
+    var _detMain = document.querySelector('main[data-view="detail"]');
+    if (_detMain) _detMain.classList.toggle('on', view === 'detail');
+    // detail 진입: 고정 오버레이가 뒤를 덮으므로 다른 뷰 숨기지 않음 (레이아웃 점프 방지)
+    if (view !== 'detail') {
+      document.querySelectorAll('[data-view]:not([data-view="detail"])').forEach(el => {
+        el.hidden = (el.dataset.view !== view);
+      });
+    }
     var _mh = document.querySelector('.msr-head');
     var _ms = document.querySelector('.msr-sub');
     var _bw = document.querySelector('.banner-wide');
-    if (!enteringDetMob) {
-      if (_mh) _mh.hidden = (view === 'detail');
-      if (_ms) _ms.hidden = (view === 'detail');
+    // detail 진입: CSS body:has(.on)이 msr-head/sub 처리 — JS 개입 불필요
+    if (view !== 'detail') {
+      if (_mh) _mh.hidden = false;
+      if (_ms) _ms.hidden = false;
       if (_bw) _bw.hidden = (view !== 'home');
     }
-    // PC detail 진입: opacity:0으로 즉시 숨김 → 렌더 완료 후 페이드인 (조각 맞추기 방지)
-    var _detEl = (view === 'detail' && window.innerWidth >= 768)
-      ? document.querySelector('main[data-view="detail"]') : null;
-    if (_detEl) _detEl.style.opacity = '0';
     // 매장 검증 — 슬러그가 있는데 등록된 매장이 아니면 안내 (가짜 슬러그로 카탈로그 뜨는 것 방지)
     await loadOverrides();
     if ((window.skmGetSlug && window.skmGetSlug()) && _storeMissing) { renderStoreNotFound(); return; }
@@ -1633,16 +1632,7 @@ const App = (() => {
     // 렌더
     if (view === 'home')          await renderHome();
     else if (view === 'category') await renderCategory();
-    else if (view === 'detail') {
-      await renderDetail();
-      if (_detEl) {
-        requestAnimationFrame(function() {
-          _detEl.style.transition = 'opacity .2s ease';
-          _detEl.style.opacity = '';
-          setTimeout(function() { _detEl.style.transition = ''; }, 250);
-        });
-      }
-    }
+    else if (view === 'detail')   await renderDetail();
     // 부수효과
     updateGnbActive();
     // 색상 chip 클릭 등 같은 상품군 내 이동은 스크롤 유지 (UX: 사용자가 보고있던 위치 보존)

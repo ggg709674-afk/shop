@@ -2086,7 +2086,13 @@ if(location.search.indexOf('ph=')!==-1){
     currentIdx = newIdx;
     panelsEl.style.left = -(newIdx * 100) + '%';
     // 현재 탭을 URL(?cat=)에 기록 → 새로고침 시 같은 메뉴로 복원. (렌탈은 iframe 라우트가 cls/id 까지 미러)
-    try { history.replaceState({}, '', location.pathname + '?cat=' + cat); } catch(e){}
+    // 렌탈: 이미 id/cls가 URL에 있으면 덮어쓰지 않음 — iframe postMessage가 곧 동기화하므로 일시적 손실 방지
+    try {
+      var _sp = new URLSearchParams(location.search);
+      if (cat !== 'rental' || !_sp.get('id')) {
+        history.replaceState({}, '', location.pathname + '?cat=' + cat);
+      }
+    } catch(e){}
     scrollEl.classList.remove('rental-subview'); // 패널 전환 시 초기화 (iframe이 곧 실제 뷰를 알림)
     scrollEl.classList.remove('rental-detail');  // 상세 모드 해제 (다른 탭으로 가면 글로벌 헤더 복원)
 
