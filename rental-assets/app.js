@@ -1779,6 +1779,18 @@ const App = (() => {
         var _detId = '';
         try { _detId = new URLSearchParams(new URL(norm, location.href).search).get('id') || ''; } catch(e_){}
         if (_detId) {
+          // 클릭 즉시 meta.json + 갤러리 이미지 선로드(fire-and-forget) — HTTP 캐시는 iframe 간 공유
+          // det-frame이 열리는 150ms 동안 이미지가 미리 로드되어 "하나씩 뜨는" 현상 경감
+          fetch('/products/' + encodeURIComponent(_detId) + '/meta.json')
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(meta) {
+              if (!meta || !Array.isArray(meta.main_images)) return;
+              meta.main_images.slice(0, 6).forEach(function(u) {
+                var img = new Image();
+                img.src = IMG_BASE + '/products/' + _detId + '/images/main_' + u.split('/').pop();
+              });
+            })
+            .catch(function() {});
           try { parent.postMessage({ type: 'rental-detail-enter', id: _detId }, '*'); } catch(e_) {}
           return;
         }
