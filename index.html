@@ -378,6 +378,31 @@
     display:block; width:100%; padding:16px; border:none; border-radius:14px;
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
   }
+  /* 옵션 칩 */
+  .ph-det-opts { margin-bottom:20px; display:flex; flex-direction:column; gap:14px; }
+  .ph-det-opt-row { display:flex; flex-direction:column; gap:8px; }
+  .ph-det-opt-label { font-size:11px; font-weight:700; color:var(--g2); text-transform:uppercase; letter-spacing:.06em; }
+  .ph-det-opt-chips { display:flex; flex-wrap:wrap; gap:7px; }
+  .ph-det-chip {
+    padding:7px 15px; border-radius:20px; border:1.5px solid var(--line);
+    background:var(--bg); font:600 13px/1 inherit; color:var(--g1); cursor:pointer; transition:all .15s;
+  }
+  .ph-det-chip.on { border-color:var(--accent); background:var(--accent); color:#fff; }
+  /* PC 2컬럼 레이아웃 */
+  @media (min-width:768px) {
+    .ph-det-bar { max-width:1200px; margin:0 auto; padding:16px 48px; }
+    .ph-det-content {
+      display:grid; grid-template-columns:1fr 400px; align-items:start;
+      max-width:1200px; margin:0 auto; padding:40px 48px 80px; gap:0;
+    }
+    .ph-det-left { position:sticky; top:72px; }
+    .ph-det-main { aspect-ratio:1/1; border-radius:20px; max-width:560px; }
+    .ph-det-thumbs { gap:10px; padding:14px 0 0; border-top:none; max-width:560px; }
+    .ph-det-right { padding-left:52px; }
+    .ph-det-name { font-size:26px; margin-bottom:24px; }
+    .ph-det-price-box { margin-bottom:20px; }
+    .ph-det-cta { font-size:17px; padding:18px; border-radius:16px; }
+  }
 
   /* ───── HERO 카드 (화이트) ───── */
   .hero {
@@ -1496,13 +1521,43 @@
     </button>
     <div class="ph-det-bar-title" id="ph-det-bar-title"></div>
   </div>
-  <div class="ph-det-main" id="ph-det-main"></div>
-  <div class="ph-det-thumbs" id="ph-det-thumbs"></div>
-  <div class="ph-det-body">
-    <div class="ph-det-carrier-row"><span class="swatch" id="ph-det-swatch"></span><span id="ph-det-carrier"></span></div>
-    <div class="ph-det-name" id="ph-det-name"></div>
-    <div class="ph-det-price-box" id="ph-det-prices"></div>
-    <button class="ph-det-cta">상담 문의하기</button>
+  <div class="ph-det-content">
+    <div class="ph-det-left">
+      <div class="ph-det-main" id="ph-det-main"></div>
+      <div class="ph-det-thumbs" id="ph-det-thumbs"></div>
+    </div>
+    <div class="ph-det-right">
+      <div class="ph-det-carrier-row"><span class="swatch" id="ph-det-swatch"></span><span id="ph-det-carrier"></span></div>
+      <div class="ph-det-name" id="ph-det-name"></div>
+      <div class="ph-det-opts">
+        <div class="ph-det-opt-row">
+          <div class="ph-det-opt-label">가입 유형</div>
+          <div class="ph-det-opt-chips">
+            <button class="ph-det-chip on">번호이동</button>
+            <button class="ph-det-chip">기기변경</button>
+            <button class="ph-det-chip">신규가입</button>
+          </div>
+        </div>
+        <div class="ph-det-opt-row">
+          <div class="ph-det-opt-label">약정</div>
+          <div class="ph-det-opt-chips">
+            <button class="ph-det-chip on">24개월</button>
+            <button class="ph-det-chip">12개월</button>
+            <button class="ph-det-chip">무약정</button>
+          </div>
+        </div>
+        <div class="ph-det-opt-row">
+          <div class="ph-det-opt-label">요금제</div>
+          <div class="ph-det-opt-chips">
+            <button class="ph-det-chip on">프리미엄</button>
+            <button class="ph-det-chip">베이직</button>
+            <button class="ph-det-chip">슬림</button>
+          </div>
+        </div>
+      </div>
+      <div class="ph-det-price-box" id="ph-det-prices"></div>
+      <button class="ph-det-cta">상담 문의하기</button>
+    </div>
   </div>
 </div>
 
@@ -2083,6 +2138,14 @@
   }
 
   document.getElementById('ph-det-back').addEventListener('click', closePhDetail);
+
+  // 옵션 칩 토글
+  document.getElementById('ph-detail').addEventListener('click', function(e) {
+    var chip = e.target.closest('.ph-det-chip');
+    if (!chip) return;
+    chip.closest('.ph-det-opt-chips').querySelectorAll('.ph-det-chip').forEach(function(c) { c.classList.remove('on'); });
+    chip.classList.add('on');
+  });
 
   document.getElementById('ph-det-thumbs').addEventListener('click', function(e) {
     var th = e.target.closest('.ph-det-thumb:not(.empty)');
