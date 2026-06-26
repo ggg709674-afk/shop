@@ -1705,7 +1705,9 @@ const App = (() => {
     return Math.max((sc && sc.scrollTop) || 0, window.scrollY || 0, (document.documentElement && document.documentElement.scrollTop) || 0);
   }
   function goBackFromDetail() {
-    // detail-only 모드(rental-det-frame): 부모에게 닫기 요청
+    if (window.RENTAL_EMBEDDED && typeof window.closeRentalDet === 'function') {
+      window.closeRentalDet(); return;
+    }
     if (location.search.indexOf('detail-only=1') >= 0 && window.self !== window.top) {
       try { parent.postMessage({ type: 'rental-detail-back' }, '*'); } catch(e_) {}
       return;
@@ -2018,3 +2020,4 @@ const App = (() => {
     startRouter, route,
   };
 })();
+window.RentalApp = App;
