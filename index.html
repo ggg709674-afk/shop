@@ -329,6 +329,13 @@
   .product-card .price-row .del { font-size:12px; color:var(--g3); text-decoration:line-through; margin-right:auto; }
   .product-card .price-row .now { font-size:13px; color:var(--g1); }
   .product-card .price-row .now strong { font-size:19px; color:var(--ink); letter-spacing:-.5px; }
+  /* ───── 통신사별 인기단말 섹션 (전체 뷰) ───── */
+  .ph-sec { padding:4px 0 26px; }
+  .ph-sec-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:18px 4px 13px; }
+  .ph-sec-title { display:inline-flex; align-items:center; gap:8px; font-size:18px; font-weight:800; letter-spacing:-.02em; color:var(--ink); }
+  .ph-sec-title .swatch { width:8px; height:8px; border-radius:50%; background:var(--g3); }
+  .ph-sec-cnt { font-size:12px; font-weight:500; color:var(--g2); margin-left:1px; letter-spacing:-.01em; }
+  .ph-sec-more { background:none; border:0; cursor:pointer; font-size:12.5px; color:var(--accent); font-weight:600; letter-spacing:-.01em; padding:4px 2px; white-space:nowrap; }
   @media (min-width:560px) { .product-grid { grid-template-columns:repeat(3,1fr); gap:14px; } }
   @media (min-width:768px) {
     .product-grid { grid-template-columns:repeat(4,1fr); gap:20px; }
@@ -1142,9 +1149,10 @@ if(location.search.indexOf('ph=')!==-1){
     <nav class="sub-nav" id="phone-sub-nav"><button class="on">전체</button></nav>
     <script>!function(){try{var h=localStorage.getItem('ph_subnav_v1');var n=document.getElementById('phone-sub-nav');if(h&&n)n.innerHTML=h;}catch(e){}}();</script>
 
-    <!-- 상품 카드 그리드 (렌탈 레이아웃) -->
+    <!-- 전체=통신사별 인기단말 섹션 / 통신사 선택=해당 통신사 전체 그리드 -->
     <div class="shop-cards-wrap">
-      <div class="product-grid shop-cards" id="phone-cards"></div>
+      <div id="phone-home"></div>
+      <div class="product-grid shop-cards" id="phone-cards" hidden></div>
     </div>
 
     <!-- 이하 옛 섹션은 숨김 (배너+카드 그리드 레이아웃으로 전환) -->
@@ -1946,33 +1954,95 @@ if(location.search.indexOf('ph=')!==-1){
     var src = CARRIER_LOGOS[tag || ''];
     return src ? '<span class="c-logo-wrap"><img src="' + src + '" alt="' + escapeHtml(tag || '') + '"></span>' : '';
   }
-  function renderShopCards() {
-    // 휴대폰 — DB 모델 데이터 우선, 없으면 샘플
-    var storeModels = (DataStore.load().models || []).filter(function(m) { return m.visible !== false; });
-    var phEl = document.getElementById('phone-cards');
-    if (phEl) {
-      var phList;
-      if (storeModels.length > 0) {
-        phList = storeModels.map(function(m) {
-          var firstColor = (m.colors || []).find(function(c) { return Array.isArray(c.images) && c.images.some(Boolean); });
-          var images = firstColor ? firstColor.images.filter(Boolean).slice(0,6) : [];
-          return {
-            id: m.id,
-            name: m.name,
-            tag: CARRIER_LABEL[m.carrier] || m.carrier,
-            badge: '',
-            del: '',
-            label: '번호이동',
-            price: '상담',
-            images: images,
-            imageUrl: images[0] || ''
-          };
-        });
-      } else {
-        phList = SHOP_CARD_SAMPLES.phone;
-      }
-      phEl.innerHTML = phList.length ? phList.map(shopCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+  // ───── 휴대폰: 통신사별 인기단말 메인(전체) + 통신사 필터 그리드 ─────
+  var PHONE_HOME_PREVIEW = 4;   // 통신사 섹션당 미리보기 개수 (최대 두 줄=8까지 가능)
+  var _phCarrier = 'all';       // 현재 선택 통신사 ('all'=메인)
+  var SAMPLE_LABEL_TO_ID = { 'SKT':'skt', 'KT':'kt', 'LG U+':'lg', '알뜰유심':'mvno' };
+
+  function _modelToCardItem(m) {
+    var firstColor = (m.colors || []).find(function(c) { return Array.isArray(c.images) && c.images.some(Boolean); });
+    var images = firstColor ? firstColor.images.filter(Boolean).slice(0,6) : [];
+    return {
+      id: m.id, name: m.name, carrierId: m.carrier,
+      tag: CARRIER_LABEL[m.carrier] || m.carrier,
+      badge: '', del: '', label: '번호이동', price: '상담',
+      images: images, imageUrl: images[0] || ''
+    };
+  }
+  // 카드 아이템 목록 (DB 모델 우선, 없으면 샘플) — carrierId 포함
+  function phoneCardItems() {
+    var models = (DataStore.load().models || []).filter(function(m) { return m.visible !== false; });
+    if (models.length > 0) return models.map(_modelToCardItem);
+    return SHOP_CARD_SAMPLES.phone.map(function(s) {
+      var it = {}; for (var k in s) it[k] = s[k];
+      it.carrierId = SAMPLE_LABEL_TO_ID[s.tag] || 'mvno';
+      return it;
+    });
+  }
+  // 노출 통신사 카테고리 (정렬·visible 반영, 폴백 기본 4사)
+  function phoneCarrierCats() {
+    var cats = (DataStore.load().categories || []).filter(function(c) { return c.visible !== false; });
+    if (!cats.length) cats = [
+      { id:'skt', label:'SKT', swatch:'skt' }, { id:'kt', label:'KT', swatch:'kt' },
+      { id:'lg', label:'LG U+', swatch:'lg' }, { id:'mvno', label:'알뜰유심', swatch:'' }
+    ];
+    return cats.slice().sort(function(a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+  }
+
+  // 메인(전체): 통신사별 섹션 — 헤더 + "전체 →" + 인기단말 미리보기
+  function renderPhoneHome() {
+    var host = document.getElementById('phone-home');
+    if (!host) return;
+    var items = phoneCardItems();
+    var html = phoneCarrierCats().map(function(cat) {
+      var list = items.filter(function(it) { return it.carrierId === cat.id; });
+      if (!list.length) return '';
+      var preview = list.slice(0, PHONE_HOME_PREVIEW);
+      return '<section class="ph-sec">'
+        + '<div class="ph-sec-head">'
+          + '<div class="ph-sec-title"><span class="swatch ' + escapeHtml(cat.swatch || '') + '"></span>'
+            + escapeHtml(cat.label) + '<span class="ph-sec-cnt">' + list.length + '종</span></div>'
+          + '<button class="ph-sec-more" type="button" data-go-carrier="' + escapeHtml(cat.id) + '">'
+            + escapeHtml(cat.label) + ' 전체 →</button>'
+        + '</div>'
+        + '<div class="product-grid">' + preview.map(shopCardHtml).join('') + '</div>'
+      + '</section>';
+    }).join('');
+    host.innerHTML = html || '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+  }
+
+  // 통신사 선택: 해당 통신사 전체 모델 그리드
+  function renderPhoneCarrierGrid(carrierId) {
+    var el = document.getElementById('phone-cards');
+    if (!el) return;
+    var list = phoneCardItems().filter(function(it) { return it.carrierId === carrierId; });
+    el.innerHTML = list.length ? list.map(shopCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+  }
+
+  // 통신사 전환 (sub-nav 클릭 / "전체 →" 공통 진입점)
+  function selectPhoneCarrier(cat) {
+    _phCarrier = cat || 'all';
+    var nav = document.getElementById('phone-sub-nav');
+    if (nav) nav.querySelectorAll('button').forEach(function(b) {
+      b.classList.toggle('on', (b.getAttribute('data-cat') || 'all') === _phCarrier);
+    });
+    var home = document.getElementById('phone-home');
+    var grid = document.getElementById('phone-cards');
+    if (_phCarrier === 'all') {
+      renderPhoneHome();
+      if (home) home.hidden = false;
+      if (grid) grid.hidden = true;
+    } else {
+      renderPhoneCarrierGrid(_phCarrier);
+      if (home) home.hidden = true;
+      if (grid) grid.hidden = false;
     }
+    if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
+  }
+
+  function renderShopCards() {
+    // 휴대폰 — 현재 통신사 선택 상태에 맞춰 렌더 (전체=섹션 / 통신사=그리드)
+    if (document.getElementById('phone-home')) selectPhoneCarrier(_phCarrier);
     // 인터넷 — 샘플 고정
     var inEl = document.getElementById('internet-cards');
     if (inEl) {
@@ -2057,13 +2127,19 @@ if(location.search.indexOf('ph=')!==-1){
           { id: 'lg', label: 'LG U+', swatch: 'lg' },
           { id: 'mvno', label: '알뜰유심', swatch: '' }
         ];
-    var html = '<button class="on">전체</button>';
+    var html = '<button class="on" data-cat="all">전체</button>';
     cats.forEach(function(c) {
       html += '<span class="sub-dot"></span>';
-      html += '<button>' + (c.swatch ? '<span class="swatch ' + escapeHtml(c.swatch) + '"></span>' : '') + escapeHtml(c.label) + '</button>';
+      html += '<button data-cat="' + escapeHtml(c.id) + '">' + (c.swatch ? '<span class="swatch ' + escapeHtml(c.swatch) + '"></span>' : '') + escapeHtml(c.label) + '</button>';
     });
     $nav.innerHTML = html;
     try { localStorage.setItem('ph_subnav_v1', html); } catch(e) {}
+    // 현재 선택 통신사 활성 상태 복원 (datachange 로 sub-nav 재빌드 시 'on' 유지)
+    if (typeof _phCarrier !== 'undefined' && _phCarrier !== 'all') {
+      $nav.querySelectorAll('button').forEach(function(b) {
+        b.classList.toggle('on', (b.getAttribute('data-cat') || 'all') === _phCarrier);
+      });
+    }
   }
 
   function renderAll(overrideData) {
@@ -2073,7 +2149,7 @@ if(location.search.indexOf('ph=')!==-1){
     renderPhoneProducts(data.productsPhone, data.categories);
     if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
   }
-  window.addEventListener('mobileshop:datachange', function() { renderAll(); });
+  window.addEventListener('mobileshop:datachange', function() { renderAll(); renderShopCards(); });
 
   // admin 미리보기 — postMessage로 워킹 데이터 받아서 즉시 렌더 (저장 안 함)
   window.addEventListener('message', function(e) {
@@ -2467,6 +2543,28 @@ if(location.search.indexOf('ph=')!==-1){
     if (card) { e.preventDefault(); openPhDetail(card); }
   });
 
+  // 통신사 sub-nav 클릭 → 전체(메인 섹션) ↔ 통신사 전체 그리드 전환
+  document.getElementById('phone-sub-nav').addEventListener('click', function(e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    selectPhoneCarrier(btn.getAttribute('data-cat') || 'all');
+    var wrap = document.querySelector('#panel-phone .shop-cards-wrap');
+    if (wrap) wrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
+
+  // 메인 섹션: "전체 →" → 해당 통신사 그리드로 전환 / 카드 클릭 → 상세
+  document.getElementById('phone-home').addEventListener('click', function(e) {
+    var more = e.target.closest('[data-go-carrier]');
+    if (more) {
+      e.preventDefault();
+      var sub = document.querySelector('#phone-sub-nav button[data-cat="' + more.getAttribute('data-go-carrier') + '"]');
+      if (sub) sub.click(); else selectPhoneCarrier(more.getAttribute('data-go-carrier'));
+      return;
+    }
+    var card = e.target.closest('.product-card');
+    if (card) { e.preventDefault(); openPhDetail(card); }
+  });
+
   // admin 연동:
   //   1) init() 호출 즉시 localStorage 캐시로 1차 렌더 (이전 방문 시 받아둔 데이터)
   //   2) Supabase fresh fetch 완료 후 재렌더 (변경분 반영)
@@ -2477,7 +2575,7 @@ if(location.search.indexOf('ph=')!==-1){
     // URL에 ?ph=ID 있으면 해당 상세 자동 복원
     var phId = new URLSearchParams(location.search).get('ph');
     if (phId) {
-      var card = document.querySelector('#phone-cards .product-card[data-model-id="' + CSS.escape(phId) + '"]');
+      var card = document.querySelector('#panel-phone .product-card[data-model-id="' + CSS.escape(phId) + '"]');
       if (card) { openPhDetail(card); history.replaceState({ ph: phId }, '', location.href); }
     }
   });
