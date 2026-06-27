@@ -2041,8 +2041,11 @@ html[data-preload-shop] body { visibility:hidden; }
       });
       var bt = document.getElementById('adm-brand-title'); if (bt) bt.textContent = BRAND[shop] || '관리';
       if (shop === 'rental'){
-        // 합본 placeholder 패널 숨김(admin.js 는 이 패널을 모르므로 직접 처리)
-        var ss = document.querySelector('.adm-panel[data-panel="shop-soon"]'); if (ss) ss.hidden = true;
+        // 합본 placeholder/휴대폰 전용 패널 숨김(admin.js 는 이 패널들을 모르므로 직접 처리)
+        // — 휴대폰 탭에서 보던 ph-* 패널이 렌탈 화면 아래 남아 보이던 버그
+        ['shop-soon','ph-models','ph-plans','ph-support','ph-products'].forEach(function(pk){
+          var p = document.querySelector('.adm-panel[data-panel="'+pk+'"]'); if (p) p.hidden = true;
+        });
         // 렌탈 라우팅 복원 — admin.js 의 hashchange 핸들러가 패널/제목 처리
         if (location.hash !== lastRentalHash) location.hash = lastRentalHash;
         else window.dispatchEvent(new HashChangeEvent('hashchange'));
