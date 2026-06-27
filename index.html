@@ -2279,7 +2279,9 @@ if(location.search.indexOf('ph=')!==-1){
       return;
     }
     if (noAnim) document.documentElement.classList.add('rental-det-restoring');
-    try { history.pushState({}, '', '/?cat=rental&id=' + encodeURIComponent(id)); } catch(e_) {}
+    // URL이 이미 해당 상세면 pushState 생략 (popstate 복원 호출 시 히스토리 중복 방지)
+    var _detTarget = '/?cat=rental&id=' + encodeURIComponent(id);
+    if (location.pathname + location.search !== _detTarget) { try { history.pushState({}, '', _detTarget); } catch(e_) {} }
     // 실제 스크롤 컨테이너는 #rental-det 자체(position:fixed; overflow-y:auto) — 매 진입 시 맨 위로 리셋
     // (이전: 안쪽 main만 리셋해 det.scrollTop이 남아 → 다른 상품을 눌러도 스크롤된 위치에서 열림)
     var inner = det.querySelector('main[data-view="detail"]') || det;
@@ -2351,18 +2353,33 @@ if(location.search.indexOf('ph=')!==-1){
       if (_im) { e.preventDefault(); openRentalDet(decodeURIComponent(_im[1])); return; }
       if (_href.indexOf('cat=rental') >= 0 || /\/rental(\?|$)/.test(_href)) {
         e.preventDefault();
-        closeRentalDet();
+        // 상세 오버레이만 닫고(URL은 아래서 한 번만 push — closeRentalDet 쓰면 ?cat=rental 이 중복 push돼
+        // 뒤로가기가 상세가 아니라 중복 항목으로 가는 버그) 목적지로 단일 push
+        _rd.classList.remove('on');
         var _cls = (_href.match(/[?&]cls=([^&#]+)/) || [])[1];
         if (_cls) { history.pushState({}, '', '/?cat=rental&cls=' + decodeURIComponent(_cls)); renderRentalCategory(); }
         else { history.pushState({}, '', '/?cat=rental'); renderRentalHome(); }
+        if (window.refreshTopBtn) window.refreshTopBtn();
       }
     });
   })();
 
   window.addEventListener('popstate', function() {
-    var det = document.getElementById('rental-det');
-    if (det && det.classList.contains('on') && !new URLSearchParams(location.search).get('id')) {
-      det.classList.remove('on');
+    // 렌탈 탭에서만 처리 (휴대폰 상세는 별도 popstate 핸들러)
+    var sp; try { sp = new URLSearchParams(location.search); } catch(e) { sp = new URLSearchParams(); }
+    if (sp.get('cat') === 'rental') {
+      var id = sp.get('id');
+      var det = document.getElementById('rental-det');
+      if (id) {
+        // 뒤로/앞으로 → 상세 URL이면 상세 열기 (URL 일치라 openRentalDet이 pushState 생략)
+        openRentalDet(id, true);
+      } else if (det && det.classList.contains('on')) {
+        det.classList.remove('on');           // 상세 닫고
+        applyRentalRoute();                   // ?cls= / 홈 등 현재 URL 뷰 복원
+      }
+    } else {
+      var det2 = document.getElementById('rental-det');
+      if (det2 && det2.classList.contains('on')) det2.classList.remove('on');
     }
     if (window.refreshTopBtn) window.refreshTopBtn();
   }, false);
