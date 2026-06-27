@@ -425,6 +425,11 @@
     font-size:13px; font-weight:600; line-height:1;
     padding:8px 15px; border:none; border-radius:999px; cursor:pointer;
   }
+  /* 상세 브레드크럼 (렌탈 .breadcrumb 과 동일 톤) — 휴대폰 › 통신사 › 상품명 */
+  .ph-det-crumb { max-width:1200px; margin:0 auto; padding:14px 16px 0; font-size:12px; color:var(--g3); letter-spacing:-.01em; }
+  .ph-det-crumb a { color:var(--g2); text-decoration:none; }
+  .ph-det-crumb a:active { opacity:.5; }
+  .ph-det-crumb:empty { display:none; }
   .ph-det-main {
     width:100%; aspect-ratio:1/1; background:var(--bg-soft);
     display:flex; align-items:center; justify-content:center; overflow:hidden;
@@ -468,10 +473,11 @@
   /* PC 2컬럼 레이아웃 */
   @media (min-width:768px) {
     .ph-det-bar { padding:0 max(20px, calc((100% - 1200px) / 2)); }
+    .ph-det-crumb { padding:24px 20px 4px; }
     /* 렌탈 상세(.detail-top)와 동일한 2단 분할 — 이미지 박스 크기 일치(1.1fr 1fr, gap 50, inner 1160 → 581) */
     .ph-det-content {
       display:grid; grid-template-columns:1.1fr 1fr; align-items:start;
-      max-width:1200px; margin:0 auto; padding:40px 20px 80px; gap:50px;
+      max-width:1200px; margin:0 auto; padding:16px 20px 80px; gap:50px;
     }
     .ph-det-left { position:sticky; top:72px; }
     .ph-det-main { aspect-ratio:1/1; border-radius:20px; } /* max-width 캡 제거 → 렌탈처럼 컬럼 꽉 채움 */
@@ -1722,6 +1728,7 @@ if(location.search.indexOf('ph=')!==-1){
     <div class="ph-det-bar-title" id="ph-det-bar-title"></div>
     <button class="ph-det-bar-consult">상담</button>
   </div>
+  <div class="ph-det-crumb" id="ph-det-crumb"></div>
   <div class="ph-det-content">
     <div class="ph-det-left">
       <div class="ph-det-main" id="ph-det-main"></div>
@@ -2484,6 +2491,14 @@ if(location.search.indexOf('ph=')!==-1){
     document.getElementById('ph-det-name').textContent = name;
     document.getElementById('ph-det-carrier').textContent = carrier;
     document.getElementById('ph-det-swatch').className = 'swatch ' + (CARRIER_SWATCH[carrier] || '');
+    // 브레드크럼: 휴대폰 › 통신사 › 상품명
+    var _crumb = document.getElementById('ph-det-crumb');
+    if (_crumb) {
+      var _cid = SAMPLE_LABEL_TO_ID[carrier] || '';
+      _crumb.innerHTML = '<a href="/?cat=phone">휴대폰</a> &nbsp;›&nbsp; '
+        + (carrier && _cid ? '<a href="/?cat=phone&carrier=' + _cid + '">' + escapeHtml(carrier) + '</a> &nbsp;›&nbsp; ' : '')
+        + '<span>' + escapeHtml(name) + '</span>';
+    }
 
     var mainUrl = _phDetImgs[0] || '';
     document.getElementById('ph-det-main').innerHTML = mainUrl
@@ -2549,6 +2564,16 @@ if(location.search.indexOf('ph=')!==-1){
   }
 
   document.getElementById('ph-det-back').addEventListener('click', closePhDetail);
+
+  // 상세 브레드크럼(휴대폰/통신사) 클릭 → 상세 닫고 해당 뷰로
+  document.getElementById('ph-det-crumb').addEventListener('click', function(e) {
+    var a = e.target.closest('a[href]'); if (!a) return;
+    e.preventDefault();
+    var u; try { u = new URL(a.getAttribute('href'), location.href); } catch (_) { return; }
+    var carrier = u.searchParams.get('carrier') || 'all';
+    closePhDetail();
+    selectPhoneCarrier(carrier);
+  });
 
   // 브라우저 뒤로가기로 상세 닫기
   window.addEventListener('popstate', function(e) {
