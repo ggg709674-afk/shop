@@ -165,28 +165,19 @@
         '</nav>' +
       '</div>';
     old.replaceWith(h);
-    // ── 푸터 리브랜딩 ──
-    const foot = document.querySelector('footer');
-    if (foot) {
-      // SK magic 로고 이미지 → 우주커넥트 텍스트
-      foot.querySelectorAll('img.brand-logo').forEach(img => {
-        const b = document.createElement('span');
-        b.style.cssText = 'font-size:18px;font-weight:800;letter-spacing:-.03em;color:#fff';
-        b.innerHTML = '우주<span style="color:#DE4F41">커넥트</span>';
-        img.replaceWith(b);
-      });
-      foot.querySelectorAll('.partner-label').forEach(el => el.remove());
-      // 텍스트 노드의 'SK매직 (정식) 인증파트너점' → '우주커넥트'
-      const w = document.createTreeWalker(foot, NodeFilter.SHOW_TEXT, null);
-      const ns = []; while (w.nextNode()) ns.push(w.currentNode);
-      ns.forEach(n => {
-        if (/SK\s*매직/.test(n.nodeValue)) {
-          n.nodeValue = n.nodeValue
-            .replace(/SK\s*매직\s*정식\s*인증파트너점/g, '우주커넥트')
-            .replace(/SK\s*매직\s*인증파트너점/g, '우주커넥트')
-            .replace(/SK\s*매직/g, '우주커넥트');
-        }
-      });
+    // ── 푸터: 옛 렌탈 푸터(.site-footer, 쇼핑=정수기/공기청정기/…)를 메인과 동일한 .ft 푸터로 통째 교체 ──
+    // (.ft CSS는 rental-assets/style.css 에 있어 바로 styled. card-benefits 는 이미 .ft 라 해당 없음)
+    const oldFoot = document.querySelector('footer.site-footer');
+    if (oldFoot) {
+      const f = document.createElement('footer');
+      f.className = 'ft';
+      f.innerHTML =
+        '<div class="ft-row"><a href="/terms" target="_top">이용약관</a>·<a href="/privacy" target="_top">개인정보처리방침</a>·<a>판매자 정보</a>·<a>고객센터</a></div>' +
+        '<div><b>(주)우주커넥트</b> · 대표 김** · 1577-0000<br>' +
+        '서울 강남구 테헤란로 152 · Mon–Sat 10:00–20:00<br>' +
+        '사업자번호 123-45-67890 · 통신판매업신고 제2026-서울강남-1234호<br>' +
+        '<span class="ft-c">© 2026 우주커넥트. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span></div>';
+      oldFoot.replaceWith(f);
     }
   };
   // 자동 적용 — supabase.js 로드되는 정적페이지에서 .site-header 있으면 합본 헤더로 교체
