@@ -342,7 +342,7 @@
   /* ───── 휴대폰 상세 뷰 (슬라이드 인) ───── */
   #ph-detail {
     position:absolute; inset:0; z-index:200;
-    background:var(--bg); overflow-y:auto; overflow-x:hidden;
+    background:var(--bg); overflow-y:auto; overflow-x:hidden; scrollbar-gutter:stable;
     transform:translateX(100%);
     transition:transform .3s cubic-bezier(.4,0,.2,1);
   }
@@ -357,7 +357,7 @@
   /* ───── 렌탈 상세 오버레이 (div, #ph-detail 패턴) ───── */
   #rental-det {
     position:fixed; inset:0; z-index:600;
-    background:#fff; overflow-y:auto; overflow-x:hidden;
+    background:#fff; overflow-y:auto; overflow-x:hidden; scrollbar-gutter:stable;
     transform:translateX(100%);
     transition:transform .3s cubic-bezier(.4,0,.2,1);
   }
@@ -375,7 +375,7 @@
   #rental-det .detail-appbar {
     display:flex !important; align-items:center; justify-content:space-between;
     position:sticky; top:0; z-index:400;
-    height:56px; padding:0 max(20px, calc((100% - 1280px) / 2));
+    height:56px; padding:0 max(20px, calc((100% - 1200px) / 2)); /* 본문(1200)·휴대폰 앱바와 정렬 일치(이전 1280→삐져나옴) */
     background:#fff; border-bottom:1px solid #f2f2f2;
   }
   #rental-det .detail-appbar .dab-back {
