@@ -131,8 +131,7 @@
     transform:translateY(0);
     transition:opacity .3s ease, transform .42s cubic-bezier(.4,0,.2,1), height .3s ease, padding .3s ease;
   }
-  /* 렌탈 패널: 상담 FAB는 샵 공통 FAB(카톡/전화 펼침형)로 통일해 표시. 맨위로 버튼만 숨김(렌탈 iframe이 자체 맨위로 보유) */
-  .scroll.on-rental ~ .top-btn { display:none !important; }
+  /* (렌탈 iframe 제거 후: 렌탈도 네이티브 스크롤 → 공통 맨위로 버튼이 처리하므로 숨김 규칙 삭제) */
   /* 렌탈 상세/카테고리 뷰에선 샵 헤더(탭) 아래 라인 제거 (홈에선 유지) — iframe이 msr-view 메시지로 알림 */
   .scroll.rental-subview .head { border-bottom-color:transparent; }
   /* 렌탈 '상세' 뷰 = 결정 모드. #rental-det 오버레이(position:fixed; inset:0; z-index:600)가
@@ -898,8 +897,8 @@
 
   /* ───── 플로팅 액션 버튼 (FAB, 클릭 시 펼침) ───── */
   .fab {
-    position:absolute; right:16px; bottom:20px;
-    z-index:50;
+    position:fixed; right:16px; bottom:20px;
+    z-index:700;
     display:flex; flex-direction:column; gap:10px;
     align-items:flex-end;
   }
@@ -939,8 +938,8 @@
 
   /* ───── 맨 위로 버튼 (스크롤 시 등장) ───── */
   .top-btn {
-    position:absolute; right:16px; bottom:80px;
-    z-index:49;
+    position:fixed; right:16px; bottom:80px;
+    z-index:700;
     width:50px; height:50px; border-radius:50%;
     background:#FFFFFF;
     color:var(--ink);
@@ -2286,6 +2285,7 @@ if(location.search.indexOf('ph=')!==-1){
     window.RentalApp.renderDetail().then(function() {
       det.scrollTop = 0; inner.scrollTop = 0;
       det.classList.add('on');
+      if (window.refreshTopBtn) window.refreshTopBtn();
       if (noAnim) requestAnimationFrame(function() {
         requestAnimationFrame(function() { document.documentElement.classList.remove('rental-det-restoring'); });
       });
@@ -2300,6 +2300,7 @@ if(location.search.indexOf('ph=')!==-1){
     if (!det || !det.classList.contains('on')) return;
     det.classList.remove('on');
     try { history.pushState({}, '', '/?cat=rental'); } catch(e) {}
+    if (window.refreshTopBtn) window.refreshTopBtn();
   }
 
   // 렌탈 패널(홈/카테고리) 내 링크 클릭 위임 — 카테고리카드/상품카드/필터칩/전체보기/브레드크럼
@@ -2361,6 +2362,7 @@ if(location.search.indexOf('ph=')!==-1){
     if (det && det.classList.contains('on') && !new URLSearchParams(location.search).get('id')) {
       det.classList.remove('on');
     }
+    if (window.refreshTopBtn) window.refreshTopBtn();
   }, false);
 
   // 렌탈 브랜드 소메뉴(부모 .sub-nav) — SK매직만 운영, 청호/코웨이는 준비중 안내
@@ -2491,6 +2493,7 @@ if(location.search.indexOf('ph=')!==-1){
     det.scrollTop = 0;
     det.classList.add('on');
     document.body.classList.remove('restoring-ph');
+    if (window.refreshTopBtn) window.refreshTopBtn();
     // URL 상태 저장
     var modelId = card.getAttribute('data-model-id') || '';
     if (modelId) {
@@ -2516,6 +2519,7 @@ if(location.search.indexOf('ph=')!==-1){
     } catch (e) {
       if (location.search.indexOf('ph=') !== -1) history.pushState({}, '', location.pathname);
     }
+    if (window.refreshTopBtn) window.refreshTopBtn();
   }
 
   document.getElementById('ph-det-back').addEventListener('click', closePhDetail);
@@ -2525,6 +2529,7 @@ if(location.search.indexOf('ph=')!==-1){
     if (!e.state || !e.state.ph) {
       document.getElementById('ph-detail').classList.remove('on');
     }
+    if (window.refreshTopBtn) window.refreshTopBtn();
   });
 
   // 옵션 칩 토글
@@ -2641,10 +2646,28 @@ if(location.search.indexOf('ph=')!==-1){
     }
   });
 
-  // 맨 위로 버튼 — 스크롤 240px 넘으면 등장
+  // 맨 위로 버튼 — 모든 뷰 공통(단일 버튼). 현재 활성 스크롤 컨테이너를 자동 판별:
+  //   렌탈 상세(#rental-det.on) > 휴대폰 상세(#ph-detail.on) > 메인 .scroll
   var topBtn = document.getElementById('top-btn');
+  function curScroller() {
+    var rd = document.getElementById('rental-det');
+    if (rd && rd.classList.contains('on')) return rd;
+    var pd = document.getElementById('ph-detail');
+    if (pd && pd.classList.contains('on')) return pd;
+    return scrollEl;
+  }
+  function refreshTopBtn() {
+    var sc = curScroller();
+    if ((sc.scrollTop || 0) > 300) topBtn.classList.add('show');
+    else topBtn.classList.remove('show');
+  }
+  window.refreshTopBtn = refreshTopBtn;
   topBtn.addEventListener('click', function() {
-    scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+    curScroller().scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  // 모든 스크롤 컨테이너에 리스너 — 어느 것이 활성이든 공통 버튼이 반응
+  [scrollEl, document.getElementById('rental-det'), document.getElementById('ph-detail')].forEach(function(el) {
+    if (el) el.addEventListener('scroll', refreshTopBtn, { passive: true });
   });
 
   // 방향 기반 헤더 토글 (서브 메뉴가 cat-nav에 붙은 후에만 compact)
@@ -2676,10 +2699,7 @@ if(location.search.indexOf('ph=')!==-1){
     var dy = st - prevSt; // + = 아래로, - = 위로
     prevSt = st;
 
-    // 맨 위로 버튼 — 렌탈과 동일: 아래로 스크롤 + 일정 이상이면 표시, 위로 스크롤하면 숨김
-    if (dy < 0) topBtn.classList.remove('show');
-    else if (st > 300) topBtn.classList.add('show');
-    if (st <= 0) topBtn.classList.remove('show');
+    // (맨 위로 버튼은 공통 refreshTopBtn 리스너가 처리 — 여기서 중복 처리 안 함)
 
     // 헤더 토글 직후 layout 점프 구간은 무시
     if (now < lockUntil) {
