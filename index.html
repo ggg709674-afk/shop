@@ -1033,7 +1033,7 @@
       padding-right:max(20px, calc((100% - 1280px) / 2));
     }
     /* 배너 섹션 — shop-cards-wrap 과 동일 패턴(ID+class 특이도)으로 1280px 고정 */
-    #panel-phone > .bn-wrap, #panel-internet > .bn-wrap { max-width:1280px; margin-left:auto; margin-right:auto; padding:0; overflow:hidden; align-self:center; }
+    #panel-phone > .bn-wrap, #panel-internet > .bn-wrap, #rental-home > .bn-wrap { max-width:1280px; margin-left:auto; margin-right:auto; padding:0; overflow:hidden; align-self:center; }
     .banner-wide { aspect-ratio:16/5; height:auto; max-height:none; width:100%; max-width:none; }
     /* 렌탈 브랜드 메뉴(2단)도 PC에선 중앙 정렬 — 위 메인메뉴(중앙)와 세로로 맞춤 */
     #rental-sub-nav { justify-content:center; }
@@ -1531,6 +1531,12 @@ if(location.search.indexOf('ph=')!==-1){
     </nav>
     <!-- 렌탈 홈 (iframe 제거 — 부모 DOM 네이티브 렌더, RentalApp.renderHome) -->
     <main data-view="home" id="rental-home" hidden>
+      <!-- 렌탈 가로 와이드 배너 (mobileshop_rental_settings key=banner) -->
+      <section class="bn-wrap">
+        <div class="banner-wide" data-banner="rental" hidden>
+          <img class="banner-img" alt="배너"/>
+        </div>
+      </section>
       <section class="section home-cat">
         <div class="container">
           <div class="cat-grid" id="cat-grid"></div>
@@ -1588,7 +1594,7 @@ if(location.search.indexOf('ph=')!==-1){
     // 배너 FOUC 방지 — 캐시된 PC/모바일 URL 을 첫 페인트 전에 슬롯에 즉시 적용 (샘플 깜빡임 제거)
     try {
       var isMob = window.matchMedia('(max-width:767px)').matches;
-      [['phone','msr_phone_banner_v1'],['internet','msr_internet_banner_v1']].forEach(function(pair){
+      [['phone','msr_phone_banner_v1'],['internet','msr_internet_banner_v1'],['rental','msr_rental_banner_v1']].forEach(function(pair){
         var c = JSON.parse(localStorage.getItem(pair[1]) || 'null'); if (!c) return;
         var url = isMob ? (c.mobile || c.pc) : (c.pc || c.mobile); if (!url) return;
         var w = document.querySelector('.banner-wide[data-banner="' + pair[0] + '"]');
@@ -1802,7 +1808,8 @@ if(location.search.indexOf('ph=')!==-1){
      뷰포트(≤767=모바일)에 맞춰 이미지 선택, 여러 장+자동이면 가볍게 회전. 없으면 샘플. */
   var BANNER_SHOPS = [
     { key:'phone',    setting:'banner_phone',    cache:'msr_phone_banner_v1' },
-    { key:'internet', setting:'banner_internet', cache:'msr_internet_banner_v1' }
+    { key:'internet', setting:'banner_internet', cache:'msr_internet_banner_v1' },
+    { key:'rental',   setting:'banner',          cache:'msr_rental_banner_v1' }
   ];
   function bannerIsMobile() { try { return window.matchMedia('(max-width:767px)').matches; } catch(e) { return false; } }
   function bannerPick(it) { return bannerIsMobile() ? (it.imageMobile || it.image) : (it.image || it.imageMobile); }
