@@ -1316,7 +1316,18 @@ const App = (() => {
         galleryEl.prepend(bd);
       }
     }
-    if (galleryMain) galleryMain.innerHTML = `<img src="${escape(localMainImgs[0])}" alt="${escape(p.name)}" onerror="this.src='${escape(mainImgs[0]||'')}'">`;
+    if (galleryMain) {
+      // 메인 이미지: 목록에서 이미 받아 캐시된 thumb를 먼저 즉시 표시 → 고해상 main_* 은 백그라운드 로드 후 교체.
+      // (목록 썸네일과 상세 갤러리가 다른 URL이라 그냥 두면 상세 진입 시 메인이 비었다 뜨는 '서서히' 현상)
+      const _hi = localMainImgs[0] || '';
+      const _thumb = thumbOf(p) || _hi;
+      galleryMain.innerHTML = `<img src="${escape(_thumb)}" alt="${escape(p.name)}" onerror="this.src='${escape(mainImgs[0]||'')}'">`;
+      if (_hi && _hi !== _thumb) {
+        const _pre = new Image();
+        _pre.onload = () => { const im = galleryMain.querySelector('img'); if (im && im.src !== _hi) im.src = _hi; };
+        _pre.src = _hi;
+      }
+    }
     if (galleryThumbs) {
       galleryThumbs.innerHTML = localMainImgs.map((u, i) => `
         <div class="t ${i===0?'on':''}" data-idx="${i}" data-src="${escape(u)}" data-fallback="${escape(mainImgs[i]||'')}">
