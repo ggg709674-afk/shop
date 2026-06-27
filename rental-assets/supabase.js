@@ -62,32 +62,52 @@
      card-benefits/faq/terms/privacy 같은 정적 페이지에도 동일하게 띄운다.
      CSS(.fab-consult/.fab-popup)는 style.css 공용. store 없으면 라벨만(전화/카카오 생략). */
   window.skmMountConsultFab = function(store){
-    if (document.getElementById('fab-consult')) return;   // 이미 있으면(메인 등) 스킵
+    if (document.getElementById('fab')) return;   // 이미 펼침형 FAB 있으면(메인 등) 스킵
     const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     store = store || {};
-    const tel   = (store.phone || '').trim();
-    const kakao = (store.kakao_url || '').trim();
-    const hours = (store.biz_hours || '').trim();
-    const chat  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
-    const fab = document.createElement('a');
-    fab.className = 'fab-consult'; fab.href = '#'; fab.id = 'fab-consult'; fab.setAttribute('aria-label', '상담 신청 열기');
-    fab.innerHTML = chat + '<span class="fab-label">상담 신청</span>';
-    const popup = document.createElement('div');
-    popup.className = 'fab-popup'; popup.id = 'fab-popup'; popup.hidden = true;
-    popup.innerHTML =
-      '<p class="pop-label">지금 바로 상담 가능</p>' +
-      (tel   ? `<a class="pop-tel" href="tel:${esc(tel.replace(/[^0-9+]/g,''))}">${esc(tel)}</a>` : '') +
-      (hours ? `<div class="pop-hours">${esc(hours)}</div>` : '') +
-      (kakao ? `<a class="pop-kakao" href="${esc(kakao)}" target="_blank" rel="noopener">카카오톡 상담</a>` : '');
+    const tel   = ((store.phone || '').trim()) || '1577-0000';
+    const kakao = ((store.kakao_url || '').trim()) || '#';
+    // 펼침형 FAB CSS 1회 주입 — 메인(index.html)과 동일 디자인. 정적페이지엔 이 CSS가 없으므로 동봉.
+    if (!document.getElementById('skm-fab-css')) {
+      const st = document.createElement('style');
+      st.id = 'skm-fab-css';
+      st.textContent =
+        '.fab{position:fixed;right:16px;bottom:20px;z-index:700;display:flex;flex-direction:column;gap:10px;align-items:flex-end}' +
+        '@media(max-width:480px){.fab{bottom:calc(20px + env(safe-area-inset-bottom));right:16px}}' +
+        '.fab-list{display:flex;flex-direction:column;gap:8px;align-items:flex-end;opacity:0;transform:translateY(8px) scale(.96);pointer-events:none;transition:opacity .18s ease-out,transform .2s ease-out}' +
+        '.fab.open .fab-list{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}' +
+        '.fab-btn{display:inline-flex;align-items:center;gap:7px;height:42px;padding:0 16px 0 14px;border-radius:21px;font-size:13px;font-weight:700;letter-spacing:-.012em;box-shadow:0 8px 20px rgba(15,17,23,.18),0 2px 6px rgba(15,17,23,.08);white-space:nowrap;text-decoration:none;transform:translateY(6px);opacity:0;transition:transform .2s ease-out,opacity .2s ease-out}' +
+        '.fab.open .fab-btn{transform:translateY(0);opacity:1}' +
+        '.fab.open .fab-btn:nth-child(1){transition-delay:.04s}.fab.open .fab-btn:nth-child(2){transition-delay:.10s}' +
+        '.fab-btn:active{transform:scale(.96)!important}.fab-btn svg{width:18px;height:18px;flex-shrink:0}' +
+        '.fab-talk{background:#FEE500;color:#191600}.fab-call{background:#DE4F41;color:#fff}' +
+        '.fab-trigger{width:50px;height:50px;border-radius:50%;background:#DE4F41;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(222,79,65,.32);transition:transform .2s,box-shadow .2s;position:relative;border:0;cursor:pointer}' +
+        '.fab-trigger:active{transform:scale(.94)}' +
+        '.fab-trigger .ic-msg,.fab-trigger .ic-x{position:absolute;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:opacity .15s}' +
+        '.fab-trigger .ic-x{opacity:0}.fab.open .fab-trigger .ic-msg{opacity:0}.fab.open .fab-trigger .ic-x{opacity:1}';
+      document.head.appendChild(st);
+    }
+    const fab = document.createElement('div');
+    fab.className = 'fab'; fab.id = 'fab';
+    const kkExternal = (kakao && kakao !== '#') ? ' target="_blank" rel="noopener"' : '';
+    fab.innerHTML =
+      '<div class="fab-list">' +
+        '<a class="fab-btn fab-talk" href="' + esc(kakao) + '"' + kkExternal + ' aria-label="카톡상담">' +
+          '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2C6.6 3.2 2.2 6.7 2.2 11c0 2.7 1.7 5.1 4.4 6.5l-.9 3.3c-.1.4.3.7.7.5l3.9-2.6c.6.1 1.2.1 1.7.1 5.4 0 9.8-3.5 9.8-7.8S17.4 3.2 12 3.2z"/></svg>' +
+          '<span>카톡상담</span></a>' +
+        '<a class="fab-btn fab-call" href="tel:' + esc(tel.replace(/[^0-9+]/g,'')) + '" aria-label="전화상담">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
+          '<span>전화상담</span></a>' +
+      '</div>' +
+      '<button class="fab-trigger" id="fab-trigger" type="button" aria-label="상담">' +
+        '<svg class="ic-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+        '<svg class="ic-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>';
     document.body.appendChild(fab);
-    document.body.appendChild(popup);
-    fab.addEventListener('click', e => { e.preventDefault(); popup.hidden = !popup.hidden; });
-    document.addEventListener('click', e => {
-      if (popup.hidden) return;
-      if (e.target.closest('.fab-consult') || e.target.closest('.fab-popup')) return;
-      popup.hidden = true;
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !popup.hidden) popup.hidden = true; });
+    const trigger = fab.querySelector('#fab-trigger');
+    trigger.addEventListener('click', e => { e.stopPropagation(); fab.classList.toggle('open'); });
+    document.addEventListener('click', e => { if (fab.classList.contains('open') && !fab.contains(e.target)) fab.classList.remove('open'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') fab.classList.remove('open'); });
     if (window.skmMountScrollTop) window.skmMountScrollTop();   // 정적페이지에도 맨위로 버튼 같이
   };
 
