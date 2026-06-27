@@ -1271,10 +1271,20 @@ const App = (() => {
     const cls = (p.categories || [])[0];
     const _homeHref = window.RENTAL_EMBEDDED ? '/?cat=rental' : RENTAL_PATH;
     const _catHref  = window.RENTAL_EMBEDDED ? ('/?cat=rental&cls=' + cls) : (RENTAL_PATH + '?cls=' + cls);
-    document.getElementById('crumb').innerHTML = `
-      <a href="${_homeHref}">홈</a> &nbsp;›&nbsp;
-      <a href="${_catHref}">${escape(categoryName(cls))}</a> &nbsp;›&nbsp;
-      <span>${escape(p.name)}</span>`;
+    const _catName  = escape(categoryName(cls));
+    if (window.RENTAL_EMBEDDED) {
+      // 합본 계층: 렌탈(탭) › SK매직(브랜드) › 카테고리 › 상품. 렌탈·SK매직 모두 렌탈 홈으로.
+      document.getElementById('crumb').innerHTML = `
+        <a href="/?cat=rental">렌탈</a> &nbsp;›&nbsp;
+        <a href="/?cat=rental">SK매직</a> &nbsp;›&nbsp;
+        <a href="${_catHref}">${_catName}</a> &nbsp;›&nbsp;
+        <span>${escape(p.name)}</span>`;
+    } else {
+      document.getElementById('crumb').innerHTML = `
+        <a href="${_homeHref}">홈</a> &nbsp;›&nbsp;
+        <a href="${_catHref}">${_catName}</a> &nbsp;›&nbsp;
+        <span>${escape(p.name)}</span>`;
+    }
 
     // gallery
     let mainImgs = (meta && meta.main_images) ? meta.main_images : [p.thumb];
