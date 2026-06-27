@@ -132,6 +132,70 @@
     onScroll();
   };
 
+  /* ─── 정적 정보페이지(제휴카드/FAQ/약관/개인정보) 헤더·푸터를 합본(우주커넥트)으로 통일 ───
+     옛 SK magic 인증파트너점 헤더(.site-header)를 합본 헤더(우주커넥트 + 휴대폰/인터넷/렌탈)로 교체하고,
+     푸터의 SK magic 로고/문구를 우주커넥트로 리브랜딩. .site-header 없는 페이지(index/rental)는 무시. */
+  window.skmMountShopHeader = function(){
+    const old = document.querySelector('header.site-header');
+    if (!old) return;
+    if (!document.getElementById('skm-shophead-css')) {
+      const st = document.createElement('style');
+      st.id = 'skm-shophead-css';
+      st.textContent =
+        '.shop-head{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #ececec}' +
+        '.shop-head-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:30px;padding:14px 20px}' +
+        '.shop-brand{display:inline-flex;align-items:center;gap:5px;font-size:20px;font-weight:800;letter-spacing:-.03em;color:#222;text-decoration:none;white-space:nowrap}' +
+        '.shop-brand .brand-spark{height:14px;width:auto;color:#DE4F41}' +
+        '.shop-brand i{font-style:normal;color:#DE4F41}' +
+        '.shop-nav{display:flex;gap:28px}' +
+        '.shop-nav a{font-size:16px;font-weight:600;color:#8a8a8a;text-decoration:none;letter-spacing:-.02em;transition:color .15s}' +
+        '.shop-nav a:hover{color:#222}' +
+        '@media(max-width:767px){.shop-head-in{gap:14px;padding:12px 16px}.shop-brand{font-size:18px}.shop-nav{gap:16px}.shop-nav a{font-size:14px}}';
+      document.head.appendChild(st);
+    }
+    const h = document.createElement('header');
+    h.className = 'shop-head';
+    h.innerHTML =
+      '<div class="shop-head-in">' +
+        '<a class="shop-brand" href="/" aria-label="우주커넥트 홈">' +
+          '<svg class="brand-spark" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1C7.3 7.3 7.3 7.3 1 8C7.3 8.7 7.3 8.7 8 15C8.7 8.7 8.7 8.7 15 8C8.7 7.3 8.7 7.3 8 1Z"/></svg>' +
+          '우주<i>커넥트</i></a>' +
+        '<nav class="shop-nav">' +
+          '<a href="/?cat=phone">휴대폰</a><a href="/?cat=internet">인터넷</a><a href="/?cat=rental">렌탈</a>' +
+        '</nav>' +
+      '</div>';
+    old.replaceWith(h);
+    // ── 푸터 리브랜딩 ──
+    const foot = document.querySelector('footer');
+    if (foot) {
+      // SK magic 로고 이미지 → 우주커넥트 텍스트
+      foot.querySelectorAll('img.brand-logo').forEach(img => {
+        const b = document.createElement('span');
+        b.style.cssText = 'font-size:18px;font-weight:800;letter-spacing:-.03em;color:#fff';
+        b.innerHTML = '우주<span style="color:#DE4F41">커넥트</span>';
+        img.replaceWith(b);
+      });
+      foot.querySelectorAll('.partner-label').forEach(el => el.remove());
+      // 텍스트 노드의 'SK매직 (정식) 인증파트너점' → '우주커넥트'
+      const w = document.createTreeWalker(foot, NodeFilter.SHOW_TEXT, null);
+      const ns = []; while (w.nextNode()) ns.push(w.currentNode);
+      ns.forEach(n => {
+        if (/SK\s*매직/.test(n.nodeValue)) {
+          n.nodeValue = n.nodeValue
+            .replace(/SK\s*매직\s*정식\s*인증파트너점/g, '우주커넥트')
+            .replace(/SK\s*매직\s*인증파트너점/g, '우주커넥트')
+            .replace(/SK\s*매직/g, '우주커넥트');
+        }
+      });
+    }
+  };
+  // 자동 적용 — supabase.js 로드되는 정적페이지에서 .site-header 있으면 합본 헤더로 교체
+  (function(){
+    const run = () => { try { window.skmMountShopHeader(); } catch(e){} };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+    else run();
+  })();
+
   /* ─── 합본 단일샵 — stores 테이블 없음. 합성 매장 객체 반환 ─────
      skmagic 멀티테넌트(분양/매장)는 합본에서 미사용. 단일 매장 '우주커넥트' 고정. */
   const _COMBINED_STORE = {
