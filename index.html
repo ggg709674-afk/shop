@@ -2265,9 +2265,12 @@ if(location.search.indexOf('ph=')!==-1){
     }
     if (noAnim) document.documentElement.classList.add('rental-det-restoring');
     try { history.pushState({}, '', '/?cat=rental&id=' + encodeURIComponent(id)); } catch(e_) {}
+    // 실제 스크롤 컨테이너는 #rental-det 자체(position:fixed; overflow-y:auto) — 매 진입 시 맨 위로 리셋
+    // (이전: 안쪽 main만 리셋해 det.scrollTop이 남아 → 다른 상품을 눌러도 스크롤된 위치에서 열림)
     var inner = det.querySelector('main[data-view="detail"]') || det;
-    inner.scrollTop = 0;
+    det.scrollTop = 0; inner.scrollTop = 0;
     window.RentalApp.renderDetail().then(function() {
+      det.scrollTop = 0; inner.scrollTop = 0;
       det.classList.add('on');
       if (noAnim) requestAnimationFrame(function() {
         requestAnimationFrame(function() { document.documentElement.classList.remove('rental-det-restoring'); });

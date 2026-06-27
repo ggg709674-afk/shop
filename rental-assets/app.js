@@ -1553,17 +1553,50 @@ const App = (() => {
           const local = `${IMG_BASE}/products/${id}/images/detail_${String(i).padStart(2,'0')}_${fn}`;
           // 상세 컷은 운영 사이트(sk-magic.kr)에 저장된 파일을 원격 로드 (합본 repo에는 이미지 미복사).
           // 26.5월부터 본사가 애니메이션 컷을 <video src=*.mp4> 로 직접 제공 — 그대로 video 렌더.
+          // 비디오는 lazy: 진입 시 20+개 autoplay 동시 로드를 막으려 src 보류(data-src)·preload=none.
+          // 뷰포트 근처에 올 때만 IntersectionObserver가 src 주입·재생 (아래 _info 옵저버).
           if (/\.mp4(\?|$)/i.test(fn)) {
-            return `<video src="${escape(local)}" autoplay loop muted playsinline preload="metadata" onerror="this.style.display='none'"></video>`;
+            return `<video class="lazy-media" data-src="${escape(local)}" loop muted playsinline preload="none" onerror="this.style.display='none'"></video>`;
           }
           // 본사가 .gif 로 주는 애니메이션 컷(구형)은 용량(개당 3MB, 최대 34MB) 때문에 mp4 로 변환해 둠.
-          // → gif 참조는 같은 경로의 .mp4 를 <video> 자동재생·루프로 렌더. 깨지면 숨김.
           if (/\.gif(\?|$)/i.test(fn)) {
             const mp4 = local.replace(/\.gif(\?|$)/i, '.mp4');
-            return `<video src="${escape(mp4)}" autoplay loop muted playsinline preload="metadata" onerror="this.style.display='none'"></video>`;
+            return `<video class="lazy-media" data-src="${escape(mp4)}" loop muted playsinline preload="none" onerror="this.style.display='none'"></video>`;
           }
           return `<img loading="lazy" decoding="async" src="${escape(local)}" alt="" onerror="this.style.display='none'">`;
         }).join('');
+        // 비디오 lazy 로드/재생 — 뷰포트 근처(±400px)에 올 때만 src 주입 → 상세 진입이 가벼워짐
+        // (진입 시 20+개 autoplay 동시 로드가 '서서히 뜨는 무거움'의 주원인. img는 이미 loading=lazy)
+        const _lazyVids = info.querySelectorAll('video.lazy-media');
+        if (_lazyVids.length) {
+          const loadIfNear = () => {
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            _lazyVids.forEach(v => {
+              if (v.src || !v.dataset.src) return;
+              const r = v.getBoundingClientRect();
+              if (r.top < vh + 400 && r.bottom > -400) {
+                v.src = v.dataset.src;
+                const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
+              }
+            });
+          };
+          // 스크롤 컨테이너 탐색(임베드=#rental-det, 단독=window) — 스크롤 fallback(IO throttle/비지원 대비)
+          let sc = info.parentElement;
+          while (sc && sc !== document.body) {
+            const ov = getComputedStyle(sc).overflowY;
+            if (ov === 'auto' || ov === 'scroll') break;
+            sc = sc.parentElement;
+          }
+          const scrollTarget = (sc && sc !== document.body) ? sc : window;
+          if (scrollTarget._lazyVidHandler) scrollTarget.removeEventListener('scroll', scrollTarget._lazyVidHandler);
+          scrollTarget._lazyVidHandler = loadIfNear;
+          scrollTarget.addEventListener('scroll', loadIfNear, { passive: true });
+          if ('IntersectionObserver' in window) {
+            const _io = new IntersectionObserver(ents => { if (ents.some(e => e.isIntersecting)) loadIfNear(); }, { rootMargin: '400px 0px' });
+            _lazyVids.forEach(v => _io.observe(v));
+          }
+          loadIfNear(); // 초기: 이미 보이는 비디오만
+        }
       } else {
         info.innerHTML = '<div class="empty">상세 정보 이미지가 준비 중입니다.</div>';
       }
