@@ -468,14 +468,15 @@
   /* PC 2컬럼 레이아웃 */
   @media (min-width:768px) {
     .ph-det-bar { padding:0 max(20px, calc((100% - 1200px) / 2)); }
+    /* 렌탈 상세(.detail-top)와 동일한 2단 분할 — 이미지 박스 크기 일치(1.1fr 1fr, gap 50, inner 1160 → 581) */
     .ph-det-content {
-      display:grid; grid-template-columns:1fr 400px; align-items:start;
-      max-width:1200px; margin:0 auto; padding:40px 48px 80px; gap:0;
+      display:grid; grid-template-columns:1.1fr 1fr; align-items:start;
+      max-width:1200px; margin:0 auto; padding:40px 20px 80px; gap:50px;
     }
     .ph-det-left { position:sticky; top:72px; }
-    .ph-det-main { aspect-ratio:1/1; border-radius:20px; max-width:560px; }
-    .ph-det-thumbs { gap:10px; padding:14px 0 0; border-top:none; max-width:560px; }
-    .ph-det-right { padding-left:52px; }
+    .ph-det-main { aspect-ratio:1/1; border-radius:20px; } /* max-width 캡 제거 → 렌탈처럼 컬럼 꽉 채움 */
+    .ph-det-thumbs { gap:10px; padding:14px 0 0; border-top:none; }
+    .ph-det-right { }
     .ph-det-name { font-size:26px; margin-bottom:24px; }
     .ph-det-price-box { margin-bottom:20px; }
     .ph-det-cta { font-size:17px; padding:18px; border-radius:16px; }
