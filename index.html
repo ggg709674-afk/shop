@@ -901,6 +901,7 @@
     z-index:700;
     display:flex; flex-direction:column; gap:10px;
     align-items:flex-end;
+    pointer-events:none; /* 컨테이너 빈 영역은 클릭 통과(뒤 맨위로 버튼 가리지 않게) — 자식만 클릭 */
   }
   @media (max-width: 480px) {
     .fab { bottom:calc(20px + env(safe-area-inset-bottom)); right:16px; }
@@ -974,6 +975,7 @@
     box-shadow:0 8px 22px rgba(222,79,65,.32);
     transition:transform .2s, box-shadow .2s;
     position:relative;
+    pointer-events:auto; /* 컨테이너 none → 트리거는 다시 클릭 가능 */
   }
   .fab-trigger:active { transform:scale(.94); }
   .fab-trigger .ic-msg, .fab-trigger .ic-x {

@@ -72,7 +72,7 @@
       const st = document.createElement('style');
       st.id = 'skm-fab-css';
       st.textContent =
-        '.fab{position:fixed;right:16px;bottom:20px;z-index:700;display:flex;flex-direction:column;gap:10px;align-items:flex-end}' +
+        '.fab{position:fixed;right:16px;bottom:20px;z-index:700;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none}' +
         '@media(max-width:480px){.fab{bottom:calc(20px + env(safe-area-inset-bottom));right:16px}}' +
         '.fab-list{display:flex;flex-direction:column;gap:8px;align-items:flex-end;opacity:0;transform:translateY(8px) scale(.96);pointer-events:none;transition:opacity .18s ease-out,transform .2s ease-out}' +
         '.fab.open .fab-list{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}' +
@@ -81,7 +81,7 @@
         '.fab.open .fab-btn:nth-child(1){transition-delay:.04s}.fab.open .fab-btn:nth-child(2){transition-delay:.10s}' +
         '.fab-btn:active{transform:scale(.96)!important}.fab-btn svg{width:18px;height:18px;flex-shrink:0}' +
         '.fab-talk{background:#FEE500;color:#191600}.fab-call{background:#DE4F41;color:#fff}' +
-        '.fab-trigger{width:50px;height:50px;border-radius:50%;background:#DE4F41;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(222,79,65,.32);transition:transform .2s,box-shadow .2s;position:relative;border:0;cursor:pointer}' +
+        '.fab-trigger{width:50px;height:50px;border-radius:50%;background:#DE4F41;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(222,79,65,.32);transition:transform .2s,box-shadow .2s;position:relative;border:0;cursor:pointer;pointer-events:auto}' +
         '.fab-trigger:active{transform:scale(.94)}' +
         '.fab-trigger .ic-msg,.fab-trigger .ic-x{position:absolute;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:opacity .15s}' +
         '.fab-trigger .ic-x{opacity:0}.fab.open .fab-trigger .ic-msg{opacity:0}.fab.open .fab-trigger .ic-x{opacity:1}';
