@@ -75,9 +75,9 @@ html[data-preload-shop] body { visibility:hidden; }
 .m-table tbody tr{content-visibility:auto;contain-intrinsic-size:auto 40px;}
 .m-table tr.is-hidden{opacity:.45;}
 .m-num{width:28px;text-align:center;color:var(--ink-4);font-size:12px;white-space:nowrap;}
-.m-name{font-weight:600;color:var(--ink-1);white-space:nowrap;}
+.m-name{width:1%;font-weight:600;color:var(--ink-1);white-space:nowrap;}
 .m-price{width:108px;text-align:right;color:var(--ink-2);font-size:12px;white-space:nowrap;}
-.m-colors{width:220px;max-width:220px;font-size:12px;color:var(--ink-3);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.m-colors{font-size:12px;color:var(--ink-3);white-space:normal;padding-left:18px;}
 .m-vis{width:56px;text-align:center;font-size:12px;}
 .m-act{width:108px;text-align:right;white-space:nowrap;}
 .m-act .adm-btn+.adm-btn{margin-left:4px;}
@@ -1372,16 +1372,17 @@ html[data-preload-shop] body { visibility:hidden; }
     var list=phData.models.filter(function(m){return m.carrier===carrier;});
     if(!list.length){wrap.innerHTML='<p class="ph-hint">등록된 모델이 없습니다.</p>';return;}
     var rows=list.map(function(m,i){
+      var cstr=phColorStr(m.colors);
       return '<tr class="'+(m.visible?'':'is-hidden')+'">'+'<td class="m-num">'+(i+1)+'</td>'
         +'<td class="m-name">'+m.name+(m.visible?'':' <span class="m-hidden-tag">숨김</span>')+'</td>'
+        +'<td class="m-colors">'+(cstr||'—')+'</td>'
         +'<td class="m-price">'+(m.releasePrice!==''?phFmt(m.releasePrice)+'원':'—')+'</td>'
-        +'<td class="m-colors">'+(m.colors.length?m.colors.join(', '):'—')+'</td>'
         +'<td class="m-act">'
           +'<button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-toggle-model="'+m.id+'">'+(m.visible?'숨김':'표시')+'</button>'
           +' <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-edit-model="'+m.id+'">편집</button>'
         +'</td></tr>';
     }).join('');
-    wrap.innerHTML='<table class="m-table"><thead><tr><th class="m-num">#</th><th>모델명</th><th class="m-price">출고가</th><th>색상</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+    wrap.innerHTML='<table class="m-table"><thead><tr><th class="m-num">#</th><th class="m-name">모델명</th><th class="m-colors">색상</th><th class="m-price">출고가</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
   }
   /* ─ 렌더: 요금제 ─ */
   function phRenderPlans(carrier){
@@ -1425,7 +1426,7 @@ html[data-preload-shop] body { visibility:hidden; }
     phEl('ph-mm-carrier').value=m?m.carrier:carrier;
     phEl('ph-mm-name').value=m?m.name:'';
     phEl('ph-mm-price').value=m&&m.releasePrice!==''?phFmt(m.releasePrice):'';
-    phEl('ph-mm-colors').value=m?m.colors.join(', '):'';
+    phEl('ph-mm-colors').value=m?phColorStr(m.colors):'';
     phEl('ph-mm-delete').style.display=m?'':'none';
     phEl('ph-model-modal').classList.add('on');
     setTimeout(function(){phEl('ph-mm-name').focus();},50);
@@ -1438,9 +1439,14 @@ html[data-preload-shop] body { visibility:hidden; }
     if(!name){alert('모델명을 입력해주세요.');return;}
     var price=phEl('ph-mm-price').value.replace(/,/g,'').trim();
     var priceNum=price?phInt(price):null;
-    var colors=phEl('ph-mm-colors').value.trim().split(',').map(function(c){return c.trim();}).filter(Boolean);
     var isNew=!id;if(isNew)id=phNewId('m_');
     var existing=isNew?null:phData.models.find(function(x){return x.id===id;});
+    // 색상: 입력 이름 → 기존 색상 객체의 이미지 보존(이름 매칭). 문자열로만 저장하면 고객카드 이미지 유실되므로 객체 유지.
+    var prevColors=existing?phNormColors(existing.colors):[];
+    var colors=phEl('ph-mm-colors').value.trim().split(',').map(function(c){return c.trim();}).filter(Boolean).map(function(nm){
+      var pv=prevColors.find(function(pc){return pc.name===nm;});
+      return pv?{name:nm,visible:pv.visible,images:pv.images}:{name:nm,visible:true,images:[]};
+    });
     var sortOrder=isNew?phData.models.filter(function(m){return m.carrier===carrier;}).length:(existing?phData.models.indexOf(existing):0);
     var row={id:id,name:name,carrier:carrier,colors:colors,release_price:(price===''||priceNum===0&&price!=='0')?null:priceNum,sort_order:sortOrder,visible:existing?existing.visible:true};
     phStatus('저장 중…');
@@ -1543,7 +1549,7 @@ html[data-preload-shop] body { visibility:hidden; }
   function phExportXlsx(carrier){
     if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
     var list=phData.models.filter(function(m){return m.carrier===carrier;});
-    var data=[['모델명','출고가','색상','표시여부']].concat(list.map(function(m){return[m.name,m.releasePrice!==''?Number(m.releasePrice):'',m.colors.join(', '),m.visible?'Y':'N'];}));
+    var data=[['모델명','출고가','색상','표시여부']].concat(list.map(function(m){return[m.name,m.releasePrice!==''?Number(m.releasePrice):'',phColorStr(m.colors),m.visible?'Y':'N'];}));
     var ws=XLSX.utils.aoa_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,carrier.toUpperCase()+' 모델');
     XLSX.writeFile(wb,carrier.toUpperCase()+'_models.xlsx');
   }
@@ -1589,6 +1595,8 @@ html[data-preload-shop] body { visibility:hidden; }
       return{name:c.name||'',visible:c.visible!==false,images:imgs};
     });
   }
+  /* 색상 이름만 추출해 ", "로 — colors가 문자열/객체({name}) 혼재라 join하면 [object Object] 나옴 */
+  function phColorStr(arr){return phNormColors(arr).map(function(c){return c.name;}).filter(Boolean).join(', ');}
   function phProdStatus(msg,isErr){var el=phEl('ph-prod-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
   var _phProdShowHidden={skt:false,kt:false,lg:false};
   function phRenderProducts(carrier){
