@@ -1037,6 +1037,10 @@
     .banner-wide { aspect-ratio:16/5; height:auto; max-height:none; width:100%; max-width:none; }
     /* 렌탈 브랜드 메뉴(2단)도 PC에선 중앙 정렬 — 위 메인메뉴(중앙)와 세로로 맞춤 */
     #rental-sub-nav { justify-content:center; }
+    /* 중앙정렬 시 first-child 의 padding-left:0(모바일 스크롤용) 비대칭 보정 —
+       끝 버튼은 padding-right:12 인데 첫 버튼만 0이라 내용(선행 점 포함)이 ~6px 왼쪽으로 쏠려 보임.
+       데스크탑에선 좌우 대칭으로 복원해 점까지 포함한 진짜 중앙정렬. */
+    .sub-nav button:first-child { padding-left:12px; }
   }
 
   /* ═══════════ 렌탈 2단 헤더 (1단 메인네비 / 2단 브랜드) ═══════════
