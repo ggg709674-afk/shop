@@ -138,21 +138,7 @@
   window.skmMountShopHeader = function(){
     const old = document.querySelector('header.site-header');
     if (!old) return;
-    if (!document.getElementById('skm-shophead-css')) {
-      const st = document.createElement('style');
-      st.id = 'skm-shophead-css';
-      st.textContent =
-        '.shop-head{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #ececec}' +
-        '.shop-head-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:30px;padding:14px 20px}' +
-        '.shop-brand{display:inline-flex;align-items:center;gap:5px;font-size:20px;font-weight:800;letter-spacing:-.03em;color:#222;text-decoration:none;white-space:nowrap}' +
-        '.shop-brand .brand-spark{height:14px;width:auto;color:#DE4F41}' +
-        '.shop-brand i{font-style:normal;color:#DE4F41}' +
-        '.shop-nav{display:flex;gap:28px}' +
-        '.shop-nav a{font-size:16px;font-weight:600;color:#8a8a8a;text-decoration:none;letter-spacing:-.02em;transition:color .15s}' +
-        '.shop-nav a:hover{color:#222}' +
-        '@media(max-width:767px){.shop-head-in{gap:14px;padding:12px 16px}.shop-brand{font-size:18px}.shop-nav{gap:16px}.shop-nav a{font-size:14px}}';
-      document.head.appendChild(st);
-    }
+    // .shop-head / .ft CSS 및 옛 헤더/푸터 숨김은 rental-assets/style.css 에 있음(<head> 선로드 → 깜빡임 방지)
     const h = document.createElement('header');
     h.className = 'shop-head';
     h.innerHTML =
