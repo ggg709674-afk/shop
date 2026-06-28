@@ -426,7 +426,7 @@
     padding:8px 15px; border:none; border-radius:999px; cursor:pointer;
   }
   /* 상세 브레드크럼 (렌탈 .breadcrumb 과 동일 톤) — 휴대폰 › 통신사 › 상품명 */
-  .ph-det-crumb { max-width:1200px; margin:0 auto; padding:14px 16px 0; font-size:12px; color:var(--g3); letter-spacing:-.01em; }
+  .ph-det-crumb { max-width:1200px; margin:0 auto; padding:40px 16px 24px; font-size:12px; color:var(--g3); letter-spacing:-.01em; }  /* 렌탈: 위 40(wrap pad) + 아래 24(mb) */
   .ph-det-crumb a { color:var(--g2); text-decoration:none; }
   .ph-det-crumb a:active { opacity:.5; }
   .ph-det-crumb:empty { display:none; }
@@ -434,17 +434,18 @@
     width:100%; aspect-ratio:1/1; background:var(--bg-soft);
     display:flex; align-items:center; justify-content:center; overflow:hidden;
   }
-  .ph-det-main img { width:100%; height:100%; object-fit:contain; padding:24px; }
+  .ph-det-main img { max-width:90%; max-height:90%; object-fit:contain; }  /* 렌탈 .gallery .main img 과 동일 */
   .ph-det-main svg { width:38%; color:var(--g3); }
   .ph-det-thumbs {
     display:grid; grid-template-columns:repeat(6,1fr); gap:6px;
     padding:10px 14px; border-top:1px solid var(--line);
   }
   .ph-det-thumb {
-    aspect-ratio:1/1; border-radius:10px; border:2px solid var(--line);
+    aspect-ratio:1/1; border-radius:10px; border:1px solid var(--line);
     background:var(--bg-soft); cursor:pointer; overflow:hidden;
     display:flex; align-items:center; justify-content:center; transition:border-color .15s;
   }
+  .ph-det-thumb:hover { border-color:var(--g2); }  /* 렌탈 .thumbs .t:hover 와 동일 톤 */
   .ph-det-thumb.on { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
   .ph-det-thumb img { width:100%; height:100%; object-fit:contain; padding:4px; }
   .ph-det-thumb.empty { opacity:.22; cursor:default; }
@@ -473,7 +474,7 @@
   /* PC 2컬럼 레이아웃 */
   @media (min-width:768px) {
     .ph-det-bar { padding:0 max(20px, calc((100% - 1200px) / 2)); }
-    .ph-det-crumb { padding:24px 20px 4px; }
+    .ph-det-crumb { padding:40px 20px 8px; }  /* +content padding-top 16 = 렌탈과 동일한 앱바→이미지 82px */
     /* 렌탈 상세(.detail-top)와 동일한 2단 분할 — 이미지 박스 크기 일치(1.1fr 1fr, gap 50, inner 1160 → 581) */
     .ph-det-content {
       display:grid; grid-template-columns:1.1fr 1fr; align-items:start;
