@@ -454,8 +454,8 @@
   .ph-det-thumb img { width:100%; height:100%; object-fit:contain; padding:4px; }
   .ph-det-thumb.empty { opacity:.22; cursor:default; }
   .ph-det-body { padding:20px 16px 48px; }
-  .ph-det-carrier-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:12px; color:var(--g2); min-height:20px; }
-  .ph-det-name { font-size:21px; font-weight:800; line-height:1.3; word-break:keep-all; margin-bottom:20px; min-height:28px; }
+  .ph-det-carrier-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:13px; font-weight:600; letter-spacing:0.3px; color:var(--g2); min-height:20px; }  /* 렌탈 .detail-info .model 과 동일 */
+  .ph-det-name { font-size:32px; font-weight:700; line-height:1.3; letter-spacing:-0.5px; word-break:keep-all; margin-bottom:20px; min-height:28px; }  /* 렌탈 .name-row h1 과 동일 */
   .ph-det-price-box { background:var(--bg-soft); border-radius:14px; padding:16px; margin-bottom:24px; display:flex; flex-direction:column; gap:0; min-height:112px; }
   .ph-det-price-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
@@ -488,7 +488,7 @@
     .ph-det-main { aspect-ratio:1/1; border-radius:20px; } /* max-width 캡 제거 → 렌탈처럼 컬럼 꽉 채움 */
     .ph-det-thumbs { gap:10px; padding:14px 0 0; border-top:none; }
     .ph-det-right { }
-    .ph-det-name { font-size:26px; margin-bottom:24px; }
+    .ph-det-name { margin-bottom:24px; }  /* 크기는 base 32px(렌탈과 동일) 유지 */
     .ph-det-price-box { margin-bottom:20px; }
     .ph-det-cta { font-size:17px; padding:18px; border-radius:16px; }
   }
