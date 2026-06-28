@@ -1979,9 +1979,11 @@ if(location.search.indexOf('ph=')!==-1){
     + '</a>';
   }
   var CARRIER_LABEL = { skt:'SKT', kt:'KT', lg:'LG U+', mvno:'알뜰유심' };
-  // 통신사 로고 이미지 (SKT 우선 적용, KT/LG U+/알뜰유심은 추후)
+  // 통신사 로고 이미지 (SKT/KT/LG U+ 적용, 알뜰유심은 로고 없음)
   var CARRIER_LOGOS = {
     'SKT': 'assets/carrier-skt.png',
+    'KT': 'assets/carrier-kt.png',
+    'LG U+': 'assets/carrier-lg.png',
   };
   function carrierBadge(tag) {
     var src = CARRIER_LOGOS[tag || ''];
