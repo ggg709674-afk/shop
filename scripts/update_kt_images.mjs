@@ -1,5 +1,13 @@
 // KT 제품 이미지 자동 업데이트 스크립트
 // Node.js ESM, fetch 내장 (Node 18+)
+//
+// ⚠ 이 스크립트는 colors[].images 에 KT 원격 URL(image.shop.kt.com)을 쓴다 = 핫링크.
+//   우리는 핫링크를 안 쓰기로 했으니(KT 차단 시 사진 깨짐), 이걸 돌린 뒤에는 반드시:
+//     1) node scripts/selfhost_phone_images.mjs              # 새 KT 이미지 → phone-images/ 다운로드
+//     2) git add phone-images && commit && push              # 우리 도메인에 배포(라이브)
+//     3) SB_SERVICE_KEY=... node scripts/relink_phone_images_db.mjs --write   # DB URL → /phone-images 교체
+//   ※ anon 키는 mobileshop_models 쓰기가 RLS 로 막혀 있음(silent no-op). 이 스크립트의 PATCH 도
+//     anon 이면 0행만 바뀐다 → 실제로는 service_role 로 돌려야 반영됨.
 
 const SB_URL = 'https://nfbpbxfpmcrtxsgvnnhr.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mYnBieGZwbWNydHhzZ3ZubmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1ODQ4OTQsImV4cCI6MjA5NzE2MDg5NH0.0JhTeZNkjisxed692QuxbDH4vFcJBJALpOaMpNA-LpM';
