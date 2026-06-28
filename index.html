@@ -1742,7 +1742,7 @@ if(location.search.indexOf('ph=')!==-1){
     <div class="ph-det-right">
       <div class="ph-det-carrier-row"><span class="swatch" id="ph-det-swatch"></span><span id="ph-det-carrier"></span></div>
       <div class="ph-det-name" id="ph-det-name"></div>
-      <script>(function(){var p=window._phPreload;if(!p)return;var c=document.getElementById('ph-det-carrier');var n=document.getElementById('ph-det-name');var t=document.getElementById('ph-det-bar-title');var pr=document.getElementById('ph-det-prices');if(c)c.textContent=p.c||'';if(n)n.textContent=p.n||'';if(t&&(p.c||p.n))t.innerHTML=(p.c?'<span class="ph-det-bar-prefix">'+p.c+'</span> ':'')+p.n;try{var pid=new URLSearchParams(location.search).get('ph');if(pr&&p.prices&&p.id&&p.id===pid)pr.innerHTML=p.prices;}catch(e){}})();</script>
+      <script>(function(){var p=window._phPreload;if(!p)return;var c=document.getElementById('ph-det-carrier');var n=document.getElementById('ph-det-name');var t=document.getElementById('ph-det-bar-title');var pr=document.getElementById('ph-det-prices');if(c)c.textContent=p.c||'';if(n)n.textContent=p.n||'';if(t&&(p.c||p.n))t.innerHTML=(p.c?'<span class="ph-det-bar-prefix">'+p.c+'</span> ':'')+p.n;var cb=document.getElementById('ph-det-crumb');if(cb&&(p.c||p.n)){var esc=function(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};cb.innerHTML='<a href="/?cat=phone">휴대폰</a> &nbsp;›&nbsp; '+(p.c?esc(p.c)+' &nbsp;›&nbsp; ':'')+'<span>'+esc(p.n)+'</span>';}try{var pid=new URLSearchParams(location.search).get('ph');if(pr&&p.prices&&p.id&&p.id===pid)pr.innerHTML=p.prices;}catch(e){}})();</script>
       <div class="ph-det-opts">
         <div class="ph-det-opt-row">
           <div class="ph-det-opt-label">가입 유형</div>
