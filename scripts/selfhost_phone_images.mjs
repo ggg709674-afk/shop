@@ -6,12 +6,21 @@
 //
 // 실행: node scripts/selfhost_phone_images.mjs
 //   결과: phone-images/ 채워짐 + scripts/.phone-image-map.json (KT URL → 로컬경로)
-import { mkdir, writeFile, access } from 'node:fs/promises';
+import { mkdir, writeFile, access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MAPOUT = join(ROOT, 'scripts', '.phone-image-map.json');
+
+// KT prodNo → 폴더 슬러그(영문 모델명). 신상폰은 phone-model-slugs.json 에 추가.
+const SLUGS = JSON.parse(await readFile(join(ROOT, 'scripts', 'phone-model-slugs.json'), 'utf8'));
+const warned = new Set();
+const folderFor = prod => {
+  if (SLUGS[prod]) return SLUGS[prod];
+  if (!warned.has(prod)) { warned.add(prod); console.log(`⚠ 슬러그 없음: ${prod} → 임시로 prodNo 사용. scripts/phone-model-slugs.json 에 추가하세요.`); }
+  return prod;
+};
 
 const SB_URL = 'https://nfbpbxfpmcrtxsgvnnhr.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mYnBieGZwbWNydHhzZ3ZubmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1ODQ4OTQsImV4cCI6MjA5NzE2MDg5NH0.0JhTeZNkjisxed692QuxbDH4vFcJBJALpOaMpNA-LpM';
@@ -34,8 +43,9 @@ const exists = async p => { try { await access(p); return true; } catch { return
 async function one(u) {
   const seg = new URL(u).pathname.split('/').filter(Boolean); // upload/product/<prod>/<file>
   const prod = seg[2], file = seg[3];
-  map[u] = `/phone-images/${prod}/${file}`;
-  const dir = join(ROOT, 'phone-images', prod);
+  const folder = folderFor(prod);
+  map[u] = `/phone-images/${folder}/${file}`;
+  const dir = join(ROOT, 'phone-images', folder);
   const abs = join(dir, file);
   if (await exists(abs)) { skip++; return; }
   await mkdir(dir, { recursive: true });

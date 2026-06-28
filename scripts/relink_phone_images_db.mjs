@@ -31,14 +31,16 @@ if (WRITE && !WRITE_KEY) {
   process.exit(1);
 }
 
-// KT URL → 로컬경로 매핑 (selfhost 스크립트가 생성). 없으면 경로 규칙으로 직접 변환.
-let map = {};
-try { map = JSON.parse(await readFile(join(ROOT, 'scripts', '.phone-image-map.json'), 'utf8')); } catch {}
+// KT prodNo → 폴더 슬러그. selfhost 와 동일 소스(phone-model-slugs.json) 사용.
+const SLUGS = JSON.parse(await readFile(join(ROOT, 'scripts', 'phone-model-slugs.json'), 'utf8'));
+const warned = new Set();
 function toLocal(u) {
   if (!u || !u.includes('image.shop.kt.com')) return u;       // 이미 self-host 됐거나 KT 아님 → 그대로
-  if (map[u]) return map[u];
   const seg = new URL(u).pathname.split('/').filter(Boolean);  // upload/product/<prod>/<file>
-  return `/phone-images/${seg[2]}/${seg[3]}`;
+  const prod = seg[2];
+  let folder = SLUGS[prod];
+  if (!folder) { if (!warned.has(prod)) { warned.add(prod); console.log(`⚠ 슬러그 없음: ${prod} → prodNo 사용`); } folder = prod; }
+  return `/phone-images/${folder}/${seg[3]}`;
 }
 
 const models = await fetch(`${SB_URL}/rest/v1/mobileshop_models?select=id,name,colors`, { headers: H }).then(r => r.json());
