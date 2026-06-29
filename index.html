@@ -2616,7 +2616,18 @@ if(location.search.indexOf('ph=')!==-1){
   }
   // 상세 스펙 — slug별 { cols:1|2, rows:[[label,value],...] }. 렌탈 .spec-table 서식과 동일.
   // (데이터는 형 캡쳐 받아 채움. cols 는 값 길이 보고 1/2 결정)
-  var PH_DETAIL_SPECS = {};
+  var PH_DETAIL_SPECS = {
+    'galaxy-s26-ultra': { cols: 2, rows: [
+      ['디스플레이', '6.9형 Dynamic AMOLED 2X'], ['해상도', 'QHD+ 3120×1440'],
+      ['주사율', '최대 120Hz'], ['프로세서', '옥타코어 4.74GHz'],
+      ['메모리(RAM)', '12GB · 16GB(1TB)'], ['저장공간', '256 / 512GB · 1TB'],
+      ['후면 카메라', '200MP+50MP+50MP+10MP'], ['전면 카메라', '12MP'],
+      ['배터리', '5,000mAh'], ['S펜', '지원'],
+      ['크기', '163.6×78.1×7.9mm'], ['무게', '214g'],
+      ['운영체제', 'Android'], ['SIM', 'nano-SIM + eSIM'],
+      ['출시', '2026년 2월'], ['제조국', '한국·베트남']
+    ] }
+  };
   function renderPhDetailSpec(name) {
     var box = document.getElementById('ph-det-spec'); if (!box) return;
     var slug = phDetailSlug(name);
