@@ -480,7 +480,7 @@
   .ph-det-info:empty { display:none; }
   .ph-det-info img { width:100%; height:auto; display:block; }
   .ph-det-info img + img { margin-top:0; }
-  #ph-detail .ft { max-width:1200px; margin-left:auto; margin-right:auto; }  /* 상세 푸터 — 본문폭에 맞춰 중앙 */
+  #ph-detail .ft, #rental-det .ft { max-width:1200px; margin-left:auto; margin-right:auto; }  /* 상세 푸터 — 본문폭에 맞춰 중앙 */
   /* PC 2컬럼 레이아웃 */
   @media (min-width:768px) {
     .ph-det-bar { padding:0 max(20px, calc((100% - 1200px) / 2)); }
@@ -1726,6 +1726,17 @@ if(location.search.indexOf('ph=')!==-1){
       </div>
       <div id="detail-main"></div>
     </section>
+    <footer class="ft">
+      <div class="ft-row">
+        <a>이용약관</a>·<a>개인정보처리방침</a>·<a>판매자 정보</a>·<a>고객센터</a>
+      </div>
+      <div>
+        <b>(주)우주커넥트</b> · 대표 김** · 1577-0000<br>
+        서울 강남구 테헤란로 152 · Mon–Sat 10:00–20:00<br>
+        사업자번호 123-45-67890 · 통신판매업신고 제2026-서울강남-1234호<br>
+        <span class="ft-c">© 2026 우주커넥트. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>
+      </div>
+    </footer>
   </main>
 </div>
 
