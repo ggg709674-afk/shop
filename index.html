@@ -435,7 +435,7 @@
     width:100%; aspect-ratio:1/1; background:var(--bg-soft);
     display:flex; align-items:center; justify-content:center; overflow:hidden;
   }
-  .ph-det-main img { max-width:90%; max-height:90%; object-fit:contain; }  /* 렌탈 .gallery .main img 과 동일 */
+  .ph-det-main img { height:90%; width:auto; max-width:90%; object-fit:contain; }  /* 높이 고정·가로 비율 — 카드/썸네일과 동일 원칙 (작은 이미지도 같은 높이로) */
   .ph-det-main svg { width:38%; color:var(--g3); }
   /* 메인 박스 좌상단 통신사 로고 (카드 .c-logo-wrap 과 동일 톤, 크게) */
   .ph-det-main .ph-det-logo { position:absolute; top:22px; left:22px; z-index:3; width:42px; display:block; }
