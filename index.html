@@ -2550,10 +2550,23 @@ if(location.search.indexOf('ph=')!==-1){
       phDetLogoHtml(_phDetCarrier) + (url ? '<img src="' + escapeHtml(url) + '" alt="">' : PH_DET_GLYPH);
   }
   // 상세 인포그래픽 스트립 — 모델명 → 슬러그 → /phone-images/<slug>/detail_NN.jpg (KT 크롤·선별본)
-  var PH_DETAIL_COUNTS = { 'galaxy-s26-ultra': 24 };
+  var PH_DETAIL_COUNTS = {
+    'galaxy-s26-ultra': 24, 'galaxy-s26-plus': 20, 'galaxy-s26': 20,
+    'galaxy-s25-ultra': 19, 'galaxy-s25-fe': 28, 'galaxy-s25': 20,
+    'iphone-17-pro-max': 4, 'iphone-17-pro': 4, 'iphone-air': 4, 'iphone-17': 4, 'iphone-16e': 6
+  };
+  // 구체적인 것부터 먼저 매칭 (s26+ 가 s26 보다, 17promax 가 17pro 보다 앞)
+  var PH_DETAIL_SLUG_RULES = [
+    [/s26(ultra|울트라)/, 'galaxy-s26-ultra'], [/s26(\+|plus|플러스)/, 'galaxy-s26-plus'], [/s26/, 'galaxy-s26'],
+    [/s25(ultra|울트라)/, 'galaxy-s25-ultra'], [/s25fe/, 'galaxy-s25-fe'], [/s25/, 'galaxy-s25'],
+    [/iphone17promax/, 'iphone-17-pro-max'], [/iphone17pro/, 'iphone-17-pro'], [/iphoneair/, 'iphone-air'],
+    [/iphone17e/, ''], [/iphone17/, 'iphone-17'], [/iphone16e/, 'iphone-16e']
+  ];
   function phDetailSlug(name) {
     var n = (name || '').toLowerCase().replace(/\s/g, '');
-    if (/(s26울트라|s26ultra)/.test(n)) return 'galaxy-s26-ultra';
+    for (var i = 0; i < PH_DETAIL_SLUG_RULES.length; i++) {
+      if (PH_DETAIL_SLUG_RULES[i][0].test(n)) return PH_DETAIL_SLUG_RULES[i][1];
+    }
     return '';
   }
   function renderPhDetailInfo(name) {
