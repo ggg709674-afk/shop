@@ -486,12 +486,22 @@
   /* 활성 탭 빨간 밑줄 — rental --primary 변수가 #ph-detail 스코프에서 안 풀려서 --accent 로 명시 */
   #ph-detail .ph-det-tabs .tabbar button.on { color:var(--accent); border-bottom-color:var(--accent); }
   #ph-detail .ph-det-tabs .ph-det-info { padding:0 16px; }
-  .ph-det-spec { max-width:760px; margin:0 auto; padding:0 16px; }
+  .ph-det-spec { max-width:900px; margin:0 auto; padding:0 16px; }
   .ph-det-spec-empty { color:var(--g3); text-align:center; padding:48px 0; font-size:14px; }
-  .ph-spec-tbl { width:100%; border-collapse:collapse; font-size:14px; }
-  .ph-spec-tbl th, .ph-spec-tbl td { text-align:left; padding:14px 12px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.5; }
-  .ph-spec-tbl th { width:34%; color:var(--g2); font-weight:600; }
-  .ph-spec-tbl td { color:var(--ink); }
+  /* 렌탈 .spec-table 와 동일 서식 (한 행 2쌍, 모바일 1열 스택). index 변수 사용 */
+  .ph-spec-tbl { width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.5; }
+  .ph-spec-tbl th, .ph-spec-tbl td { padding:13px 14px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+  .ph-spec-tbl th { background:var(--bg-soft); color:var(--g1); font-weight:600; width:18%; min-width:120px; }
+  .ph-spec-tbl td { color:var(--ink); width:32%; word-break:break-word; }
+  .ph-spec-tbl.one-col th { width:30%; }
+  .ph-spec-tbl.one-col td { width:70%; }
+  .ph-spec-tbl tr:hover th { background:var(--line); }
+  @media (max-width:720px) {
+    .ph-spec-tbl, .ph-spec-tbl tbody, .ph-spec-tbl tr, .ph-spec-tbl th, .ph-spec-tbl td { display:block; width:100%; }
+    .ph-spec-tbl th { background:transparent; border-bottom:none; padding:14px 0 4px; font-size:12px; color:var(--g2); min-width:0; }
+    .ph-spec-tbl td { padding:0 0 12px; border-bottom:1px solid var(--line); font-size:14px; }
+    .ph-spec-tbl th:empty + td { display:none; }
+  }
   /* PC 2컬럼 레이아웃 */
   @media (min-width:768px) {
     .ph-det-bar { padding:0 max(20px, calc((100% - 1200px) / 2)); }
@@ -2604,14 +2614,27 @@ if(location.search.indexOf('ph=')!==-1){
     }
     box.innerHTML = h;
   }
-  // 제품 사양 — slug별 스펙 표(추후 채움). KT는 구조화 스펙 미제공 → 별도 소스 필요시 여기에 주입.
+  // 상세 스펙 — slug별 { cols:1|2, rows:[[label,value],...] }. 렌탈 .spec-table 서식과 동일.
+  // (데이터는 형 캡쳐 받아 채움. cols 는 값 길이 보고 1/2 결정)
   var PH_DETAIL_SPECS = {};
   function renderPhDetailSpec(name) {
     var box = document.getElementById('ph-det-spec'); if (!box) return;
     var slug = phDetailSlug(name);
-    var rows = slug ? PH_DETAIL_SPECS[slug] : null;
+    var spec = slug ? PH_DETAIL_SPECS[slug] : null;
+    var rows = spec && spec.rows;
     if (!rows || !rows.length) { box.innerHTML = '<div class="ph-det-spec-empty">제품 사양 정보가 준비되면 표시됩니다.</div>'; return; }
-    box.innerHTML = '<table class="ph-spec-tbl">' + rows.map(function(r){ return '<tr><th>' + escapeHtml(r[0]) + '</th><td>' + escapeHtml(r[1]) + '</td></tr>'; }).join('') + '</table>';
+    var cols = spec.cols === 1 ? 1 : 2;   // 렌탈처럼 2열 기본, 값이 길면 1열
+    var html = '';
+    for (var i = 0; i < rows.length; i += cols) {
+      html += '<tr>';
+      for (var c = 0; c < cols; c++) {
+        var r = rows[i + c];
+        if (r) html += '<th>' + escapeHtml(r[0]) + '</th><td>' + escapeHtml(r[1]) + '</td>';
+        else html += '<th></th><td></td>';
+      }
+      html += '</tr>';
+    }
+    box.innerHTML = '<table class="ph-spec-tbl' + (cols === 1 ? ' one-col' : '') + '">' + html + '</table>';
   }
   function resetPhDetailTabs() {
     var bar = document.querySelector('#ph-detail .ph-det-tabs .tabbar'); if (!bar) return;
