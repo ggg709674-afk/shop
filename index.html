@@ -475,6 +475,11 @@
     background:var(--bg); font:600 13px/1 inherit; color:var(--g1); cursor:pointer; transition:all .15s;
   }
   .ph-det-chip.on { border-color:var(--accent); background:var(--accent); color:#fff; }
+  /* 상세 인포그래픽 스트립 (렌탈 .infoimgs 와 동일 톤) */
+  .ph-det-info { max-width:760px; margin:8px auto 0; padding:0 16px 56px; }
+  .ph-det-info:empty { display:none; }
+  .ph-det-info img { width:100%; height:auto; display:block; }
+  .ph-det-info img + img { margin-top:0; }
   /* PC 2컬럼 레이아웃 */
   @media (min-width:768px) {
     .ph-det-bar { padding:0 max(20px, calc((100% - 1200px) / 2)); }
@@ -1773,6 +1778,7 @@ if(location.search.indexOf('ph=')!==-1){
       <button class="ph-det-cta">상담 문의하기</button>
     </div>
   </div>
+  <div class="ph-det-info" id="ph-det-info"></div>
 </div>
 
 </div><!-- /device -->
@@ -2494,6 +2500,26 @@ if(location.search.indexOf('ph=')!==-1){
     document.getElementById('ph-det-main').innerHTML =
       phDetLogoHtml(_phDetCarrier) + (url ? '<img src="' + escapeHtml(url) + '" alt="">' : PH_DET_GLYPH);
   }
+  // 상세 인포그래픽 스트립 — 모델명 → 슬러그 → /phone-images/<slug>/detail_NN.jpg (KT 크롤·선별본)
+  var PH_DETAIL_COUNTS = { 'galaxy-s26-ultra': 24 };
+  function phDetailSlug(name) {
+    var n = (name || '').toLowerCase().replace(/\s/g, '');
+    if (/(s26울트라|s26ultra)/.test(n)) return 'galaxy-s26-ultra';
+    return '';
+  }
+  function renderPhDetailInfo(name) {
+    var box = document.getElementById('ph-det-info');
+    if (!box) return;
+    var slug = phDetailSlug(name);
+    var cnt = slug ? (PH_DETAIL_COUNTS[slug] || 0) : 0;
+    if (!cnt) { box.innerHTML = ''; return; }
+    var h = '';
+    for (var i = 1; i <= cnt; i++) {
+      var nn = ('0' + i).slice(-2);
+      h += '<img src="/phone-images/' + slug + '/detail_' + nn + '.jpg" loading="lazy" alt="">';
+    }
+    box.innerHTML = h;
+  }
 
   function openPhDetail(card) {
     var name    = card.getAttribute('data-card-name') || '';
@@ -2520,6 +2546,7 @@ if(location.search.indexOf('ph=')!==-1){
 
     var mainUrl = _phDetImgs[0] || '';
     setPhDetMain(mainUrl);
+    renderPhDetailInfo(name);
 
     var tHtml = '';
     for (var i = 0; i < 6; i++) {
