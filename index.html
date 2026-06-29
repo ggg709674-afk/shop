@@ -2004,8 +2004,11 @@ if(location.search.indexOf('ph=')!==-1){
   var PHONE_HOME_PREVIEW = 4;   // 통신사 섹션당 미리보기 개수 (최대 두 줄=8까지 가능)
   // 현재 선택 통신사 ('all'=메인). 새로고침 유지: URL ?carrier= 에서 초기값 복원
   var _phCarrier = (function() { try { return new URLSearchParams(location.search).get('carrier') || 'all'; } catch (e) { return 'all'; } })();
+  var _restoring = false;     // popstate 복원 중에는 showCat/통신사가 URL을 다시 쓰지 않게(히스토리 보존)
+  var _phDetOpenId = '';      // 현재 열린 휴대폰 상세 모델 id
   // 통신사 선택 상태를 URL(?cat=phone&carrier=)에 기록 (휴대폰 탭에서만, ph 등 다른 파라미터 보존)
   function syncPhoneCarrierUrl() {
+    if (_restoring) return;   // 복원 중엔 URL 건드리지 않음
     try {
       var sp = new URLSearchParams(location.search);
       var cat = sp.get('cat');
@@ -2391,25 +2394,44 @@ if(location.search.indexOf('ph=')!==-1){
     });
   })();
 
-  window.addEventListener('popstate', function() {
-    // 렌탈 탭에서만 처리 (휴대폰 상세는 별도 popstate 핸들러)
-    var sp; try { sp = new URLSearchParams(location.search); } catch(e) { sp = new URLSearchParams(); }
-    if (sp.get('cat') === 'rental') {
-      var id = sp.get('id');
-      var det = document.getElementById('rental-det');
-      if (id) {
-        // 뒤로/앞으로 → 상세 URL이면 상세 열기 (URL 일치라 openRentalDet이 pushState 생략)
-        openRentalDet(id, true);
-      } else if (det && det.classList.contains('on')) {
-        det.classList.remove('on');           // 상세 닫고
-        applyRentalRoute();                   // ?cls= / 홈 등 현재 URL 뷰 복원
+  // ───── 통합 URL 복원 (뒤로/앞으로) — 중앙 라우터 부재 보완 ─────
+  //   popstate 시 URL(cat·carrier·ph / rental id·cls·view)에 맞춰 탭·통신사·상세를 전부 복원.
+  //   _restoring 동안 showCat/통신사 sync 가 URL을 다시 쓰지 않으므로 히스토리 항목이 보존됨.
+  function applyUrlState() {
+    var sp; try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
+    var cat = sp.get('cat') || 'phone';
+    if (catOrder.indexOf(cat) === -1) cat = 'phone';
+    _restoring = true;
+    try {
+      if (catOrder[currentIdx] !== cat) showCat(cat);   // 탭 전환 (URL 보존)
+
+      if (cat === 'phone') {
+        var _rd0 = document.getElementById('rental-det'); if (_rd0) _rd0.classList.remove('on');  // 다른 탭 상세 닫기
+        var carrier = sp.get('carrier') || 'all';
+        if (_phCarrier !== carrier) selectPhoneCarrier(carrier);   // 통신사 필터 복원(그리드 렌더 → ph 카드 존재)
+        var ph = sp.get('ph');
+        var pdet = document.getElementById('ph-detail');
+        if (ph) {
+          if (!pdet.classList.contains('on') || _phDetOpenId !== ph) {
+            var esc = (window.CSS && CSS.escape) ? CSS.escape(ph) : ph;
+            var card = document.querySelector('#panel-phone .product-card[data-model-id="' + esc + '"]');
+            if (card) openPhDetail(card);
+          }
+        } else if (pdet.classList.contains('on')) { pdet.classList.remove('on'); _phDetOpenId = ''; }
+      } else if (cat === 'rental') {
+        var _pd0 = document.getElementById('ph-detail'); if (_pd0) { _pd0.classList.remove('on'); _phDetOpenId = ''; }  // 다른 탭 상세 닫기
+        var id = sp.get('id');
+        var rdet = document.getElementById('rental-det');
+        if (!id && rdet && rdet.classList.contains('on')) rdet.classList.remove('on');
+        applyRentalRoute();   // id→상세 / cls·view→카테고리 / else→홈
+      } else { // internet
+        var pd = document.getElementById('ph-detail'); if (pd) pd.classList.remove('on');
+        var rd = document.getElementById('rental-det'); if (rd) rd.classList.remove('on');
       }
-    } else {
-      var det2 = document.getElementById('rental-det');
-      if (det2 && det2.classList.contains('on')) det2.classList.remove('on');
-    }
+    } finally { _restoring = false; }
     if (window.refreshTopBtn) window.refreshTopBtn();
-  }, false);
+  }
+  window.addEventListener('popstate', applyUrlState, false);
 
   // 렌탈 브랜드 소메뉴(부모 .sub-nav) — SK매직만 운영, 청호/코웨이는 준비중 안내
   (function(){
@@ -2462,7 +2484,7 @@ if(location.search.indexOf('ph=')!==-1){
     // 렌탈: 이미 id/cls가 URL에 있으면 덮어쓰지 않음 — iframe postMessage가 곧 동기화하므로 일시적 손실 방지
     try {
       var _sp = new URLSearchParams(location.search);
-      if (cat !== 'rental' || !_sp.get('id')) {
+      if (!_restoring && (cat !== 'rental' || !_sp.get('id'))) {
         history.replaceState({}, '', location.pathname + '?cat=' + cat);
         // 휴대폰 탭으로 돌아오면 선택 통신사도 URL에 다시 반영
         if (cat === 'phone' && typeof syncPhoneCarrierUrl === 'function') syncPhoneCarrierUrl();
@@ -2580,6 +2602,7 @@ if(location.search.indexOf('ph=')!==-1){
     if (window.refreshTopBtn) window.refreshTopBtn();
     // URL 상태 저장
     var modelId = card.getAttribute('data-model-id') || '';
+    _phDetOpenId = modelId;
     if (modelId) {
       // 기존 파라미터(cat/carrier) 보존하면서 ph만 추가, 렌탈 잔재(cls/id) 제거
       var sp; try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
@@ -2592,6 +2615,7 @@ if(location.search.indexOf('ph=')!==-1){
 
   function closePhDetail() {
     document.getElementById('ph-detail').classList.remove('on');
+    _phDetOpenId = '';
     // ph만 제거하고 cat/carrier 등은 보존 (닫은 뒤 통신사 그리드로 복귀 유지)
     try {
       var sp = new URLSearchParams(location.search);
@@ -2618,13 +2642,7 @@ if(location.search.indexOf('ph=')!==-1){
     selectPhoneCarrier(carrier);
   });
 
-  // 브라우저 뒤로가기로 상세 닫기
-  window.addEventListener('popstate', function(e) {
-    if (!e.state || !e.state.ph) {
-      document.getElementById('ph-detail').classList.remove('on');
-    }
-    if (window.refreshTopBtn) window.refreshTopBtn();
-  });
+  // (뒤로/앞으로 상세 여닫기는 위 통합 applyUrlState 가 전담 — 별도 popstate 핸들러 제거)
 
   // 옵션 칩 토글
   document.getElementById('ph-detail').addEventListener('click', function(e) {
