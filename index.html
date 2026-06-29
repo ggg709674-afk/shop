@@ -310,7 +310,7 @@
   /* 휴대폰/인터넷 카드 전용 이미지 레이아웃(상단 모델명+로고 디자인). 렌탈 카드(#panel-rental/#rental-det)는
      rental-assets/style.css 의 풀사이즈 이미지(absolute inset:0; width:100%; padding:16px)를 그대로 쓰도록 스코프 한정.
      (iframe 제거로 렌탈 카드가 부모 .product-card 를 공유 → 이 규칙이 새어 이미지가 66%로 작아졌던 것) */
-  #panel-phone .product-card .thumb > img, #panel-internet .product-card .thumb > img { position:relative; inset:auto; top:-12px; width:66%; height:66%; object-fit:contain; padding:0; transition:transform .3s; }
+  #panel-phone .product-card .thumb > img, #panel-internet .product-card .thumb > img { position:relative; inset:auto; top:-12px; width:auto; height:66%; max-width:88%; object-fit:contain; padding:0; transition:transform .3s; }  /* 높이 고정·가로 비율대로 (이미지 캔버스 크기 무관 일관) */
   #panel-phone .product-card:hover .thumb > img, #panel-internet .product-card:hover .thumb > img { transform:scale(1.04); }
   .product-card .thumb .ph-glyph { width:44%; height:auto; color:var(--g3); }
   .product-card .thumb .badges { position:absolute; top:10px; right:10px; z-index:2; display:flex; gap:4px; }
@@ -451,7 +451,7 @@
   }
   .ph-det-thumb:hover { border-color:var(--g2); }  /* 렌탈 .thumbs .t:hover 와 동일 톤 */
   .ph-det-thumb.on { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
-  .ph-det-thumb img { width:100%; height:100%; object-fit:contain; padding:4px; }
+  .ph-det-thumb img { width:auto; height:82%; max-width:88%; object-fit:contain; }  /* 높이 고정·가로 비율대로 */
   .ph-det-thumb.empty { opacity:.22; cursor:default; }
   .ph-det-body { padding:20px 16px 48px; }
   .ph-det-carrier-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:13px; font-weight:600; letter-spacing:0.3px; color:var(--g2); min-height:20px; }  /* 렌탈 .detail-info .model 과 동일 */
