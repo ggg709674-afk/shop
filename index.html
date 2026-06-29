@@ -2592,7 +2592,9 @@ if(location.search.indexOf('ph=')!==-1){
     [/s26(ultra|울트라)/, 'galaxy-s26-ultra'], [/s26(\+|plus|플러스)/, 'galaxy-s26-plus'], [/s26/, 'galaxy-s26'],
     [/s25(ultra|울트라)/, 'galaxy-s25-ultra'], [/s25fe/, 'galaxy-s25-fe'], [/s25/, 'galaxy-s25'],
     [/iphone17promax/, 'iphone-17-pro-max'], [/iphone17pro/, 'iphone-17-pro'], [/iphoneair/, 'iphone-air'],
-    [/iphone17e/, ''], [/iphone17/, 'iphone-17'], [/iphone16e/, 'iphone-16e']
+    [/iphone17e/, ''], [/iphone17/, 'iphone-17'],
+    [/iphone16promax/, 'iphone-16-pro-max'], [/iphone16pro/, 'iphone-16-pro'],
+    [/iphone16plus/, ''], [/iphone16e/, 'iphone-16e'], [/iphone16/, 'iphone-16']
   ];
   function phDetailSlug(name) {
     var n = (name || '').toLowerCase().replace(/\s/g, '');
@@ -2708,6 +2710,14 @@ if(location.search.indexOf('ph=')!==-1){
       ['배터리', '동영상 최대 30시간'], ['광학 줌', '0.5~2배'],
       ['소재', '알루미늄 프레임'], ['방수·방진', 'IP68'],
       ['운영체제', 'iOS'], ['SIM', 'eSIM']
+    ] },
+    'iphone-16': { cols: 2, rows: [
+      ['디스플레이', '6.1형 Super Retina XDR'], ['주사율', '60Hz'],
+      ['칩', 'A18'], ['저장공간', '128 / 256 / 512GB'],
+      ['후면 카메라', '48MP 듀얼 (메인·UW)'], ['전면 카메라', '12MP TrueDepth'],
+      ['배터리', '동영상 최대 22시간'], ['광학 줌', '0.5~2배'],
+      ['무게', '170g'], ['방수·방진', 'IP68'],
+      ['운영체제', 'iOS'], ['SIM', 'nano-SIM + eSIM']
     ] }
   };
   function renderPhDetailSpec(name) {
@@ -2731,9 +2741,14 @@ if(location.search.indexOf('ph=')!==-1){
   }
   function resetPhDetailTabs() {
     var bar = document.querySelector('#ph-detail .ph-det-tabs .tabbar'); if (!bar) return;
-    bar.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-ppane') === 'info'); });
+    var hasInfo = !!document.querySelector('#ph-det-info img');   // 상세 스트립 존재?
+    var infoBtn = bar.querySelector('button[data-ppane="info"]');
+    if (infoBtn) infoBtn.style.display = hasInfo ? '' : 'none';   // 스트립 없으면 '상품 상세' 탭 숨김
+    var def = hasInfo ? 'info' : 'spec';                          // 없으면 '상세 스펙'을 기본으로
+    bar.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-ppane') === def); });
     var pi = document.getElementById('ph-pane-info'), ps = document.getElementById('ph-pane-spec');
-    if (pi) pi.style.display = ''; if (ps) ps.style.display = 'none';
+    if (pi) pi.style.display = def === 'info' ? '' : 'none';
+    if (ps) ps.style.display = def === 'spec' ? '' : 'none';
   }
 
   function openPhDetail(card) {
