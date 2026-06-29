@@ -482,7 +482,7 @@
   .ph-det-info img + img { margin-top:0; }
   #ph-detail .ft, #rental-det .ft { max-width:1200px; margin-left:auto; margin-right:auto; }  /* 상세 푸터 — 본문폭에 맞춰 중앙 */
   /* 상세 탭(상품 상세 / 제품 사양) — 렌탈 .detail-tabs 재사용 + 폭 통일 */
-  #ph-detail .ph-det-tabs { max-width:1200px; margin-left:auto; margin-right:auto; }
+  #ph-detail .ph-det-tabs { max-width:1200px; margin-left:auto; margin-right:auto; margin-top:8px; }  /* 썸네일 1줄 고정 → 탭 위 여백 축소(렌탈 60 → 8) */
   /* 활성 탭 빨간 밑줄 — rental --primary 변수가 #ph-detail 스코프에서 안 풀려서 --accent 로 명시 */
   #ph-detail .ph-det-tabs .tabbar button.on { color:var(--accent); border-bottom-color:var(--accent); }
   #ph-detail .ph-det-tabs .ph-det-info { padding:0 16px; }
@@ -499,7 +499,7 @@
     /* 렌탈 상세(.detail-top)와 동일한 2단 분할 — 이미지 박스 크기 일치(1.1fr 1fr, gap 50, inner 1160 → 581) */
     .ph-det-content {
       display:grid; grid-template-columns:1.1fr 1fr; align-items:start;
-      max-width:1200px; margin:0 auto; padding:16px 20px 80px; gap:50px;
+      max-width:1200px; margin:0 auto; padding:16px 20px 24px; gap:50px;
     }
     .ph-det-left { position:sticky; top:72px; }
     .ph-det-main { aspect-ratio:1/1; border-radius:20px; } /* max-width 캡 제거 → 렌탈처럼 컬럼 꽉 채움 */
