@@ -485,6 +485,8 @@
   #ph-detail .ph-det-tabs { max-width:1200px; margin-left:auto; margin-right:auto; margin-top:8px; }  /* 썸네일 1줄 고정 → 탭 위 여백 축소(렌탈 60 → 8) */
   /* 활성 탭 빨간 밑줄 — rental --primary 변수가 #ph-detail 스코프에서 안 풀려서 --accent 로 명시 */
   #ph-detail .ph-det-tabs .tabbar button.on { color:var(--accent); border-bottom-color:var(--accent); }
+  /* 탭바 sticky 해제 — 스크롤시 위로 사라지게(타이틀바에 안 붙고 빨간줄도 안 삐져나옴) */
+  #ph-detail .ph-det-tabs .tabbar { position:static; }
   #ph-detail .ph-det-tabs .ph-det-info { padding:0 16px; }
   .ph-det-spec { max-width:900px; margin:0 auto; padding:0 16px; }
   .ph-det-spec-empty { color:var(--g3); text-align:center; padding:48px 0; font-size:14px; }
