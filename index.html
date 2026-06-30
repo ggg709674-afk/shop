@@ -512,7 +512,8 @@
       max-width:1200px; margin:0 auto; padding:16px 20px 24px; gap:50px;
     }
     /* 탭바·탭콘텐츠를 상단 컬럼(43~1203)에 정렬 — 컬럼처럼 좌우 20px 인셋(렌탈과 동일) */
-    #ph-detail .ph-det-tabs { padding-left:20px; padding-right:20px; box-sizing:border-box; }
+    #ph-detail .ph-det-tabs { padding-left:20px; padding-right:20px; box-sizing:border-box; border-top:none; }
+    #ph-detail .ph-det-tabs .tabbar { border-top:1px solid #E8E8E8; }  /* 윗줄도 컬럼폭(43~1203)으로 인셋 — 박스 border-top은 패딩 무시하므로 tabbar로 이동 */
     .ph-det-left { position:sticky; top:72px; }
     .ph-det-main { aspect-ratio:1/1; border-radius:20px; } /* max-width 캡 제거 → 렌탈처럼 컬럼 꽉 채움 */
     .ph-det-thumbs { gap:10px; padding:14px 0 0; border-top:none; }
