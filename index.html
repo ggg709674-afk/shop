@@ -2590,12 +2590,12 @@ if(location.search.indexOf('ph=')!==-1){
   var PH_DETAIL_COUNTS = {
     'galaxy-s26-ultra': 24, 'galaxy-s26-plus': 20, 'galaxy-s26': 20,
     'galaxy-s25-ultra': 19, 'galaxy-s25-edge': 9, 'galaxy-s25-fe': 28, 'galaxy-s25': 20,
-    'galaxy-quantum6': 21,
+    'galaxy-quantum6': 21, 'galaxy-wide8': 12,
     'iphone-17-pro-max': 4, 'iphone-17-pro': 4, 'iphone-air': 4, 'iphone-17': 4, 'iphone-16e': 6
   };
   // 구체적인 것부터 먼저 매칭 (s26+ 가 s26 보다, 17promax 가 17pro 보다 앞)
   var PH_DETAIL_SLUG_RULES = [
-    [/퀀텀6|quantum6/, 'galaxy-quantum6'],
+    [/퀀텀6|quantum6/, 'galaxy-quantum6'], [/와이드8|wide8/, 'galaxy-wide8'],
     [/s26(ultra|울트라)/, 'galaxy-s26-ultra'], [/s26(\+|plus|플러스)/, 'galaxy-s26-plus'], [/s26/, 'galaxy-s26'],
     [/s25(ultra|울트라)/, 'galaxy-s25-ultra'], [/s25(edge|엣지)/, 'galaxy-s25-edge'], [/s25fe/, 'galaxy-s25-fe'], [/s25/, 'galaxy-s25'],
     [/iphone17promax/, 'iphone-17-pro-max'], [/iphone17pro/, 'iphone-17-pro'], [/iphoneair/, 'iphone-air'],
@@ -2691,6 +2691,14 @@ if(location.search.indexOf('ph=')!==-1){
       ['후면 카메라', '50MP+12MP+5MP'], ['전면 카메라', '12MP'],
       ['배터리', '5,000mAh'], ['네트워크', '5G'],
       ['크기', '162.2×77.5×7.4mm'], ['무게', '198g'],
+      ['운영체제', 'Android']
+    ] },
+    'galaxy-wide8': { cols: 2, rows: [
+      ['디스플레이', '6.7형 FHD+ Super AMOLED'], ['프로세서', 'Exynos 1330 (5nm)'],
+      ['메모리(RAM)', '6GB'], ['저장공간', '128GB'],
+      ['후면 카메라', '50MP+5MP+2MP'], ['전면 카메라', '13MP'],
+      ['배터리', '5,000mAh'], ['네트워크', '5G'],
+      ['크기', '164.4×77.9×7.9mm'], ['무게', '200g'],
       ['운영체제', 'Android']
     ] },
     'galaxy-s25-fe': { cols: 2, rows: [
