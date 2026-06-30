@@ -402,7 +402,7 @@
   }
   #rental-det .detail-appbar .dab-consult:active { filter:brightness(.92); }
   .ph-det-bar {
-    position:sticky; top:0; z-index:10; background:var(--bg);
+    position:sticky; top:0; z-index:20; background:var(--bg);  /* 탭바(sticky top:0, z:10)보다 위 → 스크롤시 탭바가 앱바 뒤로 숨음(렌탈 동일) */
     border-bottom:1px solid var(--line);
     display:flex; align-items:center; justify-content:space-between;
     padding:0 16px; height:56px;
