@@ -461,7 +461,10 @@
   .ph-det-thumb.empty { opacity:.22; cursor:default; }
   .ph-det-body { padding:20px 16px 48px; }
   .ph-det-carrier-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:13px; font-weight:600; letter-spacing:0.3px; color:var(--g2); min-height:20px; }  /* 렌탈 .detail-info .model 과 동일 */
-  .ph-det-name { font-size:32px; font-weight:700; line-height:1.3; letter-spacing:-0.5px; word-break:keep-all; margin-bottom:20px; min-height:28px; }  /* 렌탈 .name-row h1 과 동일 */
+  .ph-det-name { font-size:32px; font-weight:700; line-height:1.3; letter-spacing:-0.5px; word-break:keep-all; min-height:28px; }  /* 렌탈 .name-row h1 과 동일 */
+  .ph-det-name-row { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:20px; }  /* 렌탈 .name-row: 모델명+색상명 baseline 정렬 */
+  .ph-det-color-name { font-size:32px; font-weight:300; color:var(--g2); letter-spacing:-0.5px; line-height:1.3; }  /* 색상명 = 모델명 크기, 가볍게/회색으로 구분 */
+  .ph-det-color-name:empty { display:none; }
   .ph-det-price-box { background:var(--bg-soft); border-radius:14px; padding:16px; margin-bottom:24px; display:flex; flex-direction:column; gap:0; min-height:112px; }
   .ph-det-price-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
@@ -531,7 +534,7 @@
     .ph-det-main { aspect-ratio:1/1; border-radius:20px; } /* max-width 캡 제거 → 렌탈처럼 컬럼 꽉 채움 */
     .ph-det-thumbs { gap:10px; padding:14px 0 0; border-top:none; }
     .ph-det-right { }
-    .ph-det-name { margin-bottom:24px; }  /* 크기는 base 32px(렌탈과 동일) 유지 */
+    .ph-det-name-row { margin-bottom:24px; }  /* 크기는 base 32px(렌탈과 동일) 유지 */
     .ph-det-price-box { margin-bottom:20px; }
     .ph-det-cta { font-size:17px; padding:18px; border-radius:16px; }
   }
@@ -1795,11 +1798,14 @@ if(location.search.indexOf('ph=')!==-1){
     </div>
     <div class="ph-det-right">
       <div class="ph-det-carrier-row"><span class="swatch" id="ph-det-swatch"></span><span id="ph-det-carrier"></span></div>
-      <div class="ph-det-name" id="ph-det-name"></div>
+      <div class="ph-det-name-row">
+        <div class="ph-det-name" id="ph-det-name"></div>
+        <span class="ph-det-color-name" id="ph-det-color-name"></span>
+      </div>
       <script>(function(){var p=window._phPreload;if(!p)return;var c=document.getElementById('ph-det-carrier');var n=document.getElementById('ph-det-name');var t=document.getElementById('ph-det-bar-title');var pr=document.getElementById('ph-det-prices');if(c)c.textContent=p.c||'';if(n)n.textContent=p.n||'';if(t&&(p.c||p.n))t.innerHTML=(p.c?'<span class="ph-det-bar-prefix">'+p.c+'</span> ':'')+p.n;var cb=document.getElementById('ph-det-crumb');if(cb&&(p.c||p.n)){var esc=function(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};cb.innerHTML='<a href="/?cat=phone">휴대폰</a> &nbsp;›&nbsp; '+(p.c?esc(p.c)+' &nbsp;›&nbsp; ':'')+'<span>'+esc(p.n)+'</span>';}try{var pid=new URLSearchParams(location.search).get('ph');if(pr&&p.prices&&p.id&&p.id===pid)pr.innerHTML=p.prices;}catch(e){}})();</script>
       <div class="ph-det-opts">
         <div class="ph-det-opt-row" id="ph-det-color-row" hidden>
-          <div class="ph-det-opt-label">색상<span id="ph-det-color-name"></span></div>
+          <div class="ph-det-opt-label">색상 선택</div>
           <div class="ph-det-colors" id="ph-det-color-chips"></div>
         </div>
         <div class="ph-det-opt-row">
@@ -2647,20 +2653,24 @@ if(location.search.indexOf('ph=')!==-1){
     });
   }
   // 색상 스와치 행 렌더(색상 2개 이상일 때만). 클릭은 위임(1회 바인딩).
+  // 모델명 우측 색상명(모델명 크기). 색상 정보 있으면 1색이어도 표시(렌탈 동일).
+  function setPhDetColorName() {
+    var nameEl = document.getElementById('ph-det-color-name');
+    if (nameEl) nameEl.textContent = (_phDetColors[_phDetColorIdx] && _phDetColors[_phDetColorIdx].name) || '';
+  }
   function renderPhDetColors() {
     var row = document.getElementById('ph-det-color-row');
     var chips = document.getElementById('ph-det-color-chips');
-    var nameEl = document.getElementById('ph-det-color-name');
+    setPhDetColorName();
     if (!row || !chips) return;
-    if (!_phDetColors || _phDetColors.length < 2) {   // 1색이면 선택 UI 불필요
-      row.hidden = true; chips.innerHTML = ''; if (nameEl) nameEl.textContent = ''; return;
+    if (!_phDetColors || _phDetColors.length < 2) {   // 2색 이상만 스와치 선택 UI
+      row.hidden = true; chips.innerHTML = ''; return;
     }
     row.hidden = false;
     chips.innerHTML = _phDetColors.map(function(c, i) {
       return '<button type="button" class="ph-det-color' + (i === _phDetColorIdx ? ' on' : '') + '" data-ci="' + i + '"'
         + ' title="' + escapeHtml(c.name || '') + '" style="background:' + phColorHex(c.name) + '"></button>';
     }).join('');
-    if (nameEl) nameEl.textContent = _phDetColors[_phDetColorIdx] ? ' · ' + (_phDetColors[_phDetColorIdx].name || '') : '';
     if (!chips.dataset.bound) {
       chips.dataset.bound = '1';
       chips.addEventListener('click', function(e) {
@@ -2678,8 +2688,7 @@ if(location.search.indexOf('ph=')!==-1){
     renderPhDetThumbs();
     var chips = document.getElementById('ph-det-color-chips');
     if (chips) chips.querySelectorAll('.ph-det-color').forEach(function(b) { b.classList.toggle('on', b.getAttribute('data-ci') === String(idx)); });
-    var nameEl = document.getElementById('ph-det-color-name');
-    if (nameEl) nameEl.textContent = c ? ' · ' + (c.name || '') : '';
+    setPhDetColorName();
   }
   // 상세 인포그래픽 스트립 — 모델명 → 슬러그 → /phone-images/<slug>/detail_NN.jpg (KT 크롤·선별본)
   var PH_DETAIL_COUNTS = {
