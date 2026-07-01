@@ -474,20 +474,22 @@
     display:block; width:100%; padding:16px; border:none; border-radius:14px;
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
   }
-  /* 옵션 칩 */
+  /* 옵션 칩 — 라벨 왼쪽 가로배치(렌탈 .option-row 패턴). 우측은 견적서 영역으로 확장 예정 */
   .ph-det-opts { margin-bottom:20px; display:flex; flex-direction:column; gap:14px; }
-  .ph-det-opt-row { display:flex; flex-direction:column; gap:8px; }
-  .ph-det-opt-label { font-size:11px; font-weight:700; color:var(--g2); text-transform:uppercase; letter-spacing:.06em; }
+  .ph-det-opt-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .ph-det-opt-label { flex-shrink:0; min-width:70px; font-size:13px; font-weight:600; color:var(--g1); letter-spacing:-0.01em; }
   .ph-det-opt-chips { display:flex; flex-wrap:wrap; gap:7px; }
   .ph-det-chip {
     padding:7px 15px; border-radius:20px; border:1.5px solid var(--line);
     background:var(--bg); font:600 13px/1 inherit; color:var(--g1); cursor:pointer; transition:all .15s;
   }
   .ph-det-chip.on { border-color:var(--accent); background:var(--accent); color:#fff; }
-  .ph-det-colors { display:flex; flex-wrap:wrap; gap:11px; align-items:center; }
-  .ph-det-color { width:26px; height:26px; border-radius:50%; border:1px solid rgba(0,0,0,.15); padding:0; cursor:pointer; transition:box-shadow .15s; }
-  .ph-det-color.on { box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--accent); }
-  @media (hover:hover) { .ph-det-color:not(.on):hover { box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--g3); } }
+  /* 색상 스와치 — 렌탈 .cp-chip/.cp-dot 통일(34px 링 + 22px 점, 선택 시 --accent 링) */
+  .ph-det-colors { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .ph-det-color { display:inline-grid; place-items:center; width:34px; height:34px; border-radius:50%; border:2px solid transparent; background:transparent; padding:0; cursor:pointer; transition:border-color .15s; }
+  .ph-det-color.on { border-color:var(--accent); }
+  @media (hover:hover) { .ph-det-color:not(.on):hover { border-color:var(--g3); } }
+  .ph-det-dot { width:22px; height:22px; border-radius:50%; display:block; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); }
   /* 상세 인포그래픽 스트립 (렌탈 .infoimgs 와 동일 톤) */
   .ph-det-info { max-width:760px; margin:8px auto 0; padding:0 16px 56px; }
   .ph-det-info:empty { display:none; }
@@ -2668,7 +2670,7 @@ if(location.search.indexOf('ph=')!==-1){
     row.hidden = false;
     chips.innerHTML = _phDetColors.map(function(c, i) {
       return '<button type="button" class="ph-det-color' + (i === _phDetColorIdx ? ' on' : '') + '" data-ci="' + i + '"'
-        + ' title="' + escapeHtml(c.name || '') + '" style="background:' + phColorHex(c.name) + '"></button>';
+        + ' title="' + escapeHtml(c.name || '') + '"><span class="ph-det-dot" style="background:' + phColorHex(c.name) + '"></span></button>';
     }).join('');
     if (!chips.dataset.bound) {
       chips.dataset.bound = '1';
