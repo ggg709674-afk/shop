@@ -184,6 +184,9 @@
     padding:0;
   }
   .cat-nav button.on { color:var(--ink); font-weight:600; }
+  @media (hover:hover) {
+    .cat-nav button:not(.on):hover { color:var(--ink); }
+  }
 
   /* ───── 서브 nav — head 위(z:32)로 올려서 compact 시 head 빈공간 덮음 ───── */
   .sub-nav {
@@ -213,6 +216,9 @@
   }
   .sub-nav button:first-child { padding-left:0; }
   .sub-nav button.on { color:var(--ink); font-weight:600; }
+  @media (hover:hover) {
+    .sub-nav button:not(.on):hover { color:var(--ink); }
+  }
   .sub-dot {
     flex-shrink:0;
     width:3px; height:3px; border-radius:50%; background:var(--g4);
