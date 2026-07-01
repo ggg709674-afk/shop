@@ -652,7 +652,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .detail-info .model{font-size:13px;color:var(--ink-4);font-weight:600;letter-spacing:0.3px}
 .detail-info .name-row{display:flex;align-items:baseline;gap:12px;margin:6px 0 12px;flex-wrap:wrap}
 .detail-info .name-row h1{font-size:32px;letter-spacing:-0.5px;margin:0;color:var(--ink-1)}
-.detail-info .color-name{font-size:15px;font-weight:300;color:var(--ink-4);letter-spacing:-0.2px}
+.detail-info .color-name{font-size:32px;font-weight:300;color:#BBBBBB;letter-spacing:-0.5px}
 .detail-info .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
 .detail-info .tags span{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--surface);color:var(--ink-2);font-weight:600}
 
