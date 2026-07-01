@@ -481,6 +481,11 @@
     background:var(--bg); font:600 13px/1 inherit; color:var(--g1); cursor:pointer; transition:all .15s;
   }
   .ph-det-chip.on { border-color:var(--accent); background:var(--accent); color:#fff; }
+  .ph-det-colors { display:flex; flex-wrap:wrap; gap:11px; align-items:center; }
+  .ph-det-color { width:26px; height:26px; border-radius:50%; border:1px solid rgba(0,0,0,.15); padding:0; cursor:pointer; transition:box-shadow .15s; }
+  .ph-det-color.on { box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+  @media (hover:hover) { .ph-det-color:not(.on):hover { box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--g3); } }
+  #ph-det-color-name { color:var(--g1); font-weight:600; text-transform:none; letter-spacing:0; margin-left:3px; }
   /* 상세 인포그래픽 스트립 (렌탈 .infoimgs 와 동일 톤) */
   .ph-det-info { max-width:760px; margin:8px auto 0; padding:0 16px 56px; }
   .ph-det-info:empty { display:none; }
@@ -1793,6 +1798,10 @@ if(location.search.indexOf('ph=')!==-1){
       <div class="ph-det-name" id="ph-det-name"></div>
       <script>(function(){var p=window._phPreload;if(!p)return;var c=document.getElementById('ph-det-carrier');var n=document.getElementById('ph-det-name');var t=document.getElementById('ph-det-bar-title');var pr=document.getElementById('ph-det-prices');if(c)c.textContent=p.c||'';if(n)n.textContent=p.n||'';if(t&&(p.c||p.n))t.innerHTML=(p.c?'<span class="ph-det-bar-prefix">'+p.c+'</span> ':'')+p.n;var cb=document.getElementById('ph-det-crumb');if(cb&&(p.c||p.n)){var esc=function(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};cb.innerHTML='<a href="/?cat=phone">휴대폰</a> &nbsp;›&nbsp; '+(p.c?esc(p.c)+' &nbsp;›&nbsp; ':'')+'<span>'+esc(p.n)+'</span>';}try{var pid=new URLSearchParams(location.search).get('ph');if(pr&&p.prices&&p.id&&p.id===pid)pr.innerHTML=p.prices;}catch(e){}})();</script>
       <div class="ph-det-opts">
+        <div class="ph-det-opt-row" id="ph-det-color-row" hidden>
+          <div class="ph-det-opt-label">색상<span id="ph-det-color-name"></span></div>
+          <div class="ph-det-colors" id="ph-det-color-chips"></div>
+        </div>
         <div class="ph-det-opt-row">
           <div class="ph-det-opt-label">가입 유형</div>
           <div class="ph-det-opt-chips">
@@ -2037,7 +2046,8 @@ if(location.search.indexOf('ph=')!==-1){
       + ' data-card-label="' + escapeHtml(it.label || '') + '"'
       + ' data-card-badge="' + escapeHtml(it.badge || '') + '"'
       + (it.id ? ' data-model-id="' + escapeHtml(String(it.id)) + '"' : '')
-      + (imgs.length ? ' data-card-imgs="' + escapeHtml(JSON.stringify(imgs)) + '"' : '');
+      + (imgs.length ? ' data-card-imgs="' + escapeHtml(JSON.stringify(imgs)) + '"' : '')
+      + (Array.isArray(it.colors) && it.colors.length ? ' data-card-colors="' + escapeHtml(JSON.stringify(it.colors)) + '"' : '');
     return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
         + carrierBadge(it.tag)
@@ -2092,13 +2102,14 @@ if(location.search.indexOf('ph=')!==-1){
     return String(name == null ? '' : name).replace(/(\d+)\s*GB\b/gi, '$1G').replace(/(\d+)\s*TB\b/gi, '$1T');
   }
   function _modelToCardItem(m) {
-    var firstColor = (m.colors || []).find(function(c) { return Array.isArray(c.images) && c.images.some(Boolean); });
-    var images = firstColor ? firstColor.images.filter(Boolean).slice(0,6) : [];
+    var cols = (m.colors || []).filter(function(c) { return Array.isArray(c.images) && c.images.some(Boolean); })
+      .map(function(c) { return { name: c.name || '', images: c.images.filter(Boolean).slice(0,6) }; });
+    var images = cols.length ? cols[0].images : [];
     return {
       id: m.id, name: normModelName(m.name), carrierId: m.carrier,
       tag: CARRIER_LABEL[m.carrier] || m.carrier,
       badge: '', del: '', label: '번호이동', price: '상담',
-      images: images, imageUrl: images[0] || ''
+      images: images, imageUrl: images[0] || '', colors: cols
     };
   }
   // 카드 아이템 목록 (DB 모델 우선, 없으면 샘플) — carrierId 포함
@@ -2580,6 +2591,8 @@ if(location.search.indexOf('ph=')!==-1){
 
   // ── 휴대폰 상세 뷰 ──
   var _phDetImgs = [];
+  var _phDetColors = [];   // [{name, images:[...]}] — DB 모델 색상별 이미지
+  var _phDetColorIdx = 0;
   var PH_DET_GLYPH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
   var CARRIER_SWATCH = { 'SKT':'skt', 'KT':'kt', 'LG U+':'lg', '알뜰유심':'' };
   var _phDetCarrier = '';
@@ -2591,6 +2604,82 @@ if(location.search.indexOf('ph=')!==-1){
   function setPhDetMain(url) {
     document.getElementById('ph-det-main').innerHTML =
       phDetLogoHtml(_phDetCarrier) + (url ? '<img src="' + escapeHtml(url) + '" alt="">' : PH_DET_GLYPH);
+  }
+  // 색상명 → 대표 hex(스와치 dot용). 정확한 팬톤 아님, 힌트용(색상명도 함께 표시).
+  var PH_COLOR_HEX = [
+    [/제트\s*블랙|블랙|black/i, '#1d1d1f'],
+    [/실버\s*(쉐도우|섀도우)/i, '#b8bcc0'],
+    [/블루\s*(쉐도우|섀도우)/i, '#5c6b86'],
+    [/네이비|navy/i, '#39456b'],
+    [/블루|blue/i, '#93b8e0'],
+    [/민트|mint|세이지|sage|그린|green/i, '#bcdccb'],
+    [/코랄|coral|레드|red/i, '#e78a78'],
+    [/핑크|pink|로즈|rose/i, '#f0c3cf'],
+    [/퍼플|purple|바이올렛|violet|라벤더|lavender/i, '#b6a8dc'],
+    [/옐로|yellow|골드|gold|크림|cream|아이보리|ivory/i, '#efe6c8'],
+    [/오렌지|orange/i, '#e6a469'],
+    [/화이트|white/i, '#f2f2f2'],
+    [/실버|silver|플래티넘|platinum/i, '#cfd2d6'],
+    [/그라파이트|graphite|티타늄|titanium|그레이|gray|grey/i, '#8a8d91'],
+  ];
+  function phColorHex(name) {
+    var n = name || '';
+    for (var i = 0; i < PH_COLOR_HEX.length; i++) { if (PH_COLOR_HEX[i][0].test(n)) return PH_COLOR_HEX[i][1]; }
+    return '#c9ccd1';
+  }
+  // 썸네일 6칸 렌더 + mouseenter 즉시 전환(클릭은 #ph-det-thumbs 위임 핸들러가 처리). _phDetImgs 기반.
+  function renderPhDetThumbs() {
+    var wrap = document.getElementById('ph-det-thumbs'); if (!wrap) return;
+    var tHtml = '';
+    for (var i = 0; i < 6; i++) {
+      var u = _phDetImgs[i] || '';
+      tHtml += '<div class="ph-det-thumb' + (!u ? ' empty' : '') + (i === 0 && u ? ' on' : '') + '" data-gi="' + i + '">'
+        + (u ? '<img src="' + escapeHtml(u) + '" alt="">' : '') + '</div>';
+    }
+    wrap.innerHTML = tHtml;
+    wrap.querySelectorAll('.ph-det-thumb:not(.empty)').forEach(function(el) {
+      el.addEventListener('mouseenter', function() {
+        var idx = parseInt(el.getAttribute('data-gi') || '0', 10);
+        var u = _phDetImgs[idx] || ''; if (!u) return;
+        wrap.querySelectorAll('.ph-det-thumb').forEach(function(t) { t.classList.remove('on'); });
+        el.classList.add('on'); setPhDetMain(u);
+      });
+    });
+  }
+  // 색상 스와치 행 렌더(색상 2개 이상일 때만). 클릭은 위임(1회 바인딩).
+  function renderPhDetColors() {
+    var row = document.getElementById('ph-det-color-row');
+    var chips = document.getElementById('ph-det-color-chips');
+    var nameEl = document.getElementById('ph-det-color-name');
+    if (!row || !chips) return;
+    if (!_phDetColors || _phDetColors.length < 2) {   // 1색이면 선택 UI 불필요
+      row.hidden = true; chips.innerHTML = ''; if (nameEl) nameEl.textContent = ''; return;
+    }
+    row.hidden = false;
+    chips.innerHTML = _phDetColors.map(function(c, i) {
+      return '<button type="button" class="ph-det-color' + (i === _phDetColorIdx ? ' on' : '') + '" data-ci="' + i + '"'
+        + ' title="' + escapeHtml(c.name || '') + '" style="background:' + phColorHex(c.name) + '"></button>';
+    }).join('');
+    if (nameEl) nameEl.textContent = _phDetColors[_phDetColorIdx] ? ' · ' + (_phDetColors[_phDetColorIdx].name || '') : '';
+    if (!chips.dataset.bound) {
+      chips.dataset.bound = '1';
+      chips.addEventListener('click', function(e) {
+        var b = e.target.closest('.ph-det-color'); if (!b) return;
+        selectPhDetColor(parseInt(b.getAttribute('data-ci') || '0', 10));
+      });
+    }
+  }
+  function selectPhDetColor(idx) {
+    if (idx < 0 || idx >= _phDetColors.length || idx === _phDetColorIdx) return;
+    _phDetColorIdx = idx;
+    var c = _phDetColors[idx];
+    _phDetImgs = (c && Array.isArray(c.images)) ? c.images.filter(Boolean) : [];
+    setPhDetMain(_phDetImgs[0] || '');
+    renderPhDetThumbs();
+    var chips = document.getElementById('ph-det-color-chips');
+    if (chips) chips.querySelectorAll('.ph-det-color').forEach(function(b) { b.classList.toggle('on', b.getAttribute('data-ci') === String(idx)); });
+    var nameEl = document.getElementById('ph-det-color-name');
+    if (nameEl) nameEl.textContent = c ? ' · ' + (c.name || '') : '';
   }
   // 상세 인포그래픽 스트립 — 모델명 → 슬러그 → /phone-images/<slug>/detail_NN.jpg (KT 크롤·선별본)
   var PH_DETAIL_COUNTS = {
@@ -2827,6 +2916,10 @@ if(location.search.indexOf('ph=')!==-1){
     var label   = card.getAttribute('data-card-label') || '번호이동';
     try { _phDetImgs = JSON.parse(card.getAttribute('data-card-imgs') || '[]'); } catch(e) { _phDetImgs = []; }
     if (!Array.isArray(_phDetImgs)) _phDetImgs = [];
+    try { _phDetColors = JSON.parse(card.getAttribute('data-card-colors') || '[]'); } catch(e) { _phDetColors = []; }
+    if (!Array.isArray(_phDetColors)) _phDetColors = [];
+    _phDetColorIdx = 0;
+    if (_phDetColors.length && Array.isArray(_phDetColors[0].images)) _phDetImgs = _phDetColors[0].images.filter(Boolean);
 
     document.getElementById('ph-det-bar-title').innerHTML =
       (carrier ? '<span class="ph-det-bar-prefix">' + escapeHtml(carrier) + '</span> ' : '') + escapeHtml(name);
@@ -2848,25 +2941,8 @@ if(location.search.indexOf('ph=')!==-1){
     renderPhDetailSpec(name);
     resetPhDetailTabs();
 
-    var tHtml = '';
-    for (var i = 0; i < 6; i++) {
-      var u = _phDetImgs[i] || '';
-      tHtml += '<div class="ph-det-thumb' + (!u ? ' empty' : '') + (i === 0 && u ? ' on' : '') + '" data-gi="' + i + '">'
-        + (u ? '<img src="' + escapeHtml(u) + '" alt="">' : '') + '</div>';
-    }
-    document.getElementById('ph-det-thumbs').innerHTML = tHtml;
-
-    // 렌탈과 동일: mouseenter로 즉시 이미지 전환
-    document.getElementById('ph-det-thumbs').querySelectorAll('.ph-det-thumb:not(.empty)').forEach(function(el) {
-      el.addEventListener('mouseenter', function() {
-        var idx = parseInt(el.getAttribute('data-gi') || '0', 10);
-        var u = _phDetImgs[idx] || '';
-        if (!u) return;
-        document.querySelectorAll('#ph-det-thumbs .ph-det-thumb').forEach(function(t) { t.classList.remove('on'); });
-        el.classList.add('on');
-        setPhDetMain(u);
-      });
-    });
+    renderPhDetThumbs();
+    renderPhDetColors();
 
     var priceLabel = (price && price !== '상담') ? '월 ' + escapeHtml(price) + '원' : '상담';
     document.getElementById('ph-det-prices').innerHTML =
