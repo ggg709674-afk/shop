@@ -2708,7 +2708,8 @@ if(location.search.indexOf('ph=')!==-1){
     'galaxy-s26-ultra': 24, 'galaxy-s26-plus': 20, 'galaxy-s26': 20,
     'galaxy-s25-ultra': 19, 'galaxy-s25-edge': 9, 'galaxy-s25-fe': 28, 'galaxy-s25': 20,
     'galaxy-quantum6': 21, 'galaxy-wide8': 12, 'galaxy-z-flip6': 18,
-    'iphone-17-pro-max': 4, 'iphone-17-pro': 4, 'iphone-air': 4, 'iphone-17': 4, 'iphone-16e': 6
+    'iphone-17-pro-max': 4, 'iphone-17-pro': 4, 'iphone-air': 4, 'iphone-17': 4, 'iphone-16e': 6,
+    'iphone-15': 3, 'iphone-15-plus': 3
   };
   // 구체적인 것부터 먼저 매칭 (s26+ 가 s26 보다, 17promax 가 17pro 보다 앞)
   var PH_DETAIL_SLUG_RULES = [
@@ -2719,7 +2720,8 @@ if(location.search.indexOf('ph=')!==-1){
     [/iphone17promax/, 'iphone-17-pro-max'], [/iphone17pro/, 'iphone-17-pro'], [/iphoneair/, 'iphone-air'],
     [/iphone17e/, ''], [/iphone17/, 'iphone-17'],
     [/iphone16promax/, 'iphone-16-pro-max'], [/iphone16pro/, 'iphone-16-pro'],
-    [/iphone16plus/, ''], [/iphone16e/, 'iphone-16e'], [/iphone16/, 'iphone-16']
+    [/iphone16plus/, ''], [/iphone16e/, 'iphone-16e'], [/iphone16/, 'iphone-16'],
+    [/iphone15plus|iphone15\+/, 'iphone-15-plus'], [/iphone15/, 'iphone-15']
   ];
   function phDetailSlug(name) {
     var n = (name || '').toLowerCase().replace(/\s/g, '');
@@ -2855,6 +2857,28 @@ if(location.search.indexOf('ph=')!==-1){
       ['배터리', '동영상 최대 37시간'], ['광학 줌', '0.5~8배'],
       ['소재', '알루미늄 Unibody'], ['방수·방진', 'IP68'],
       ['운영체제', 'iOS'], ['SIM', 'eSIM']
+    ] },
+    'iphone-15': { cols: 2, rows: [
+      ['디스플레이', '6.1형 Super Retina XDR'], ['해상도', 'FHD+ 2556×1179'],
+      ['주사율', '60Hz'], ['칩', 'A16 Bionic'],
+      ['저장공간', '128 / 256 / 512GB'], ['다이나믹 아일랜드', '지원'],
+      ['후면 카메라', '48MP+12MP'], ['전면 카메라', '12MP'],
+      ['광학 줌', '2배'], ['배터리', '동영상 최대 20시간'],
+      ['커넥터', 'USB-C'], ['소재', '알루미늄·컬러 글라스'],
+      ['방수·방진', 'IP68'], ['크기', '147.6×71.6×7.8mm'],
+      ['무게', '171g'], ['운영체제', 'iOS'],
+      ['SIM', 'nano-SIM + eSIM'], ['출시', '2023년 9월']
+    ] },
+    'iphone-15-plus': { cols: 2, rows: [
+      ['디스플레이', '6.7형 Super Retina XDR'], ['해상도', 'FHD+ 2796×1290'],
+      ['주사율', '60Hz'], ['칩', 'A16 Bionic'],
+      ['저장공간', '128 / 256 / 512GB'], ['다이나믹 아일랜드', '지원'],
+      ['후면 카메라', '48MP+12MP'], ['전면 카메라', '12MP'],
+      ['광학 줌', '2배'], ['배터리', '동영상 최대 26시간'],
+      ['커넥터', 'USB-C'], ['소재', '알루미늄·컬러 글라스'],
+      ['방수·방진', 'IP68'], ['크기', '160.9×77.8×7.8mm'],
+      ['무게', '201g'], ['운영체제', 'iOS'],
+      ['SIM', 'nano-SIM + eSIM'], ['출시', '2023년 9월']
     ] },
     'iphone-air': { cols: 2, rows: [
       ['디스플레이', '6.5형 Super Retina XDR'], ['주사율', '120Hz (ProMotion)'],
