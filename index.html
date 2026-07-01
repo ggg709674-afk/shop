@@ -1089,6 +1089,12 @@
     .scroll::-webkit-scrollbar-track { background:transparent; }
     .scroll::-webkit-scrollbar-thumb { background:rgba(0,0,0,.2); border-radius:8px; border:3px solid #fff; background-clip:padding-box; }
     .scroll::-webkit-scrollbar-thumb:hover { background:rgba(0,0,0,.34); background-clip:padding-box; }
+    /* 상세 오버레이(휴대폰/렌탈)도 동일 스크롤바 */
+    #ph-detail, #rental-det { scrollbar-width:thin; scrollbar-color:rgba(0,0,0,.24) transparent; }
+    #ph-detail::-webkit-scrollbar, #rental-det::-webkit-scrollbar { width:12px; }
+    #ph-detail::-webkit-scrollbar-track, #rental-det::-webkit-scrollbar-track { background:transparent; }
+    #ph-detail::-webkit-scrollbar-thumb, #rental-det::-webkit-scrollbar-thumb { background:rgba(0,0,0,.2); border-radius:8px; border:3px solid #fff; background-clip:padding-box; }
+    #ph-detail::-webkit-scrollbar-thumb:hover, #rental-det::-webkit-scrollbar-thumb:hover { background:rgba(0,0,0,.34); background-clip:padding-box; }
 
     /* ── 콘텐츠 중앙 컬럼 ── */
     #panel-phone, #panel-internet { display:flex; flex-direction:column; }
