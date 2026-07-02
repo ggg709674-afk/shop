@@ -2708,6 +2708,7 @@ if(location.search.indexOf('ph=')!==-1){
     'galaxy-s26-ultra': 24, 'galaxy-s26-plus': 20, 'galaxy-s26': 20,
     'galaxy-s25-ultra': 19, 'galaxy-s25-edge': 9, 'galaxy-s25-fe': 28, 'galaxy-s25': 20,
     'galaxy-quantum6': 21, 'galaxy-wide8': 12, 'galaxy-z-flip6': 18, 'galaxy-z-fold6': 6, 'galaxy-z-flip7': 20,
+    'galaxy-z-flip7-fe': 13, 'galaxy-z-fold7': 24,
     'iphone-17-pro-max': 4, 'iphone-17-pro': 4, 'iphone-air': 4, 'iphone-17': 4, 'iphone-16e': 6,
     'iphone-15': 3, 'iphone-15-plus': 3, 'iphone-17e': 10
   };
@@ -2716,7 +2717,8 @@ if(location.search.indexOf('ph=')!==-1){
     [/퀀텀6|quantum6/, 'galaxy-quantum6'], [/와이드8|wide8/, 'galaxy-wide8'],
     [/z플립6|플립6|zflip6|flip6/, 'galaxy-z-flip6'],
     [/z폴드6|폴드6|zfold6|fold6/, 'galaxy-z-fold6'],
-    [/플립7fe|flip7fe/, ''], [/z플립7|플립7|zflip7|flip7/, 'galaxy-z-flip7'],
+    [/플립7fe|flip7fe/, 'galaxy-z-flip7-fe'], [/z플립7|플립7|zflip7|flip7/, 'galaxy-z-flip7'],
+    [/z폴드7|폴드7|zfold7|fold7/, 'galaxy-z-fold7'],
     [/s26(ultra|울트라)/, 'galaxy-s26-ultra'], [/s26(\+|plus|플러스)/, 'galaxy-s26-plus'], [/s26/, 'galaxy-s26'],
     [/s25(ultra|울트라)/, 'galaxy-s25-ultra'], [/s25(edge|엣지)/, 'galaxy-s25-edge'], [/s25fe/, 'galaxy-s25-fe'], [/s25/, 'galaxy-s25'],
     [/iphone17promax/, 'iphone-17-pro-max'], [/iphone17pro/, 'iphone-17-pro'], [/iphoneair/, 'iphone-air'],
@@ -2833,6 +2835,25 @@ if(location.search.indexOf('ph=')!==-1){
       ['무게', '187g'], ['방수·방진', 'IP48'],
       ['운영체제', 'Android'], ['SIM', 'nano-SIM + eSIM'],
       ['출시', '2024년 7월'], ['제조국', '베트남']
+    ] },
+    'galaxy-z-fold7': { cols: 2, rows: [
+      ['메인 디스플레이', '8.0형 Dynamic AMOLED 2X'], ['커버 디스플레이', '6.5형 Dynamic AMOLED 2X'],
+      ['주사율', '최대 120Hz'], ['프로세서', '스냅드래곤 8 엘리트'],
+      ['메모리(RAM)', '12GB · 16GB(1TB)'], ['저장공간', '256 / 512GB / 1TB'],
+      ['후면 카메라', '200MP+12MP+10MP'], ['전면 카메라', '10MP+10MP'],
+      ['배터리', '4,400mAh'], ['두께(펼침)', '4.2mm'],
+      ['무게', '215g'], ['방수·방진', 'IP48'],
+      ['운영체제', 'Android'], ['SIM', 'nano-SIM + eSIM'],
+      ['출시', '2025년 7월'], ['제조국', '한국·베트남']
+    ] },
+    'galaxy-z-flip7-fe': { cols: 2, rows: [
+      ['메인 디스플레이', '6.7형 Dynamic AMOLED 2X'], ['커버 디스플레이', '3.4형 Super AMOLED'],
+      ['주사율', '최대 120Hz'], ['프로세서', '엑시노스 2400'],
+      ['메모리(RAM)', '8GB'], ['저장공간', '128 / 256GB'],
+      ['후면 카메라', '50MP+12MP'], ['전면 카메라', '10MP'],
+      ['배터리', '4,000mAh'], ['무게', '187g'],
+      ['방수·방진', 'IP48'], ['운영체제', 'Android'],
+      ['SIM', 'nano-SIM + eSIM'], ['출시', '2025년 7월']
     ] },
     'galaxy-z-flip7': { cols: 2, rows: [
       ['메인 디스플레이', '6.9형 Dynamic AMOLED 2X'], ['커버 디스플레이', '4.1형 Super AMOLED'],
