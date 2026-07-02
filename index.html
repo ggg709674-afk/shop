@@ -2710,7 +2710,8 @@ if(location.search.indexOf('ph=')!==-1){
     'galaxy-quantum6': 21, 'galaxy-wide8': 12, 'galaxy-z-flip6': 18, 'galaxy-z-fold6': 6, 'galaxy-z-flip7': 20,
     'galaxy-z-flip7-fe': 13, 'galaxy-z-fold7': 24,
     'iphone-17-pro-max': 4, 'iphone-17-pro': 4, 'iphone-air': 4, 'iphone-17': 4, 'iphone-16e': 6,
-    'iphone-15': 3, 'iphone-15-plus': 3, 'iphone-17e': 10
+    'iphone-15': 3, 'iphone-15-plus': 3, 'iphone-17e': 10,
+    'iphone-16': 12, 'iphone-16-pro': 8, 'iphone-16-pro-max': 8
   };
   // 구체적인 것부터 먼저 매칭 (s26+ 가 s26 보다, 17promax 가 17pro 보다 앞)
   var PH_DETAIL_SLUG_RULES = [
@@ -2728,7 +2729,8 @@ if(location.search.indexOf('ph=')!==-1){
     [/iphone15plus|iphone15\+/, 'iphone-15-plus'], [/iphone15/, 'iphone-15']
   ];
   function phDetailSlug(name) {
-    var n = (name || '').toLowerCase().replace(/\s/g, '');
+    // 끝 용량 토큰 제거(공백 제거 전에!) — "Plus 256G"가 붙으면 s+25가 /s25/에 오매칭됨
+    var n = (name || '').toLowerCase().replace(/\s+\d+\s*(gb|tb|g|t)$/, '').replace(/\s/g, '');
     for (var i = 0; i < PH_DETAIL_SLUG_RULES.length; i++) {
       if (PH_DETAIL_SLUG_RULES[i][0].test(n)) return PH_DETAIL_SLUG_RULES[i][1];
     }
