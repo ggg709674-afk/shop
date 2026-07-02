@@ -2709,7 +2709,7 @@ if(location.search.indexOf('ph=')!==-1){
     'galaxy-s25-ultra': 19, 'galaxy-s25-edge': 9, 'galaxy-s25-fe': 28, 'galaxy-s25': 20,
     'galaxy-quantum6': 21, 'galaxy-wide8': 12, 'galaxy-z-flip6': 18,
     'iphone-17-pro-max': 4, 'iphone-17-pro': 4, 'iphone-air': 4, 'iphone-17': 4, 'iphone-16e': 6,
-    'iphone-15': 3, 'iphone-15-plus': 3
+    'iphone-15': 3, 'iphone-15-plus': 3, 'iphone-17e': 10
   };
   // 구체적인 것부터 먼저 매칭 (s26+ 가 s26 보다, 17promax 가 17pro 보다 앞)
   var PH_DETAIL_SLUG_RULES = [
@@ -2718,7 +2718,7 @@ if(location.search.indexOf('ph=')!==-1){
     [/s26(ultra|울트라)/, 'galaxy-s26-ultra'], [/s26(\+|plus|플러스)/, 'galaxy-s26-plus'], [/s26/, 'galaxy-s26'],
     [/s25(ultra|울트라)/, 'galaxy-s25-ultra'], [/s25(edge|엣지)/, 'galaxy-s25-edge'], [/s25fe/, 'galaxy-s25-fe'], [/s25/, 'galaxy-s25'],
     [/iphone17promax/, 'iphone-17-pro-max'], [/iphone17pro/, 'iphone-17-pro'], [/iphoneair/, 'iphone-air'],
-    [/iphone17e/, ''], [/iphone17/, 'iphone-17'],
+    [/iphone17e/, 'iphone-17e'], [/iphone17/, 'iphone-17'],
     [/iphone16promax/, 'iphone-16-pro-max'], [/iphone16pro/, 'iphone-16-pro'],
     [/iphone16plus/, ''], [/iphone16e/, 'iphone-16e'], [/iphone16/, 'iphone-16'],
     [/iphone15plus|iphone15\+/, 'iphone-15-plus'], [/iphone15/, 'iphone-15']
@@ -2857,6 +2857,14 @@ if(location.search.indexOf('ph=')!==-1){
       ['배터리', '동영상 최대 37시간'], ['광학 줌', '0.5~8배'],
       ['소재', '알루미늄 Unibody'], ['방수·방진', 'IP68'],
       ['운영체제', 'iOS'], ['SIM', 'eSIM']
+    ] },
+    'iphone-17e': { cols: 2, rows: [
+      ['디스플레이', '6.1형(15.4cm) Super Retina XDR'], ['칩', 'A19 (4코어 GPU)'],
+      ['저장공간', '256GB'], ['배터리', '동영상 최대 26시간'],
+      ['후면 카메라', '48MP Fusion (2배 망원)'], ['전면 카메라', '12MP TrueDepth'],
+      ['커넥터', 'USB-C'], ['소재', 'Ceramic Shield 2 전면'],
+      ['Apple Intelligence', '지원'], ['SIM', 'eSIM'],
+      ['운영체제', 'iOS'], ['충돌 감지·긴급구조', '지원']
     ] },
     'iphone-15': { cols: 2, rows: [
       ['디스플레이', '6.1형 Super Retina XDR'], ['해상도', 'FHD+ 2556×1179'],
