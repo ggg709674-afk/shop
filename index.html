@@ -2183,6 +2183,7 @@ if(location.search.indexOf('ph=')!==-1){
 
   // 통신사 전환 (sub-nav 클릭 / "전체 →" 공통 진입점)
   function selectPhoneCarrier(cat) {
+    var changed = _phCarrier !== (cat || 'all');
     _phCarrier = cat || 'all';
     var nav = document.getElementById('phone-sub-nav');
     if (nav) nav.querySelectorAll('button').forEach(function(b) {
@@ -2201,6 +2202,13 @@ if(location.search.indexOf('ph=')!==-1){
     }
     syncPhoneCarrierUrl();   // 새로고침 유지: 선택 통신사를 URL에 기록
     if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
+    // 통신사가 실제로 바뀌면 목록 맨 위부터 (이전: KT에서 스크롤한 위치 그대로 SKT가 열림)
+    if (changed && scrollEl) {
+      applyCompactState(false);
+      lockUntil = performance.now() + 500; accumDy = 0; lastSign = 0;
+      scrollEl.scrollTop = 0; prevSt = 0;
+      requestAnimationFrame(function() { scrollEl.scrollTop = 0; prevSt = 0; });
+    }
   }
 
   function renderShopCards() {
