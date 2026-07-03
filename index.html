@@ -327,7 +327,12 @@
   #panel-phone .product-card .thumb, #panel-internet .product-card .thumb { flex-direction:column; align-items:center; justify-content:flex-start; }
   /* top:-12px(시각 이동)는 흐름 밖으로 떠올라 이름을 침범 → 같은 값을 흐름 안 여백(margin-bottom)으로 */
   #panel-phone .product-card .thumb > img, #panel-internet .product-card .thumb > img { flex:0 1 auto; min-height:0; margin-top:auto; top:0; margin-bottom:12px; }
-  @media (max-width:559px) { .product-card .thumb .thumb-name { font-size:15px; margin-top:40px; } }  /* 로고(좌상단 absolute) 아래로 */
+  /* ── 카드폭 비례 축소(컨테이너 쿼리) — PC 275px 카드의 비율을 어느 폭에서든 유지, 글자는 하한 12px ──
+     (cqi = 카드폭의 1%. 미지원 브라우저는 이 블록이 무시되고 위 고정값으로 동작) */
+  #panel-phone .product-card .thumb, #panel-internet .product-card .thumb { container-type:inline-size; padding-bottom:clamp(12px, 8cqi, 22px); }
+  .product-card .thumb .thumb-name { font-size:clamp(12px, 6.5cqi, 18px); margin-top:clamp(20px, 13.8cqi, 38px); padding:0 clamp(6px, 4.4cqi, 12px); }
+  #panel-phone .product-card .thumb > img, #panel-internet .product-card .thumb > img { margin-bottom:clamp(7px, 4.4cqi, 12px); }
+  #panel-phone .product-card .thumb .c-logo-wrap, #panel-internet .product-card .thumb .c-logo-wrap { width:clamp(15px, 8.4cqi, 23px); top:clamp(9px, 4.7cqi, 13px); left:clamp(9px, 4.7cqi, 13px); }
   .product-card .thumb .c-logo-wrap { position:absolute; top:13px; left:13px; z-index:3; width:23px; display:block; }
   .product-card .thumb .c-logo-wrap img { position:static; inset:auto; top:auto; width:100%; height:auto; padding:0; object-fit:fill; display:block; }
   .product-card .body { padding:14px 14px 16px; display:flex; flex-direction:column; gap:6px; flex:1; }
