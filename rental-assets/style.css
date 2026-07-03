@@ -1097,3 +1097,35 @@ header.site-header,footer.site-footer{display:none!important}
   .cm-panel{padding:26px 20px;border-radius:16px}
   .cm-title{font-size:19px}
 }
+
+/* ══════ 렌탈 카드 = 카드폭 비례 축소 (컨테이너 쿼리, 2026-07-03) ══════
+   휴대폰 카드(index.html)와 동일 원칙: PC 275px 카드의 비율을 어느 폭에서든 유지하고
+   글자만 가독 하한(clamp)에서 멈춤. cqi = 카드폭의 1% (275px 기준 1cqi=2.75px).
+   기존 960/560px 미디어쿼리(계단식 수동 축소)보다 ID 스코프가 우선해 연속 축소로 대체.
+   미지원 브라우저는 이 블록이 무시되고 기존 미디어쿼리로 폴백. */
+#panel-rental .product-card, #rental-det .product-card { container-type:inline-size; }
+#panel-rental .product-grid { container-type:inline-size; }
+/* 카드 자체 높이(CLS 선점)는 자기 폭 참조 불가 → 그리드 폭 기준(4열 1160px에서 430px과 동치) */
+#panel-rental .product-card { min-height:clamp(0px, 37cqi, 430px); }
+/* 썸네일 — 안쪽 패딩 비례(제품 채움 비율 PC와 동일) */
+#panel-rental .product-card .thumb img, #rental-det .product-card .thumb img { padding:clamp(6px, 5.8cqi, 16px); }
+/* 본문 */
+#panel-rental .product-card .body, #rental-det .product-card .body { padding:clamp(8px, 5.8cqi, 16px) clamp(8px, 5.8cqi, 16px) clamp(10px, 6.5cqi, 18px); gap:clamp(3px, 2.2cqi, 6px); }
+#panel-rental .product-card .model, #rental-det .product-card .model { font-size:clamp(8.5px, 4cqi, 11px); }
+#panel-rental .product-card .name, #rental-det .product-card .name { font-size:clamp(11px, 5.5cqi, 15px); min-height:2.8em; }
+#panel-rental .product-card .bft, #rental-det .product-card .bft { font-size:clamp(8.5px, 4cqi, 11px); padding:clamp(2px, 1.1cqi, 3px) clamp(5px, 2.9cqi, 8px); }
+#panel-rental .product-card .price-row, #rental-det .product-card .price-row { padding-top:clamp(6px, 3.6cqi, 10px); }
+#panel-rental .product-card .price-row .del, #rental-det .product-card .price-row .del { font-size:clamp(9px, 4.4cqi, 12px); }
+#panel-rental .product-card .price-row .now, #rental-det .product-card .price-row .now,
+#panel-rental .product-card .price-row .card-applied, #rental-det .product-card .price-row .card-applied { font-size:clamp(10px, 4.7cqi, 13px); }
+#panel-rental .product-card .price-row strong, #rental-det .product-card .price-row strong { font-size:clamp(13px, 7.3cqi, 20px); }
+/* 오버레이 배지들 — 반값/브랜드/고객지원금 씰/우상단 배지 */
+#panel-rental .product-card .half-badge, #rental-det .product-card .half-badge { width:clamp(32px, 19.6cqi, 54px); height:clamp(32px, 19.6cqi, 54px); left:clamp(7px, 4.4cqi, 12px); top:clamp(7px, 4.4cqi, 12px); }
+#panel-rental .product-card .half-badge .m, #rental-det .product-card .half-badge .m { font-size:clamp(7.5px, 3.6cqi, 10px); }
+#panel-rental .product-card .half-badge .t, #rental-det .product-card .half-badge .t { font-size:clamp(12px, 6.5cqi, 18px); margin-top:clamp(1px, 1.1cqi, 3px); }
+#panel-rental .product-card .brand-badge, #rental-det .product-card .brand-badge { width:clamp(36px, 21.8cqi, 60px); height:clamp(36px, 21.8cqi, 60px); top:clamp(6px, 3.6cqi, 10px); left:clamp(6px, 3.6cqi, 10px); }
+#panel-rental .product-card .thumb .cust-support, #rental-det .product-card .thumb .cust-support { width:clamp(40px, 24cqi, 66px); height:clamp(40px, 24cqi, 66px); right:clamp(5px, 2.9cqi, 8px); bottom:clamp(5px, 2.9cqi, 8px); }
+#panel-rental .product-card .thumb .cust-support .cs-l, #rental-det .product-card .thumb .cust-support .cs-l { font-size:clamp(7px, 3.5cqi, 9.5px); }
+#panel-rental .product-card .thumb .cust-support strong, #rental-det .product-card .thumb .cust-support strong { font-size:clamp(10px, 5.1cqi, 14px); }
+#panel-rental .product-card .badges, #rental-det .product-card .badges { right:clamp(7px, 4.4cqi, 12px); top:clamp(7px, 4.4cqi, 12px); }
+#panel-rental .product-card .badges .badge, #rental-det .product-card .badges .badge { font-size:clamp(8.5px, 4cqi, 11px); padding:clamp(2px, 1.5cqi, 4px) clamp(5px, 2.9cqi, 8px); }
