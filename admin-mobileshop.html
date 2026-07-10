@@ -1677,7 +1677,7 @@
 
   let _msSupportSubTab = 'mnp'; // 'mnp' | 'upg'
 
-  function switchMSSupportSubTab(tab) {
+  window.switchMSSupportSubTab = function switchMSSupportSubTab(tab) {
     _msSupportSubTab = tab;
     document.querySelectorAll('[data-ms-sup-tab]').forEach(btn => {
       const active = btn.dataset.msSuptab === tab;
