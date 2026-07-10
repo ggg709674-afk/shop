@@ -1298,7 +1298,21 @@ html[data-preload-shop] body { visibility:hidden; }
   function sb(){return window.supabaseClient||window.sb||null;}
   function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,noticeDate:r.notice_date||'',visible:r.visible!==false};}
   function rowToPlan(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'',monthlyFee:r.monthly_fee==null?'':r.monthly_fee};}
-  function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount};}
+  function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount,upgradeAmount:r.upgrade_amount==null?'':r.upgrade_amount};}
+  var phSupportSubTab='mnp';
+  function phSwitchSupportTab(tab){
+    phSupportSubTab=tab;
+    document.querySelectorAll('[data-ph-sup-tab]').forEach(function(btn){
+      var active=btn.getAttribute('data-ph-suptab')===tab;
+      btn.style.color=active?'var(--primary)':'var(--text-muted,#888)';
+      btn.style.borderBottomColor=active?'var(--primary)':'transparent';
+    });
+    document.querySelectorAll('input.ms-sup').forEach(function(inp){
+      var v=tab==='mnp'?inp.dataset.mnp:inp.dataset.upg;
+      var n=parseInt(v,10);
+      inp.value=(!v||isNaN(n))?'':phFmt(n);
+    });
+  }
   async function phLoad(){
     if(phData.loaded||phData.loading)return;
     phData.loading=true;
@@ -1404,19 +1418,30 @@ html[data-preload-shop] body { visibility:hidden; }
     var models=phData.models.filter(function(m){return m.carrier===carrier&&m.visible!==false;});
     var plans=phData.plans.filter(function(p){return p.carrier===carrier;})
       .sort(function(a,b){return (b.monthlyFee!==''?+b.monthlyFee:0)-(a.monthlyFee!==''?+a.monthlyFee:0);});
-    if(!models.length||!plans.length){wrap.innerHTML='<p class="ph-hint">모델과 요금제를 먼저 등록해주세요.</p>';return;}
+    var tabBar='<div style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:8px">'
+      +'<button data-ph-sup-tab data-ph-suptab="mnp" onclick="phSwitchSupportTab(\'mnp\')"'
+      +' style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--primary);border-bottom:2px solid var(--primary);margin-bottom:-2px">번호이동</button>'
+      +'<button data-ph-sup-tab data-ph-suptab="upg" onclick="phSwitchSupportTab(\'upg\')"'
+      +' style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px">기기변경</button>'
+      +'</div>';
+    if(!models.length||!plans.length){wrap.innerHTML=tabBar+'<p class="ph-hint">모델과 요금제를 먼저 등록해주세요.</p>';return;}
     var sMap={};
     phData.support.forEach(function(s){if(s.carrier===carrier)sMap[s.modelId+'|'+s.planId]=s;});
     var headCols=plans.map(function(p){return'<th>'+p.name+'<br><span class="ms-notice">'+(p.monthlyFee!==''?phFmt(p.monthlyFee)+'원':'')+'</span></th>';}).join('');
     var bodyRows=models.map(function(m){
       var cells=plans.map(function(p){
-        var key=m.id+'|'+p.id;var s=sMap[key]||{id:'',amount:''};
-        return'<td><input class="ms-sup" type="text" value="'+(s.amount!==''?phFmt(s.amount):'')+'"'
-          +' data-ph-sup-mid="'+m.id+'" data-ph-sup-pid="'+p.id+'" data-ph-sup-carrier="'+carrier+'" data-ph-sup-id="'+(s.id||'')+'" inputmode="numeric"></td>';
+        var key=m.id+'|'+p.id;var s=sMap[key]||{id:'',amount:'',upgradeAmount:''};
+        var mnpV=s.amount!==''?s.amount:'';
+        var upgV=s.upgradeAmount!==''?s.upgradeAmount:'';
+        var curV=phSupportSubTab==='mnp'?mnpV:upgV;
+        var dispV=curV!==''&&!isNaN(parseInt(curV,10))?phFmt(parseInt(curV,10)):'';
+        return'<td><input class="ms-sup" type="text" value="'+dispV+'"'
+          +' data-ph-sup-mid="'+m.id+'" data-ph-sup-pid="'+p.id+'" data-ph-sup-carrier="'+carrier+'" data-ph-sup-id="'+(s.id||'')+'"'
+          +' data-mnp="'+mnpV+'" data-upg="'+upgV+'" inputmode="numeric"></td>';
       }).join('');
       return'<tr><td class="ms-plan">'+m.name+'</td><td class="ms-notice-cell">'+(m.noticeDate||'-')+'</td>'+cells+'</tr>';
     }).join('');
-    wrap.innerHTML='<div class="ms-table-scroll"><table class="ms-table"><thead><tr><th class="ms-corner">모델 / 요금제</th><th class="ms-notice-hd">공시일</th>'+headCols+'</tr></thead><tbody>'+bodyRows+'</tbody></table></div>';
+    wrap.innerHTML=tabBar+'<div class="ms-table-scroll"><table class="ms-table"><thead><tr><th class="ms-corner">모델 / 요금제</th><th class="ms-notice-hd">공시일</th>'+headCols+'</tr></thead><tbody>'+bodyRows+'</tbody></table></div>';
   }
   /* ─ 모델 모달 ─ */
   function phOpenModelModal(id,carrier){
@@ -1532,17 +1557,20 @@ html[data-preload-shop] body { visibility:hidden; }
     var carrier=input.getAttribute('data-ph-sup-carrier');
     var supId=input.getAttribute('data-ph-sup-id')||'';
     var raw=input.value.replace(/,/g,'').trim();
-    var amount=raw===''?null:phInt(raw);
+    var val=raw===''?null:phInt(raw);
+    var isMnp=phSupportSubTab==='mnp';
     var isNew=!supId;if(isNew)supId=phNewId('s_');
-    var row={id:supId,model_id:mid,plan_id:pid,carrier:carrier,amount:amount};
+    var row={id:supId,model_id:mid,plan_id:pid,carrier:carrier};
+    if(isMnp)row.amount=val;else row.upgrade_amount=val;
     try{
       var res=await sb().from('mobileshop_support').upsert(row,{onConflict:'id'});
       if(res.error)throw res.error;
       input.setAttribute('data-ph-sup-id',supId);
-      input.value=amount!=null?phFmt(amount):'';
+      if(isMnp)input.dataset.mnp=val!=null?String(val):'';else input.dataset.upg=val!=null?String(val):'';
+      input.value=val!=null?phFmt(val):'';
       var ex=phData.support.find(function(s){return s.modelId===mid&&s.planId===pid&&s.carrier===carrier;});
-      if(ex){ex.amount=amount!=null?amount:'';ex.id=supId;}
-      else phData.support.push({id:supId,modelId:mid,planId:pid,carrier:carrier,amount:amount!=null?amount:''});
+      if(ex){if(isMnp)ex.amount=val!=null?val:'';else ex.upgradeAmount=val!=null?val:'';ex.id=supId;}
+      else{var nr={id:supId,modelId:mid,planId:pid,carrier:carrier,amount:'',upgradeAmount:''};if(isMnp)nr.amount=val!=null?val:'';else nr.upgradeAmount=val!=null?val:'';phData.support.push(nr);}
     }catch(err){phStatus('저장 실패: '+(err.message||err),true);}
   }
   /* ─ 엑셀 내보내기 ─ */
