@@ -484,7 +484,8 @@ const DataStore = {
       modelId: row.model_id || '',
       planId: row.plan_id || '',
       carrier: row.carrier || '',
-      amount: row.amount == null ? '' : row.amount
+      amount: row.amount == null ? '' : row.amount,
+      upgradeAmount: row.upgrade_amount == null ? '' : row.upgrade_amount,
     };
   },
   _supportToRow(s) {

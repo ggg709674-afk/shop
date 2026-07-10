@@ -1682,8 +1682,12 @@
   function renderMSSupport() {
     const support = getMSSupport();
     // (carrier|model|plan) → amount 맵 — 셀마다 find() 하던 O(n²) 제거
-    const amtMap = {};
-    support.forEach(s => { amtMap[s.carrier + '|' + s.modelId + '|' + s.planId] = s.amount; });
+    const amtMap = {}, upgMap = {};
+    support.forEach(s => {
+      const k = s.carrier + '|' + s.modelId + '|' + s.planId;
+      amtMap[k] = s.amount;
+      upgMap[k] = s.upgradeAmount;
+    });
     const fmtAmt = v => (v != null && v !== '') ? msFmt(msInt(v)) : '';
     MS_CARRIERS.forEach(c => {
       const wrap = document.querySelector(`[data-support-wrap="${c.id}"]`);
@@ -1702,7 +1706,13 @@
         <tbody>${cModels.map(m => `<tr data-model="${escapeHtml(m.id)}">
           <td class="ms-plan" title="${escapeHtml(m.name)}">${escapeHtml(m.name)}</td>
           <td class="ms-notice">${m.noticeDate ? escapeHtml(m.noticeDate) : '-'}</td>
-          ${plans.map(p => `<td><input class="ms-sup" data-plan="${escapeHtml(p.id)}" data-carrier="${c.id}" value="${fmtAmt(amtMap[c.id + '|' + m.id + '|' + p.id])}" placeholder="-" inputmode="numeric"></td>`).join('')}
+          ${plans.map(p => {
+            const k = c.id + '|' + m.id + '|' + p.id;
+            const amt = amtMap[k], upg = upgMap[k];
+            const diff = amt !== undefined && amt !== '' && upg !== undefined && upg !== '' && msInt(amt) !== msInt(upg);
+            const tip = diff ? `번호이동 ${msFmt(msInt(amt))} / 기기변경 ${msFmt(msInt(upg))}` : '';
+            return `<td style="${diff ? 'background:#fff3cd' : ''}"><input class="ms-sup" data-plan="${escapeHtml(p.id)}" data-carrier="${c.id}" value="${fmtAmt(amt)}" placeholder="-" inputmode="numeric"${tip ? ` title="${tip}"` : ''}></td>`;
+          }).join('')}
         </tr>`).join('')}</tbody>
       </table></div>`;
       // 위임 핸들러 1세트 — 셀(input)마다 리스너 안 붙임. wrap은 innerHTML 갈려도 유지됨
