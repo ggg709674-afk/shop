@@ -1300,19 +1300,22 @@ html[data-preload-shop] body { visibility:hidden; }
   function rowToPlan(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'',monthlyFee:r.monthly_fee==null?'':r.monthly_fee};}
   function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount,upgradeAmount:r.upgrade_amount==null?'':r.upgrade_amount};}
   var phSupportSubTab='mnp';
-  function phSwitchSupportTab(tab){
+  window.phSwitchSupportTab=function(tab){
     phSupportSubTab=tab;
     document.querySelectorAll('[data-ph-sup-tab]').forEach(function(btn){
       var active=btn.getAttribute('data-ph-suptab')===tab;
-      btn.style.color=active?'var(--primary)':'var(--text-muted,#888)';
+      btn.style.color=active?'var(--primary)':'#888';
       btn.style.borderBottomColor=active?'var(--primary)':'transparent';
     });
-    document.querySelectorAll('input.ms-sup').forEach(function(inp){
+    // 현재 보이는 carrier wrap만 업데이트 — 전체 DOM 순회 방지
+    var activeWrap=document.querySelector('.ph-cpane.on [data-ph-support-wrap]');
+    if(!activeWrap)return;
+    activeWrap.querySelectorAll('input.ms-sup').forEach(function(inp){
       var v=tab==='mnp'?inp.dataset.mnp:inp.dataset.upg;
       var n=parseInt(v,10);
       inp.value=(!v||isNaN(n))?'':phFmt(n);
     });
-  }
+  };
   async function phLoad(){
     if(phData.loaded||phData.loading)return;
     phData.loading=true;
