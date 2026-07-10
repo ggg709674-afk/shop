@@ -1421,11 +1421,16 @@ html[data-preload-shop] body { visibility:hidden; }
     var models=phData.models.filter(function(m){return m.carrier===carrier&&m.visible!==false;});
     var plans=phData.plans.filter(function(p){return p.carrier===carrier;})
       .sort(function(a,b){return (b.monthlyFee!==''?+b.monthlyFee:0)-(a.monthlyFee!==''?+a.monthlyFee:0);});
+    var _tabMnp=phSupportSubTab==='mnp';
     var tabBar='<div style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:8px">'
       +'<button data-ph-sup-tab data-ph-suptab="mnp" onclick="phSwitchSupportTab(\'mnp\')"'
-      +' style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--primary);border-bottom:2px solid var(--primary);margin-bottom:-2px">번호이동</button>'
+      +' style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;'
+      +(_tabMnp?'color:var(--primary);border-bottom:2px solid var(--primary)':'color:#888;border-bottom:2px solid transparent')
+      +';margin-bottom:-2px">번호이동</button>'
       +'<button data-ph-sup-tab data-ph-suptab="upg" onclick="phSwitchSupportTab(\'upg\')"'
-      +' style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px">기기변경</button>'
+      +' style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;'
+      +(!_tabMnp?'color:var(--primary);border-bottom:2px solid var(--primary)':'color:#888;border-bottom:2px solid transparent')
+      +';margin-bottom:-2px">기기변경</button>'
       +'</div>';
     if(!models.length||!plans.length){wrap.innerHTML=tabBar+'<p class="ph-hint">모델과 요금제를 먼저 등록해주세요.</p>';return;}
     var sMap={};
