@@ -1675,47 +1675,63 @@
     }));
   }
 
+  let _msSupportSubTab = 'mnp'; // 'mnp' | 'upg'
+
+  function switchMSSupportSubTab(tab) {
+    _msSupportSubTab = tab;
+    document.querySelectorAll('[data-ms-sup-tab]').forEach(btn => {
+      const active = btn.dataset.msSuptab === tab;
+      btn.style.color = active ? 'var(--primary)' : 'var(--text-hint)';
+      btn.style.borderBottomColor = active ? 'var(--primary)' : 'transparent';
+    });
+    document.querySelectorAll('input.ms-sup').forEach(inp => {
+      const v = tab === 'mnp' ? inp.dataset.mnp : inp.dataset.upg;
+      const n = parseInt(v, 10);
+      inp.value = (!v || isNaN(n)) ? '' : n.toLocaleString();
+      inp.style.fontWeight = (n && !isNaN(n)) ? '600' : '400';
+    });
+  }
+
   // 공통지원금 표 — woozoo 방식: 모든 칸이 항상 <input>.
-  // 클릭해도 DOM 변형이 없어(이미 input이 있으니) 리플로우가 안 터짐.
-  // 3사 그리드를 모두 만들어 둠 — 통신사 전환은 CSS(content-visibility:hidden)가 처리.
-  // 비활성 패널은 cv:hidden이라 레이아웃이 보존돼 재표시가 빠름(재렌더 안 함).
   function renderMSSupport() {
     const support = getMSSupport();
-    // (carrier|model|plan) → amount 맵 — 셀마다 find() 하던 O(n²) 제거
     const amtMap = {}, upgMap = {};
     support.forEach(s => {
       const k = s.carrier + '|' + s.modelId + '|' + s.planId;
       amtMap[k] = s.amount;
       upgMap[k] = s.upgradeAmount;
     });
-    const fmtAmt = v => (v != null && v !== '') ? msFmt(msInt(v)) : '';
+    const tabBar = `<div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:8px">
+      <button data-ms-sup-tab data-mssuptab="mnp" onclick="switchMSSupportSubTab('mnp')"
+        style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--primary);border-bottom:2px solid var(--primary);margin-bottom:-2px">번호이동</button>
+      <button data-ms-sup-tab data-mssuptab="upg" onclick="switchMSSupportSubTab('upg')"
+        style="padding:7px 14px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--text-hint);border-bottom:2px solid transparent;margin-bottom:-2px">기기변경</button>
+    </div>`;
     MS_CARRIERS.forEach(c => {
       const wrap = document.querySelector(`[data-support-wrap="${c.id}"]`);
       if (!wrap) return;
       const plans = msPlansByCarrier(c.id);
-      // 공통지원금 표는 노출 모델만 — 숨김 모델은 사이트에 안 나오고, 표가 무거워짐
       const cModels = msModelsByCarrier(c.id).filter(m => m.visible !== false);
       if (!cModels.length || !plans.length) {
-        wrap.innerHTML = `<div class="hint ms-empty">${c.label} 모델과 요금제를 먼저 등록하세요.</div>`;
+        wrap.innerHTML = tabBar + `<div class="hint ms-empty">${c.label} 모델과 요금제를 먼저 등록하세요.</div>`;
         return;
       }
-      // table-layout:fixed라 표 너비를 명시 — 첫열 180 + 공시일 92 + 요금제열 120씩
       const tableW = 180 + 92 + plans.length * 120;
-      wrap.innerHTML = `<div class="ms-table-scroll"><table class="ms-table" style="width:${tableW}px">
+      wrap.innerHTML = tabBar + `<div class="ms-table-scroll"><table class="ms-table" style="width:${tableW}px">
         <thead><tr><th class="ms-corner">모델 \\ 요금제</th><th class="ms-notice">공시일</th>${plans.map(p => `<th title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</th>`).join('')}</tr></thead>
         <tbody>${cModels.map(m => `<tr data-model="${escapeHtml(m.id)}">
           <td class="ms-plan" title="${escapeHtml(m.name)}">${escapeHtml(m.name)}</td>
           <td class="ms-notice">${m.noticeDate ? escapeHtml(m.noticeDate) : '-'}</td>
           ${plans.map(p => {
             const k = c.id + '|' + m.id + '|' + p.id;
-            const amt = amtMap[k], upg = upgMap[k];
-            const diff = amt !== undefined && amt !== '' && upg !== undefined && upg !== '' && msInt(amt) !== msInt(upg);
-            const tip = diff ? `번호이동 ${msFmt(msInt(amt))} / 기기변경 ${msFmt(msInt(upg))}` : '';
-            return `<td style="${diff ? 'background:#fff3cd' : ''}"><input class="ms-sup" data-plan="${escapeHtml(p.id)}" data-carrier="${c.id}" value="${fmtAmt(amt)}" placeholder="-" inputmode="numeric"${tip ? ` title="${tip}"` : ''}></td>`;
+            const mnpV = amtMap[k] ?? '', upgV = upgMap[k] ?? '';
+            const curV = _msSupportSubTab === 'mnp' ? mnpV : upgV;
+            const n = parseInt(curV, 10);
+            const hasVal = !isNaN(n) && n !== 0;
+            return `<td><input class="ms-sup" data-plan="${escapeHtml(p.id)}" data-carrier="${c.id}" data-mnp="${mnpV}" data-upg="${upgV}" value="${hasVal ? n.toLocaleString() : ''}" placeholder="-" inputmode="numeric" style="${hasVal ? '' : 'font-weight:400'}"></td>`;
           }).join('')}
         </tr>`).join('')}</tbody>
       </table></div>`;
-      // 위임 핸들러 1세트 — 셀(input)마다 리스너 안 붙임. wrap은 innerHTML 갈려도 유지됨
       if (!wrap.dataset.supBound) {
         wrap.dataset.supBound = '1';
         wrap.addEventListener('focusin', onMSSupportFocus);
@@ -1751,14 +1767,22 @@
     setStatus('저장 중...', true);
     const done = () => setStatus('저장됨', false);
     const fail = err => { setStatus('저장 실패', true); toast('저장 실패: ' + (err && err.message || err), true); };
-    if (raw === '') {
-      if (idx >= 0) support.splice(idx, 1);
+    const isMnp = _msSupportSubTab === 'mnp';
+    inp.dataset[isMnp ? 'mnp' : 'upg'] = raw === '' ? '' : String(parseInt(raw, 10) || 0);
+    if (raw === '' && idx < 0) { done(); return; }
+    if (raw === '' && isMnp) {
+      support.splice(idx, 1);
       DataStore.deleteSupport(modelId, planId, carrier).then(done).catch(fail);
     } else {
-      const amt = parseInt(raw, 10) || 0;
+      const val = parseInt(raw, 10) || 0;
       let entry;
-      if (idx >= 0) { support[idx].amount = amt; entry = support[idx]; }
-      else { entry = { id: msNewId('s'), modelId, planId, carrier, amount: amt }; support.push(entry); }
+      if (idx >= 0) {
+        if (isMnp) support[idx].amount = val; else support[idx].upgradeAmount = val;
+        entry = support[idx];
+      } else {
+        entry = { id: msNewId('s'), modelId, planId, carrier, amount: isMnp ? val : 0, upgradeAmount: isMnp ? 0 : val };
+        support.push(entry);
+      }
       DataStore.saveSupport(entry).then(done).catch(fail);
     }
   }

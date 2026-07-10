@@ -490,12 +490,14 @@ const DataStore = {
   },
   _supportToRow(s) {
     const n = parseInt(String(s.amount == null ? '' : s.amount).replace(/[^0-9-]/g, ''), 10);
+    const u = parseInt(String(s.upgradeAmount == null ? '' : s.upgradeAmount).replace(/[^0-9-]/g, ''), 10);
     return {
       id: s.id,
       model_id: s.modelId || null,
       plan_id: s.planId || null,
       carrier: s.carrier || null,
-      amount: isNaN(n) ? null : n
+      amount: isNaN(n) ? null : n,
+      upgrade_amount: isNaN(u) ? null : u,
     };
   },
 
