@@ -1684,7 +1684,7 @@ html[data-preload-shop] body { visibility:hidden; }
       html+='<tr><td class="ph-prod-num">'+(i+1)+'</td><td style="white-space:nowrap;"><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>';
       PH_PRICE_FIELDS.forEach(function(f){
         var v=pr[f[0]];var disp=(v==null||v==='')?'':phFmt(Number(v));
-        html+='<td style="text-align:center;"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" placeholder="상담" style="width:92px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
+        html+='<td style="text-align:center;"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" style="width:92px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
       });
       html+='<td></td></tr>';
     });
