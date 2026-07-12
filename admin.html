@@ -121,6 +121,9 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-table td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .ph-prod-table tr:last-child td{border-bottom:0;}
 .ph-prod-table tr.is-hidden{opacity:.4;}
+.ph-price-drop{margin:2px 0 12px;padding:11px 14px;border:1.5px dashed var(--line);border-radius:8px;text-align:center;font-size:12.5px;color:var(--ink-3);cursor:pointer;transition:border-color .15s,color .15s,background .15s;background:var(--surface);}
+.ph-price-drop:hover{border-color:var(--ink-4);color:var(--ink-2);}
+.ph-price-drop.drag{border-color:var(--primary);color:var(--primary);background:rgba(222,79,65,.05);}
 .ph-prod-num{width:32px;text-align:center;color:var(--ink-4);font-size:12px;}
 .ph-prod-img-cell{width:60px;text-align:center;}
 .ph-prod-thumb{width:48px;height:48px;object-fit:contain;border-radius:6px;border:1px solid var(--line);background:var(--surface);}
@@ -1054,9 +1057,9 @@ html[data-preload-shop] body { visibility:hidden; }
         <div class="ph-card-h">SKT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
           <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="skt">엑셀 다운</button>
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-up="skt">엑셀 업로드</button>
           </div>
         </div>
+        <div class="ph-price-drop" data-ph-price-drop="skt">📥 엑셀 파일(.xlsx)을 여기에 드래그하거나 클릭해서 업로드</div>
         <div class="ph-card-body"><div data-ph-price-list="skt"></div></div>
       </div>
     </div>
@@ -1065,9 +1068,9 @@ html[data-preload-shop] body { visibility:hidden; }
         <div class="ph-card-h">KT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
           <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="kt">엑셀 다운</button>
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-up="kt">엑셀 업로드</button>
           </div>
         </div>
+        <div class="ph-price-drop" data-ph-price-drop="kt">📥 엑셀 파일(.xlsx)을 여기에 드래그하거나 클릭해서 업로드</div>
         <div class="ph-card-body"><div data-ph-price-list="kt"></div></div>
       </div>
     </div>
@@ -1076,9 +1079,9 @@ html[data-preload-shop] body { visibility:hidden; }
         <div class="ph-card-h">LG U+ 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
           <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="lg">엑셀 다운</button>
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-up="lg">엑셀 업로드</button>
           </div>
         </div>
+        <div class="ph-price-drop" data-ph-price-drop="lg">📥 엑셀 파일(.xlsx)을 여기에 드래그하거나 클릭해서 업로드</div>
         <div class="ph-card-body"><div data-ph-price-list="lg"></div></div>
       </div>
     </div>
@@ -1671,19 +1674,19 @@ html[data-preload-shop] body { visibility:hidden; }
   function phPriceStatus(msg,isErr){var el=phEl('ph-price-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
   function phRenderPricing(carrier){
     var wrap=document.querySelector('[data-ph-price-list="'+carrier+'"]');if(!wrap)return;
-    var list=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
-    if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
-    var html='<div style="overflow-x:auto"><table class="ph-prod-table"><thead><tr><th class="ph-prod-num">#</th><th>모델명</th>';
+    var list=phData.models.filter(function(m){return m.carrier===carrier&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">노출 중인 상품이 없습니다.</p>';return;}
+    var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr><th class="ph-prod-num">#</th><th style="white-space:nowrap;">모델명</th>';
     PH_PRICE_FIELDS.forEach(function(f){html+='<th style="text-align:center;white-space:nowrap;">'+f[1]+'</th>';});
-    html+='</tr></thead><tbody>';
+    html+='<th style="width:100%;"></th></tr></thead><tbody>';
     list.forEach(function(m,i){
       var pr=m.prices||{};
-      html+='<tr class="'+(m.visible?'':'is-hidden')+'"><td class="ph-prod-num">'+(i+1)+'</td><td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>';
+      html+='<tr><td class="ph-prod-num">'+(i+1)+'</td><td style="white-space:nowrap;"><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>';
       PH_PRICE_FIELDS.forEach(function(f){
         var v=pr[f[0]];var disp=(v==null||v==='')?'':phFmt(Number(v));
         html+='<td style="text-align:center;"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" placeholder="상담" style="width:92px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
       });
-      html+='</tr>';
+      html+='<td></td></tr>';
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
@@ -1705,7 +1708,7 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   function phPriceExportXlsx(carrier){
     if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
-    var list=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    var list=phData.models.filter(function(m){return m.carrier===carrier&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
     var head=['id','통신사','모델명'].concat(PH_PRICE_FIELDS.map(function(f){return f[1];}));
     var data=[head].concat(list.map(function(m){var pr=m.prices||{};return[m.id,carrier.toUpperCase(),m.name].concat(PH_PRICE_FIELDS.map(function(f){var v=pr[f[0]];return(v==null||v==='')?'':Number(v);}));}));
     var ws=XLSX.utils.aoa_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,carrier.toUpperCase()+' 판매가');
@@ -2087,6 +2090,9 @@ html[data-preload-shop] body { visibility:hidden; }
     var pxd=t.closest('[data-ph-price-down]');if(pxd){phPriceExportXlsx(pxd.getAttribute('data-ph-price-down'));return;}
     var pxu=t.closest('[data-ph-price-up]');
     if(pxu){var pf=phEl('ph-price-file');pf._carrier=pxu.getAttribute('data-ph-price-up');pf.value='';pf.click();return;}
+    // 판매가 드롭존 클릭 → 파일 선택
+    var pdrop=t.closest('[data-ph-price-drop]');
+    if(pdrop){var pf2=phEl('ph-price-file');pf2._carrier=pdrop.getAttribute('data-ph-price-drop');pf2.value='';pf2.click();return;}
     // ── 상품관리 ──
     // 상품 수정 버튼
     var pe=t.closest('[data-ph-prod-edit]');if(pe){phOpenProductModal(pe.getAttribute('data-ph-prod-edit'));return;}
@@ -2150,6 +2156,10 @@ html[data-preload-shop] body { visibility:hidden; }
     if(e.target.classList.contains('ms-sup'))phSaveSupport(e.target);
     if(e.target.classList.contains('ms-price'))phSavePrice(e.target);
   });
+  // 판매가 엑셀 드래그&드롭
+  document.addEventListener('dragover',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(z){e.preventDefault();z.classList.add('drag');}});
+  document.addEventListener('dragleave',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(z&&!z.contains(e.relatedTarget))z.classList.remove('drag');});
+  document.addEventListener('drop',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(!z)return;e.preventDefault();z.classList.remove('drag');var file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(file)phPriceImportXlsx(z.getAttribute('data-ph-price-drop'),file);});
   document.addEventListener('keydown',function(e){
     if(e.key==='Enter'&&e.target.classList.contains('ms-sup'))e.target.blur();
   });
