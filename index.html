@@ -2148,8 +2148,8 @@ if(location.search.indexOf('ph=')!==-1){
       images: images, imageUrl: images[0] || '', colors: cols
     };
   }
-  // 카드 판매가 표기: 값 있으면 "200,000원", 없으면 "상담"
-  function fmtCardWon(v) { var n = Number(v); return (v == null || v === '' || isNaN(n)) ? '상담' : n.toLocaleString() + '원'; }
+  // 카드 판매가 표기: 값 있으면 "200,000원", 없으면 "0원"
+  function fmtCardWon(v) { var n = Number(v); return (v == null || v === '' || isNaN(n)) ? '0원' : n.toLocaleString() + '원'; }
   // 카드 아이템 목록 (DB 모델 우선, 없으면 샘플) — carrierId 포함
   function phoneCardItems() {
     var models = (DataStore.load().models || []).filter(function(m) { return m.visible !== false; });
