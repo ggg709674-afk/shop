@@ -1670,7 +1670,7 @@ html[data-preload-shop] body { visibility:hidden; }
     reader.readAsArrayBuffer(file);
   }
   /* ═══════════════ 판매가관리 (ph-pricing) ═══════════════ */
-  var PH_PRICE_FIELDS=[['mnpCommon','MNP공통'],['mnpContract','MNP선약'],['changeCommon','기변공통'],['changeContract','기변선약']];
+  var PH_PRICE_FIELDS=[['mnpCommon','MNP공통'],['changeCommon','기변공통'],['mnpContract','MNP선약'],['changeContract','기변선약']];
   function phPriceStatus(msg,isErr){var el=phEl('ph-price-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
   function phRenderPricing(carrier){
     var wrap=document.querySelector('[data-ph-price-list="'+carrier+'"]');if(!wrap)return;
