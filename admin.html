@@ -14,6 +14,7 @@
       var panel = (m === 'ph-models')    ? 'ph-models'
                 : (m === 'ph-plans')    ? 'ph-plans'
                 : (m === 'ph-support')  ? 'ph-support'
+                : (m === 'ph-pricing')  ? 'ph-pricing'
                 : (m === 'ph-products') ? 'ph-products'
                 : 'banner';
       h.setAttribute('data-preload-panel', panel);
@@ -286,8 +287,11 @@ html[data-preload-shop] body { visibility:hidden; }
       <a class="adm-nav-item" data-shop-menu="ph-banner">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span> 배너
       </a>
+      <a class="adm-nav-item" data-shop-menu="ph-pricing">
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span> 판매가관리
+      </a>
       <a class="adm-nav-item" data-shop-menu="ph-products">
-        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> 상품
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> 상품관리
       </a>
       <a class="adm-nav-item" data-shop-menu="ph-carrier">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span> 통신사 정책
@@ -1036,6 +1040,50 @@ html[data-preload-shop] body { visibility:hidden; }
     </div>
   </section>
 
+  <!-- ===== 휴대폰 — 판매가관리 ===== -->
+  <section class="adm-panel" data-panel="ph-pricing" hidden>
+    <p class="adm-panel-hint">진열된 순서 그대로 <strong>판매가</strong>를 관리합니다. 번호이동/기기변경 × 공통지원금/선택약정 4개 가격을 직접 입력하거나, 엑셀로 다운받아 입력 후 업로드하세요.</p>
+    <div class="ph-status" id="ph-price-status"></div>
+    <nav class="ph-carrier-tabs" data-ph-group="pricing">
+      <button class="ph-carrier-tab on" data-pcarrier="skt">SKT</button>
+      <button class="ph-carrier-tab" data-pcarrier="kt">KT</button>
+      <button class="ph-carrier-tab" data-pcarrier="lg">LG U+</button>
+    </nav>
+    <div class="ph-cpane on" data-ph-group="pricing" data-pcarrier="skt">
+      <div class="ph-card">
+        <div class="ph-card-h">SKT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="skt">엑셀 다운</button>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-up="skt">엑셀 업로드</button>
+          </div>
+        </div>
+        <div class="ph-card-body"><div data-ph-price-list="skt"></div></div>
+      </div>
+    </div>
+    <div class="ph-cpane" data-ph-group="pricing" data-pcarrier="kt">
+      <div class="ph-card">
+        <div class="ph-card-h">KT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="kt">엑셀 다운</button>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-up="kt">엑셀 업로드</button>
+          </div>
+        </div>
+        <div class="ph-card-body"><div data-ph-price-list="kt"></div></div>
+      </div>
+    </div>
+    <div class="ph-cpane" data-ph-group="pricing" data-pcarrier="lg">
+      <div class="ph-card">
+        <div class="ph-card-h">LG U+ 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="lg">엑셀 다운</button>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-up="lg">엑셀 업로드</button>
+          </div>
+        </div>
+        <div class="ph-card-body"><div data-ph-price-list="lg"></div></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== 휴대폰 — 상품관리 ===== -->
   <section class="adm-panel" data-panel="ph-products" hidden>
     <p class="adm-panel-hint">공통지원금과 동일한 순서로 <strong>휴대폰 상품</strong>을 관리합니다. 색상별 이미지·노출 여부를 설정하세요.</p>
@@ -1259,6 +1307,7 @@ html[data-preload-shop] body { visibility:hidden; }
 
 <!-- 엑셀 파일 업로드 (hidden) -->
 <input type="file" id="ph-xls-file" accept=".xlsx,.xls" style="display:none">
+<input type="file" id="ph-price-file" accept=".xlsx,.xls" style="display:none">
 
 <!-- ===== Toast ===== -->
 <div class="adm-toast" id="adm-toast" hidden></div>
@@ -1296,7 +1345,7 @@ html[data-preload-shop] body { visibility:hidden; }
   /* ─ 데이터 ─ */
   var phData={loaded:false,loading:false,models:[],plans:[],support:[]};
   function sb(){return window.supabaseClient||window.sb||null;}
-  function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,noticeDate:r.notice_date||'',visible:r.visible!==false};}
+  function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,noticeDate:r.notice_date||'',visible:r.visible!==false,prices:(r.prices&&typeof r.prices==='object'&&!Array.isArray(r.prices))?r.prices:{},sortOrder:r.sort_order==null?0:r.sort_order};}
   function rowToPlan(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'',monthlyFee:r.monthly_fee==null?'':r.monthly_fee};}
   function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount,upgradeAmount:r.upgrade_amount==null?'':r.upgrade_amount};}
   var phSupportSubTab='mnp';
@@ -1617,6 +1666,85 @@ html[data-preload-shop] body { visibility:hidden; }
     };
     reader.readAsArrayBuffer(file);
   }
+  /* ═══════════════ 판매가관리 (ph-pricing) ═══════════════ */
+  var PH_PRICE_FIELDS=[['mnpCommon','MNP공통'],['mnpContract','MNP선약'],['changeCommon','기변공통'],['changeContract','기변선약']];
+  function phPriceStatus(msg,isErr){var el=phEl('ph-price-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
+  function phRenderPricing(carrier){
+    var wrap=document.querySelector('[data-ph-price-list="'+carrier+'"]');if(!wrap)return;
+    var list=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
+    var html='<div style="overflow-x:auto"><table class="ph-prod-table"><thead><tr><th class="ph-prod-num">#</th><th>모델명</th>';
+    PH_PRICE_FIELDS.forEach(function(f){html+='<th style="text-align:center;white-space:nowrap;">'+f[1]+'</th>';});
+    html+='</tr></thead><tbody>';
+    list.forEach(function(m,i){
+      var pr=m.prices||{};
+      html+='<tr class="'+(m.visible?'':'is-hidden')+'"><td class="ph-prod-num">'+(i+1)+'</td><td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>';
+      PH_PRICE_FIELDS.forEach(function(f){
+        var v=pr[f[0]];var disp=(v==null||v==='')?'':phFmt(Number(v));
+        html+='<td style="text-align:center;"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" placeholder="상담" style="width:92px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
+      });
+      html+='</tr>';
+    });
+    html+='</tbody></table></div>';
+    wrap.innerHTML=html;
+  }
+  async function phSavePrice(input){
+    var id=input.getAttribute('data-ph-price-id');
+    var field=input.getAttribute('data-ph-price-field');
+    var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
+    var raw=input.value.replace(/,/g,'').trim();
+    var val=raw===''?null:phInt(raw);
+    var prices=Object.assign({},m.prices||{});
+    if(val==null||isNaN(val))delete prices[field];else prices[field]=val;
+    try{
+      var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',id);
+      if(res.error)throw res.error;
+      m.prices=prices;
+      input.value=(val==null||isNaN(val))?'':phFmt(val);
+    }catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
+  }
+  function phPriceExportXlsx(carrier){
+    if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
+    var list=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    var head=['id','통신사','모델명'].concat(PH_PRICE_FIELDS.map(function(f){return f[1];}));
+    var data=[head].concat(list.map(function(m){var pr=m.prices||{};return[m.id,carrier.toUpperCase(),m.name].concat(PH_PRICE_FIELDS.map(function(f){var v=pr[f[0]];return(v==null||v==='')?'':Number(v);}));}));
+    var ws=XLSX.utils.aoa_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,carrier.toUpperCase()+' 판매가');
+    XLSX.writeFile(wb,carrier.toUpperCase()+'_판매가.xlsx');
+  }
+  function phPriceImportXlsx(carrier,file){
+    if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
+    var reader=new FileReader();
+    reader.onload=async function(e){
+      try{
+        var wb=XLSX.read(e.target.result,{type:'array'});
+        var ws=wb.Sheets[wb.SheetNames[0]];
+        var rows=XLSX.utils.sheet_to_json(ws,{header:1});
+        var updates=[];
+        rows.slice(1).forEach(function(r){
+          var id=r[0]?String(r[0]).trim():'';if(!id)return;
+          var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
+          var prices=Object.assign({},m.prices||{});
+          PH_PRICE_FIELDS.forEach(function(f,fi){
+            var cell=r[3+fi];
+            var val=(cell==null||String(cell).trim()==='')?null:phInt(String(cell));
+            if(val==null||isNaN(val))delete prices[f[0]];else prices[f[0]]=val;
+          });
+          updates.push({m:m,prices:prices});
+        });
+        if(!updates.length){alert('매칭되는 데이터가 없습니다.\n엑셀 첫 열(id)이 다운로드한 값 그대로인지 확인하세요.');return;}
+        if(!confirm(carrier.toUpperCase()+' '+updates.length+'개 상품의 판매가를 업데이트하겠습니까?'))return;
+        phPriceStatus('업로드 중…');
+        for(var i=0;i<updates.length;i++){
+          var u=updates[i];
+          var res=await sb().from('mobileshop_models').update({prices:u.prices}).eq('id',u.m.id);
+          if(res.error)throw res.error;
+          u.m.prices=u.prices;
+        }
+        phRenderPricing(carrier);phPriceStatus('');phToast(carrier.toUpperCase()+' 판매가 '+updates.length+'개 업로드 완료');
+      }catch(err){phPriceStatus('업로드 실패: '+(err.message||err),true);}
+    };
+    reader.readAsArrayBuffer(file);
+  }
   /* ═══════════════ 상품관리 (ph-products) ═══════════════ */
   var PH_COLOR_MAP={'블랙':'#111','화이트':'#f0f0f0','그레이':'#888','실버':'#c0c0c0','골드':'#c8a850',
     '핑크':'#f7a8c4','레드':'#cc2222','오렌지':'#e07030','블루':'#2255cc','네이비':'#1a1a5a',
@@ -1902,8 +2030,8 @@ html[data-preload-shop] body { visibility:hidden; }
     var group=menuKey.replace('ph-','');
     document.querySelectorAll('.adm-panel').forEach(function(p){p.hidden=(p.getAttribute('data-panel')!==menuKey);});
     document.querySelectorAll('.adm-nav-item').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-shop-menu')===menuKey);});
-    var TITLES={models:'모델관리',plans:'요금제관리',support:'공통지원금',products:'상품관리'};
-    var SUBS={models:'통신사별 스마트폰 모델과 출고가를 관리합니다.',plans:'통신사별 요금제와 기본요금을 관리합니다.',support:'모델 × 요금제별 공시지원금을 관리합니다.',products:'공통지원금 순서로 상품을 진열하고 색상별 이미지·노출을 관리합니다.'};
+    var TITLES={models:'모델관리',plans:'요금제관리',support:'공통지원금',pricing:'판매가관리',products:'상품관리'};
+    var SUBS={models:'통신사별 스마트폰 모델과 출고가를 관리합니다.',plans:'통신사별 요금제와 기본요금을 관리합니다.',support:'모델 × 요금제별 공시지원금을 관리합니다.',pricing:'진열 순서대로 번호이동/기기변경 × 공통/선약 판매가를 관리합니다.',products:'공통지원금 순서로 상품을 진열하고 색상별 이미지·노출을 관리합니다.'};
     var t=phEl('adm-page-title');var s=phEl('adm-page-sub');
     if(t)t.textContent=TITLES[group]||menuKey;if(s)s.textContent=SUBS[group]||'';
     // 툴바 버튼 숨김 (렌탈 전용)
@@ -1916,6 +2044,7 @@ html[data-preload-shop] body { visibility:hidden; }
       if(group==='models')phRenderModels(carrier);
       else if(group==='plans')phRenderPlans(carrier);
       else if(group==='support')phRenderSupport(carrier);
+      else if(group==='pricing')phRenderPricing(carrier);
       else if(group==='products')phRenderProducts(carrier);
     }catch(e){}
   };
@@ -1932,6 +2061,7 @@ html[data-preload-shop] body { visibility:hidden; }
       if(group==='models')phRenderModels(carrier);
       else if(group==='plans')phRenderPlans(carrier);
       else if(group==='support')phRenderSupport(carrier);
+      else if(group==='pricing')phRenderPricing(carrier);
       else if(group==='products')phRenderProducts(carrier);
       return;
     }
@@ -1953,6 +2083,10 @@ html[data-preload-shop] body { visibility:hidden; }
     // 엑셀 업로드
     var xu=t.closest('[data-ph-xls-up]');
     if(xu){var f=phEl('ph-xls-file');f._carrier=xu.getAttribute('data-ph-xls-up');f.value='';f.click();return;}
+    // 판매가 엑셀 다운/업로드
+    var pxd=t.closest('[data-ph-price-down]');if(pxd){phPriceExportXlsx(pxd.getAttribute('data-ph-price-down'));return;}
+    var pxu=t.closest('[data-ph-price-up]');
+    if(pxu){var pf=phEl('ph-price-file');pf._carrier=pxu.getAttribute('data-ph-price-up');pf.value='';pf.click();return;}
     // ── 상품관리 ──
     // 상품 수정 버튼
     var pe=t.closest('[data-ph-prod-edit]');if(pe){phOpenProductModal(pe.getAttribute('data-ph-prod-edit'));return;}
@@ -1995,6 +2129,7 @@ html[data-preload-shop] body { visibility:hidden; }
   });
   document.addEventListener('change',function(e){
     if(e.target.id==='ph-xls-file'&&e.target.files[0])phImportXlsx(e.target._carrier||'skt',e.target.files[0]);
+    if(e.target.id==='ph-price-file'&&e.target.files[0])phPriceImportXlsx(e.target._carrier||'skt',e.target.files[0]);
     // 이미지 파일 선택 → 업로드
     if(e.target.id==='ph-pm-img-file'&&e.target.files[0]&&_phProdUploadSlot>=0)phProdUploadImage(e.target.files[0],_phProdUploadSlot);
     // 숨김 포함 체크박스
@@ -2013,6 +2148,7 @@ html[data-preload-shop] body { visibility:hidden; }
   });
   document.addEventListener('focusout',function(e){
     if(e.target.classList.contains('ms-sup'))phSaveSupport(e.target);
+    if(e.target.classList.contains('ms-price'))phSavePrice(e.target);
   });
   document.addEventListener('keydown',function(e){
     if(e.key==='Enter'&&e.target.classList.contains('ms-sup'))e.target.blur();
@@ -2079,7 +2215,7 @@ html[data-preload-shop] body { visibility:hidden; }
       if (shop === 'rental'){
         // 합본 placeholder/휴대폰 전용 패널 숨김(admin.js 는 이 패널들을 모르므로 직접 처리)
         // — 휴대폰 탭에서 보던 ph-* 패널이 렌탈 화면 아래 남아 보이던 버그
-        ['shop-soon','ph-models','ph-plans','ph-support','ph-products'].forEach(function(pk){
+        ['shop-soon','ph-models','ph-plans','ph-support','ph-pricing','ph-products'].forEach(function(pk){
           var p = document.querySelector('.adm-panel[data-panel="'+pk+'"]'); if (p) p.hidden = true;
         });
         // 렌탈 라우팅 복원 — admin.js 의 hashchange 핸들러가 패널/제목 처리
@@ -2104,7 +2240,7 @@ html[data-preload-shop] body { visibility:hidden; }
       var menu = it.getAttribute('data-shop-menu');
       lsSave('adm_menu', menu);
       if (menu === 'ph-banner' || menu === 'in-banner') showShopBanner(shop);
-      else if (menu === 'ph-models' || menu === 'ph-plans' || menu === 'ph-support' || menu === 'ph-products') { if (window.showPhonePanel) window.showPhonePanel(menu); }
+      else if (menu === 'ph-models' || menu === 'ph-plans' || menu === 'ph-support' || menu === 'ph-pricing' || menu === 'ph-products') { if (window.showPhonePanel) window.showPhonePanel(menu); }
       else showShopSoon(shop);
     }, true);
     // ── 새로고침 후 상태 복원 ──────────────────────────
@@ -2116,7 +2252,7 @@ html[data-preload-shop] body { visibility:hidden; }
       function applyPanel(sm){
         if (!sm || sm === 'ph-banner' || sm === 'in-banner'){
           showShopBanner(savedShop);
-        } else if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support' || sm === 'ph-products'){
+        } else if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support' || sm === 'ph-pricing' || sm === 'ph-products'){
           if (window.showPhonePanel) window.showPhonePanel(sm);
         } else {
           showShopSoon(savedShop);
