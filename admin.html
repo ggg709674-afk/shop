@@ -1771,10 +1771,11 @@ html[data-preload-shop] body { visibility:hidden; }
     var all=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sort_order||0)-(b.sort_order||0);});
     var list=_phProdShowHidden[carrier]?all:all.filter(function(m){return m.visible;});
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
-    var html='<div style="overflow-x:auto"><table class="ph-prod-table"><thead><tr>'
+    var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr>'
       +'<th class="ph-prod-num">#</th>'
-      +'<th>모델명</th><th style="text-align:center;">색상 노출</th><th class="ph-prod-vis">노출</th>'
+      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th class="ph-prod-vis">노출</th>'
       +'<th class="ph-prod-sort">정렬</th><th class="ph-prod-act">수정</th>'
+      +'<th style="width:100%;"></th>'
       +'</tr></thead><tbody>';
     list.forEach(function(m,i){
       var colors=phNormColors(m.colors);
@@ -1796,10 +1797,11 @@ html[data-preload-shop] body { visibility:hidden; }
       html+='<tr class="'+(m.visible?'':'is-hidden')+'">'
         +'<td class="ph-prod-num">'+(i+1)+'</td>'
         +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>'
-        +'<td><div class="ph-prod-color-chips" style="justify-content:center;">'+chipHtml+'</div></td>'
+        +'<td><div class="ph-prod-color-chips" style="justify-content:flex-start;">'+chipHtml+'</div></td>'
         +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-toggle="'+m.id+'"'+(m.visible?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
         +'<td class="ph-prod-sort">'+upBtn+' '+dnBtn+'</td>'
         +'<td class="ph-prod-act"><button class="ph-btn-sm adm-btn adm-btn-primary" data-ph-prod-edit="'+m.id+'">수정</button></td>'
+        +'<td></td>'
         +'</tr>';
     });
     html+='</tbody></table></div>';
