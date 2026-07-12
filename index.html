@@ -2132,7 +2132,7 @@ if(location.search.indexOf('ph=')!==-1){
     return String(name == null ? '' : name).replace(/(\d+)\s*GB\b/gi, '$1G').replace(/(\d+)\s*TB\b/gi, '$1T');
   }
   function _modelToCardItem(m) {
-    var cols = (m.colors || []).filter(function(c) { return Array.isArray(c.images) && c.images.some(Boolean); })
+    var cols = (m.colors || []).filter(function(c) { return c.visible !== false && Array.isArray(c.images) && c.images.some(Boolean); })
       .map(function(c) { return { name: c.name || '', images: c.images.filter(Boolean).slice(0,6) }; });
     var images = cols.length ? cols[0].images : [];
     return {
