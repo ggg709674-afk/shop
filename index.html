@@ -342,6 +342,11 @@
   .product-card .price-row .del { font-size:12px; color:var(--g3); text-decoration:line-through; margin-right:auto; }
   .product-card .price-row .now { font-size:13px; color:var(--g1); }
   .product-card .price-row .now strong { font-size:19px; color:var(--ink); letter-spacing:-.5px; }
+  /* 공통지원 판매가 — 번호이동/기기변경 2줄 */
+  .product-card .ph-card-prices { margin-top:auto; padding-top:10px; border-top:1px dashed var(--line); display:flex; flex-direction:column; gap:7px; }
+  .product-card .ph-cpl { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .product-card .ph-cpl-l { font-size:12.5px; color:var(--g2); }
+  .product-card .ph-cpl-v { font-size:16px; font-weight:700; color:var(--ink); letter-spacing:-.3px; }
   /* ───── 통신사별 인기단말 섹션 (전체 뷰) ───── */
   .ph-sec { padding:4px 0 26px; }
   .ph-sec-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:18px 4px 13px; }
@@ -2086,11 +2091,10 @@ if(location.search.indexOf('ph=')!==-1){
         + (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" alt="' + escapeHtml(it.name) + '">' : PH_GLYPH)
       + '</div>'
       + '<div class="body">'
-        + '<div class="model">' + escapeHtml(it.tag) + '</div>'
-        + '<div class="name">' + escapeHtml(it.name) + '</div>'
-        + '<div class="price-row">'
-          + (it.del ? '<span class="del">' + escapeHtml(it.del) + '</span>' : '')
-          + '<span class="now"><small>' + escapeHtml(it.label) + '</small> 월 <strong>' + escapeHtml(it.price) + '</strong>원</span>'
+        + '<div class="model">공통지원 판매가</div>'
+        + '<div class="ph-card-prices">'
+          + '<div class="ph-cpl"><span class="ph-cpl-l">번호이동</span><span class="ph-cpl-v">' + escapeHtml(fmtCardWon(it.mnpCommon)) + '</span></div>'
+          + '<div class="ph-cpl"><span class="ph-cpl-l">기기변경</span><span class="ph-cpl-v">' + escapeHtml(fmtCardWon(it.changeCommon)) + '</span></div>'
         + '</div>'
       + '</div>'
     + '</a>';
@@ -2135,13 +2139,17 @@ if(location.search.indexOf('ph=')!==-1){
     var cols = (m.colors || []).filter(function(c) { return c.visible !== false && Array.isArray(c.images) && c.images.some(Boolean); })
       .map(function(c) { return { name: c.name || '', images: c.images.filter(Boolean).slice(0,6) }; });
     var images = cols.length ? cols[0].images : [];
+    var pr = (m.prices && typeof m.prices === 'object' && !Array.isArray(m.prices)) ? m.prices : {};
     return {
       id: m.id, name: normModelName(m.name), carrierId: m.carrier,
       tag: CARRIER_LABEL[m.carrier] || m.carrier,
       badge: '', del: '', label: '번호이동', price: '상담',
+      mnpCommon: pr.mnpCommon, changeCommon: pr.changeCommon,
       images: images, imageUrl: images[0] || '', colors: cols
     };
   }
+  // 카드 판매가 표기: 값 있으면 "200,000원", 없으면 "상담"
+  function fmtCardWon(v) { var n = Number(v); return (v == null || v === '' || isNaN(n)) ? '상담' : n.toLocaleString() + '원'; }
   // 카드 아이템 목록 (DB 모델 우선, 없으면 샘플) — carrierId 포함
   function phoneCardItems() {
     var models = (DataStore.load().models || []).filter(function(m) { return m.visible !== false; });
