@@ -1879,6 +1879,15 @@ html[data-preload-shop] body { visibility:hidden; }
     for(var i=0;i<_phProdColors.length;i++){var im=(_phProdColors[i].images||[]).filter(Boolean)[0];if(im)return im;}
     return '';
   }
+  // 휴대폰 상품/카드 이미지 업로드 — admin은 DataStore 미로드라 skmUploadCardImage(card-assets 버킷) 사용
+  async function phUploadProductImage(file){
+    if(!window.skmUploadCardImage)throw new Error('업로드 기능을 불러오지 못했어요. (supabase.js)');
+    var key='phone_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    var res=await window.skmUploadCardImage(key,file);
+    if(res&&res.error)throw res.error;
+    if(!res||!res.url)throw new Error('업로드 URL을 받지 못했어요.');
+    return res.url;
+  }
   function phRenderCardImg(){
     var prev=phEl('ph-pm-card-preview');if(!prev)return;
     var hint=phEl('ph-pm-card-hint');var resetBtn=phEl('ph-pm-card-reset');
@@ -1890,7 +1899,7 @@ html[data-preload-shop] body { visibility:hidden; }
   async function phCardUploadImage(file){
     try{
       phEl('ph-pm-saving').textContent='업로드 중…';
-      var url=await DataStore.uploadImage(file,'phone-products');
+      var url=await phUploadProductImage(file);
       _phProdCardImg=url;
       phRenderCardImg();
       phEl('ph-pm-saving').textContent='';
@@ -1924,7 +1933,7 @@ html[data-preload-shop] body { visibility:hidden; }
     if(!_phProdColors[_phProdActiveTab])return;
     try{
       phEl('ph-pm-saving').textContent='업로드 중…';
-      var url=await DataStore.uploadImage(file,'phone-products');
+      var url=await phUploadProductImage(file);
       var imgs=_phProdColors[_phProdActiveTab].images;
       imgs[slotIdx]=url;
       phRenderProductImgGrid();
