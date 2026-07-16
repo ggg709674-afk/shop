@@ -163,6 +163,10 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-pm-ctab-add{border-style:dashed;color:var(--primary);background:#fff;}
 /* 이미지 그리드 */
 .ph-pm-img-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.ph-pm-card-row{display:flex;align-items:flex-start;gap:14px;}
+.ph-pm-card-preview{width:96px;height:96px;flex-shrink:0;border:1px dashed var(--line);border-radius:10px;overflow:hidden;background:var(--surface);display:flex;align-items:center;justify-content:center;}
+.ph-pm-card-preview img{width:100%;height:100%;object-fit:contain;}
+.ph-pm-card-hint{font-size:12px;color:var(--ink-4);line-height:1.5;}
 .ph-pm-img-slot{aspect-ratio:1;border:1px dashed var(--line);border-radius:8px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--surface);}
 .ph-pm-img-slot:hover{border-color:var(--primary);}
 .ph-pm-img-slot img{width:100%;height:100%;object-fit:contain;}
@@ -1292,6 +1296,20 @@ html[data-preload-shop] body { visibility:hidden; }
         </div>
       </div>
       <div class="ph-pm-section">
+        <div class="ph-pm-section-title">카드 노출 이미지</div>
+        <div class="ph-pm-card-row">
+          <div class="ph-pm-card-preview" id="ph-pm-card-preview"></div>
+          <div class="ph-pm-card-ctrl">
+            <div class="ph-pm-card-hint" id="ph-pm-card-hint"></div>
+            <div style="display:flex;gap:6px;margin-top:8px;">
+              <button type="button" class="adm-btn adm-btn-secondary ph-btn-sm" id="ph-pm-card-upload">이미지 업로드</button>
+              <button type="button" class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-pm-card-reset">기본값(첫 이미지)</button>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="ph-pm-card-file" accept="image/*" hidden>
+      </div>
+      <div class="ph-pm-section">
         <div class="ph-pm-section-title">색상별 이미지</div>
         <div id="ph-pm-ctabs" class="ph-pm-ctabs"></div>
         <div id="ph-pm-img-grid" class="ph-pm-img-grid"></div>
@@ -1349,7 +1367,7 @@ html[data-preload-shop] body { visibility:hidden; }
   /* ─ 데이터 ─ */
   var phData={loaded:false,loading:false,models:[],plans:[],support:[]};
   function sb(){return window.supabaseClient||window.sb||null;}
-  function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,noticeDate:r.notice_date||'',visible:r.visible!==false,prices:(r.prices&&typeof r.prices==='object'&&!Array.isArray(r.prices))?r.prices:{},sortOrder:r.sort_order==null?0:r.sort_order};}
+  function rowToModel(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'skt',colors:Array.isArray(r.colors)?r.colors:[],releasePrice:r.release_price==null?'':r.release_price,noticeDate:r.notice_date||'',visible:r.visible!==false,prices:(r.prices&&typeof r.prices==='object'&&!Array.isArray(r.prices))?r.prices:{},sortOrder:r.sort_order==null?0:r.sort_order,imageUrl:r.image_url||''};}
   function rowToPlan(r){return{id:r.id,name:r.name||'',carrier:r.carrier||'',monthlyFee:r.monthly_fee==null?'':r.monthly_fee};}
   function rowToSupport(r){return{id:r.id,modelId:r.model_id||'',planId:r.plan_id||'',carrier:r.carrier||'',amount:r.amount==null?'':r.amount,upgradeAmount:r.upgrade_amount==null?'':r.upgrade_amount};}
   var phSupportSubTab='mnp';
@@ -1827,10 +1845,12 @@ html[data-preload-shop] body { visibility:hidden; }
   var _phProdColors=[];
   var _phProdActiveTab=0;
   var _phProdUploadSlot=-1;
+  var _phProdCardImg='';   // 카드 노출 이미지(별도 등록). '' = 기본(첫 색상 첫 이미지)
   function phOpenProductModal(id){
     var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
     _phProdColors=phNormColors(m.colors).map(function(c){return{name:c.name,visible:c.visible,images:c.images.slice()};});
     _phProdActiveTab=0;
+    _phProdCardImg=m.imageUrl||'';
     phEl('ph-pm-id').value=id;
     phEl('ph-pm-name').value=m.name;
     var vis=phEl('ph-pm-visible');vis.checked=m.visible;
@@ -1852,6 +1872,32 @@ html[data-preload-shop] body { visibility:hidden; }
       tabsWrap.innerHTML=tabHtml;
     }
     phRenderProductImgGrid();
+    phRenderCardImg();
+  }
+  // 카드 노출 이미지 — 첫 색상 첫 이미지(기본) 또는 별도 등록
+  function _phFirstColorImg(){
+    for(var i=0;i<_phProdColors.length;i++){var im=(_phProdColors[i].images||[]).filter(Boolean)[0];if(im)return im;}
+    return '';
+  }
+  function phRenderCardImg(){
+    var prev=phEl('ph-pm-card-preview');if(!prev)return;
+    var hint=phEl('ph-pm-card-hint');var resetBtn=phEl('ph-pm-card-reset');
+    var custom=_phProdCardImg;var shown=custom||_phFirstColorImg();
+    prev.innerHTML=shown?'<img src="'+phEsc(shown)+'" loading="lazy">':'<span style="font-size:22px;color:var(--ink-4);">+</span>';
+    if(hint)hint.textContent=custom?'별도 등록된 카드 이미지입니다.':'기본값: 첫 번째 색상의 첫 이미지가 카드에 표시됩니다.';
+    if(resetBtn)resetBtn.style.display=custom?'':'none';
+  }
+  async function phCardUploadImage(file){
+    try{
+      phEl('ph-pm-saving').textContent='업로드 중…';
+      var url=await DataStore.uploadImage(file,'phone-products');
+      _phProdCardImg=url;
+      phRenderCardImg();
+      phEl('ph-pm-saving').textContent='';
+    }catch(err){
+      phEl('ph-pm-saving').textContent='';
+      phProdStatus('카드 이미지 업로드 실패: '+(err.message||err),true);
+    }
   }
   function phRenderProductImgGrid(){
     var grid=phEl('ph-pm-img-grid');if(!grid)return;
@@ -1996,9 +2042,10 @@ html[data-preload-shop] body { visibility:hidden; }
     var colors=_phProdColors.slice();
     phEl('ph-pm-saving').textContent='저장 중…';
     try{
-      var res=await sb().from('mobileshop_models').update({name:name,visible:visible,colors:colors}).eq('id',id);
+      var cardImg=_phProdCardImg||null;
+      var res=await sb().from('mobileshop_models').update({name:name,visible:visible,colors:colors,image_url:cardImg}).eq('id',id);
       if(res.error)throw res.error;
-      m.name=name;m.visible=visible;m.colors=colors;
+      m.name=name;m.visible=visible;m.colors=colors;m.imageUrl=cardImg||'';
       phCloseProductModal();
       phRenderProducts(m.carrier);
       phToast('상품을 저장했습니다.');
@@ -2119,6 +2166,8 @@ html[data-preload-shop] body { visibility:hidden; }
     var sdel=t.closest('[data-slot-del]');
     if(sdel){var si=parseInt(sdel.getAttribute('data-slot-del'));if(_phProdColors[_phProdActiveTab])_phProdColors[_phProdActiveTab].images.splice(si,1);phRenderProductImgGrid();return;}
     // 상품모달 닫기
+    if(t.closest('#ph-pm-card-upload')){var cf=phEl('ph-pm-card-file');cf.value='';cf.click();return;}
+    if(t.closest('#ph-pm-card-reset')){_phProdCardImg='';phRenderCardImg();return;}
     if(t.id==='ph-pm-close'||t.id==='ph-pm-cancel'){phCloseProductModal();return;}
     if(t.id==='ph-pm-modal'&&e.target===phEl('ph-pm-modal')){phCloseProductModal();return;}
     // KT 이미지 자동등록
@@ -2141,6 +2190,7 @@ html[data-preload-shop] body { visibility:hidden; }
     if(e.target.id==='ph-price-file'&&e.target.files[0])phPriceImportXlsx(e.target._carrier||'skt',e.target.files[0]);
     // 이미지 파일 선택 → 업로드
     if(e.target.id==='ph-pm-img-file'&&e.target.files[0]&&_phProdUploadSlot>=0)phProdUploadImage(e.target.files[0],_phProdUploadSlot);
+    if(e.target.id==='ph-pm-card-file'&&e.target.files[0])phCardUploadImage(e.target.files[0]);
     // 숨김 포함 체크박스
     var sh=e.target.closest('[data-ph-prod-show-hidden]');
     if(sh){var c=sh.getAttribute('data-ph-prod-show-hidden');_phProdShowHidden[c]=e.target.checked;phRenderProducts(c);return;}

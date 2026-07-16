@@ -2074,7 +2074,7 @@ if(location.search.indexOf('ph=')!==-1){
   var PH_GLYPH = '<svg class="ph-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
   function shopCardHtml(it) {
     var imgs = Array.isArray(it.images) ? it.images.filter(Boolean).slice(0,6) : [];
-    var thumbUrl = imgs[0] || it.imageUrl || '';
+    var thumbUrl = it.cardImg || imgs[0] || it.imageUrl || '';
     var dataAttrs = ' data-card-name="' + escapeHtml(it.name) + '"'
       + ' data-card-carrier="' + escapeHtml(it.tag || '') + '"'
       + ' data-card-price="' + escapeHtml(it.price || '') + '"'
@@ -2145,6 +2145,7 @@ if(location.search.indexOf('ph=')!==-1){
       tag: CARRIER_LABEL[m.carrier] || m.carrier,
       badge: '', del: '', label: '번호이동', price: '상담',
       mnpCommon: pr.mnpCommon, changeCommon: pr.changeCommon,
+      cardImg: m.image_url || '',
       images: images, imageUrl: images[0] || '', colors: cols
     };
   }

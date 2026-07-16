@@ -75,7 +75,7 @@ const DataStore = {
         ];
         if (!loadMaster) {
           baseReqs.push(
-            sb.from('mobileshop_models').select('id,name,carrier,visible,sort_order,colors,prices').order('sort_order', { ascending: true })
+            sb.from('mobileshop_models').select('id,name,carrier,visible,sort_order,colors,prices,image_url').order('sort_order', { ascending: true })
           );
         }
         const baseResults = await Promise.all(baseReqs);
@@ -108,7 +108,8 @@ const DataStore = {
             carrier: row.carrier || 'skt',
             visible: row.visible !== false,
             colors: Array.isArray(row.colors) ? row.colors : [],
-            prices: (row.prices && typeof row.prices === 'object' && !Array.isArray(row.prices)) ? row.prices : {}
+            prices: (row.prices && typeof row.prices === 'object' && !Array.isArray(row.prices)) ? row.prices : {},
+            image_url: row.image_url || ''
           }));
         }
         if (loadMaster) {
