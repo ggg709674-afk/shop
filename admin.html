@@ -2619,13 +2619,13 @@ html[data-preload-shop] body { visibility:hidden; }
 
     // ── 새로고침 후 상태 복원 ──────────────────────────
     (function(){
-      // 공통메뉴(카테고리 관리)는 어느 탭이든 복원
-      if (lsGet('adm_menu') === 'cats') { showCategoryPanel(); return; }
       var savedShop = lsGet('adm_shop');
+      var savedMenu = lsGet('adm_menu');   // setShop이 cats 플래그를 지우기 전에 캡처
       if (!savedShop || savedShop === 'rental') return;
 
       // 현재 메뉴키에 맞는 패널 표시
       function applyPanel(sm){
+        if (sm === 'cats'){ showCategoryPanel(); return; } // 공통메뉴 — 카테고리 관리
         if (!sm || sm === 'ph-banner' || sm === 'in-banner'){
           showShopBanner(savedShop);
         } else if (sm === 'ph-models' || sm === 'ph-plans' || sm === 'ph-support' || sm === 'ph-pricing' || sm === 'ph-products'){
@@ -2637,7 +2637,7 @@ html[data-preload-shop] body { visibility:hidden; }
 
       document.addEventListener('DOMContentLoaded', function(){
         setShop(savedShop);                       // 탭 복원
-        applyPanel(lsGet('adm_menu'));             // 패널 복원
+        applyPanel(savedMenu);                     // 패널 복원 (cats 포함)
 
         // admin.css는 매번 ?v=Date.now()로 재다운로드됨(line 1124).
         // CSS 재로드 완료 전에 body를 드러내면 "스타일 없는" flash 발생.
@@ -2665,7 +2665,7 @@ html[data-preload-shop] body { visibility:hidden; }
             if (body.getAttribute('data-shop') === 'rental') { observer.disconnect(); return; }
             if (!bannerPanel.hidden) return; // 이미 표시 중이면 OK
             observer.disconnect();           // 복원 후 해제 (이후 정상 조작 방해 안 함)
-            applyPanel(lsGet('adm_menu'));
+            applyPanel(savedMenu);
           });
           mo.observe(bannerPanel, { attributes: true, attributeFilter: ['hidden'] });
           setTimeout(function(){ mo.disconnect(); }, 10000); // 안전망: 10초 후 해제
