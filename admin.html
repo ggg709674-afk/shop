@@ -1839,7 +1839,7 @@ html[data-preload-shop] body { visibility:hidden; }
   var _phProdShowHidden={skt:false,kt:false,lg:false};
   function phRenderProducts(carrier){
     var wrap=document.querySelector('[data-ph-prod-list="'+carrier+'"]');if(!wrap)return;
-    var all=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sort_order||0)-(b.sort_order||0);});
+    var all=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
     var list=_phProdShowHidden[carrier]?all:all.filter(function(m){return m.visible;});
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr>'
@@ -2122,21 +2122,24 @@ html[data-preload-shop] body { visibility:hidden; }
     }catch(err){m.visible=!m.visible;phProdStatus('저장 실패: '+(err.message||err),true);}
   }
   async function phProdSort(id,carrier,dir){
-    var all=phData.models.filter(function(x){return x.carrier===carrier;}).slice().sort(function(a,b){return(a.sort_order||0)-(b.sort_order||0);});
+    var all=phData.models.filter(function(x){return x.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
     var idx=all.findIndex(function(x){return x.id===id;});
+    if(idx<0)return;
     var swapIdx=dir==='up'?idx-1:idx+1;
     if(swapIdx<0||swapIdx>=all.length)return;
-    var a=all[idx],b=all[swapIdx];
-    var ta=a.sort_order||0,tb=b.sort_order||0;
-    a.sort_order=tb;b.sort_order=ta;
-    if(a.sort_order===b.sort_order){if(dir==='up')a.sort_order=tb-1;else a.sort_order=tb+1;}
+    // 인접 항목과 자리 교환 후 0..N 순차 재부여(기존 어긋난 값 정리)
+    var tmp=all[idx];all[idx]=all[swapIdx];all[swapIdx]=tmp;
+    var prev={};all.forEach(function(m){prev[m.id]=m.sortOrder;});
+    var changed=[];
+    all.forEach(function(m,i){if(m.sortOrder!==i){m.sortOrder=i;changed.push(m);}});
+    if(!changed.length){phRenderProducts(carrier);return;}
     try{
-      await Promise.all([
-        sb().from('mobileshop_models').update({sort_order:a.sort_order}).eq('id',a.id),
-        sb().from('mobileshop_models').update({sort_order:b.sort_order}).eq('id',b.id)
-      ]);
+      await Promise.all(changed.map(function(m){return sb().from('mobileshop_models').update({sort_order:m.sortOrder}).eq('id',m.id);}));
       phRenderProducts(carrier);
-    }catch(err){a.sort_order=ta;b.sort_order=tb;phProdStatus('정렬 저장 실패: '+(err.message||err),true);}
+    }catch(err){
+      Object.keys(prev).forEach(function(pid){var m=phData.models.find(function(x){return x.id===pid;});if(m)m.sortOrder=prev[pid];});
+      phProdStatus('정렬 저장 실패: '+(err.message||err),true);
+    }
   }
   /* ═══════════════════════════════════════════════════════════ */
   /* ─ 패널 진입 (shop controller → 호출) ─ */
