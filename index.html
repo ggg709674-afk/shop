@@ -492,6 +492,9 @@
   .ph-det-price-row.ph-det-price-final { border-top:2px solid var(--line); border-bottom:0; padding-top:12px; margin-top:2px; }
   .ph-det-price-final .ph-det-price-label { font-weight:700; font-size:15px; color:var(--ink); }
   .ph-det-price-final .ph-det-price-val { font-size:22px; color:var(--accent); }
+  .ph-det-addon-row { display:flex; gap:10px; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line); }
+  .ph-det-addon-label { flex:0 0 auto; font-size:12px; font-weight:700; color:var(--g2); padding-top:1px; }
+  .ph-det-addon-val { flex:1; font-size:13px; line-height:1.5; color:var(--g1); text-align:right; word-break:break-word; }
   .ph-det-cta {
     display:block; width:100%; padding:16px; border:none; border-radius:14px;
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
@@ -3070,9 +3073,11 @@ if(location.search.indexOf('ph=')!==-1){
     var planLabel = pr[field + 'PlanLabel'] || '';
     var release = (m && m.release_price != null) ? Number(m.release_price) : null;
     var note = planLabel ? '<div class="ph-det-price-note">기준요금제 · ' + escapeHtml(planLabel) + '</div>' : '';
+    var addon = (pr.addon || '').trim();
+    var addonHtml = addon ? '<div class="ph-det-addon-row"><span class="ph-det-addon-label">부가서비스</span><span class="ph-det-addon-val">' + escapeHtml(addon).replace(/\n/g, '<br>') + '</span></div>' : '';
     var hasSale = sale != null && sale !== '' && !isNaN(Number(sale));
     if (!hasSale || release == null) {
-      box.innerHTML = note + '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>';
+      box.innerHTML = note + '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>' + addonHtml;
       return;
     }
     sale = Number(sale);
@@ -3088,6 +3093,7 @@ if(location.search.indexOf('ph=')!==-1){
     var discount = ct === 'common' ? (release - support - sale) : (release - sale);
     html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
     html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
+    html += addonHtml;
     box.innerHTML = html;
   }
   async function phDetFetchSupport(m){

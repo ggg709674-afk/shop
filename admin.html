@@ -1694,6 +1694,7 @@ html[data-preload-shop] body { visibility:hidden; }
     html+='<tr><th class="ph-prod-num" rowspan="2">#</th><th style="white-space:nowrap;" rowspan="2">모델명</th>'
       +'<th colspan="'+PH_PRICE_FIELDS.length+'" style="text-align:center;'+BL+'">판매가 (원)</th>'
       +'<th colspan="'+(PH_PRICE_FIELDS.length*2)+'" style="text-align:center;'+BL+'">기준요금제 (선택 → 표시명)</th>'
+      +'<th rowspan="2" style="text-align:center;white-space:nowrap;'+BL+'">부가서비스<br><span style="font-weight:400;color:var(--ink-4);font-size:10px;">판매가 페이지에 표시</span></th>'
       +'<th style="width:100%;" rowspan="2"></th></tr>';
     // 컬럼 헤더
     html+='<tr>';
@@ -1712,6 +1713,7 @@ html[data-preload-shop] body { visibility:hidden; }
         html+='<td style="text-align:center;'+(fi===0?BL:'')+'"><select class="ms-baseplan" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" style="max-width:150px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;">'+planOpts(planId)+'</select></td>';
         html+='<td style="text-align:center;"><input class="ms-bplabel" type="text" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" value="'+phEsc(label)+'" placeholder="표시명" style="width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
       });
+      html+='<td style="text-align:center;'+BL+'"><input class="ms-addon" type="text" data-ph-addon-id="'+phEsc(m.id)+'" value="'+phEsc(pr.addon||'')+'" placeholder="부가서비스 입력" style="width:180px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
       html+='<td></td></tr>';
     });
     html+='</tbody></table></div>';
@@ -1750,6 +1752,14 @@ html[data-preload-shop] body { visibility:hidden; }
     var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
     var val=input.value.trim();var prices=Object.assign({},m.prices||{});
     if(val)prices[field+'PlanLabel']=val;else delete prices[field+'PlanLabel'];
+    try{var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',id);if(res.error)throw res.error;m.prices=prices;}
+    catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
+  }
+  async function phSaveAddon(input){
+    var id=input.getAttribute('data-ph-addon-id');
+    var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
+    var val=input.value.trim();var prices=Object.assign({},m.prices||{});
+    if(val)prices.addon=val;else delete prices.addon;
     try{var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',id);if(res.error)throw res.error;m.prices=prices;}
     catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
   }
@@ -2319,6 +2329,7 @@ html[data-preload-shop] body { visibility:hidden; }
     if(e.target.classList.contains('ms-sup'))phSaveSupport(e.target);
     if(e.target.classList.contains('ms-price'))phSavePrice(e.target);
     if(e.target.classList.contains('ms-bplabel'))phSaveBaseLabel(e.target);
+    if(e.target.classList.contains('ms-addon'))phSaveAddon(e.target);
   });
   // 판매가 엑셀 드래그&드롭
   document.addEventListener('dragover',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(z){e.preventDefault();z.classList.add('drag');}});
