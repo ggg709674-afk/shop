@@ -1052,6 +1052,10 @@ html[data-preload-shop] body { visibility:hidden; }
   <section class="adm-panel" data-panel="ph-pricing" hidden>
     <p class="adm-panel-hint">진열된 순서 그대로 <strong>판매가</strong>를 관리합니다. 번호이동/기기변경 × 공통지원금/선택약정 4개 가격을 직접 입력하거나, 엑셀로 다운받아 입력 후 업로드하세요.</p>
     <div class="ph-status" id="ph-price-status"></div>
+    <div style="display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+      <button class="adm-btn adm-btn-secondary ph-btn-sm" id="ph-price-download-all" style="white-space:nowrap;">전체 엑셀 다운로드 (SKT·KT·LG 탭)</button>
+      <div class="ph-price-drop" data-ph-price-drop="all" style="flex:1;min-width:240px;margin:0;">📥 엑셀 파일(.xlsx)을 드래그하거나 클릭 — 3개 탭 전체 판매가 자동 입력</div>
+    </div>
     <nav class="ph-carrier-tabs" data-ph-group="pricing">
       <button class="ph-carrier-tab on" data-pcarrier="skt">SKT</button>
       <button class="ph-carrier-tab" data-pcarrier="kt">KT</button>
@@ -1059,34 +1063,19 @@ html[data-preload-shop] body { visibility:hidden; }
     </nav>
     <div class="ph-cpane on" data-ph-group="pricing" data-pcarrier="skt">
       <div class="ph-card">
-        <div class="ph-card-h">SKT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
-          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="skt">엑셀 다운</button>
-          </div>
-        </div>
-        <div class="ph-price-drop" data-ph-price-drop="skt">📥 엑셀 파일(.xlsx)을 여기에 드래그하거나 클릭해서 업로드</div>
+        <div class="ph-card-h">SKT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span></div>
         <div class="ph-card-body"><div data-ph-price-list="skt"></div></div>
       </div>
     </div>
     <div class="ph-cpane" data-ph-group="pricing" data-pcarrier="kt">
       <div class="ph-card">
-        <div class="ph-card-h">KT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
-          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="kt">엑셀 다운</button>
-          </div>
-        </div>
-        <div class="ph-price-drop" data-ph-price-drop="kt">📥 엑셀 파일(.xlsx)을 여기에 드래그하거나 클릭해서 업로드</div>
+        <div class="ph-card-h">KT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span></div>
         <div class="ph-card-body"><div data-ph-price-list="kt"></div></div>
       </div>
     </div>
     <div class="ph-cpane" data-ph-group="pricing" data-pcarrier="lg">
       <div class="ph-card">
-        <div class="ph-card-h">LG U+ 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span>
-          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-price-down="lg">엑셀 다운</button>
-          </div>
-        </div>
-        <div class="ph-price-drop" data-ph-price-drop="lg">📥 엑셀 파일(.xlsx)을 여기에 드래그하거나 클릭해서 업로드</div>
+        <div class="ph-card-h">LG U+ 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span></div>
         <div class="ph-card-body"><div data-ph-price-list="lg"></div></div>
       </div>
     </div>
@@ -1767,6 +1756,48 @@ html[data-preload-shop] body { visibility:hidden; }
     };
     reader.readAsArrayBuffer(file);
   }
+  // 전체 통신사 = 3개 탭(SKT/KT/LG)로 다운로드
+  var PH_CARRIERS_XL=[['skt','SKT','SKT'],['kt','KT','KT'],['lg','LG U+','LGU+']];
+  function phPriceExportAll(){
+    if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
+    var head=['id','통신사','모델명'].concat(PH_PRICE_FIELDS.map(function(f){return f[1];}));
+    var wb=XLSX.utils.book_new();
+    PH_CARRIERS_XL.forEach(function(cr){
+      var list=phData.models.filter(function(m){return m.carrier===cr[0]&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+      var data=[head].concat(list.map(function(m){var pr=m.prices||{};return[m.id,cr[1],m.name].concat(PH_PRICE_FIELDS.map(function(f){var v=pr[f[0]];return(v==null||v==='')?'':Number(v);}));}));
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(data),cr[2]);
+    });
+    XLSX.writeFile(wb,'판매가_전체.xlsx');
+  }
+  // 업로드: 모든 탭 읽어 id 매칭으로 전체 통신사 가격 자동입력
+  function phPriceImportAll(file){
+    if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
+    var reader=new FileReader();
+    reader.onload=async function(e){
+      try{
+        var wb=XLSX.read(e.target.result,{type:'array'});
+        var updates=[];var seen={};
+        wb.SheetNames.forEach(function(sn){
+          var ws=wb.Sheets[sn];if(!ws)return;
+          var rows=XLSX.utils.sheet_to_json(ws,{header:1});
+          rows.slice(1).forEach(function(r){
+            var id=r[0]?String(r[0]).trim():'';if(!id||seen[id])return;
+            var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
+            var prices=Object.assign({},m.prices||{});
+            PH_PRICE_FIELDS.forEach(function(f,fi){var cell=r[3+fi];var val=(cell==null||String(cell).trim()==='')?null:phInt(String(cell));if(val==null||isNaN(val))delete prices[f[0]];else prices[f[0]]=val;});
+            seen[id]=1;updates.push({m:m,prices:prices});
+          });
+        });
+        if(!updates.length){alert('매칭되는 데이터가 없습니다.\n엑셀 첫 열(id)이 다운로드한 값 그대로인지 확인하세요.');return;}
+        if(!confirm('전체 '+updates.length+'개 상품의 판매가를 업데이트하겠습니까?'))return;
+        phPriceStatus('업로드 중…');
+        for(var i=0;i<updates.length;i++){var u=updates[i];var res=await sb().from('mobileshop_models').update({prices:u.prices}).eq('id',u.m.id);if(res.error)throw res.error;u.m.prices=u.prices;}
+        ['skt','kt','lg'].forEach(function(c){phRenderPricing(c);});
+        phPriceStatus('');phToast('판매가 '+updates.length+'개 업로드 완료');
+      }catch(err){phPriceStatus('업로드 실패: '+(err.message||err),true);}
+    };
+    reader.readAsArrayBuffer(file);
+  }
   /* ═══════════════ 상품관리 (ph-products) ═══════════════ */
   var PH_COLOR_MAP={'블랙':'#111','화이트':'#f0f0f0','그레이':'#888','실버':'#c0c0c0','골드':'#c8a850',
     '핑크':'#f7a8c4','레드':'#cc2222','오렌지':'#e07030','블루':'#2255cc','네이비':'#1a1a5a',
@@ -2149,6 +2180,8 @@ html[data-preload-shop] body { visibility:hidden; }
     var pxd=t.closest('[data-ph-price-down]');if(pxd){phPriceExportXlsx(pxd.getAttribute('data-ph-price-down'));return;}
     var pxu=t.closest('[data-ph-price-up]');
     if(pxu){var pf=phEl('ph-price-file');pf._carrier=pxu.getAttribute('data-ph-price-up');pf.value='';pf.click();return;}
+    // 전체 판매가 엑셀 다운로드(3탭)
+    if(t.closest('#ph-price-download-all')){phPriceExportAll();return;}
     // 판매가 드롭존 클릭 → 파일 선택
     var pdrop=t.closest('[data-ph-price-drop]');
     if(pdrop){var pf2=phEl('ph-price-file');pf2._carrier=pdrop.getAttribute('data-ph-price-drop');pf2.value='';pf2.click();return;}
@@ -2196,7 +2229,7 @@ html[data-preload-shop] body { visibility:hidden; }
   });
   document.addEventListener('change',function(e){
     if(e.target.id==='ph-xls-file'&&e.target.files[0])phImportXlsx(e.target._carrier||'skt',e.target.files[0]);
-    if(e.target.id==='ph-price-file'&&e.target.files[0])phPriceImportXlsx(e.target._carrier||'skt',e.target.files[0]);
+    if(e.target.id==='ph-price-file'&&e.target.files[0]){var _pc=e.target._carrier||'skt';if(_pc==='all')phPriceImportAll(e.target.files[0]);else phPriceImportXlsx(_pc,e.target.files[0]);}
     // 이미지 파일 선택 → 업로드
     if(e.target.id==='ph-pm-img-file'&&e.target.files[0]&&_phProdUploadSlot>=0)phProdUploadImage(e.target.files[0],_phProdUploadSlot);
     if(e.target.id==='ph-pm-card-file'&&e.target.files[0])phCardUploadImage(e.target.files[0]);
@@ -2221,7 +2254,7 @@ html[data-preload-shop] body { visibility:hidden; }
   // 판매가 엑셀 드래그&드롭
   document.addEventListener('dragover',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(z){e.preventDefault();z.classList.add('drag');}});
   document.addEventListener('dragleave',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(z&&!z.contains(e.relatedTarget))z.classList.remove('drag');});
-  document.addEventListener('drop',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(!z)return;e.preventDefault();z.classList.remove('drag');var file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(file)phPriceImportXlsx(z.getAttribute('data-ph-price-drop'),file);});
+  document.addEventListener('drop',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(!z)return;e.preventDefault();z.classList.remove('drag');var file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(file){var _c=z.getAttribute('data-ph-price-drop');if(_c==='all')phPriceImportAll(file);else phPriceImportXlsx(_c,file);}});
   document.addEventListener('keydown',function(e){
     if(e.key==='Enter'&&e.target.classList.contains('ms-sup'))e.target.blur();
   });
