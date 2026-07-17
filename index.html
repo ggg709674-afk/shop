@@ -509,6 +509,8 @@
   /* 가입유형·약정유형 = 5:5 풀폭 CTA 스타일 버튼 */
   #ph-det-join, #ph-det-ctype { flex:1; flex-wrap:nowrap; gap:8px; }
   #ph-det-join .ph-det-chip, #ph-det-ctype .ph-det-chip { flex:1; padding:9px 8px; border-radius:9px; font:600 13px/1 inherit; }
+  /* 선택 = 라인(외곽선)만 빨강, 채우지 않음 */
+  #ph-det-join .ph-det-chip.on, #ph-det-ctype .ph-det-chip.on { background:rgba(222,79,65,.06); color:var(--accent); border-color:var(--accent); }
   /* 색상 스와치 — 렌탈 .cp-chip/.cp-dot 통일(34px 링 + 22px 점, 선택 시 --accent 링) */
   .ph-det-colors { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
   .ph-det-color { display:inline-grid; place-items:center; width:34px; height:34px; border-radius:50%; border:2px solid transparent; background:transparent; padding:0; cursor:pointer; transition:border-color .15s; }
