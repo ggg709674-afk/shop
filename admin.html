@@ -1841,7 +1841,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var cols=[{wch:26},{wch:9},{wch:24}];
     var priceCols={};
     PH_PRICE_FIELDS.forEach(function(f,fi){priceCols[3+fi]=1;cols.push({wch:12});});// 가격 4개
-    PH_PRICE_FIELDS.forEach(function(){cols.push({wch:22});});// 노출문구 4개
+    PH_PRICE_FIELDS.forEach(function(){cols.push({wch:30});});// 노출문구 4개
     cols.push({wch:39});// 부가서비스
     ws['!cols']=cols;
     ws['!rows']=[{hpt:24}];
