@@ -1681,15 +1681,31 @@ html[data-preload-shop] body { visibility:hidden; }
     var wrap=document.querySelector('[data-ph-price-list="'+carrier+'"]');if(!wrap)return;
     var list=phData.models.filter(function(m){return m.carrier===carrier&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">노출 중인 상품이 없습니다.</p>';return;}
-    var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr><th class="ph-prod-num">#</th><th style="white-space:nowrap;">모델명</th>';
-    PH_PRICE_FIELDS.forEach(function(f){html+='<th style="text-align:center;white-space:nowrap;">'+f[1]+'</th>';});
-    html+='<th style="width:100%;"></th></tr></thead><tbody>';
+    var plans=phData.plans.filter(function(p){return p.carrier===carrier;});
+    function planOpts(selId){var o='<option value="">— 선택 —</option>';plans.forEach(function(p){o+='<option value="'+phEsc(p.id)+'"'+(selId===p.id?' selected':'')+'>'+phEsc(p.name)+'</option>';});return o;}
+    var BL='border-left:2px solid var(--line);';
+    var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead>';
+    // 그룹 헤더
+    html+='<tr><th class="ph-prod-num" rowspan="2">#</th><th style="white-space:nowrap;" rowspan="2">모델명</th>'
+      +'<th colspan="'+PH_PRICE_FIELDS.length+'" style="text-align:center;'+BL+'">판매가 (원)</th>'
+      +'<th colspan="'+(PH_PRICE_FIELDS.length*2)+'" style="text-align:center;'+BL+'">기준요금제 (선택 → 표시명)</th>'
+      +'<th style="width:100%;" rowspan="2"></th></tr>';
+    // 컬럼 헤더
+    html+='<tr>';
+    PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+'</th>';});
+    PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+' 요금제</th><th style="text-align:center;white-space:nowrap;">표시명</th>';});
+    html+='</tr></thead><tbody>';
     list.forEach(function(m,i){
       var pr=m.prices||{};
       html+='<tr><td class="ph-prod-num">'+(i+1)+'</td><td style="white-space:nowrap;"><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>';
-      PH_PRICE_FIELDS.forEach(function(f){
+      PH_PRICE_FIELDS.forEach(function(f,fi){
         var v=pr[f[0]];var disp=(v==null||v==='')?'':phFmt(Number(v));
-        html+='<td style="text-align:center;"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" style="width:92px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
+        html+='<td style="text-align:center;'+(fi===0?BL:'')+'"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" style="width:88px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
+      });
+      PH_PRICE_FIELDS.forEach(function(f,fi){
+        var planId=pr[f[0]+'Plan']||'';var label=pr[f[0]+'PlanLabel']||'';
+        html+='<td style="text-align:center;'+(fi===0?BL:'')+'"><select class="ms-baseplan" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" style="max-width:150px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;">'+planOpts(planId)+'</select></td>';
+        html+='<td style="text-align:center;"><input class="ms-bplabel" type="text" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" value="'+phEsc(label)+'" placeholder="표시명" style="width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
       });
       html+='<td></td></tr>';
     });
@@ -1710,6 +1726,27 @@ html[data-preload-shop] body { visibility:hidden; }
       m.prices=prices;
       input.value=(val==null||isNaN(val))?'':phFmt(val);
     }catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
+  }
+  // 기준요금제 선택 → 표시명 자동 채움(수정 가능) + 저장
+  async function phSaveBasePlan(sel){
+    var id=sel.getAttribute('data-ph-bp-id');var field=sel.getAttribute('data-ph-bp-field');
+    var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
+    var planId=sel.value||'';var plan=phData.plans.find(function(p){return p.id===planId;});
+    var prices=Object.assign({},m.prices||{});
+    if(planId){prices[field+'Plan']=planId;prices[field+'PlanLabel']=plan?plan.name:'';}
+    else{delete prices[field+'Plan'];delete prices[field+'PlanLabel'];}
+    var tr=sel.closest('tr');var lbl=tr?tr.querySelector('.ms-bplabel[data-ph-bp-field="'+field+'"]'):null;
+    if(lbl)lbl.value=prices[field+'PlanLabel']||'';
+    try{var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',id);if(res.error)throw res.error;m.prices=prices;}
+    catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
+  }
+  async function phSaveBaseLabel(input){
+    var id=input.getAttribute('data-ph-bp-id');var field=input.getAttribute('data-ph-bp-field');
+    var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
+    var val=input.value.trim();var prices=Object.assign({},m.prices||{});
+    if(val)prices[field+'PlanLabel']=val;else delete prices[field+'PlanLabel'];
+    try{var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',id);if(res.error)throw res.error;m.prices=prices;}
+    catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
   }
   function phPriceExportXlsx(carrier){
     if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
@@ -2255,6 +2292,7 @@ html[data-preload-shop] body { visibility:hidden; }
   document.addEventListener('change',function(e){
     if(e.target.id==='ph-xls-file'&&e.target.files[0])phImportXlsx(e.target._carrier||'skt',e.target.files[0]);
     if(e.target.id==='ph-price-file'&&e.target.files[0]){var _pc=e.target._carrier||'skt';if(_pc==='all')phPriceImportAll(e.target.files[0]);else phPriceImportXlsx(_pc,e.target.files[0]);}
+    if(e.target.classList.contains('ms-baseplan'))phSaveBasePlan(e.target);
     // 이미지 파일 선택 → 업로드
     if(e.target.id==='ph-pm-img-file'&&e.target.files[0]&&_phProdUploadSlot>=0)phProdUploadImage(e.target.files[0],_phProdUploadSlot);
     if(e.target.id==='ph-pm-card-file'&&e.target.files[0])phCardUploadImage(e.target.files[0]);
@@ -2275,6 +2313,7 @@ html[data-preload-shop] body { visibility:hidden; }
   document.addEventListener('focusout',function(e){
     if(e.target.classList.contains('ms-sup'))phSaveSupport(e.target);
     if(e.target.classList.contains('ms-price'))phSavePrice(e.target);
+    if(e.target.classList.contains('ms-bplabel'))phSaveBaseLabel(e.target);
   });
   // 판매가 엑셀 드래그&드롭
   document.addEventListener('dragover',function(e){var z=e.target.closest&&e.target.closest('[data-ph-price-drop]');if(z){e.preventDefault();z.classList.add('drag');}});
