@@ -3336,25 +3336,30 @@ if(location.search.indexOf('ph=')!==-1){
       SITE_SHOP_KEYS.forEach(function(k){ if (!seen[k]) ordered.push({ key:k, visible:true }); });
       var vis = ordered.filter(function(s){ return s.visible; }).map(function(s){ return s.key; });
       if (!vis.length) vis = SITE_SHOP_KEYS.slice(); // 전부 끄면 안전하게 전체 노출
-      var N = vis.length;
-      var curCat = catOrder[currentIdx] || 'phone';
-      panelsEl.style.width = (N * 100) + '%';
-      // 노출 대상: 폭 지정 + 순서대로 재배치
-      vis.forEach(function(k){
-        var p = _siteShopPanel(k); if (p) { p.style.width = (100 / N) + '%'; p.style.display = ''; panelsEl.appendChild(p); }
-        var b = _siteShopBtn(k);   if (b) { b.style.display = ''; catNav.appendChild(b); }
-      });
-      // 숨김 대상
-      ordered.forEach(function(s){
-        if (s.visible) return;
-        var p = _siteShopPanel(s.key); if (p) p.style.display = 'none';
-        var b = _siteShopBtn(s.key);   if (b) b.style.display = 'none';
-      });
-      catOrder = vis;
-      if (vis.indexOf(curCat) === -1) curCat = vis[0];
-      currentIdx = vis.indexOf(curCat);
-      panelsEl.style.left = -(currentIdx * 100) + '%';
-      catNav.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.cat === curCat); });
+      // 기본값(기본순서 + 전체노출)이면 상위 슬라이더 DOM을 손대지 않음 → 기존 sticky 등 동작 그대로 유지
+      var isDefaultShops = (ordered.map(function(s){ return s.key; }).join(',') === SITE_SHOP_KEYS.join(',')) && ordered.every(function(s){ return s.visible; });
+      if (!isDefaultShops) {
+        var N = vis.length;
+        var curCat = catOrder[currentIdx] || 'phone';
+        panelsEl.style.width = (N * 100) + '%';
+        // 노출 대상: 폭 지정 + 순서대로 재배치
+        vis.forEach(function(k){
+          var p = _siteShopPanel(k); if (p) { p.style.width = (100 / N) + '%'; p.style.display = ''; panelsEl.appendChild(p); }
+          var b = _siteShopBtn(k);   if (b) { b.style.display = ''; catNav.appendChild(b); }
+        });
+        // 숨김 대상
+        ordered.forEach(function(s){
+          if (s.visible) return;
+          var p = _siteShopPanel(s.key); if (p) p.style.display = 'none';
+          var b = _siteShopBtn(s.key);   if (b) b.style.display = 'none';
+        });
+        catOrder = vis;
+        if (vis.indexOf(curCat) === -1) curCat = vis[0];
+        currentIdx = vis.indexOf(curCat);
+        panelsEl.style.left = -(currentIdx * 100) + '%';
+        catNav.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.cat === curCat); });
+        if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
+      }
       // 하위 노출 (인터넷/렌탈 하드코딩 서브). 휴대폰 통신사는 mobileshop_categories.visible 로 별도 관리.
       var subs = cfg.subs || {};
       ['internet', 'rental'].forEach(function(shop){
@@ -3364,7 +3369,6 @@ if(location.search.indexOf('ph=')!==-1){
           btn.style.display = (conf[btn.getAttribute('data-sub')] !== false) ? '' : 'none';
         });
       });
-      if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
     } catch(e){ if (window.console) console.warn('applySiteMenuConfig', e); }
   }
   window.applySiteMenuConfig = applySiteMenuConfig; // 관리자 미리보기용
