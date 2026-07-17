@@ -2542,7 +2542,7 @@ html[data-preload-shop] body { visibility:hidden; }
       if (typeof hideRentalHeaderTools==='function') hideRentalHeaderTools();
       var bd=document.getElementById('cat-mgr-body'); if(bd)bd.innerHTML='<p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p>';
       try{
-        var db=sb(); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
+        var db=(window.supabaseClient||window.sb); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
         var r1=await db.from('mobileshop_rental_settings').select('payload').eq('key','site_menu').maybeSingle();
         _catCfg=_catNormalize(r1&&r1.data&&r1.data.payload);
         var r2=await db.from('mobileshop_categories').select('*').order('sort_order',{ascending:true});
@@ -2581,7 +2581,7 @@ html[data-preload-shop] body { visibility:hidden; }
 
     async function catSaveCfg(){
       try{
-        var db=sb(); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
+        var db=(window.supabaseClient||window.sb); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
         var res=await db.from('mobileshop_rental_settings').upsert({key:'site_menu',payload:_catCfg},{onConflict:'key'});
         if(res.error)throw res.error;
         catStatus('저장됨 · 사이트에 반영됩니다.');
@@ -2590,7 +2590,7 @@ html[data-preload-shop] body { visibility:hidden; }
     }
     async function catSaveCarrier(id,visible){
       try{
-        var db=sb(); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
+        var db=(window.supabaseClient||window.sb); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
         var res=await db.from('mobileshop_categories').update({visible:visible}).eq('id',id);
         if(res.error)throw res.error;
         var c=_catCarriers.find(function(x){return String(x.id)===String(id);}); if(c)c.visible=visible;
