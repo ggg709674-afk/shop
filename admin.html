@@ -1056,7 +1056,7 @@ html[data-preload-shop] body { visibility:hidden; }
 
   <!-- ===== 휴대폰 — 판매가관리 ===== -->
   <section class="adm-panel" data-panel="ph-pricing" hidden>
-    <p class="adm-panel-hint">진열된 순서 그대로 <strong>판매가</strong>를 관리합니다. 번호이동/기기변경 × 공통지원금/선택약정 4개 가격을 직접 입력하거나, 엑셀로 다운받아 입력 후 업로드하세요.</p>
+    <p class="adm-panel-hint">진열된 순서 그대로 <strong>판매가</strong>를 관리합니다. 4개 가격 + <strong>노출문구</strong> + <strong>부가서비스</strong>를 직접 입력하거나, 엑셀로 다운받아 입력 후 업로드하세요.</p>
     <div class="ph-status" id="ph-price-status"></div>
     <div style="display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
       <button id="ph-price-download-all" style="white-space:nowrap;padding:10px 18px;border:0;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;">⤓ 전체 엑셀 다운로드 (SKT·KT·LG 탭)</button>
@@ -1779,12 +1779,30 @@ html[data-preload-shop] body { visibility:hidden; }
     try{var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',id);if(res.error)throw res.error;m.prices=prices;}
     catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
   }
+  // 엑셀 컬럼: id,통신사,모델명, [가격,노출문구]×4, 부가서비스
+  function phPriceHead(){var h=['id','통신사','모델명'];PH_PRICE_FIELDS.forEach(function(f){h.push(f[1]);h.push(f[1]+' 노출문구');});h.push('부가서비스');return h;}
+  function phPriceRow(m,carrierLabel){var pr=m.prices||{};var row=[m.id,carrierLabel,m.name];PH_PRICE_FIELDS.forEach(function(f){var v=pr[f[0]];row.push((v==null||v==='')?'':Number(v));row.push(pr[f[0]+'PlanLabel']||'');});row.push(pr.addon||'');return row;}
+  // 한 행 → prices 병합(가격+노출문구+부가서비스)
+  function phPriceRowToPrices(m,r){
+    var prices=Object.assign({},m.prices||{});
+    PH_PRICE_FIELDS.forEach(function(f,fi){
+      var pc=3+fi*2,lc=pc+1;
+      var cell=r[pc];var val=(cell==null||String(cell).trim()==='')?null:phInt(String(cell));
+      if(val==null||isNaN(val))delete prices[f[0]];else prices[f[0]]=val;
+      var lab=(r[lc]==null)?'':String(r[lc]).trim();
+      if(lab)prices[f[0]+'PlanLabel']=lab;else delete prices[f[0]+'PlanLabel'];
+    });
+    var ad=r[3+PH_PRICE_FIELDS.length*2];ad=(ad==null)?'':String(ad).trim();
+    if(ad)prices.addon=ad;else delete prices.addon;
+    return prices;
+  }
   function phPriceExportXlsx(carrier){
     if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
     var list=phData.models.filter(function(m){return m.carrier===carrier&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
-    var head=['id','통신사','모델명'].concat(PH_PRICE_FIELDS.map(function(f){return f[1];}));
-    var data=[head].concat(list.map(function(m){var pr=m.prices||{};return[m.id,carrier.toUpperCase(),m.name].concat(PH_PRICE_FIELDS.map(function(f){var v=pr[f[0]];return(v==null||v==='')?'':Number(v);}));}));
-    var ws=XLSX.utils.aoa_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,carrier.toUpperCase()+' 판매가');
+    var head=phPriceHead();
+    var data=[head].concat(list.map(function(m){return phPriceRow(m,carrier.toUpperCase());}));
+    var ws=XLSX.utils.aoa_to_sheet(data);_phStylePriceSheet(ws,data.length,head.length);
+    var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,carrier.toUpperCase()+' 판매가');
     XLSX.writeFile(wb,carrier.toUpperCase()+'_판매가.xlsx');
   }
   function phPriceImportXlsx(carrier,file){
@@ -1799,16 +1817,10 @@ html[data-preload-shop] body { visibility:hidden; }
         rows.slice(1).forEach(function(r){
           var id=r[0]?String(r[0]).trim():'';if(!id)return;
           var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
-          var prices=Object.assign({},m.prices||{});
-          PH_PRICE_FIELDS.forEach(function(f,fi){
-            var cell=r[3+fi];
-            var val=(cell==null||String(cell).trim()==='')?null:phInt(String(cell));
-            if(val==null||isNaN(val))delete prices[f[0]];else prices[f[0]]=val;
-          });
-          updates.push({m:m,prices:prices});
+          updates.push({m:m,prices:phPriceRowToPrices(m,r)});
         });
         if(!updates.length){alert('매칭되는 데이터가 없습니다.\n엑셀 첫 열(id)이 다운로드한 값 그대로인지 확인하세요.');return;}
-        if(!confirm(carrier.toUpperCase()+' '+updates.length+'개 상품의 판매가를 업데이트하겠습니까?'))return;
+        if(!confirm(carrier.toUpperCase()+' '+updates.length+'개 상품의 판매가·노출문구·부가서비스를 업데이트하겠습니까?'))return;
         phPriceStatus('업로드 중…');
         for(var i=0;i<updates.length;i++){
           var u=updates[i];
@@ -1825,7 +1837,11 @@ html[data-preload-shop] body { visibility:hidden; }
   var PH_CARRIERS_XL=[['skt','SKT','SKT'],['kt','KT','KT'],['lg','LG U+','LGU+']];
   // 판매가 시트 서식: 열너비 + 헤더(굵게·흰글씨·빨간배경) + 가격 천단위콤마 + 테두리
   function _phStylePriceSheet(ws,nRows,nCols){
-    ws['!cols']=[{wch:26},{wch:9},{wch:24},{wch:13},{wch:13},{wch:13},{wch:13}];
+    var cols=[{wch:26},{wch:9},{wch:24}];
+    var priceCols={};
+    PH_PRICE_FIELDS.forEach(function(f,fi){priceCols[3+fi*2]=1;cols.push({wch:12});cols.push({wch:16});});
+    cols.push({wch:30});// 부가서비스
+    ws['!cols']=cols;
     ws['!rows']=[{hpt:24}];
     var thin={style:'thin',color:{rgb:'D9D9D9'}};
     var border={top:thin,bottom:thin,left:thin,right:thin};
@@ -1835,8 +1851,9 @@ html[data-preload-shop] body { visibility:hidden; }
         if(r===0){
           cell.s={font:{bold:true,color:{rgb:'FFFFFF'},sz:11},fill:{patternType:'solid',fgColor:{rgb:'DE4F41'}},alignment:{horizontal:'center',vertical:'center'},border:border};
         }else{
-          var isPrice=c>=3;
-          cell.s={alignment:{horizontal:isPrice?'right':(c===0?'left':'center'),vertical:'center'},border:border,font:{sz:11}};
+          var isPrice=!!priceCols[c];
+          var al=isPrice?'right':(c===1?'center':'left');
+          cell.s={alignment:{horizontal:al,vertical:'center'},border:border,font:{sz:11}};
           if(isPrice&&typeof cell.v==='number')cell.z='#,##0';
         }
       }
@@ -1844,11 +1861,11 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   function phPriceExportAll(){
     if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
-    var head=['id','통신사','모델명'].concat(PH_PRICE_FIELDS.map(function(f){return f[1];}));
+    var head=phPriceHead();
     var wb=XLSX.utils.book_new();
     PH_CARRIERS_XL.forEach(function(cr){
       var list=phData.models.filter(function(m){return m.carrier===cr[0]&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
-      var data=[head].concat(list.map(function(m){var pr=m.prices||{};return[m.id,cr[1],m.name].concat(PH_PRICE_FIELDS.map(function(f){var v=pr[f[0]];return(v==null||v==='')?'':Number(v);}));}));
+      var data=[head].concat(list.map(function(m){return phPriceRow(m,cr[1]);}));
       var ws=XLSX.utils.aoa_to_sheet(data);
       _phStylePriceSheet(ws,data.length,head.length);
       XLSX.utils.book_append_sheet(wb,ws,cr[2]);
@@ -1869,13 +1886,11 @@ html[data-preload-shop] body { visibility:hidden; }
           rows.slice(1).forEach(function(r){
             var id=r[0]?String(r[0]).trim():'';if(!id||seen[id])return;
             var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
-            var prices=Object.assign({},m.prices||{});
-            PH_PRICE_FIELDS.forEach(function(f,fi){var cell=r[3+fi];var val=(cell==null||String(cell).trim()==='')?null:phInt(String(cell));if(val==null||isNaN(val))delete prices[f[0]];else prices[f[0]]=val;});
-            seen[id]=1;updates.push({m:m,prices:prices});
+            seen[id]=1;updates.push({m:m,prices:phPriceRowToPrices(m,r)});
           });
         });
         if(!updates.length){alert('매칭되는 데이터가 없습니다.\n엑셀 첫 열(id)이 다운로드한 값 그대로인지 확인하세요.');return;}
-        if(!confirm('전체 '+updates.length+'개 상품의 판매가를 업데이트하겠습니까?'))return;
+        if(!confirm('전체 '+updates.length+'개 상품의 판매가·노출문구·부가서비스를 업데이트하겠습니까?'))return;
         phPriceStatus('업로드 중…');
         for(var i=0;i<updates.length;i++){var u=updates[i];var res=await sb().from('mobileshop_models').update({prices:u.prices}).eq('id',u.m.id);if(res.error)throw res.error;u.m.prices=u.prices;}
         ['skt','kt','lg'].forEach(function(c){phRenderPricing(c);});
