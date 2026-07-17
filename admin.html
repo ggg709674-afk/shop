@@ -1779,20 +1779,20 @@ html[data-preload-shop] body { visibility:hidden; }
     try{var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',id);if(res.error)throw res.error;m.prices=prices;}
     catch(err){phPriceStatus('저장 실패: '+(err.message||err),true);}
   }
-  // 엑셀 컬럼: id,통신사,모델명, [가격,노출문구]×4, 부가서비스
-  function phPriceHead(){var h=['id','통신사','모델명'];PH_PRICE_FIELDS.forEach(function(f){h.push(f[1]);h.push(f[1]+' 노출문구');});h.push('부가서비스');return h;}
-  function phPriceRow(m,carrierLabel){var pr=m.prices||{};var row=[m.id,carrierLabel,m.name];PH_PRICE_FIELDS.forEach(function(f){var v=pr[f[0]];row.push((v==null||v==='')?'':Number(v));row.push(pr[f[0]+'PlanLabel']||'');});row.push(pr.addon||'');return row;}
+  // 엑셀 컬럼: id,통신사,모델명, [가격×4], [노출문구×4], 부가서비스
+  function phPriceHead(){var h=['id','통신사','모델명'];PH_PRICE_FIELDS.forEach(function(f){h.push(f[1]);});PH_PRICE_FIELDS.forEach(function(f){h.push(f[1]+' 노출문구');});h.push('부가서비스');return h;}
+  function phPriceRow(m,carrierLabel){var pr=m.prices||{};var row=[m.id,carrierLabel,m.name];PH_PRICE_FIELDS.forEach(function(f){var v=pr[f[0]];row.push((v==null||v==='')?'':Number(v));});PH_PRICE_FIELDS.forEach(function(f){row.push(pr[f[0]+'PlanLabel']||'');});row.push(pr.addon||'');return row;}
   // 한 행 → prices 병합(가격+노출문구+부가서비스)
   function phPriceRowToPrices(m,r){
+    var N=PH_PRICE_FIELDS.length;
     var prices=Object.assign({},m.prices||{});
     PH_PRICE_FIELDS.forEach(function(f,fi){
-      var pc=3+fi*2,lc=pc+1;
-      var cell=r[pc];var val=(cell==null||String(cell).trim()==='')?null:phInt(String(cell));
+      var cell=r[3+fi];var val=(cell==null||String(cell).trim()==='')?null:phInt(String(cell));
       if(val==null||isNaN(val))delete prices[f[0]];else prices[f[0]]=val;
-      var lab=(r[lc]==null)?'':String(r[lc]).trim();
+      var lab=(r[3+N+fi]==null)?'':String(r[3+N+fi]).trim();
       if(lab)prices[f[0]+'PlanLabel']=lab;else delete prices[f[0]+'PlanLabel'];
     });
-    var ad=r[3+PH_PRICE_FIELDS.length*2];ad=(ad==null)?'':String(ad).trim();
+    var ad=r[3+N*2];ad=(ad==null)?'':String(ad).trim();
     if(ad)prices.addon=ad;else delete prices.addon;
     return prices;
   }
@@ -1837,10 +1837,12 @@ html[data-preload-shop] body { visibility:hidden; }
   var PH_CARRIERS_XL=[['skt','SKT','SKT'],['kt','KT','KT'],['lg','LG U+','LGU+']];
   // 판매가 시트 서식: 열너비 + 헤더(굵게·흰글씨·빨간배경) + 가격 천단위콤마 + 테두리
   function _phStylePriceSheet(ws,nRows,nCols){
+    var N=PH_PRICE_FIELDS.length;
     var cols=[{wch:26},{wch:9},{wch:24}];
     var priceCols={};
-    PH_PRICE_FIELDS.forEach(function(f,fi){priceCols[3+fi*2]=1;cols.push({wch:12});cols.push({wch:16});});
-    cols.push({wch:30});// 부가서비스
+    PH_PRICE_FIELDS.forEach(function(f,fi){priceCols[3+fi]=1;cols.push({wch:12});});// 가격 4개
+    PH_PRICE_FIELDS.forEach(function(){cols.push({wch:22});});// 노출문구 4개
+    cols.push({wch:39});// 부가서비스
     ws['!cols']=cols;
     ws['!rows']=[{hpt:24}];
     var thin={style:'thin',color:{rgb:'D9D9D9'}};
