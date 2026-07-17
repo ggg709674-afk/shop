@@ -1693,13 +1693,13 @@ html[data-preload-shop] body { visibility:hidden; }
     // 그룹 헤더
     html+='<tr><th class="ph-prod-num" rowspan="2">#</th><th style="white-space:nowrap;" rowspan="2">모델명</th>'
       +'<th colspan="'+PH_PRICE_FIELDS.length+'" style="text-align:center;'+BL+'">판매가 (원)</th>'
-      +'<th colspan="'+(PH_PRICE_FIELDS.length*2)+'" style="text-align:center;'+BL+'">기준요금제 (선택 → 표시명)</th>'
+      +'<th colspan="'+(PH_PRICE_FIELDS.length*2)+'" style="text-align:center;'+BL+'">기준요금제 (선택 → 노출문구)</th>'
       +'<th rowspan="2" style="text-align:center;white-space:nowrap;'+BL+'">부가서비스<br><span style="font-weight:400;color:var(--ink-4);font-size:10px;">판매가 페이지에 표시</span></th>'
       +'<th style="width:100%;" rowspan="2"></th></tr>';
     // 컬럼 헤더
     html+='<tr>';
     PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+'</th>';});
-    PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+' 요금제</th><th style="text-align:center;white-space:nowrap;">표시명</th>';});
+    PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+' 요금제</th><th style="text-align:center;white-space:nowrap;">노출문구</th>';});
     html+='</tr></thead><tbody>';
     list.forEach(function(m,i){
       var pr=m.prices||{};
@@ -1711,7 +1711,7 @@ html[data-preload-shop] body { visibility:hidden; }
       PH_PRICE_FIELDS.forEach(function(f,fi){
         var planId=pr[f[0]+'Plan']||'';var label=pr[f[0]+'PlanLabel']||'';
         html+='<td style="text-align:center;'+(fi===0?BL:'')+'"><select class="ms-baseplan" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" style="max-width:150px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;">'+planOpts(planId)+'</select></td>';
-        html+='<td style="text-align:center;"><input class="ms-bplabel" type="text" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" value="'+phEsc(label)+'" placeholder="표시명" style="width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
+        html+='<td style="text-align:center;"><input class="ms-bplabel" type="text" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" value="'+phEsc(label)+'" placeholder="노출문구" style="width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
       });
       html+='<td style="text-align:center;'+BL+'"><input class="ms-addon" type="text" data-ph-addon-id="'+phEsc(m.id)+'" value="'+phEsc(pr.addon||'')+'" placeholder="부가서비스 입력" style="width:180px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
       html+='<td></td></tr>';
