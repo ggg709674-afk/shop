@@ -2467,6 +2467,7 @@ html[data-preload-shop] body { visibility:hidden; }
       body.setAttribute('data-shop', shop);
       lsSave('adm_shop', shop);
       if (shop === 'rental') lsSave('adm_menu', '');
+      else if (lsGet('adm_menu') === 'cats') lsSave('adm_menu', ''); // 카테고리 관리에서 탭 이동 시 플래그 해제
       document.querySelectorAll('.adm-shop-tab').forEach(function(tb){
         tb.classList.toggle('on', tb.getAttribute('data-shop') === shop);
       });
@@ -2533,6 +2534,7 @@ html[data-preload-shop] body { visibility:hidden; }
     function _catEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
     async function showCategoryPanel(){
+      lsSave('adm_menu','cats');
       document.querySelectorAll('.adm-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== 'category'); });
       document.querySelectorAll('.adm-nav-item').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-common-menu')==='cats'); });
       var t=document.getElementById('adm-page-title'); if(t)t.textContent='카테고리 관리';
@@ -2540,10 +2542,10 @@ html[data-preload-shop] body { visibility:hidden; }
       if (typeof hideRentalHeaderTools==='function') hideRentalHeaderTools();
       var bd=document.getElementById('cat-mgr-body'); if(bd)bd.innerHTML='<p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p>';
       try{
-        var sb=window.supabaseClient;
-        var r1=await sb.from('mobileshop_rental_settings').select('payload').eq('key','site_menu').maybeSingle();
+        var db=sb(); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
+        var r1=await db.from('mobileshop_rental_settings').select('payload').eq('key','site_menu').maybeSingle();
         _catCfg=_catNormalize(r1&&r1.data&&r1.data.payload);
-        var r2=await sb.from('mobileshop_categories').select('*').order('sort_order',{ascending:true});
+        var r2=await db.from('mobileshop_categories').select('*').order('sort_order',{ascending:true});
         _catCarriers=(r2&&r2.data)||[];
       }catch(err){ _catCfg=_catNormalize(null); _catCarriers=[]; catStatus('불러오기 실패: '+(err.message||err),true); }
       catRenderMgr();
@@ -2579,8 +2581,8 @@ html[data-preload-shop] body { visibility:hidden; }
 
     async function catSaveCfg(){
       try{
-        var sb=window.supabaseClient;
-        var res=await sb.from('mobileshop_rental_settings').upsert({key:'site_menu',payload:_catCfg},{onConflict:'key'});
+        var db=sb(); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
+        var res=await db.from('mobileshop_rental_settings').upsert({key:'site_menu',payload:_catCfg},{onConflict:'key'});
         if(res.error)throw res.error;
         catStatus('저장됨 · 사이트에 반영됩니다.');
         clearTimeout(window._catSaveT); window._catSaveT=setTimeout(function(){catStatus('');},2000);
@@ -2588,8 +2590,8 @@ html[data-preload-shop] body { visibility:hidden; }
     }
     async function catSaveCarrier(id,visible){
       try{
-        var sb=window.supabaseClient;
-        var res=await sb.from('mobileshop_categories').update({visible:visible}).eq('id',id);
+        var db=sb(); if(!db) throw new Error('Supabase 클라이언트 준비 안됨');
+        var res=await db.from('mobileshop_categories').update({visible:visible}).eq('id',id);
         if(res.error)throw res.error;
         var c=_catCarriers.find(function(x){return String(x.id)===String(id);}); if(c)c.visible=visible;
         catStatus('저장됨 · 사이트에 반영됩니다.');
@@ -2617,6 +2619,8 @@ html[data-preload-shop] body { visibility:hidden; }
 
     // ── 새로고침 후 상태 복원 ──────────────────────────
     (function(){
+      // 공통메뉴(카테고리 관리)는 어느 탭이든 복원
+      if (lsGet('adm_menu') === 'cats') { showCategoryPanel(); return; }
       var savedShop = lsGet('adm_shop');
       if (!savedShop || savedShop === 'rental') return;
 
