@@ -127,7 +127,9 @@ html[data-preload-shop] body { visibility:hidden; }
 [data-ph-price-list] .ms-bplabel{width:117px!important;font-size:11px!important;}
 .ph-prod-table tr:last-child td{border-bottom:0;}
 /* 판매가 칼럼 접기/펴기 */
-.ph-pcol-caret{font-size:10px;color:var(--ink-4);}
+.ph-card-h-flex{display:flex;align-items:center;gap:8px;}
+.ph-pcol-btn{margin-left:auto;padding:5px 12px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink-2);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.ph-pcol-btn:hover{border-color:var(--ink-4);background:var(--bg-soft,#f7f7f7);}
 .ph-prod-table tr.is-hidden{opacity:.4;}
 .ph-price-drop{margin:2px 0 12px;padding:11px 14px;border:1.5px dashed var(--line);border-radius:8px;text-align:center;font-size:12.5px;color:var(--ink-3);cursor:pointer;transition:border-color .15s,color .15s,background .15s;background:var(--surface);}
 .ph-price-drop:hover{border-color:var(--ink-4);color:var(--ink-2);}
@@ -1067,19 +1069,19 @@ html[data-preload-shop] body { visibility:hidden; }
     </nav>
     <div class="ph-cpane on" data-ph-group="pricing" data-pcarrier="skt">
       <div class="ph-card">
-        <div class="ph-card-h">SKT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span></div>
+        <div class="ph-card-h ph-card-h-flex">SKT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span><button class="ph-pcol-btn" data-ph-toggle-pcol="1" type="button">판매가접기</button></div>
         <div class="ph-card-body"><div data-ph-price-list="skt"></div></div>
       </div>
     </div>
     <div class="ph-cpane" data-ph-group="pricing" data-pcarrier="kt">
       <div class="ph-card">
-        <div class="ph-card-h">KT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span></div>
+        <div class="ph-card-h ph-card-h-flex">KT 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span><button class="ph-pcol-btn" data-ph-toggle-pcol="1" type="button">판매가접기</button></div>
         <div class="ph-card-body"><div data-ph-price-list="kt"></div></div>
       </div>
     </div>
     <div class="ph-cpane" data-ph-group="pricing" data-pcarrier="lg">
       <div class="ph-card">
-        <div class="ph-card-h">LG U+ 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span></div>
+        <div class="ph-card-h ph-card-h-flex">LG U+ 판매가 <span class="ph-card-sub">진열 순서 · 단위: 원</span><button class="ph-pcol-btn" data-ph-toggle-pcol="1" type="button">판매가접기</button></div>
         <div class="ph-card-body"><div data-ph-price-list="lg"></div></div>
       </div>
     </div>
@@ -1691,6 +1693,7 @@ html[data-preload-shop] body { visibility:hidden; }
       var w=document.querySelector('[data-ph-price-list="'+c+'"]');
       if(w&&w.querySelector('.ph-price-table'))phRenderPricing(c);
     });
+    document.querySelectorAll('.ph-pcol-btn').forEach(function(b){b.textContent=_phPCollapsed?'판매가보기':'판매가접기';});
   }
   function phRenderPricing(carrier){
     var wrap=document.querySelector('[data-ph-price-list="'+carrier+'"]');if(!wrap)return;
@@ -1703,8 +1706,8 @@ html[data-preload-shop] body { visibility:hidden; }
     // 그룹 헤더
     html+='<tr><th class="ph-prod-num" rowspan="2">#</th><th style="white-space:nowrap;" rowspan="2">모델명</th>'
       +(_phPCollapsed
-        ? '<th class="ph-pcol-head" data-ph-toggle-pcol="1" title="판매가 칼럼 펴기" rowspan="2" style="text-align:center;cursor:pointer;user-select:none;white-space:nowrap;'+BL+'">판매가 <span class="ph-pcol-caret">▶</span></th>'
-        : '<th class="ph-pcol-head" data-ph-toggle-pcol="1" title="판매가 칼럼 접기" colspan="'+PH_PRICE_FIELDS.length+'" style="text-align:center;cursor:pointer;user-select:none;white-space:nowrap;'+BL+'">판매가 (원) <span class="ph-pcol-caret">▼</span></th>')
+        ? '<th rowspan="2" style="text-align:center;white-space:nowrap;color:var(--ink-4);'+BL+'">판매가</th>'
+        : '<th colspan="'+PH_PRICE_FIELDS.length+'" style="text-align:center;white-space:nowrap;'+BL+'">판매가 (원)</th>')
       +'<th colspan="'+(PH_PRICE_FIELDS.length*2)+'" style="text-align:center;'+BL+'">기준요금제 (선택 → 노출문구)</th>'
       +'<th rowspan="2" style="text-align:center;white-space:nowrap;'+BL+'">부가서비스<br><span style="font-weight:400;color:var(--ink-4);font-size:10px;">판매가 페이지에 표시</span></th>'
       +'<th style="width:100%;" rowspan="2"></th></tr>';
