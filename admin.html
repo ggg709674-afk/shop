@@ -127,8 +127,6 @@ html[data-preload-shop] body { visibility:hidden; }
 [data-ph-price-list] .ms-bplabel{width:117px!important;font-size:11px!important;}
 .ph-prod-table tr:last-child td{border-bottom:0;}
 /* 판매가 칼럼 접기/펴기 */
-.ph-price-table.ph-pcols-collapsed .ph-pcol{display:none;}
-.ph-price-table.ph-pcols-collapsed .ph-pcol-head{min-width:96px;}
 .ph-pcol-caret{font-size:10px;color:var(--ink-4);}
 .ph-prod-table tr.is-hidden{opacity:.4;}
 .ph-price-drop{margin:2px 0 12px;padding:11px 14px;border:1.5px dashed var(--line);border-radius:8px;text-align:center;font-size:12.5px;color:var(--ink-3);cursor:pointer;transition:border-color .15s,color .15s,background .15s;background:var(--surface);}
@@ -1689,8 +1687,10 @@ html[data-preload-shop] body { visibility:hidden; }
   var _phPCollapsed=false;
   function phTogglePriceCols(){
     _phPCollapsed=!_phPCollapsed;
-    document.querySelectorAll('.ph-price-table').forEach(function(t){t.classList.toggle('ph-pcols-collapsed',_phPCollapsed);});
-    document.querySelectorAll('.ph-pcol-caret').forEach(function(c){c.textContent=_phPCollapsed?'▶':'▼';});
+    ['skt','kt','lg'].forEach(function(c){
+      var w=document.querySelector('[data-ph-price-list="'+c+'"]');
+      if(w&&w.querySelector('.ph-price-table'))phRenderPricing(c);
+    });
   }
   function phRenderPricing(carrier){
     var wrap=document.querySelector('[data-ph-price-list="'+carrier+'"]');if(!wrap)return;
@@ -1699,24 +1699,27 @@ html[data-preload-shop] body { visibility:hidden; }
     var plans=phData.plans.filter(function(p){return p.carrier===carrier;});
     function planOpts(selId){var o='<option value="">— 선택 —</option>';plans.forEach(function(p){o+='<option value="'+phEsc(p.id)+'"'+(selId===p.id?' selected':'')+'>'+phEsc(p.name)+'</option>';});return o;}
     var BL='border-left:2px solid var(--line);';
-    var html='<div style="overflow-x:auto"><table class="ph-prod-table ph-price-table'+(_phPCollapsed?' ph-pcols-collapsed':'')+'" style="width:auto;"><thead>';
+    var html='<div style="overflow-x:auto"><table class="ph-prod-table ph-price-table" style="width:auto;"><thead>';
     // 그룹 헤더
     html+='<tr><th class="ph-prod-num" rowspan="2">#</th><th style="white-space:nowrap;" rowspan="2">모델명</th>'
-      +'<th class="ph-pcol-head" data-ph-toggle-pcol="1" title="판매가 칼럼 접기/펴기" colspan="'+PH_PRICE_FIELDS.length+'" style="text-align:center;cursor:pointer;user-select:none;white-space:nowrap;'+BL+'">판매가 (원) <span class="ph-pcol-caret">'+(_phPCollapsed?'▶':'▼')+'</span></th>'
+      +(_phPCollapsed
+        ? '<th class="ph-pcol-head" data-ph-toggle-pcol="1" title="판매가 칼럼 펴기" rowspan="2" style="text-align:center;cursor:pointer;user-select:none;white-space:nowrap;'+BL+'">판매가 <span class="ph-pcol-caret">▶</span></th>'
+        : '<th class="ph-pcol-head" data-ph-toggle-pcol="1" title="판매가 칼럼 접기" colspan="'+PH_PRICE_FIELDS.length+'" style="text-align:center;cursor:pointer;user-select:none;white-space:nowrap;'+BL+'">판매가 (원) <span class="ph-pcol-caret">▼</span></th>')
       +'<th colspan="'+(PH_PRICE_FIELDS.length*2)+'" style="text-align:center;'+BL+'">기준요금제 (선택 → 노출문구)</th>'
       +'<th rowspan="2" style="text-align:center;white-space:nowrap;'+BL+'">부가서비스<br><span style="font-weight:400;color:var(--ink-4);font-size:10px;">판매가 페이지에 표시</span></th>'
       +'<th style="width:100%;" rowspan="2"></th></tr>';
     // 컬럼 헤더
     html+='<tr>';
-    PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th class="ph-pcol" style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+'</th>';});
+    if(!_phPCollapsed)PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+'</th>';});
     PH_PRICE_FIELDS.forEach(function(f,fi){html+='<th style="text-align:center;white-space:nowrap;'+(fi===0?BL:'')+'">'+f[1]+' 요금제</th><th style="text-align:center;white-space:nowrap;">노출문구</th>';});
     html+='</tr></thead><tbody>';
     list.forEach(function(m,i){
       var pr=m.prices||{};
       html+='<tr><td class="ph-prod-num">'+(i+1)+'</td><td style="white-space:nowrap;"><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>';
-      PH_PRICE_FIELDS.forEach(function(f,fi){
+      if(_phPCollapsed){html+='<td style="'+BL+'"></td>';}
+      else PH_PRICE_FIELDS.forEach(function(f,fi){
         var v=pr[f[0]];var disp=(v==null||v==='')?'':phFmt(Number(v));
-        html+='<td class="ph-pcol" style="text-align:center;'+(fi===0?BL:'')+'"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" style="width:88px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
+        html+='<td style="text-align:center;'+(fi===0?BL:'')+'"><input class="ms-price" type="text" inputmode="numeric" data-ph-price-id="'+phEsc(m.id)+'" data-ph-price-field="'+f[0]+'" value="'+disp+'" style="width:88px;text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;"></td>';
       });
       PH_PRICE_FIELDS.forEach(function(f,fi){
         var planId=pr[f[0]+'Plan']||'';var label=pr[f[0]+'PlanLabel']||'';
