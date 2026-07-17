@@ -2153,14 +2153,14 @@ html[data-preload-shop] body { visibility:hidden; }
     if(t)t.textContent=TITLES[group]||menuKey;if(s)s.textContent=SUBS[group]||'';
     // 툴바 버튼 숨김 (렌탈 전용)
     ['com-upload','cd-upload','mg-upload','hdr-download'].forEach(function(id){var el=phEl(id);if(el)el.hidden=true;});
+    // 마지막 선택 통신사 탭 복원 — await(데이터로드) 전에 즉시 적용해 SKT 플래시 방지
+    var panel=document.querySelector('.adm-panel[data-panel="'+menuKey+'"]');
+    var saved='skt';try{saved=localStorage.getItem('ph_carrier')||'skt';}catch(_){}
+    if(panel){var cnav=panel.querySelector('.ph-carrier-tabs');if(cnav){var found=cnav.querySelector('.ph-carrier-tab[data-pcarrier="'+saved+'"]');if(found){var grp=cnav.getAttribute('data-ph-group');cnav.querySelectorAll('.ph-carrier-tab').forEach(function(b){b.classList.toggle('on',b===found);});panel.querySelectorAll('.ph-cpane[data-ph-group="'+grp+'"]').forEach(function(pane){pane.classList.toggle('on',pane.getAttribute('data-pcarrier')===saved);});}}}
+    var tab=panel?panel.querySelector('.ph-carrier-tab.on'):null;
+    var carrier=tab?tab.getAttribute('data-pcarrier'):'skt';
     try{
       await phLoad();
-      var panel=document.querySelector('.adm-panel[data-panel="'+menuKey+'"]');
-      // 새로고침/패널 재진입 시 마지막 선택 통신사 유지
-      var saved='skt';try{saved=localStorage.getItem('ph_carrier')||'skt';}catch(_){}
-      if(panel){var cnav=panel.querySelector('.ph-carrier-tabs');if(cnav){var found=cnav.querySelector('.ph-carrier-tab[data-pcarrier="'+saved+'"]');if(found){var grp=cnav.getAttribute('data-ph-group');cnav.querySelectorAll('.ph-carrier-tab').forEach(function(b){b.classList.toggle('on',b===found);});panel.querySelectorAll('.ph-cpane[data-ph-group="'+grp+'"]').forEach(function(pane){pane.classList.toggle('on',pane.getAttribute('data-pcarrier')===saved);});}}}
-      var tab=panel?panel.querySelector('.ph-carrier-tab.on'):null;
-      var carrier=tab?tab.getAttribute('data-pcarrier'):'skt';
       if(group==='models')phRenderModels(carrier);
       else if(group==='plans')phRenderPlans(carrier);
       else if(group==='support')phRenderSupport(carrier);
