@@ -486,7 +486,7 @@
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
   .ph-det-price-label { font-size:13px; color:var(--g1); }
   .ph-det-price-val { font-size:16px; font-weight:700; color:var(--ink); }
-  .ph-det-price-note { text-align:right; font-size:12px; color:var(--g2); padding:2px 0 9px; margin-bottom:2px; border-bottom:1px dashed var(--line); line-height:1.5; }
+  .ph-det-price-note { text-align:center; font-size:12px; color:var(--g2); padding-top:11px; margin-top:3px; line-height:1.5; }
   .ph-det-note-r { font-weight:600; color:var(--g1); }
   .ph-det-note-sep { color:var(--line); margin:0 7px; }
   .ph-det-price-row.dim .ph-det-price-label { color:var(--g2); font-size:13px; }
@@ -3078,11 +3078,11 @@ if(location.search.indexOf('ph=')!==-1){
     var note = parts.length ? '<div class="ph-det-price-note">' + parts.join('<span class="ph-det-note-sep">ㅣ</span>') + '</div>' : '';
     var hasSale = sale != null && sale !== '' && !isNaN(Number(sale));
     if (!hasSale || release == null) {
-      box.innerHTML = note + '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>';
+      box.innerHTML = '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>' + note;
       return;
     }
     sale = Number(sale);
-    var html = note;
+    var html = '';
     html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">출고가</span><span class="ph-det-price-val">' + phDetWon(release) + '</span></div>';
     var support = 0;
     if (ct === 'common') {
@@ -3094,6 +3094,7 @@ if(location.search.indexOf('ph=')!==-1){
     var discount = ct === 'common' ? (release - support - sale) : (release - sale);
     html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
     html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
+    html += note;
     box.innerHTML = html;
   }
   async function phDetFetchSupport(m){
