@@ -486,15 +486,14 @@
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
   .ph-det-price-label { font-size:13px; color:var(--g1); }
   .ph-det-price-val { font-size:16px; font-weight:700; color:var(--ink); }
-  .ph-det-price-note { font-size:12px; color:var(--g2); padding:2px 0 9px; margin-bottom:2px; border-bottom:1px dashed var(--line); }
+  .ph-det-price-note { display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:12px; color:var(--g2); padding:2px 0 9px; margin-bottom:2px; border-bottom:1px dashed var(--line); }
+  .ph-det-note-l { flex:0 1 auto; white-space:nowrap; }
+  .ph-det-note-r { flex:1 1 auto; text-align:right; font-weight:600; color:var(--g1); line-height:1.45; word-break:break-word; }
   .ph-det-price-row.dim .ph-det-price-label { color:var(--g2); font-size:13px; }
   .ph-det-price-row.dim .ph-det-price-val { font-weight:600; font-size:14px; color:var(--g1); }
   .ph-det-price-row.ph-det-price-final { border-top:2px solid var(--line); border-bottom:0; padding-top:12px; margin-top:2px; }
   .ph-det-price-final .ph-det-price-label { font-weight:700; font-size:15px; color:var(--ink); }
   .ph-det-price-final .ph-det-price-val { font-size:22px; color:var(--accent); }
-  .ph-det-addon-row { display:flex; gap:10px; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line); }
-  .ph-det-addon-label { flex:0 0 auto; font-size:12px; font-weight:700; color:var(--g2); padding-top:1px; }
-  .ph-det-addon-val { flex:1; font-size:13px; line-height:1.5; color:var(--g1); text-align:right; word-break:break-word; }
   .ph-det-cta {
     display:block; width:100%; padding:16px; border:none; border-radius:14px;
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
@@ -3072,12 +3071,13 @@ if(location.search.indexOf('ph=')!==-1){
     var sale = pr[field];
     var planLabel = pr[field + 'PlanLabel'] || '';
     var release = (m && m.release_price != null) ? Number(m.release_price) : null;
-    var note = planLabel ? '<div class="ph-det-price-note">기준요금제 · ' + escapeHtml(planLabel) + '</div>' : '';
     var addon = (pr.addon || '').trim();
-    var addonHtml = addon ? '<div class="ph-det-addon-row"><span class="ph-det-addon-label">부가서비스</span><span class="ph-det-addon-val">' + escapeHtml(addon).replace(/\n/g, '<br>') + '</span></div>' : '';
+    var leftNote = planLabel ? '기준요금제 · ' + escapeHtml(planLabel) : '';
+    var rightNote = addon ? escapeHtml(addon).replace(/\n/g, '<br>') : '';
+    var note = (leftNote || rightNote) ? '<div class="ph-det-price-note"><span class="ph-det-note-l">' + leftNote + '</span><span class="ph-det-note-r">' + rightNote + '</span></div>' : '';
     var hasSale = sale != null && sale !== '' && !isNaN(Number(sale));
     if (!hasSale || release == null) {
-      box.innerHTML = note + '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>' + addonHtml;
+      box.innerHTML = note + '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>';
       return;
     }
     sale = Number(sale);
@@ -3093,7 +3093,6 @@ if(location.search.indexOf('ph=')!==-1){
     var discount = ct === 'common' ? (release - support - sale) : (release - sale);
     html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
     html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
-    html += addonHtml;
     box.innerHTML = html;
   }
   async function phDetFetchSupport(m){
