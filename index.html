@@ -1390,16 +1390,16 @@ if(location.search.indexOf('ph=')!==-1){
 
     <!-- 인터넷 소분류 (스크롤 시 head 슬롯으로 이동) -->
     <!-- 인터넷 소분류 (sticky) -->
-    <nav class="sub-nav">
-      <button class="on">전체</button>
+    <nav class="sub-nav" id="internet-sub-nav">
+      <button class="on" data-sub="all">전체</button>
       <span class="sub-dot"></span>
-      <button><span class="swatch sk"></span>SK</button>
+      <button data-sub="sk"><span class="swatch sk"></span>SK</button>
       <span class="sub-dot"></span>
-      <button><span class="swatch kt"></span>KT</button>
+      <button data-sub="kt"><span class="swatch kt"></span>KT</button>
       <span class="sub-dot"></span>
-      <button><span class="swatch lg"></span>LG U+</button>
+      <button data-sub="lg"><span class="swatch lg"></span>LG U+</button>
       <span class="sub-dot"></span>
-      <button>셀프설치</button>
+      <button data-sub="self">셀프설치</button>
     </nav>
 
     <!-- 상품 카드 그리드 (렌탈 레이아웃) -->
@@ -1632,11 +1632,11 @@ if(location.search.indexOf('ph=')!==-1){
   <div class="panel" id="panel-rental">
     <!-- 2단: 브랜드 선택 -->
     <nav class="sub-nav rental-brand" id="rental-sub-nav">
-      <button class="on" data-brand="skm"><span class="swatch" style="background:#11A8A0"></span>SK매직</button>
+      <button class="on" data-sub="skm" data-brand="skm"><span class="swatch" style="background:#11A8A0"></span>SK매직</button>
       <span class="sub-dot"></span>
-      <button data-soon="청호나이스"><span class="swatch" style="background:#2E6FD0"></span>청호나이스</button>
+      <button data-sub="chungho" data-soon="청호나이스"><span class="swatch" style="background:#2E6FD0"></span>청호나이스</button>
       <span class="sub-dot"></span>
-      <button data-soon="코웨이"><span class="swatch" style="background:#1C4E8A"></span>코웨이</button>
+      <button data-sub="coway" data-soon="코웨이"><span class="swatch" style="background:#1C4E8A"></span>코웨이</button>
     </nav>
     <!-- 렌탈 홈 (iframe 제거 — 부모 DOM 네이티브 렌더, RentalApp.renderHome) -->
     <main data-view="home" id="rental-home" hidden>
@@ -3314,6 +3314,66 @@ if(location.search.indexOf('ph=')!==-1){
       // 이미 rental이 현재 패널이면 showCat이 early-return → 직접 라우트 적용
       applyRentalRoute();
     }
+  })();
+
+  // ───── 사이트 메뉴 설정(관리자 → 공통메뉴 → 카테고리 관리) 적용 ─────
+  var SITE_SHOP_KEYS = ['phone', 'internet', 'rental'];
+  function _siteShopPanel(k){ return document.getElementById('panel-' + k); }
+  function _siteShopBtn(k){ return catNav.querySelector('button[data-cat="' + k + '"]'); }
+  function applySiteMenuConfig(cfg){
+    try {
+      cfg = cfg || {};
+      var shops = (Array.isArray(cfg.shops) && cfg.shops.length) ? cfg.shops
+                 : SITE_SHOP_KEYS.map(function(k){ return { key:k, visible:true }; });
+      // 순서 = shops 배열 순서 / 노출 = visible!==false. 알 수 없는 key 무시, 누락 key는 뒤에 기본노출.
+      var seen = {}, ordered = [];
+      shops.forEach(function(s){
+        if (s && SITE_SHOP_KEYS.indexOf(s.key) !== -1 && !seen[s.key]) {
+          seen[s.key] = 1; ordered.push({ key:s.key, visible:s.visible !== false });
+        }
+      });
+      SITE_SHOP_KEYS.forEach(function(k){ if (!seen[k]) ordered.push({ key:k, visible:true }); });
+      var vis = ordered.filter(function(s){ return s.visible; }).map(function(s){ return s.key; });
+      if (!vis.length) vis = SITE_SHOP_KEYS.slice(); // 전부 끄면 안전하게 전체 노출
+      var N = vis.length;
+      var curCat = catOrder[currentIdx] || 'phone';
+      panelsEl.style.width = (N * 100) + '%';
+      // 노출 대상: 폭 지정 + 순서대로 재배치
+      vis.forEach(function(k){
+        var p = _siteShopPanel(k); if (p) { p.style.width = (100 / N) + '%'; p.style.display = ''; panelsEl.appendChild(p); }
+        var b = _siteShopBtn(k);   if (b) { b.style.display = ''; catNav.appendChild(b); }
+      });
+      // 숨김 대상
+      ordered.forEach(function(s){
+        if (s.visible) return;
+        var p = _siteShopPanel(s.key); if (p) p.style.display = 'none';
+        var b = _siteShopBtn(s.key);   if (b) b.style.display = 'none';
+      });
+      catOrder = vis;
+      if (vis.indexOf(curCat) === -1) curCat = vis[0];
+      currentIdx = vis.indexOf(curCat);
+      panelsEl.style.left = -(currentIdx * 100) + '%';
+      catNav.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.cat === curCat); });
+      // 하위 노출 (인터넷/렌탈 하드코딩 서브). 휴대폰 통신사는 mobileshop_categories.visible 로 별도 관리.
+      var subs = cfg.subs || {};
+      ['internet', 'rental'].forEach(function(shop){
+        var nav = document.getElementById(shop + '-sub-nav'); if (!nav) return;
+        var conf = subs[shop] || {};
+        nav.querySelectorAll('button[data-sub]').forEach(function(btn){
+          btn.style.display = (conf[btn.getAttribute('data-sub')] !== false) ? '' : 'none';
+        });
+      });
+      if (typeof syncPanelsHeight === 'function') syncPanelsHeight();
+    } catch(e){ if (window.console) console.warn('applySiteMenuConfig', e); }
+  }
+  window.applySiteMenuConfig = applySiteMenuConfig; // 관리자 미리보기용
+  (function(){
+    try {
+      var sb = window.supabaseClient; if (!sb) return;
+      sb.from('mobileshop_rental_settings').select('payload').eq('key', 'site_menu').maybeSingle()
+        .then(function(res){ var p = res && res.data && res.data.payload; if (p) applySiteMenuConfig(p); })
+        .catch(function(){});
+    } catch(e){}
   })();
 
   // 각 패널의 sub-nav — 클릭 시 active 토글

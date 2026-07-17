@@ -130,6 +130,31 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-card-h-flex{display:flex;align-items:center;gap:8px;}
 .ph-pcol-btn{margin-left:4px;padding:5px 12px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink-2);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;}
 .ph-pcol-btn:hover{border-color:var(--ink-4);background:var(--bg-soft,#f7f7f7);}
+/* 카테고리 관리 */
+.cat-sec{margin-bottom:26px;}
+.cat-sec-t{font-size:14px;font-weight:700;color:var(--ink,#222);margin-bottom:12px;}
+.cat-sec-t span{font-weight:400;font-size:12px;color:var(--ink-4,#999);margin-left:6px;}
+.cat-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--line,#e8e8e8);border-radius:10px;margin-bottom:8px;background:#fff;}
+.cat-ord{display:flex;flex-direction:column;gap:2px;}
+.cat-ord button{width:26px;height:19px;line-height:1;border:1px solid var(--line,#e8e8e8);border-radius:5px;background:#fff;color:var(--ink-3,#666);font-size:10px;cursor:pointer;padding:0;}
+.cat-ord button:hover:not(:disabled){border-color:var(--ink-4);background:#f7f7f7;}
+.cat-ord button:disabled{opacity:.3;cursor:default;}
+.cat-name{flex:1;font-size:14px;font-weight:600;color:var(--ink,#222);}
+.cat-tog{display:flex;align-items:center;gap:8px;}
+.cat-tog em{font-style:normal;font-size:12px;color:var(--ink-4,#999);min-width:26px;}
+.cat-sub-group{margin-bottom:14px;}
+.cat-sub-h{font-size:12px;font-weight:700;color:var(--ink-3,#666);margin-bottom:7px;}
+.cat-sub-list{display:flex;flex-wrap:wrap;gap:8px;}
+.cat-sub-item{display:flex;align-items:center;gap:9px;padding:7px 12px;border:1px solid var(--line,#e8e8e8);border-radius:9px;background:#fff;}
+.cat-sub-item span{font-size:13px;color:var(--ink-2,#444);}
+.cat-sub-empty{font-size:12px;color:var(--ink-4,#999);}
+/* 토글 스위치 */
+.cat-sw{position:relative;display:inline-block;width:38px;height:22px;flex:0 0 auto;cursor:pointer;}
+.cat-sw input{position:absolute;opacity:0;width:0;height:0;}
+.cat-sw-tk{position:absolute;inset:0;background:#d4d4d4;border-radius:22px;transition:background .18s;}
+.cat-sw-tk::before{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .18s;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+.cat-sw input:checked + .cat-sw-tk{background:var(--accent,#de4f41);}
+.cat-sw input:checked + .cat-sw-tk::before{transform:translateX(16px);}
 .ph-prod-table tr.is-hidden{opacity:.4;}
 .ph-price-drop{margin:2px 0 12px;padding:11px 14px;border:1.5px dashed var(--line);border-radius:8px;text-align:center;font-size:12.5px;color:var(--ink-3);cursor:pointer;transition:border-color .15s,color .15s,background .15s;background:var(--surface);}
 .ph-price-drop:hover{border-color:var(--ink-4);color:var(--ink-2);}
@@ -243,6 +268,13 @@ html[data-preload-shop] body { visibility:hidden; }
   </div>
 
   <nav class="adm-nav">
+    <!-- 공통메뉴 — data-shop 없음 → 휴대폰/인터넷/렌탈 모든 탭에서 노출 -->
+    <div class="adm-nav-group">
+      <div class="adm-nav-label">공통메뉴</div>
+      <a class="adm-nav-item" href="#" data-common-menu="cats">
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span> 카테고리 관리
+      </a>
+    </div>
     <div class="adm-nav-group" data-shop="rental">
       <div class="adm-nav-label">운영</div>
       <a class="adm-nav-item on" href="#products" data-menu="products">
@@ -438,6 +470,13 @@ html[data-preload-shop] body { visibility:hidden; }
       }catch(e){}
     })();
   </script>
+
+  <!-- ===== 공통 — 카테고리 관리 패널 ===== -->
+  <section class="adm-panel" data-panel="category" hidden>
+    <p class="adm-panel-hint">고객 사이트에 노출할 <strong>상위 카테고리(휴대폰·인터넷·렌탈)</strong>의 사용 여부와 노출 순서, 각 <strong>하위 메뉴</strong> 노출을 관리합니다. 변경 즉시 저장되어 사이트에 반영됩니다.</p>
+    <div id="cat-mgr-body" style="max-width:720px;"></div>
+    <span id="cat-mgr-status" class="ph-status" style="display:block;margin-top:10px;"></span>
+  </section>
 
   <!-- ===== 상품 관리 패널 ===== -->
   <section class="adm-panel" data-panel="products" hidden>
@@ -2463,6 +2502,119 @@ html[data-preload-shop] body { visibility:hidden; }
       else if (menu === 'ph-models' || menu === 'ph-plans' || menu === 'ph-support' || menu === 'ph-pricing' || menu === 'ph-products') { if (window.showPhonePanel) window.showPhonePanel(menu); }
       else showShopSoon(shop);
     }, true);
+
+    // ═══════════ 공통메뉴 → 카테고리 관리 ═══════════
+    document.addEventListener('click', function(e){
+      var it = e.target.closest('.adm-nav-item[data-common-menu]');
+      if (!it) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      if (it.getAttribute('data-common-menu') === 'cats') showCategoryPanel();
+    }, true);
+
+    var CAT_SHOP_KEYS = ['phone','internet','rental'];
+    var CAT_SHOP_LABELS = { phone:'휴대폰', internet:'인터넷', rental:'렌탈' };
+    var CAT_INTERNET_SUBS = [['all','전체'],['sk','SK'],['kt','KT'],['lg','LG U+'],['self','셀프설치']];
+    var CAT_RENTAL_SUBS   = [['skm','SK매직'],['chungho','청호나이스'],['coway','코웨이']];
+    var _catCfg = null;     // {shops:[{key,visible}], subs:{internet:{},rental:{}}}
+    var _catCarriers = [];  // mobileshop_categories (휴대폰 통신사)
+
+    function _catNormalize(p){
+      p = p || {};
+      var seen = {}, shops = [];
+      (Array.isArray(p.shops) ? p.shops : []).forEach(function(s){
+        if (s && CAT_SHOP_KEYS.indexOf(s.key) !== -1 && !seen[s.key]) { seen[s.key]=1; shops.push({ key:s.key, visible:s.visible!==false }); }
+      });
+      CAT_SHOP_KEYS.forEach(function(k){ if(!seen[k]) shops.push({ key:k, visible:true }); });
+      var subs = p.subs || {};
+      return { shops:shops, subs:{ internet:subs.internet||{}, rental:subs.rental||{} } };
+    }
+    function catStatus(msg,isErr){ var el=document.getElementById('cat-mgr-status'); if(!el)return; el.textContent=msg||''; el.className='ph-status'+(isErr?' err':''); }
+    function _catToggleHtml(on){ return '<label class="cat-sw"><input type="checkbox"'+(on?' checked':'')+'><span class="cat-sw-tk"></span></label>'; }
+    function _catEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    async function showCategoryPanel(){
+      document.querySelectorAll('.adm-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== 'category'); });
+      document.querySelectorAll('.adm-nav-item').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-common-menu')==='cats'); });
+      var t=document.getElementById('adm-page-title'); if(t)t.textContent='카테고리 관리';
+      var s=document.getElementById('adm-page-sub'); if(s)s.textContent='고객 사이트 메뉴(상위 카테고리·하위 메뉴)의 노출과 순서를 관리합니다.';
+      if (typeof hideRentalHeaderTools==='function') hideRentalHeaderTools();
+      var bd=document.getElementById('cat-mgr-body'); if(bd)bd.innerHTML='<p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p>';
+      try{
+        var sb=window.supabaseClient;
+        var r1=await sb.from('mobileshop_rental_settings').select('payload').eq('key','site_menu').maybeSingle();
+        _catCfg=_catNormalize(r1&&r1.data&&r1.data.payload);
+        var r2=await sb.from('mobileshop_categories').select('*').order('sort_order',{ascending:true});
+        _catCarriers=(r2&&r2.data)||[];
+      }catch(err){ _catCfg=_catNormalize(null); _catCarriers=[]; catStatus('불러오기 실패: '+(err.message||err),true); }
+      catRenderMgr();
+    }
+
+    function catRenderMgr(){
+      var bd=document.getElementById('cat-mgr-body'); if(!bd||!_catCfg)return;
+      var h='';
+      h+='<div class="cat-sec"><div class="cat-sec-t">상위 카테고리 <span>사용 여부 · 노출 순서</span></div>';
+      _catCfg.shops.forEach(function(s,i){
+        h+='<div class="cat-row">'
+          +'<div class="cat-ord"><button type="button" data-cat-move="up" data-i="'+i+'"'+(i===0?' disabled':'')+'>▲</button><button type="button" data-cat-move="down" data-i="'+i+'"'+(i===_catCfg.shops.length-1?' disabled':'')+'>▼</button></div>'
+          +'<div class="cat-name">'+CAT_SHOP_LABELS[s.key]+'</div>'
+          +'<div class="cat-tog" data-cat-shop-tog="'+s.key+'">'+_catToggleHtml(s.visible)+'<em>'+(s.visible?'노출':'숨김')+'</em></div>'
+          +'</div>';
+      });
+      h+='</div>';
+      h+='<div class="cat-sec"><div class="cat-sec-t">하위 메뉴 노출</div>';
+      h+='<div class="cat-sub-group"><div class="cat-sub-h">휴대폰 · 통신사</div><div class="cat-sub-list">';
+      if(_catCarriers.length){
+        _catCarriers.forEach(function(c){ h+='<div class="cat-sub-item" data-cat-carrier="'+_catEsc(c.id)+'"><span>'+_catEsc(c.label||c.id)+'</span>'+_catToggleHtml(c.visible!==false)+'</div>'; });
+      } else { h+='<div class="cat-sub-empty">등록된 통신사 카테고리가 없습니다.</div>'; }
+      h+='</div></div>';
+      h+='<div class="cat-sub-group"><div class="cat-sub-h">인터넷</div><div class="cat-sub-list">';
+      CAT_INTERNET_SUBS.forEach(function(p){ var on=_catCfg.subs.internet[p[0]]!==false; h+='<div class="cat-sub-item" data-cat-sub="internet:'+p[0]+'"><span>'+p[1]+'</span>'+_catToggleHtml(on)+'</div>'; });
+      h+='</div></div>';
+      h+='<div class="cat-sub-group"><div class="cat-sub-h">렌탈</div><div class="cat-sub-list">';
+      CAT_RENTAL_SUBS.forEach(function(p){ var on=_catCfg.subs.rental[p[0]]!==false; h+='<div class="cat-sub-item" data-cat-sub="rental:'+p[0]+'"><span>'+p[1]+'</span>'+_catToggleHtml(on)+'</div>'; });
+      h+='</div></div>';
+      h+='</div>';
+      bd.innerHTML=h;
+    }
+
+    async function catSaveCfg(){
+      try{
+        var sb=window.supabaseClient;
+        var res=await sb.from('mobileshop_rental_settings').upsert({key:'site_menu',payload:_catCfg},{onConflict:'key'});
+        if(res.error)throw res.error;
+        catStatus('저장됨 · 사이트에 반영됩니다.');
+        clearTimeout(window._catSaveT); window._catSaveT=setTimeout(function(){catStatus('');},2000);
+      }catch(err){ catStatus('저장 실패: '+(err.message||err),true); }
+    }
+    async function catSaveCarrier(id,visible){
+      try{
+        var sb=window.supabaseClient;
+        var res=await sb.from('mobileshop_categories').update({visible:visible}).eq('id',id);
+        if(res.error)throw res.error;
+        var c=_catCarriers.find(function(x){return String(x.id)===String(id);}); if(c)c.visible=visible;
+        catStatus('저장됨 · 사이트에 반영됩니다.');
+        clearTimeout(window._catSaveT); window._catSaveT=setTimeout(function(){catStatus('');},2000);
+      }catch(err){ catStatus('통신사 저장 실패: '+(err.message||err),true); }
+    }
+
+    document.addEventListener('click', function(e){
+      var mv=e.target.closest('[data-cat-move]'); if(!mv||!_catCfg)return;
+      var dir=mv.getAttribute('data-cat-move'), i=parseInt(mv.getAttribute('data-i'),10);
+      var j=(dir==='up')?i-1:i+1; if(j<0||j>=_catCfg.shops.length)return;
+      var arr=_catCfg.shops, tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+      catRenderMgr(); catSaveCfg();
+    });
+    document.addEventListener('change', function(e){
+      if(!_catCfg)return;
+      var t=e.target; if(t.type!=='checkbox')return;
+      var shopTog=t.closest('[data-cat-shop-tog]');
+      if(shopTog){ var k=shopTog.getAttribute('data-cat-shop-tog'); var s=_catCfg.shops.find(function(x){return x.key===k;}); if(s){ s.visible=t.checked; var em=shopTog.querySelector('em'); if(em)em.textContent=t.checked?'노출':'숨김'; catSaveCfg(); } return; }
+      var subItem=t.closest('[data-cat-sub]');
+      if(subItem){ var parts=subItem.getAttribute('data-cat-sub').split(':'); _catCfg.subs[parts[0]][parts[1]]=t.checked; catSaveCfg(); return; }
+      var carItem=t.closest('[data-cat-carrier]');
+      if(carItem){ catSaveCarrier(carItem.getAttribute('data-cat-carrier'), t.checked); return; }
+    });
+
     // ── 새로고침 후 상태 복원 ──────────────────────────
     (function(){
       var savedShop = lsGet('adm_shop');
