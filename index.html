@@ -492,6 +492,7 @@
   .ph-det-price-row.dim .ph-det-price-label { color:var(--g2); font-size:13px; }
   .ph-det-price-row.dim .ph-det-price-val { font-weight:600; font-size:14px; color:var(--g1); }
   .ph-det-price-row.ph-det-price-final { border-top:2px solid var(--line); border-bottom:0; padding-top:12px; margin-top:2px; }
+  .ph-det-price-row:has(+ .ph-det-price-final) { border-bottom:0; } /* 판매가 위 얇은 줄 제거(굵은 2px 한 줄만) */
   .ph-det-price-final .ph-det-price-label { font-weight:700; font-size:15px; color:var(--ink); }
   .ph-det-price-final .ph-det-price-val { font-size:22px; color:var(--accent); }
   .ph-det-cta {
