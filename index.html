@@ -3073,7 +3073,7 @@ if(location.search.indexOf('ph=')!==-1){
     var release = (m && m.release_price != null) ? Number(m.release_price) : null;
     var addon = (pr.addon || '').trim();
     var parts = [];
-    if (planLabel) parts.push('<span class="ph-det-note-l">기준요금제 · ' + escapeHtml(planLabel) + '</span>');
+    if (planLabel) parts.push('<span class="ph-det-note-l">' + escapeHtml(planLabel) + '</span>');
     if (addon) parts.push('<span class="ph-det-note-r">' + escapeHtml(addon).replace(/\n/g, ' ') + '</span>');
     var note = parts.length ? '<div class="ph-det-price-note">' + parts.join('<span class="ph-det-note-sep">ㅣ</span>') + '</div>' : '';
     var hasSale = sale != null && sale !== '' && !isNaN(Number(sale));
