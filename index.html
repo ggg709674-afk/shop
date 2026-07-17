@@ -486,6 +486,12 @@
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
   .ph-det-price-label { font-size:13px; color:var(--g1); }
   .ph-det-price-val { font-size:16px; font-weight:700; color:var(--ink); }
+  .ph-det-price-note { font-size:12px; color:var(--g2); padding:2px 0 9px; margin-bottom:2px; border-bottom:1px dashed var(--line); }
+  .ph-det-price-row.dim .ph-det-price-label { color:var(--g2); font-size:13px; }
+  .ph-det-price-row.dim .ph-det-price-val { font-weight:600; font-size:14px; color:var(--g1); }
+  .ph-det-price-row.ph-det-price-final { border-top:2px solid var(--line); border-bottom:0; padding-top:12px; margin-top:2px; }
+  .ph-det-price-final .ph-det-price-label { font-weight:700; font-size:15px; color:var(--ink); }
+  .ph-det-price-final .ph-det-price-val { font-size:22px; color:var(--accent); }
   .ph-det-cta {
     display:block; width:100%; padding:16px; border:none; border-radius:14px;
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
@@ -1840,26 +1846,16 @@ if(location.search.indexOf('ph=')!==-1){
         </div>
         <div class="ph-det-opt-row">
           <div class="ph-det-opt-label">가입 유형</div>
-          <div class="ph-det-opt-chips">
-            <button class="ph-det-chip on">번호이동</button>
-            <button class="ph-det-chip">기기변경</button>
-            <button class="ph-det-chip">신규가입</button>
+          <div class="ph-det-opt-chips" id="ph-det-join">
+            <button class="ph-det-chip on" type="button" data-join="mnp">번호이동</button>
+            <button class="ph-det-chip" type="button" data-join="change">기기변경</button>
           </div>
         </div>
         <div class="ph-det-opt-row">
-          <div class="ph-det-opt-label">약정</div>
-          <div class="ph-det-opt-chips">
-            <button class="ph-det-chip on">24개월</button>
-            <button class="ph-det-chip">12개월</button>
-            <button class="ph-det-chip">무약정</button>
-          </div>
-        </div>
-        <div class="ph-det-opt-row">
-          <div class="ph-det-opt-label">요금제</div>
-          <div class="ph-det-opt-chips">
-            <button class="ph-det-chip on">프리미엄</button>
-            <button class="ph-det-chip">베이직</button>
-            <button class="ph-det-chip">슬림</button>
+          <div class="ph-det-opt-label">약정 유형</div>
+          <div class="ph-det-opt-chips" id="ph-det-ctype">
+            <button class="ph-det-chip on" type="button" data-ctype="common">공통지원금</button>
+            <button class="ph-det-chip" type="button" data-ctype="contract">선택약정</button>
           </div>
         </div>
       </div>
@@ -3047,6 +3043,72 @@ if(location.search.indexOf('ph=')!==-1){
     if (ps) ps.style.display = def === 'spec' ? '' : 'none';
   }
 
+  // ───── 휴대폰 상세 판매가 계산 (출고가 − 공통지원금 − 우주커넥트 할인 = 판매가) ─────
+  var _phDetJoin = 'mnp';        // 가입유형: mnp(번호이동) | change(기기변경)
+  var _phDetCtype = 'common';    // 약정유형: common(공통지원금) | contract(선택약정)
+  var _phDetModel = null;        // 현재 상세 모델(DataStore)
+  var _phDetSupport = {};        // planId → {mnp, change} 공시지원금
+  var PH_STORE_NAME = '우주커넥트';
+  function phDetWon(n){ n = Number(n); return (isNaN(n) ? 0 : n).toLocaleString() + '원'; }
+  function phDetSyncOptionChips(){
+    var jw = document.getElementById('ph-det-join');
+    if (jw) jw.querySelectorAll('.ph-det-chip').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-join') === _phDetJoin); });
+    var cw = document.getElementById('ph-det-ctype');
+    if (cw) cw.querySelectorAll('.ph-det-chip').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-ctype') === _phDetCtype); });
+  }
+  function renderPhDetPriceBox(){
+    var box = document.getElementById('ph-det-prices'); if (!box) return;
+    var m = _phDetModel, pr = (m && m.prices) || {};
+    var join = _phDetJoin, ct = _phDetCtype;
+    var field = ct === 'common' ? (join === 'mnp' ? 'mnpCommon' : 'changeCommon') : (join === 'mnp' ? 'mnpContract' : 'changeContract');
+    var sale = pr[field];
+    var planLabel = pr[field + 'PlanLabel'] || '';
+    var release = (m && m.release_price != null) ? Number(m.release_price) : null;
+    var note = planLabel ? '<div class="ph-det-price-note">기준요금제 · ' + escapeHtml(planLabel) + '</div>' : '';
+    var hasSale = sale != null && sale !== '' && !isNaN(Number(sale));
+    if (!hasSale || release == null) {
+      box.innerHTML = note + '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>';
+      return;
+    }
+    sale = Number(sale);
+    var html = note;
+    html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">출고가</span><span class="ph-det-price-val">' + phDetWon(release) + '</span></div>';
+    var support = 0;
+    if (ct === 'common') {
+      var planId = pr[join === 'mnp' ? 'mnpCommonPlan' : 'changeCommonPlan'] || '';
+      var sd = _phDetSupport[planId];
+      support = sd ? (Number(join === 'mnp' ? sd.mnp : sd.change) || 0) : 0;
+      html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">공통지원금</span><span class="ph-det-price-val">- ' + phDetWon(support) + '</span></div>';
+    }
+    var discount = ct === 'common' ? (release - support - sale) : (release - sale);
+    html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
+    html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
+    box.innerHTML = html;
+  }
+  async function phDetFetchSupport(m){
+    _phDetSupport = {};
+    if (!m || !m.prices) { renderPhDetPriceBox(); return; }
+    var pr = m.prices;
+    var ids = [pr.mnpCommonPlan, pr.changeCommonPlan].filter(Boolean);
+    ids = ids.filter(function(v, i){ return ids.indexOf(v) === i; });
+    if (!ids.length) { renderPhDetPriceBox(); return; }
+    try {
+      var sbc = window.supabaseClient;
+      if (sbc) {
+        var res = await sbc.from('mobileshop_support').select('plan_id,amount,upgrade_amount').eq('model_id', m.id).in('plan_id', ids);
+        (res.data || []).forEach(function(row){ _phDetSupport[row.plan_id] = { mnp: row.amount, change: row.upgrade_amount }; });
+      }
+    } catch(e){}
+    renderPhDetPriceBox();
+  }
+  document.addEventListener('click', function(e){
+    if (!e.target.closest) return;
+    var jb = e.target.closest('#ph-det-join .ph-det-chip');
+    if (jb) { _phDetJoin = jb.getAttribute('data-join'); phDetSyncOptionChips(); renderPhDetPriceBox(); return; }
+    var cb = e.target.closest('#ph-det-ctype .ph-det-chip');
+    if (cb) { _phDetCtype = cb.getAttribute('data-ctype'); phDetSyncOptionChips(); renderPhDetPriceBox(); return; }
+  });
+
   function openPhDetail(card) {
     var name    = card.getAttribute('data-card-name') || '';
     var carrier = card.getAttribute('data-card-carrier') || '';
@@ -3083,10 +3145,12 @@ if(location.search.indexOf('ph=')!==-1){
     renderPhDetThumbs();
     renderPhDetColors();
 
-    var priceLabel = (price && price !== '상담') ? '월 ' + escapeHtml(price) + '원' : '상담';
-    document.getElementById('ph-det-prices').innerHTML =
-      '<div class="ph-det-price-row"><span class="ph-det-price-label">번호이동</span><span class="ph-det-price-val">' + priceLabel + '</span></div>'
-      + '<div class="ph-det-price-row"><span class="ph-det-price-label">기기변경</span><span class="ph-det-price-val">상담</span></div>';
+    // 판매가 계산 셋업 (기본: 번호이동 · 공통지원금)
+    _phDetJoin = 'mnp'; _phDetCtype = 'common';
+    _phDetModel = (DataStore.load().models || []).find(function(x){ return x.id === (card.getAttribute('data-model-id') || ''); }) || null;
+    phDetSyncOptionChips();
+    renderPhDetPriceBox();
+    phDetFetchSupport(_phDetModel);
 
     var det = document.getElementById('ph-detail');
     det.scrollTop = 0;
