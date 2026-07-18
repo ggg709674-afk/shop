@@ -158,8 +158,11 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 휴대폰 주문관리 */
 .pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
 .pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;}
-.pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:normal;min-width:320px;}
+.pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:nowrap;}
+.pho-addr-cell{max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pho-table td.pho-c-memo,.pho-table th.pho-c-memo{width:100%;}
+.ph-nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:#DE4F41;color:#fff;font-size:11px;font-weight:800;line-height:1;vertical-align:middle;}
+.ph-nav-badge[hidden]{display:none;}
 .pho-memo{width:100%;min-width:340px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--ink);}
 .pho-memo:focus{outline:none;border-color:var(--primary,#DE4F41);}
 .pho-saved-flag{display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#1E8E3E;background:#E6F4EA;border-radius:20px;padding:5px 12px;}
@@ -379,7 +382,7 @@ html[data-preload-shop] body { visibility:hidden; }
     <div class="adm-nav-group" data-shop="phone">
       <div class="adm-nav-label">휴대폰</div>
       <a class="adm-nav-item" data-shop-menu="ph-orders">
-        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H5a2 2 0 0 0-2 2v7h18v-7a2 2 0 0 0-2-2h-4"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/><line x1="9" y1="11" x2="15" y2="11"/></svg></span> 주문관리
+        <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H5a2 2 0 0 0-2 2v7h18v-7a2 2 0 0 0-2-2h-4"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/><line x1="9" y1="11" x2="15" y2="11"/></svg></span> 주문관리 <span class="ph-nav-badge" id="ph-orders-badge" hidden></span>
       </a>
       <a class="adm-nav-item" data-shop-menu="ph-banner">
         <span class="adm-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span> 배너
@@ -2354,17 +2357,46 @@ html[data-preload-shop] body { visibility:hidden; }
       return (withYear?(o.year+'-'):'')+o.month+'-'+o.day+' '+o.hour+':'+o.minute;
     }catch(e){var p=function(n){return(n<10?'0':'')+n;};return (withYear?(d.getFullYear()+'-'):'')+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
   }
-  async function phRenderOrders(){
-    phoBindUI();
-    var wrap=phEl('pho-list');if(wrap)wrap.innerHTML='<p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p>';
-    try{
-      var rows;
-      if(typeof window.skmFetchConsultations==='function'){rows=await window.skmFetchConsultations();}
-      else{var res=await sb().from('mobileshop_rental_consultations').select('*').order('created_at',{ascending:false});rows=(res&&res.data)||[];}
-      _phoData=(rows||[]).filter(function(r){return phoProd(r).type==='phone';});
-    }catch(err){_phoData=[];var w=phEl('pho-list');if(w)w.innerHTML='<p style="padding:20px;color:var(--accent);font-size:13px;">불러오기 실패: '+phEsc(err.message||String(err))+'</p>';return;}
-    phoRenderList();
+  async function phoFetchData(){
+    var rows;
+    if(typeof window.skmFetchConsultations==='function'){rows=await window.skmFetchConsultations();}
+    else{var res=await sb().from('mobileshop_rental_consultations').select('*').order('created_at',{ascending:false});rows=(res&&res.data)||[];}
+    return (rows||[]).filter(function(r){return phoProd(r).type==='phone';});
   }
+  function phoUpdateBadge(){
+    var n=(_phoData||[]).filter(function(r){return phoStatusOf(r)==='new';}).length;
+    var b=phEl('ph-orders-badge');if(!b)return;
+    if(n>0){b.textContent=(n>99?'99+':String(n));b.hidden=false;}else{b.hidden=true;}
+  }
+  async function phRenderOrders(){
+    phoBindUI();phoSetupRealtime();
+    var wrap=phEl('pho-list');if(wrap)wrap.innerHTML='<p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p>';
+    try{_phoData=await phoFetchData();}
+    catch(err){_phoData=[];var w=phEl('pho-list');if(w)w.innerHTML='<p style="padding:20px;color:var(--accent);font-size:13px;">불러오기 실패: '+phEsc(err.message||String(err))+'</p>';phoUpdateBadge();return;}
+    phoUpdateBadge();phoRenderList();
+  }
+  // 조용히 갱신(폴링·realtime) — 편집/모달 중이면 목록 재렌더 스킵
+  async function phoRefresh(){
+    try{_phoData=await phoFetchData();}catch(e){return;}
+    phoUpdateBadge();
+    var panel=document.querySelector('.adm-panel[data-panel="ph-orders"]');
+    if(panel&&!panel.hidden){
+      var act=document.activeElement;
+      if(act&&act.classList&&(act.classList.contains('pho-memo')||act.classList.contains('pho-status-sel')))return;
+      var md=phEl('pho-modal');if(md&&!md.hidden)return;
+      phoRenderList();
+    }
+  }
+  function phoSetupRealtime(){
+    if(window._phoRtSet)return;var db=sb();if(!db||typeof db.channel!=='function')return;
+    try{db.channel('pho-orders-rt').on('postgres_changes',{event:'*',schema:'public',table:'mobileshop_rental_consultations'},function(){phoRefresh();}).subscribe();window._phoRtSet=true;}catch(e){}
+  }
+  // 초기 뱃지 + realtime + 폴백 폴링(20초) — 인증 준비 지연 대비 재시도
+  window.addEventListener('load',function(){
+    setTimeout(function(){phoRefresh();phoSetupRealtime();},1500);
+    setTimeout(phoRefresh,5000);
+    setInterval(phoRefresh,20000);
+  });
   function phoRenderList(){
     var wrap=phEl('pho-list');if(!wrap)return;
     var rows=_phoData||[];
@@ -2385,7 +2417,7 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<td style="white-space:nowrap">'+(model||'-')+'</td>'
         +'<td>'+phEsc(p.color||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.joinLabel||'-')+'</td>'
-        +'<td class="pho-c-addr" title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td>'
+        +'<td class="pho-c-addr" title="'+phEsc(r.customer_address||'')+'"><div class="pho-addr-cell">'+phEsc(r.customer_address||'-')+'</div></td>'
         +'<td class="pho-c-memo"><input class="pho-memo" data-pho-id="'+phEsc(r.id)+'" value="'+phEsc(r.memo||'')+'" placeholder="메모"></td></tr>';
     });
     html+='</tbody></table></div>';
@@ -2414,7 +2446,7 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   async function phoSaveStatus(id,status){
     var r=(_phoData||[]).find(function(x){return String(x.id)===String(id);});if(!r)return;
-    try{ var res=await phoUpdate(id,{status:status}); if(res&&res.error)throw res.error; r.status=status;phoRenderList();phoSavedFlash(); }
+    try{ var res=await phoUpdate(id,{status:status}); if(res&&res.error)throw res.error; r.status=status;phoRenderList();phoUpdateBadge();phoSavedFlash(); }
     catch(err){alert('상태 변경 실패: '+((err&&err.message)||err));phoRenderList();}
   }
   async function phoSaveMemo(id,memo){
@@ -2468,7 +2500,7 @@ html[data-preload-shop] body { visibility:hidden; }
       else{res=await sb().from('mobileshop_rental_consultations').update(patch).eq('id',id);}
       if(res&&res.error)throw res.error;
       Object.assign(r,{status:patch.status,memo:patch.memo,customer_name:patch.customer_name,customer_phone:patch.customer_phone,customer_address:patch.customer_address,customer_birth:patch.customer_birth,products:patch.products});
-      phoCloseModal();phoRenderList();phoSavedFlash();
+      phoCloseModal();phoRenderList();phoUpdateBadge();phoSavedFlash();
     }catch(err){alert('저장 실패: '+((err&&err.message)||err));}
     finally{if(btn)btn.disabled=false;}
   }
