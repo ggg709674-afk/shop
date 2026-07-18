@@ -2386,8 +2386,18 @@ html[data-preload-shop] body { visibility:hidden; }
     else{var res=await sb().from('mobileshop_rental_consultations').select('*').order('created_at',{ascending:false});rows=(res&&res.data)||[];}
     return (rows||[]).filter(function(r){return phoProd(r).type==='phone';});
   }
+  function phoViewedSet(){
+    if(window._phoViewed)return window._phoViewed;
+    try{window._phoViewed=JSON.parse(localStorage.getItem('pho_viewed')||'{}')||{};}catch(e){window._phoViewed={};}
+    return window._phoViewed;
+  }
+  function phoMarkViewed(id){
+    var vs=phoViewedSet();
+    if(id&&!vs[id]){vs[id]=1;try{localStorage.setItem('pho_viewed',JSON.stringify(vs));}catch(e){}phoUpdateBadge();}
+  }
   function phoUpdateBadge(){
-    var n=(_phoData||[]).filter(function(r){return phoStatusOf(r)==='new';}).length;
+    var vs=phoViewedSet();
+    var n=(_phoData||[]).filter(function(r){return phoStatusOf(r)==='new'&&!vs[r.id];}).length;
     var b=phEl('ph-orders-badge');if(!b)return;
     if(n>0){b.textContent=(n>99?'99+':String(n));b.hidden=false;}else{b.hidden=true;}
   }
@@ -2525,6 +2535,7 @@ html[data-preload-shop] body { visibility:hidden; }
   function phoFArea(label,id,val){return '<label class="pho-f"><span>'+label+'</span><textarea id="'+id+'" rows="2">'+phEsc(val)+'</textarea></label>';}
   function phoOpenModal(id){
     var r=(_phoData||[]).find(function(x){return String(x.id)===String(id);});if(!r)return;
+    phoMarkViewed(id); // 열람 처리 → 뱃지에서 제외
     var p=phoProd(r);var isMnp=p.join==='mnp';
     var body=phEl('pho-modal-body');if(!body)return;
     var stOpts=PHO_ORDER.map(function(s){return '<option value="'+s+'"'+(phoStatusOf(r)===s?' selected':'')+'>'+PHO_STATUS[s]+'</option>';}).join('');
@@ -2546,7 +2557,7 @@ html[data-preload-shop] body { visibility:hidden; }
     h+=phoF('고객명','pho-f-name',r.customer_name||'');
     h+=phoF('개통할 번호','pho-f-phone',phoFmtPhone(r.customer_phone||''));
     h+=phoF('다른 연락처','pho-f-alt',phoFmtPhone(p.altPhone||''));
-    if(isMnp)h+=phoF('주민등록번호','pho-f-rrn',p.rrn||'');
+    if(isMnp)h+=phoF('생년월일','pho-f-rrn',p.rrn||'');
     else h+=phoF('생년월일','pho-f-birth',p.birth||r.customer_birth||'');
     h+=phoF('택배 주소','pho-f-addr',r.customer_address||'');
     h+='<div class="pho-m-minor"><label class="pho-m-check"><input type="checkbox" id="pho-f-minor"'+(p.age==='minor'?' checked':'')+'> 미성년자</label><div id="pho-f-guardian"'+(p.age==='minor'?'':' hidden')+'>'+phoF('법정대리인 성함','pho-f-gname',p.guardianName||'')+phoF('법정대리인 연락처','pho-f-gphone',phoFmtPhone(p.guardianPhone||''))+'</div></div>';
@@ -2565,7 +2576,7 @@ html[data-preload-shop] body { visibility:hidden; }
       ['통신사',p.carrier||''],['모델',[p.model,p.color].filter(Boolean).join(' ')],
       ['가입유형',p.joinLabel||''],['약정유형',p.ctypeLabel||''],['결제유형',p.payLabel||''],['요금제',p.plan||''],
       ['고객명',(p.age==='minor'?'(미성년) ':'')+(r.customer_name||'')],
-      [isMnp?'주민등록번호':'생년월일',isMnp?(p.rrn||''):(p.birth||r.customer_birth||'')],
+      ['생년월일',isMnp?(p.rrn||''):(p.birth||r.customer_birth||'')],
       ['개통할 번호',phoFmtPhone(r.customer_phone||'')],['다른 연락처',phoFmtPhone(p.altPhone||'')],
       ['택배 주소',r.customer_address||'']
     ];
