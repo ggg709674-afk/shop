@@ -157,8 +157,9 @@ html[data-preload-shop] body { visibility:hidden; }
 .cat-sw input:checked + .cat-sw-tk::before{transform:translateX(16px);}
 /* 휴대폰 주문관리 */
 .pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
-.pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;}
-.pho-memo{width:100%;min-width:130px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--ink);}
+.pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;}
+.pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:normal;width:100%;min-width:180px;}
+.pho-memo{width:100%;min-width:96px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--ink);}
 .pho-memo:focus{outline:none;border-color:var(--primary,#DE4F41);}
 .pho-saved-flag{display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#1E8E3E;background:#E6F4EA;border-radius:20px;padding:5px 12px;}
 .pho-saved-flag[hidden]{display:none;}
@@ -2368,7 +2369,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var rows=_phoData||[];
     if(!rows.length){wrap.innerHTML='<p style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px;">주문 내역이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table pho-table" style="width:100%;"><thead><tr>'
-      +'<th>접수일</th><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>택배주소</th><th>메모</th></tr></thead><tbody>';
+      +'<th>접수일</th><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th class="pho-c-addr">택배주소</th><th>메모</th></tr></thead><tbody>';
     rows.forEach(function(r){
       var st=phoStatusOf(r);var p=phoProd(r);
       var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm='<b style="color:var(--accent)">(미)</b> '+nm;
@@ -2383,7 +2384,7 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<td style="white-space:nowrap">'+(model||'-')+'</td>'
         +'<td>'+phEsc(p.color||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.joinLabel||'-')+'</td>'
-        +'<td title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td>'
+        +'<td class="pho-c-addr" title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td>'
         +'<td><input class="pho-memo" data-pho-id="'+phEsc(r.id)+'" value="'+phEsc(r.memo||'')+'" placeholder="메모"></td></tr>';
     });
     html+='</tbody></table></div>';
@@ -2394,7 +2395,14 @@ html[data-preload-shop] body { visibility:hidden; }
     var reload=phEl('pho-reload');if(reload)reload.addEventListener('click',phRenderOrders);
     var list=phEl('pho-list');
     if(list){
-      list.addEventListener('click',function(e){if(e.target.closest('.pho-status-sel')||e.target.closest('.pho-memo'))return;var row=e.target.closest('.pho-row');if(!row)return;phoOpenModal(row.getAttribute('data-pho-id'));});
+      var _phoMdField=false;
+      list.addEventListener('mousedown',function(e){_phoMdField=!!(e.target.closest('.pho-memo')||e.target.closest('.pho-status-sel'));});
+      list.addEventListener('click',function(e){
+        if(_phoMdField){_phoMdField=false;return;} // 메모/상태에서 시작한 드래그·클릭은 모달 열지 않음
+        if(e.target.closest('.pho-status-sel')||e.target.closest('.pho-memo'))return;
+        if(window.getSelection&&String(window.getSelection())!=='')return; // 텍스트 선택 중이면 무시
+        var row=e.target.closest('.pho-row');if(!row)return;phoOpenModal(row.getAttribute('data-pho-id'));
+      });
       list.addEventListener('change',function(e){var sel=e.target.closest('.pho-status-sel');if(sel){phoSaveStatus(sel.getAttribute('data-pho-id'),sel.value);return;}var mm=e.target.closest('.pho-memo');if(mm){phoSaveMemo(mm.getAttribute('data-pho-id'),mm.value);}});
     }
   }
