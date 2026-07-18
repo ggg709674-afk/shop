@@ -156,8 +156,11 @@ html[data-preload-shop] body { visibility:hidden; }
 .cat-sw input:checked + .cat-sw-tk{background:var(--primary,#DE4F41);}
 .cat-sw input:checked + .cat-sw-tk::before{transform:translateX(16px);}
 /* 휴대폰 주문관리 */
-.pho-table th{font-size:12px;font-weight:700;color:var(--ink-3);padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
-.pho-table td{padding:11px 12px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle;}
+.pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
+.pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;}
+.pho-memo{width:100%;min-width:130px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--ink);}
+.pho-memo:focus{outline:none;border-color:var(--primary,#DE4F41);}
+.pho-saved-flag{display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#1E8E3E;background:#E6F4EA;border-radius:20px;padding:5px 12px;}
 /* 상태별 행 배경 */
 .pho-row-new td{background:#F1F6FE;}
 .pho-row-confirmed td{background:#EEFAF7;}
@@ -167,7 +170,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-row-cancelled td{background:#FDF3F2;}
 .pho-row:hover td{filter:brightness(0.965);}
 .pho-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
-.pho-status-sel{border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
+.pho-status-sel{border:1px solid var(--line);border-radius:6px;padding:3px 6px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
 .pho-st-new{background:#E8F0FE;color:#1A73E8;}
 .pho-st-confirmed{background:#E0F7F4;color:#0A9E8F;}
 .pho-st-consulting{background:#FFF4E0;color:#C77700;}
@@ -455,6 +458,7 @@ html[data-preload-shop] body { visibility:hidden; }
       엑셀 다운로드
     </button>
     <div class="adm-header-actions">
+      <span class="pho-saved-flag" id="pho-saved" hidden>✓ 저장됨</span>
       <span class="adm-dirty-flag" id="adm-dirty" hidden></span>
       <span class="adm-user-chip" id="adm-user-chip" hidden></span>
       <button class="adm-btn adm-btn-ghost" id="btn-signout" hidden>로그아웃</button>
@@ -2363,7 +2367,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var rows=_phoData||[];
     if(!rows.length){wrap.innerHTML='<p style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px;">주문 내역이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table pho-table" style="width:100%;"><thead><tr>'
-      +'<th>접수일</th><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>택배주소</th></tr></thead><tbody>';
+      +'<th>접수일</th><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>택배주소</th><th>메모</th></tr></thead><tbody>';
     rows.forEach(function(r){
       var st=phoStatusOf(r);var p=phoProd(r);
       var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm='<b style="color:var(--accent)">(미)</b> '+nm;
@@ -2378,7 +2382,8 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<td style="white-space:nowrap">'+(model||'-')+'</td>'
         +'<td>'+phEsc(p.color||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.joinLabel||'-')+'</td>'
-        +'<td title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td></tr>';
+        +'<td title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td>'
+        +'<td><input class="pho-memo" data-pho-id="'+phEsc(r.id)+'" value="'+phEsc(r.memo||'')+'" placeholder="메모"></td></tr>';
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
@@ -2388,19 +2393,25 @@ html[data-preload-shop] body { visibility:hidden; }
     var reload=phEl('pho-reload');if(reload)reload.addEventListener('click',phRenderOrders);
     var list=phEl('pho-list');
     if(list){
-      list.addEventListener('click',function(e){if(e.target.closest('.pho-status-sel'))return;var row=e.target.closest('.pho-row');if(!row)return;phoOpenModal(row.getAttribute('data-pho-id'));});
-      list.addEventListener('change',function(e){var sel=e.target.closest('.pho-status-sel');if(!sel)return;phoSaveStatus(sel.getAttribute('data-pho-id'),sel.value);});
+      list.addEventListener('click',function(e){if(e.target.closest('.pho-status-sel')||e.target.closest('.pho-memo'))return;var row=e.target.closest('.pho-row');if(!row)return;phoOpenModal(row.getAttribute('data-pho-id'));});
+      list.addEventListener('change',function(e){var sel=e.target.closest('.pho-status-sel');if(sel){phoSaveStatus(sel.getAttribute('data-pho-id'),sel.value);return;}var mm=e.target.closest('.pho-memo');if(mm){phoSaveMemo(mm.getAttribute('data-pho-id'),mm.value);}});
     }
+  }
+  function phoSavedFlash(){var el=phEl('pho-saved');if(!el)return;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(function(){el.hidden=true;},1800);}
+  async function phoUpdate(id,patch){
+    if(typeof window.skmUpdateConsultation==='function')return await window.skmUpdateConsultation(id,patch);
+    return await sb().from('mobileshop_rental_consultations').update(patch).eq('id',id);
   }
   async function phoSaveStatus(id,status){
     var r=(_phoData||[]).find(function(x){return String(x.id)===String(id);});if(!r)return;
-    try{
-      var res;
-      if(typeof window.skmUpdateConsultation==='function'){res=await window.skmUpdateConsultation(id,{status:status});}
-      else{res=await sb().from('mobileshop_rental_consultations').update({status:status}).eq('id',id);}
-      if(res&&res.error)throw res.error;
-      r.status=status;phoRenderList();phToast('상태 변경: '+(PHO_STATUS[status]||status));
-    }catch(err){alert('상태 변경 실패: '+((err&&err.message)||err));phoRenderList();}
+    try{ var res=await phoUpdate(id,{status:status}); if(res&&res.error)throw res.error; r.status=status;phoRenderList();phoSavedFlash(); }
+    catch(err){alert('상태 변경 실패: '+((err&&err.message)||err));phoRenderList();}
+  }
+  async function phoSaveMemo(id,memo){
+    var r=(_phoData||[]).find(function(x){return String(x.id)===String(id);});if(!r)return;
+    if((r.memo||'')===memo)return;
+    try{ var res=await phoUpdate(id,{memo:memo}); if(res&&res.error)throw res.error; r.memo=memo;phoSavedFlash(); }
+    catch(err){alert('메모 저장 실패: '+((err&&err.message)||err));}
   }
   function phoF(label,id,val){return '<label class="pho-f"><span>'+label+'</span><input type="text" id="'+id+'" value="'+phEsc(val)+'"></label>';}
   function phoFArea(label,id,val){return '<label class="pho-f"><span>'+label+'</span><textarea id="'+id+'" rows="2">'+phEsc(val)+'</textarea></label>';}
@@ -2447,7 +2458,7 @@ html[data-preload-shop] body { visibility:hidden; }
       else{res=await sb().from('mobileshop_rental_consultations').update(patch).eq('id',id);}
       if(res&&res.error)throw res.error;
       Object.assign(r,{status:patch.status,memo:patch.memo,customer_name:patch.customer_name,customer_phone:patch.customer_phone,customer_address:patch.customer_address,customer_birth:patch.customer_birth,products:patch.products});
-      phoCloseModal();phoRenderList();phToast('주문 저장 완료');
+      phoCloseModal();phoRenderList();phoSavedFlash();
     }catch(err){alert('저장 실패: '+((err&&err.message)||err));}
     finally{if(btn)btn.disabled=false;}
   }
