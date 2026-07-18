@@ -158,10 +158,14 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 휴대폰 주문관리 */
 .pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
 .pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;text-align:center;}
-/* 가로 스크롤바 숨김 — 마우스 드래그로 좌우 이동 */
-.pho-scroll{overflow-x:hidden;cursor:grab;}
-.pho-scroll:active{cursor:grabbing;}
+/* 가로 스크롤바 숨김 — 드래그존으로 좌우 이동 */
+.pho-scroll{overflow-x:hidden;}
 .pho-table{width:auto;}
+.pho-dragzone{position:relative;height:16px;background:var(--bg-soft,#f0f0f0);border:1px solid var(--line);border-radius:8px;margin-bottom:12px;user-select:none;}
+.pho-dragzone[hidden]{display:none;}
+.pho-dragthumb{position:absolute;top:2px;left:0;height:10px;min-width:44px;background:var(--ink-4,#bbb);border-radius:6px;cursor:grab;transition:background .12s;}
+.pho-dragthumb:hover{background:var(--ink-3,#999);}
+.pho-dragthumb:active{cursor:grabbing;background:var(--ink-2,#666);}
 .pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:nowrap;text-align:left;}
 .pho-addr-cell{max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pho-table td.pho-c-name,.pho-table th.pho-c-name{width:82px;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -1173,6 +1177,7 @@ html[data-preload-shop] body { visibility:hidden; }
   <!-- ===== 휴대폰 — 주문관리 ===== -->
   <section class="adm-panel" data-panel="ph-orders" hidden>
     <p class="adm-panel-hint">고객이 작성한 <strong>휴대폰 신청서</strong>를 확인하고 상태를 관리합니다. 행을 클릭하면 상세·수정 창이 열려요. 미성년자 정보는 상세 모달에서만 확인됩니다.</p>
+    <div class="pho-dragzone" id="pho-dragzone" title="드래그해서 좌우 이동"><div class="pho-dragthumb" id="pho-dragthumb"></div></div>
     <div id="pho-list"><p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p></div>
   </section>
   <!-- 주문 상세/수정 모달 -->
@@ -2443,31 +2448,53 @@ html[data-preload-shop] body { visibility:hidden; }
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
+    phoSyncDragzone();
+  }
+  function phoSyncDragzone(){
+    var sc=phEl('pho-scroll'),track=phEl('pho-dragzone'),thumb=phEl('pho-dragthumb');
+    if(!sc||!track||!thumb)return;
+    var sw=sc.scrollWidth,cw=sc.clientWidth;
+    if(sw<=cw+2){track.hidden=true;return;}
+    track.hidden=false;
+    var tw=track.clientWidth,thumbW=Math.max(44,Math.round(tw*cw/sw));
+    thumb.style.width=thumbW+'px';
+    var maxScroll=sw-cw,maxThumb=tw-thumbW;
+    thumb.style.left=(maxScroll>0?Math.round(sc.scrollLeft/maxScroll*maxThumb):0)+'px';
   }
   function phoBindUI(){
     if(_phoBound)return;_phoBound=true;
-    var list=phEl('pho-list');
-    if(list){
-      var _phoMdField=false, _drag=null, _dragged=false, _suppress=false;
-      list.addEventListener('mousedown',function(e){
-        _phoMdField=!!(e.target.closest('.pho-memo')||e.target.closest('.pho-status-sel'));
-        // 입력/선택/버튼이 아니면 드래그 스크롤 시작
-        if(_phoMdField||e.target.closest('input')||e.target.closest('select')||e.target.closest('button')||e.target.closest('a'))return;
+    // 드래그존(커스텀 스크롤바) — 썸 드래그로 좌우 이동
+    var thumb=phEl('pho-dragthumb'),track=phEl('pho-dragzone'),_td=null;
+    if(thumb&&track){
+      thumb.addEventListener('mousedown',function(e){
         var sc=phEl('pho-scroll');if(!sc)return;
-        _drag={x:e.clientX,left:sc.scrollLeft,sc:sc};_dragged=false;
-        e.preventDefault(); // 드래그 중 텍스트 선택 방지
+        _td={x:e.clientX,left:parseFloat(thumb.style.left)||0,sc:sc,tw:track.clientWidth,thumbW:thumb.offsetWidth};
+        e.preventDefault();
       });
       document.addEventListener('mousemove',function(e){
-        if(!_drag)return;
-        var dx=e.clientX-_drag.x;
-        if(Math.abs(dx)>3)_dragged=true;
-        _drag.sc.scrollLeft=_drag.left-dx;
+        if(!_td)return;
+        var maxThumb=_td.tw-_td.thumbW,maxScroll=_td.sc.scrollWidth-_td.sc.clientWidth;
+        var nl=Math.max(0,Math.min(maxThumb,_td.left+(e.clientX-_td.x)));
+        thumb.style.left=nl+'px';
+        _td.sc.scrollLeft=maxThumb>0?(nl/maxThumb*maxScroll):0;
       });
-      document.addEventListener('mouseup',function(){
-        if(_drag){_drag=null;if(_dragged){_suppress=true;setTimeout(function(){_suppress=false;},0);}}
+      document.addEventListener('mouseup',function(){_td=null;});
+      // 트랙 클릭 → 해당 위치로 점프
+      track.addEventListener('mousedown',function(e){
+        if(e.target===thumb)return;
+        var sc=phEl('pho-scroll');if(!sc)return;
+        var rect=track.getBoundingClientRect(),thumbW=thumb.offsetWidth;
+        var nl=Math.max(0,Math.min(track.clientWidth-thumbW,e.clientX-rect.left-thumbW/2));
+        var maxThumb=track.clientWidth-thumbW,maxScroll=sc.scrollWidth-sc.clientWidth;
+        thumb.style.left=nl+'px';sc.scrollLeft=maxThumb>0?(nl/maxThumb*maxScroll):0;
       });
+    }
+    window.addEventListener('resize',phoSyncDragzone);
+    var list=phEl('pho-list');
+    if(list){
+      var _phoMdField=false;
+      list.addEventListener('mousedown',function(e){_phoMdField=!!(e.target.closest('.pho-memo')||e.target.closest('.pho-status-sel'));});
       list.addEventListener('click',function(e){
-        if(_suppress)return; // 드래그 직후 클릭 무시
         if(_phoMdField){_phoMdField=false;return;}
         if(e.target.closest('.pho-status-sel')||e.target.closest('.pho-memo'))return;
         if(window.getSelection&&String(window.getSelection())!=='')return;
