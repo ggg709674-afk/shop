@@ -3251,6 +3251,10 @@ if(location.search.indexOf('ph=')!==-1){
     if (e.key === 'Escape') { var m = document.getElementById('ph-apply-modal'); if (m && !m.hidden) closePhApply(); }
   });
   document.addEventListener('change', function(e){
+    if (e.target.form && e.target.form.id === 'pha-form' && (e.target.name === 'phone' || e.target.name === 'altphone' || e.target.name === 'gphone')) {
+      e.target.value = phaFmtPhone(e.target.value); // 자동완성 채워진 값도 포맷
+      if (e.target.name === 'phone') { var sm = document.getElementById('pha-same'), al = phaField('altphone'); if (sm && sm.checked && al) al.value = e.target.value; }
+    }
     if (e.target.id === 'pha-same') {
       var alt = phaField('altphone'); if (!alt) return;
       if (e.target.checked) { alt.value = phaVal('phone'); alt.disabled = true; } else { alt.disabled = false; }
@@ -3771,7 +3775,7 @@ if(location.search.indexOf('ph=')!==-1){
       <label class="cm-field"><span>다른 연락처</span><input type="tel" name="altphone" inputmode="tel" placeholder="010-0000-0000"></label>
       <label class="pha-inline"><input type="checkbox" id="pha-same"><span>개통할 번호와 동일</span></label>
       <label class="cm-field" id="pha-rrn-field"><span>주민등록번호 <em class="pha-hint">번호이동 개통에 필요</em></span>
-        <span class="pha-rrn"><input type="text" name="rrn1" inputmode="numeric" maxlength="6" placeholder="앞 6자리"><i>-</i><input type="password" name="rrn2" inputmode="numeric" maxlength="7" placeholder="뒤 7자리" autocomplete="off"></span>
+        <span class="pha-rrn"><input type="text" name="rrn1" inputmode="numeric" maxlength="6" placeholder="앞 6자리" autocomplete="off" data-lpignore="true" data-form-type="other"><i>-</i><input type="password" name="rrn2" inputmode="numeric" maxlength="7" placeholder="뒤 7자리" autocomplete="new-password" data-lpignore="true" data-form-type="other"></span>
       </label>
       <label class="cm-field" id="pha-birth-field" hidden><span>생년월일</span><input type="text" name="birth" inputmode="numeric" maxlength="6" placeholder="예: 880315"></label>
       <label class="cm-field"><span>택배 주소</span><input type="text" name="address" autocomplete="street-address" placeholder="받으실 주소"></label>
