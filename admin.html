@@ -158,7 +158,14 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 휴대폰 주문관리 */
 .pho-table th{font-size:12px;font-weight:700;color:var(--ink-3);padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
 .pho-table td{padding:11px 12px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle;}
-.pho-row:hover td{background:var(--bg-soft,#f7f7f7);}
+/* 상태별 행 배경 */
+.pho-row-new td{background:#F1F6FE;}
+.pho-row-confirmed td{background:#EEFAF7;}
+.pho-row-consulting td{background:#FFF9EF;}
+.pho-row-activated td{background:#EFFAF1;}
+.pho-row-hold td{background:#F5F5F5;}
+.pho-row-cancelled td{background:#FDF3F2;}
+.pho-row:hover td{filter:brightness(0.965);}
 .pho-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
 .pho-status-sel{border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
 .pho-st-new{background:#E8F0FE;color:#1A73E8;}
@@ -2352,7 +2359,7 @@ html[data-preload-shop] body { visibility:hidden; }
       var dt=String(r.created_at||'').slice(5,16).replace('T',' ');
       var stOpts=PHO_ORDER.map(function(s){return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+PHO_STATUS[s]+'</option>';}).join('');
       var model=phEsc([p.carrier,p.model].filter(Boolean).join(' '));
-      html+='<tr class="pho-row" data-pho-id="'+phEsc(r.id)+'" style="cursor:pointer">'
+      html+='<tr class="pho-row pho-row-'+st+'" data-pho-id="'+phEsc(r.id)+'" style="cursor:pointer">'
         +'<td style="white-space:nowrap;color:var(--ink-3)">'+phEsc(dt)+'</td>'
         +'<td><select class="pho-status-sel pho-st-'+st+'" data-pho-id="'+phEsc(r.id)+'">'+stOpts+'</select></td>'
         +'<td style="white-space:nowrap">'+nm+'</td>'
