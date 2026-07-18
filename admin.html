@@ -162,7 +162,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-row-new td{background:#F1F6FE;}
 .pho-row-confirmed td{background:#EEFAF7;}
 .pho-row-consulting td{background:#FFF9EF;}
-.pho-row-activated td{background:#EFFAF1;}
+.pho-row-activated td{background:#FEFBEB;}
 .pho-row-hold td{background:#F5F5F5;}
 .pho-row-cancelled td{background:#FDF3F2;}
 .pho-row:hover td{filter:brightness(0.965);}
@@ -171,7 +171,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-st-new{background:#E8F0FE;color:#1A73E8;}
 .pho-st-confirmed{background:#E0F7F4;color:#0A9E8F;}
 .pho-st-consulting{background:#FFF4E0;color:#C77700;}
-.pho-st-activated{background:#E6F4EA;color:#1E8E3E;}
+.pho-st-activated{background:#FEF3C7;color:#B45309;}
 .pho-st-hold{background:#EEEEEE;color:#666666;}
 .pho-st-cancelled{background:#FCE8E6;color:#C5221F;}
 /* 주문 상세 모달 */
@@ -189,9 +189,11 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-m-minor{margin-top:14px;padding:12px;border:1px dashed var(--line);border-radius:10px;background:#fffaf9;}
 .pho-m-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;}
 .pho-m-check input{width:16px;height:16px;accent-color:var(--primary,#DE4F41);}
-.pho-m-actions{margin-top:18px;}
-.pho-save{width:100%;padding:13px;border:0;border-radius:10px;background:var(--primary,#DE4F41);color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+.pho-m-actions{margin-top:18px;display:flex;gap:10px;}
+.pho-save{flex:1;padding:13px;border:0;border-radius:10px;background:var(--primary,#DE4F41);color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
 .pho-save:disabled{opacity:.6;cursor:default;}
+.pho-close-btn{flex:0 0 auto;padding:13px 24px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink-2);font-size:15px;font-weight:700;cursor:pointer;}
+.pho-close-btn:hover{background:var(--bg-soft,#f7f7f7);}
 .ph-prod-table tr.is-hidden{opacity:.4;}
 .ph-price-drop{margin:2px 0 12px;padding:11px 14px;border:1.5px dashed var(--line);border-radius:8px;text-align:center;font-size:12.5px;color:var(--ink-3);cursor:pointer;transition:border-color .15s,color .15s,background .15s;background:var(--surface);}
 .ph-price-drop:hover{border-color:var(--ink-4);color:var(--ink-2);}
@@ -2412,7 +2414,7 @@ html[data-preload-shop] body { visibility:hidden; }
     h+='<div class="pho-m-minor"><label class="pho-m-check"><input type="checkbox" id="pho-f-minor"'+(p.age==='minor'?' checked':'')+'> 미성년자</label><div id="pho-f-guardian"'+(p.age==='minor'?'':' hidden')+'>'+phoF('법정대리인 성함','pho-f-gname',p.guardianName||'')+phoF('법정대리인 연락처','pho-f-gphone',phoFmtPhone(p.guardianPhone||''))+'</div></div>';
     if(p.customerMemo)h+='<label class="pho-f"><span>고객 남기실 말씀</span><textarea rows="2" readonly style="background:var(--bg-soft);color:var(--ink-3);">'+phEsc(p.customerMemo)+'</textarea></label>';
     h+=phoFArea('관리자 메모','pho-f-memo',r.memo||'');
-    h+='<div class="pho-m-actions"><button type="button" class="pho-save" data-pho-save="'+phEsc(r.id)+'">저장</button></div>';
+    h+='<div class="pho-m-actions"><button type="button" class="pho-save" data-pho-save="'+phEsc(r.id)+'">저장</button><button type="button" class="pho-close-btn" data-pho-close>닫기</button></div>';
     body.innerHTML=h;
     var modal=phEl('pho-modal');if(modal)modal.hidden=false;document.body.style.overflow='hidden';
   }
@@ -2443,7 +2445,6 @@ html[data-preload-shop] body { visibility:hidden; }
   document.addEventListener('click',function(e){
     var sv=e.target.closest('[data-pho-save]');if(sv){phoSave(sv.getAttribute('data-pho-save'));return;}
     if(e.target.closest('[data-pho-close]')){phoCloseModal();return;}
-    if(e.target.id==='pho-modal'){phoCloseModal();return;}
   });
   document.addEventListener('change',function(e){
     if(e.target.id==='pho-f-minor'){var gd=phEl('pho-f-guardian');if(gd)gd.hidden=!e.target.checked;}
