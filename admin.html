@@ -189,6 +189,10 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-modal{position:relative;background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:26px 24px;box-shadow:0 16px 50px rgba(0,0,0,.25);}
 .pho-x{position:absolute;top:14px;right:14px;width:32px;height:32px;border:0;background:var(--bg-soft,#f2f2f2);border-radius:50%;color:var(--ink-3);cursor:pointer;font-size:15px;}
 .pho-m-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:6px;padding-right:28px;}
+.pho-m-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-right:34px;}
+.pho-m-head .pho-m-title{margin-bottom:0;padding-right:0;}
+.pho-print-btn{margin-left:auto;padding:6px 13px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink-2);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.pho-print-btn:hover{background:var(--bg-soft,#f7f7f7);border-color:var(--ink-4);}
 .pho-m-sum{font-size:12.5px;color:var(--ink-3);background:var(--bg-soft,#f7f7f7);border-radius:9px;padding:9px 12px;margin-bottom:14px;line-height:1.5;}
 .pho-m-price{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:14px;}
 .pho-m-prow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;font-size:13px;color:var(--ink-2);}
@@ -2478,7 +2482,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var stOpts=PHO_ORDER.map(function(s){return '<option value="'+s+'"'+(phoStatusOf(r)===s?' selected':'')+'>'+PHO_STATUS[s]+'</option>';}).join('');
     var dt=phoFmtDate(r.created_at,true);
     var h='';
-    h+='<div class="pho-m-title">주문 상세</div>';
+    h+='<div class="pho-m-head"><div class="pho-m-title">주문 상세</div><button type="button" class="pho-print-btn" data-pho-print="'+phEsc(r.id)+'">🖨 출력</button></div>';
     h+='<div class="pho-m-sum">'+phEsc([p.carrier,p.model,p.color].filter(Boolean).join(' '))+'<br>'+phEsc([p.joinLabel,p.ctypeLabel,p.payLabel,p.plan].filter(Boolean).join(' · '))+' · 접수 '+phEsc(dt)+'</div>';
     // 가격 정보
     var saleLabel=(p.pay==='cash')?'일시납가':'할부원금';
@@ -2505,6 +2509,38 @@ html[data-preload-shop] body { visibility:hidden; }
     var modal=phEl('pho-modal');if(modal)modal.hidden=false;document.body.style.overflow='hidden';
   }
   function phoCloseModal(){var m=phEl('pho-modal');if(m)m.hidden=true;document.body.style.overflow='';}
+  function phoPrint(id){
+    var r=(_phoData||[]).find(function(x){return String(x.id)===String(id);});if(!r)return;
+    var p=phoProd(r);var isMnp=p.join==='mnp';
+    var rows=[
+      ['접수일',phoFmtDate(r.created_at,true)],['상태',PHO_STATUS[phoStatusOf(r)]],
+      ['통신사',p.carrier||''],['모델',[p.model,p.color].filter(Boolean).join(' ')],
+      ['가입유형',p.joinLabel||''],['약정유형',p.ctypeLabel||''],['결제유형',p.payLabel||''],['요금제',p.plan||''],
+      ['고객명',(p.age==='minor'?'(미성년) ':'')+(r.customer_name||'')],
+      [isMnp?'주민등록번호':'생년월일',isMnp?(p.rrn||''):(p.birth||r.customer_birth||'')],
+      ['개통할 번호',phoFmtPhone(r.customer_phone||'')],['다른 연락처',phoFmtPhone(p.altPhone||'')],
+      ['택배 주소',r.customer_address||'']
+    ];
+    if(p.age==='minor')rows.push(['법정대리인',(p.guardianName||'')+' '+phoFmtPhone(p.guardianPhone||'')]);
+    if(r.memo)rows.push(['메모',r.memo]);
+    var pr=[];
+    if(p.releasePrice!=null)pr.push(['출고가',phoWon(p.releasePrice)]);
+    if(p.ctype==='common'&&p.support)pr.push(['공통지원금','- '+phoWon(p.support)]);
+    if(p.extraSupport!=null)pr.push(['추가지원금','- '+phoWon(p.extraSupport)]);
+    pr.push([(p.pay==='cash'?'일시납가':'할부원금'),p.salePrice!=null?phoWon(p.salePrice):'-']);
+    if(p.pay==='installment'&&p.salePrice!=null){var mo=phoMonthly(p.salePrice);pr.push(['월 할부금 (24개월·이자포함)',phoWon(mo)]);pr.push(['총 할부이자',phoWon(mo*24-p.salePrice)]);}
+    var tr=function(a){return '<tr><th>'+phEsc(a[0])+'</th><td>'+phEsc(a[1]||'-')+'</td></tr>';};
+    var html='<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>휴대폰 개통 신청서</title>'
+      +'<style>*{box-sizing:border-box}body{font-family:-apple-system,"Malgun Gothic",sans-serif;padding:34px;color:#222;margin:0}h1{font-size:21px;margin:0 0 2px}.sub{color:#888;font-size:12px;margin-bottom:22px}h2{font-size:14px;margin:18px 0 6px;color:#444}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:9px 11px;font-size:13px;text-align:left;vertical-align:top}th{background:#f7f7f7;width:140px;font-weight:700;white-space:nowrap}@media print{body{padding:0}}</style></head><body>'
+      +'<h1>휴대폰 개통 신청서</h1><div class="sub">우주커넥트</div>'
+      +'<table>'+rows.map(tr).join('')+'</table>'
+      +'<h2>가격</h2><table>'+pr.map(tr).join('')+'</table>'
+      +'</body></html>';
+    var win=window.open('','_blank','width=780,height=920');
+    if(!win){alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.');return;}
+    win.document.write(html);win.document.close();win.focus();
+    setTimeout(function(){try{win.print();}catch(e){}},350);
+  }
   async function phoSave(id){
     var r=(_phoData||[]).find(function(x){return String(x.id)===String(id);});if(!r)return;
     var p=Object.assign({},phoProd(r));
@@ -2530,6 +2566,7 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   document.addEventListener('click',function(e){
     var sv=e.target.closest('[data-pho-save]');if(sv){phoSave(sv.getAttribute('data-pho-save'));return;}
+    var pp=e.target.closest('[data-pho-print]');if(pp){phoPrint(pp.getAttribute('data-pho-print'));return;}
     if(e.target.closest('[data-pho-close]')){phoCloseModal();return;}
   });
   document.addEventListener('change',function(e){
