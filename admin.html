@@ -160,7 +160,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;text-align:center;}
 /* 행 드래그 정렬 — 부드럽게+스프링(퉁퉁) */
 .pho-table tbody tr{transition:transform .32s cubic-bezier(.34,1.56,.64,1);}
-.pho-table tbody tr.pho-dragging{transition:none;position:relative;z-index:6;box-shadow:0 8px 22px rgba(0,0,0,.16);}
+.pho-table tbody tr.pho-dragging{transition:none;position:relative;z-index:6;box-shadow:0 8px 22px rgba(0,0,0,.16);cursor:grabbing;}
 .pho-drag-th{width:26px;}
 .pho-drag-h{cursor:grab;color:#c4c4c4;padding-left:6px!important;padding-right:6px!important;}
 .pho-drag-h:hover{color:var(--ink-4,#999);}
@@ -2472,7 +2472,7 @@ html[data-preload-shop] body { visibility:hidden; }
       var dt=phoFmtDate(r.created_at);
       var stOpts=PHO_ORDER.map(function(s){return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+PHO_STATUS[s]+'</option>';}).join('');
       var model=phEsc([p.carrier,p.model].filter(Boolean).join(' '));
-      html+='<tr class="pho-row pho-row-'+st+'" data-pho-id="'+phEsc(r.id)+'" style="cursor:pointer">'
+      html+='<tr class="pho-row pho-row-'+st+'" data-pho-id="'+phEsc(r.id)+'" style="cursor:grab">'
         +'<td class="pho-drag-h" title="드래그로 순서 변경">'+PHO_GRIP+'</td>'
         +'<td style="white-space:nowrap;color:var(--ink-3)">'+phEsc(dt)+'</td>'
         +'<td><select class="pho-status-sel pho-st-'+st+'" data-pho-id="'+phEsc(r.id)+'">'+stOpts+'</select></td>'
@@ -2536,18 +2536,19 @@ html[data-preload-shop] body { visibility:hidden; }
     var list=phEl('pho-list');
     if(list){
       var _phoMdField=false, _pd=null, _dragSup=false;
-      // 그립 드래그 → 행 순서 변경
+      // 행 아무 데나 잡고 드래그 → 순서 변경 (메모/상태/입력 제외, 이동 없으면 클릭=모달)
       list.addEventListener('mousedown',function(e){
         _phoMdField=!!(e.target.closest('.pho-memo')||e.target.closest('.pho-status-sel'));
-        var h=e.target.closest('.pho-drag-h');if(!h)return;
-        var row=h.closest('tr');if(!row)return;
+        if(_phoMdField||e.target.closest('input')||e.target.closest('select')||e.target.closest('button')||e.target.closest('a'))return;
+        var row=e.target.closest('.pho-row');if(!row)return;
         var tbody=row.parentNode,rows=Array.prototype.slice.call(tbody.children);
-        _pd={row:row,rows:rows,from:rows.indexOf(row),cur:rows.indexOf(row),y:e.clientY,h:row.getBoundingClientRect().height,moved:false};
-        row.classList.add('pho-dragging');document.body.style.userSelect='none';e.preventDefault();
+        _pd={row:row,rows:rows,from:rows.indexOf(row),cur:rows.indexOf(row),y:e.clientY,h:row.getBoundingClientRect().height,active:false};
+        e.preventDefault(); // 텍스트 선택 방지 (클릭은 유지)
       });
       document.addEventListener('mousemove',function(e){
         if(!_pd)return;
-        var dy=e.clientY-_pd.y;if(Math.abs(dy)>2)_pd.moved=true;
+        var dy=e.clientY-_pd.y;
+        if(!_pd.active){ if(Math.abs(dy)<4)return; _pd.active=true; _pd.row.classList.add('pho-dragging'); document.body.style.userSelect='none'; }
         _pd.row.style.transform='translateY('+dy+'px)';
         var ni=Math.max(0,Math.min(_pd.rows.length-1,_pd.from+Math.round(dy/_pd.h)));
         if(ni!==_pd.cur){
@@ -2561,16 +2562,18 @@ html[data-preload-shop] body { visibility:hidden; }
         }
       });
       document.addEventListener('mouseup',function(){
-        if(!_pd)return;var pd=_pd;_pd=null;document.body.style.userSelect='';
+        if(!_pd)return;var pd=_pd;_pd=null;
+        if(!pd.active)return; // 이동 없었으면 클릭(모달)로 진행
+        document.body.style.userSelect='';
         pd.rows.forEach(function(rw){rw.style.transform='';rw.classList.remove('pho-dragging');});
-        if(pd.moved&&pd.cur!==pd.from&&_phoData){
+        if(pd.cur!==pd.from&&_phoData){
           var item=_phoData.splice(pd.from,1)[0];_phoData.splice(pd.cur,0,item);
           _dragSup=true;setTimeout(function(){_dragSup=false;},0);
           phoRenderList();phoSaveOrder();phoSavedFlash();
         }
       });
       list.addEventListener('click',function(e){
-        if(_dragSup||e.target.closest('.pho-drag-h')){return;}
+        if(_dragSup){return;}
         if(_phoMdField){_phoMdField=false;return;}
         if(e.target.closest('.pho-status-sel')||e.target.closest('.pho-memo'))return;
         if(window.getSelection&&String(window.getSelection())!=='')return;
