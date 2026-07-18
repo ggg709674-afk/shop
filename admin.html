@@ -2566,9 +2566,9 @@ html[data-preload-shop] body { visibility:hidden; }
         if(!pd.active)return; // 이동 없었으면 클릭(모달)로 진행
         document.body.style.userSelect='';
         pd.rows.forEach(function(rw){rw.style.transform='';rw.classList.remove('pho-dragging');});
+        _dragSup=true;setTimeout(function(){_dragSup=false;},0); // 드래그했으면 제자리에 놔도 클릭(모달) 억제
         if(pd.cur!==pd.from&&_phoData){
           var item=_phoData.splice(pd.from,1)[0];_phoData.splice(pd.cur,0,item);
-          _dragSup=true;setTimeout(function(){_dragSup=false;},0);
           phoRenderList();phoSaveOrder();phoSavedFlash();
         }
       });
