@@ -484,8 +484,8 @@
   .ph-det-name-row { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:20px; }  /* 렌탈 .name-row: 모델명+색상명 baseline 정렬 */
   .ph-det-color-name { font-size:32px; font-weight:300; color:#CCCCCC; letter-spacing:-0.5px; line-height:1.3; }  /* 색상명 = 모델명 크기, 밝은 회색(#CCC)으로 구분 */
   .ph-det-color-name:empty { display:none; }
-  .ph-det-price-box { background:var(--bg-soft); border-radius:14px; padding:16px; margin-bottom:24px; display:flex; flex-direction:column; gap:0; min-height:112px; }
-  .ph-det-price-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+  .ph-det-price-box { background:var(--bg-soft); border-radius:14px; padding:14px 16px; margin-bottom:18px; display:flex; flex-direction:column; gap:0; min-height:112px; }
+  .ph-det-price-row { display:flex; align-items:center; justify-content:space-between; padding:7px 0; }
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
   .ph-det-price-label { font-size:13px; color:var(--g1); }
   .ph-det-price-val { font-size:16px; font-weight:700; color:var(--ink); }
@@ -499,22 +499,22 @@
   .ph-det-price-row.dim .ph-det-price-label { color:var(--g2); font-size:13px; }
   .ph-det-price-row.dim .ph-det-price-val { font-weight:600; font-size:14px; color:var(--g1); }
   .ph-det-price-row.minus .ph-det-price-val { color:var(--accent); }
-  .ph-det-price-row.ph-det-price-final { border-top:2px solid var(--line); border-bottom:0; padding-top:12px; margin-top:2px; }
+  .ph-det-price-row.ph-det-price-final { border-top:2px solid var(--line); border-bottom:0; padding-top:10px; margin-top:2px; }
   .ph-det-price-row:has(+ .ph-det-price-final), .ph-det-price-row:has(+ .ph-det-price-sub) { border-bottom:0; } /* 총액 위 얇은 줄 제거(굵은 2px 한 줄만) */
   .ph-det-price-final .ph-det-price-label { font-weight:700; font-size:15px; color:var(--ink); }
   .ph-det-price-final .ph-det-price-val { font-size:22px; color:var(--accent); }
   /* 기기값 총액(할부원금/일시납가) — 월납부 섹션이 있을 때는 강조 낮춤 */
-  .ph-det-price-row.ph-det-price-sub { border-top:2px solid var(--line); border-bottom:0; padding-top:12px; margin-top:2px; }
+  .ph-det-price-row.ph-det-price-sub { border-top:2px solid var(--line); border-bottom:0; padding-top:10px; margin-top:2px; }
   .ph-det-price-sub .ph-det-price-label { font-weight:700; font-size:14px; color:var(--ink); }
   .ph-det-price-sub .ph-det-price-val { font-weight:700; font-size:16px; color:var(--ink); }
   /* 월 납부 섹션 시작 구분(점선) */
-  .ph-det-price-row.ph-det-mo-top { border-top:1px dashed var(--line); margin-top:12px; padding-top:14px; }
+  .ph-det-price-row.ph-det-mo-top { border-top:1px dashed var(--line); margin-top:9px; padding-top:11px; }
   .ph-det-cta {
     display:block; width:100%; padding:16px; border:none; border-radius:14px;
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
   }
   /* 옵션 칩 — 라벨 왼쪽 가로배치(렌탈 .option-row 패턴). 우측은 견적서 영역으로 확장 예정 */
-  .ph-det-opts { margin-bottom:20px; display:flex; flex-direction:column; gap:14px; }
+  .ph-det-opts { margin-bottom:14px; display:flex; flex-direction:column; gap:10px; }
   .ph-det-opt-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
   .ph-det-opt-label { flex-shrink:0; min-width:70px; font-size:13px; font-weight:600; color:var(--g1); letter-spacing:-0.01em; }
   .ph-det-opt-chips { display:flex; flex-wrap:wrap; gap:7px; }
