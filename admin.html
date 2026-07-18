@@ -168,7 +168,8 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-dragthumb:active{cursor:grabbing;background:var(--ink-2,#666);}
 .pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:nowrap;text-align:left;}
 .pho-addr-cell{max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pho-table td.pho-c-name,.pho-table th.pho-c-name{width:82px;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pho-table td.pho-c-name,.pho-table th.pho-c-name{width:96px;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pho-minor-ic{vertical-align:-3px;margin-right:4px;}
 .pho-nav-btn{width:34px;height:30px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink-2);font-size:13px;cursor:pointer;}
 .pho-nav-btn:hover{background:var(--bg-soft,#f7f7f7);border-color:var(--ink-4);}
 .ph-nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:#DE4F41;color:#fff;font-size:11px;font-weight:800;line-height:1;vertical-align:middle;}
@@ -2361,6 +2362,7 @@ html[data-preload-shop] body { visibility:hidden; }
   /* ─ 패널 진입 (shop controller → 호출) ─ */
   // ===== 휴대폰 주문관리 =====
   var PHO_STATUS={new:'신규접수',confirmed:'접수확인',consulting:'상담중',activated:'개통완료',hold:'보류',cancelled:'취소'};
+  var PHO_MINOR_ICON='<svg class="pho-minor-ic" viewBox="0 0 24 24" width="15" height="15"><title>미성년자</title><circle cx="12" cy="12" r="11" fill="#DE4F41"/><path d="M12 11.5a2.3 2.3 0 1 0-2.3-2.3 2.3 2.3 0 0 0 2.3 2.3zm0 1.2c-2.1 0-4.4 1.05-4.4 2.85V17h8.8v-1.45c0-1.8-2.3-2.85-4.4-2.85z" fill="#fff"/></svg>';
   var PHO_ORDER=['new','confirmed','consulting','activated','hold','cancelled'];
   var _phoData=null,_phoFilter='all',_phoBound=false;
   function phoProd(r){return (r&&Array.isArray(r.products)&&r.products[0])||{};}
@@ -2426,7 +2428,7 @@ html[data-preload-shop] body { visibility:hidden; }
       +'<th>접수일</th><th>상태</th><th class="pho-c-name">고객명</th><th>생년월일</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>약정</th><th>결제</th><th>추가지원금</th><th>판매가</th><th class="pho-c-addr">택배주소</th><th class="pho-c-memo">메모</th></tr></thead><tbody>';
     rows.forEach(function(r){
       var st=phoStatusOf(r);var p=phoProd(r);
-      var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm='<b style="color:var(--accent)">(미)</b> '+nm;
+      var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm=PHO_MINOR_ICON+nm;
       var dt=phoFmtDate(r.created_at);
       var stOpts=PHO_ORDER.map(function(s){return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+PHO_STATUS[s]+'</option>';}).join('');
       var model=phEsc([p.carrier,p.model].filter(Boolean).join(' '));
