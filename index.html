@@ -489,6 +489,9 @@
   .ph-det-price-row:not(:last-child) { border-bottom:1px solid var(--line); }
   .ph-det-price-label { font-size:13px; color:var(--g1); }
   .ph-det-price-val { font-size:16px; font-weight:700; color:var(--ink); }
+  .ph-det-install { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; padding-top:8px; font-size:13px; color:var(--g1); }
+  .ph-det-install em { font-style:normal; font-size:11px; color:var(--g2); margin-right:auto; margin-left:5px; }
+  .ph-det-install span { font-weight:700; color:var(--ink); }
   .ph-det-price-note { text-align:center; font-size:12px; color:var(--g2); padding-top:11px; margin-top:3px; line-height:1.5; }
   .ph-det-note-r { font-weight:600; color:var(--g1); }
   .ph-det-note-sep { color:var(--g3); margin:0 8px; }
@@ -513,10 +516,10 @@
   }
   .ph-det-chip.on { border-color:var(--accent); background:var(--accent); color:#fff; }
   /* 가입유형·약정유형 = 5:5 풀폭 CTA 스타일 버튼 */
-  #ph-det-join, #ph-det-ctype { flex:1; flex-wrap:nowrap; gap:8px; }
-  #ph-det-join .ph-det-chip, #ph-det-ctype .ph-det-chip { flex:1; padding:9px 8px; border-radius:9px; font:600 13px/1 inherit; }
+  #ph-det-join, #ph-det-ctype, #ph-det-pay { flex:1; flex-wrap:nowrap; gap:8px; }
+  #ph-det-join .ph-det-chip, #ph-det-ctype .ph-det-chip, #ph-det-pay .ph-det-chip { flex:1; padding:9px 8px; border-radius:9px; font:600 13px/1 inherit; }
   /* 선택 = 라인(외곽선)만 빨강, 채우지 않음 */
-  #ph-det-join .ph-det-chip.on, #ph-det-ctype .ph-det-chip.on { background:rgba(222,79,65,.06); color:var(--accent); border-color:var(--accent); }
+  #ph-det-join .ph-det-chip.on, #ph-det-ctype .ph-det-chip.on, #ph-det-pay .ph-det-chip.on { background:rgba(222,79,65,.06); color:var(--accent); border-color:var(--accent); }
   /* 색상 스와치 — 렌탈 .cp-chip/.cp-dot 통일(34px 링 + 22px 점, 선택 시 --accent 링) */
   .ph-det-colors { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
   .ph-det-color { display:inline-grid; place-items:center; width:34px; height:34px; border-radius:50%; border:2px solid transparent; background:transparent; padding:0; cursor:pointer; transition:border-color .15s; }
@@ -1867,6 +1870,13 @@ if(location.search.indexOf('ph=')!==-1){
             <button class="ph-det-chip" type="button" data-ctype="contract">선택약정</button>
           </div>
         </div>
+        <div class="ph-det-opt-row">
+          <div class="ph-det-opt-label">결제 유형</div>
+          <div class="ph-det-opt-chips" id="ph-det-pay">
+            <button class="ph-det-chip on" type="button" data-pay="installment">할부</button>
+            <button class="ph-det-chip" type="button" data-pay="cash">현금완납</button>
+          </div>
+        </div>
       </div>
       <div class="ph-det-price-box" id="ph-det-prices"></div>
       <button class="ph-det-cta">신청서작성</button>
@@ -3060,15 +3070,25 @@ if(location.search.indexOf('ph=')!==-1){
   // ───── 휴대폰 상세 판매가 계산 (출고가 − 공통지원금 − 우주커넥트 할인 = 판매가) ─────
   var _phDetJoin = 'mnp';        // 가입유형: mnp(번호이동) | change(기기변경)
   var _phDetCtype = 'common';    // 약정유형: common(공통지원금) | contract(선택약정)
+  var _phDetPay = 'installment'; // 결제유형: installment(할부, 기본) | cash(현금완납)
   var _phDetModel = null;        // 현재 상세 모델(DataStore)
   var _phDetSupport = {};        // planId → {mnp, change} 공시지원금
   var PH_STORE_NAME = '우주커넥트';
   function phDetWon(n){ n = Number(n); return (isNaN(n) ? 0 : n).toLocaleString() + '원'; }
+  // 24개월·원리금균등·연 5.9% 월 할부금(10원 반올림)
+  function phDetMonthly(principal){
+    var r = 0.059/12, n = 24;
+    if (!principal || principal <= 0) return 0;
+    var m = principal * r / (1 - Math.pow(1 + r, -n));
+    return Math.round(m / 10) * 10;
+  }
   function phDetSyncOptionChips(){
     var jw = document.getElementById('ph-det-join');
     if (jw) jw.querySelectorAll('.ph-det-chip').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-join') === _phDetJoin); });
     var cw = document.getElementById('ph-det-ctype');
     if (cw) cw.querySelectorAll('.ph-det-chip').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-ctype') === _phDetCtype); });
+    var pw = document.getElementById('ph-det-pay');
+    if (pw) pw.querySelectorAll('.ph-det-chip').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-pay') === _phDetPay); });
   }
   function renderPhDetPriceBox(){
     var box = document.getElementById('ph-det-prices'); if (!box) return;
@@ -3083,9 +3103,10 @@ if(location.search.indexOf('ph=')!==-1){
     if (planLabel) parts.push('<span class="ph-det-note-l">' + escapeHtml(planLabel) + '</span>');
     if (addon) parts.push('<span class="ph-det-note-r">' + escapeHtml(addon).replace(/\n/g, ' ') + '</span>');
     var note = parts.length ? '<div class="ph-det-price-note">' + parts.join('<span class="ph-det-note-sep">ㅣ</span>') + '</div>' : '';
+    var finalLabel = _phDetPay === 'cash' ? '일시납가' : '할부원금';
     var hasSale = sale != null && sale !== '' && !isNaN(Number(sale));
     if (!hasSale || release == null) {
-      box.innerHTML = '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">상담</span></div>' + note;
+      box.innerHTML = '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">' + finalLabel + '</span><span class="ph-det-price-val">상담</span></div>' + note;
       return;
     }
     sale = Number(sale);
@@ -3100,7 +3121,11 @@ if(location.search.indexOf('ph=')!==-1){
     }
     var discount = ct === 'common' ? (release - support - sale) : (release - sale);
     html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
-    html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">판매가</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
+    html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">' + finalLabel + '</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
+    if (_phDetPay === 'installment') {
+      var mon = phDetMonthly(sale);
+      html += '<div class="ph-det-install">월 할부금 <em>(24개월·이자포함)</em><span>' + phDetWon(mon) + '</span></div>';
+    }
     html += note;
     box.innerHTML = html;
   }
@@ -3126,6 +3151,8 @@ if(location.search.indexOf('ph=')!==-1){
     if (jb) { _phDetJoin = jb.getAttribute('data-join'); phDetSyncOptionChips(); renderPhDetPriceBox(); return; }
     var cb = e.target.closest('#ph-det-ctype .ph-det-chip');
     if (cb) { _phDetCtype = cb.getAttribute('data-ctype'); phDetSyncOptionChips(); renderPhDetPriceBox(); return; }
+    var pb = e.target.closest('#ph-det-pay .ph-det-chip');
+    if (pb) { _phDetPay = pb.getAttribute('data-pay'); phDetSyncOptionChips(); renderPhDetPriceBox(); return; }
   });
 
   function openPhDetail(card) {
@@ -3164,8 +3191,8 @@ if(location.search.indexOf('ph=')!==-1){
     renderPhDetThumbs();
     renderPhDetColors();
 
-    // 판매가 계산 셋업 (기본: 번호이동 · 공통지원금)
-    _phDetJoin = 'mnp'; _phDetCtype = 'common';
+    // 판매가 계산 셋업 (기본: 번호이동 · 공통지원금 · 할부)
+    _phDetJoin = 'mnp'; _phDetCtype = 'common'; _phDetPay = 'installment';
     _phDetModel = (DataStore.load().models || []).find(function(x){ return x.id === (card.getAttribute('data-model-id') || ''); }) || null;
     phDetSyncOptionChips();
     renderPhDetPriceBox();
