@@ -158,8 +158,9 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 휴대폰 주문관리 */
 .pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
 .pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;text-align:center;}
-/* 가로 스크롤바 숨김 — ◀▶ 버튼으로 이동 */
-.pho-scroll{overflow-x:hidden;overflow-y:visible;}
+/* 가로 스크롤바 숨김 — 마우스 드래그로 좌우 이동 */
+.pho-scroll{overflow-x:hidden;cursor:grab;}
+.pho-scroll:active{cursor:grabbing;}
 .pho-table{width:auto;}
 .pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:nowrap;text-align:left;}
 .pho-addr-cell{max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1172,10 +1173,6 @@ html[data-preload-shop] body { visibility:hidden; }
   <!-- ===== 휴대폰 — 주문관리 ===== -->
   <section class="adm-panel" data-panel="ph-orders" hidden>
     <p class="adm-panel-hint">고객이 작성한 <strong>휴대폰 신청서</strong>를 확인하고 상태를 관리합니다. 행을 클릭하면 상세·수정 창이 열려요. 미성년자 정보는 상세 모달에서만 확인됩니다.</p>
-    <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:flex-end;">
-      <button type="button" class="pho-nav-btn" id="pho-nav-left" aria-label="왼쪽으로">◀</button>
-      <button type="button" class="pho-nav-btn" id="pho-nav-right" aria-label="오른쪽으로">▶</button>
-    </div>
     <div id="pho-list"><p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p></div>
   </section>
   <!-- 주문 상세/수정 모달 -->
@@ -2449,16 +2446,31 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   function phoBindUI(){
     if(_phoBound)return;_phoBound=true;
-    var nl=phEl('pho-nav-left');if(nl)nl.addEventListener('click',function(){var s=phEl('pho-scroll');if(s)s.scrollBy({left:-340,behavior:'smooth'});});
-    var nr=phEl('pho-nav-right');if(nr)nr.addEventListener('click',function(){var s=phEl('pho-scroll');if(s)s.scrollBy({left:340,behavior:'smooth'});});
     var list=phEl('pho-list');
     if(list){
-      var _phoMdField=false;
-      list.addEventListener('mousedown',function(e){_phoMdField=!!(e.target.closest('.pho-memo')||e.target.closest('.pho-status-sel'));});
+      var _phoMdField=false, _drag=null, _dragged=false, _suppress=false;
+      list.addEventListener('mousedown',function(e){
+        _phoMdField=!!(e.target.closest('.pho-memo')||e.target.closest('.pho-status-sel'));
+        // 입력/선택/버튼이 아니면 드래그 스크롤 시작
+        if(_phoMdField||e.target.closest('input')||e.target.closest('select')||e.target.closest('button')||e.target.closest('a'))return;
+        var sc=phEl('pho-scroll');if(!sc)return;
+        _drag={x:e.clientX,left:sc.scrollLeft,sc:sc};_dragged=false;
+        e.preventDefault(); // 드래그 중 텍스트 선택 방지
+      });
+      document.addEventListener('mousemove',function(e){
+        if(!_drag)return;
+        var dx=e.clientX-_drag.x;
+        if(Math.abs(dx)>3)_dragged=true;
+        _drag.sc.scrollLeft=_drag.left-dx;
+      });
+      document.addEventListener('mouseup',function(){
+        if(_drag){_drag=null;if(_dragged){_suppress=true;setTimeout(function(){_suppress=false;},0);}}
+      });
       list.addEventListener('click',function(e){
-        if(_phoMdField){_phoMdField=false;return;} // 메모/상태에서 시작한 드래그·클릭은 모달 열지 않음
+        if(_suppress)return; // 드래그 직후 클릭 무시
+        if(_phoMdField){_phoMdField=false;return;}
         if(e.target.closest('.pho-status-sel')||e.target.closest('.pho-memo'))return;
-        if(window.getSelection&&String(window.getSelection())!=='')return; // 텍스트 선택 중이면 무시
+        if(window.getSelection&&String(window.getSelection())!=='')return;
         var row=e.target.closest('.pho-row');if(!row)return;phoOpenModal(row.getAttribute('data-pho-id'));
       });
       list.addEventListener('change',function(e){var sel=e.target.closest('.pho-status-sel');if(sel){phoSaveStatus(sel.getAttribute('data-pho-id'),sel.value);return;}var mm=e.target.closest('.pho-memo');if(mm){phoSaveMemo(mm.getAttribute('data-pho-id'),mm.value);}});
