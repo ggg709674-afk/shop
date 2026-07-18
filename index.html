@@ -492,6 +492,7 @@
   .ph-det-install { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; padding-top:8px; font-size:13px; color:var(--g1); }
   .ph-det-install em { font-style:normal; font-size:11px; color:var(--g2); margin-right:auto; margin-left:5px; }
   .ph-det-install span { font-weight:700; color:var(--ink); }
+  .ph-det-install + .ph-det-install { margin-top:0; padding-top:3px; }
   .ph-det-price-note { text-align:center; font-size:12px; color:var(--g2); padding-top:11px; margin-top:3px; line-height:1.5; }
   .ph-det-note-r { font-weight:600; color:var(--g1); }
   .ph-det-note-sep { color:var(--g3); margin:0 8px; }
@@ -3124,6 +3125,8 @@ if(location.search.indexOf('ph=')!==-1){
     html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">' + finalLabel + '</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
     if (_phDetPay === 'installment') {
       var mon = phDetMonthly(sale);
+      var totInterest = mon * 24 - sale;
+      html += '<div class="ph-det-install">총 할부이자 <em>(24개월·연 5.9%)</em><span>' + phDetWon(totInterest) + '</span></div>';
       html += '<div class="ph-det-install">월 할부금 <em>(24개월·이자포함)</em><span>' + phDetWon(mon) + '</span></div>';
     }
     html += note;
