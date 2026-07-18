@@ -514,6 +514,8 @@
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
   }
   /* 휴대폰 신청서 모달 — 렌탈 .cm-* 재사용 + 폰 전용 보강 */
+  #ph-apply-modal .cm-panel { max-width:560px; }
+  #ph-apply-modal .cm-field[hidden], #ph-apply-modal [hidden] { display:none !important; } /* .cm-field{display:block}가 [hidden] 이기던 문제 해결 */
   #ph-apply-modal .cm-field textarea { width:100%; border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; font-size:15px; font-family:inherit; color:var(--ink); box-sizing:border-box; resize:vertical; }
   #ph-apply-modal .cm-field textarea:focus { outline:none; border-color:var(--accent); }
   #ph-apply-modal .cm-field input:disabled { background:var(--bg-soft); color:var(--g2); }
