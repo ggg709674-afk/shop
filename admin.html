@@ -158,9 +158,14 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 휴대폰 주문관리 */
 .pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
 .pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;text-align:center;}
-.pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:nowrap;}
+/* 가로 스크롤바 숨김 — ◀▶ 버튼으로 이동 */
+.pho-scroll{overflow-x:hidden;overflow-y:visible;}
+.pho-table{width:auto;}
+.pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:nowrap;text-align:left;}
 .pho-addr-cell{max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pho-table td.pho-c-memo,.pho-table th.pho-c-memo{width:100%;}
+.pho-table td.pho-c-name,.pho-table th.pho-c-name{width:82px;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pho-nav-btn{width:34px;height:30px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink-2);font-size:13px;cursor:pointer;}
+.pho-nav-btn:hover{background:var(--bg-soft,#f7f7f7);border-color:var(--ink-4);}
 .ph-nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:#DE4F41;color:#fff;font-size:11px;font-weight:800;line-height:1;vertical-align:middle;}
 .ph-nav-badge[hidden]{display:none;}
 .pho-memo{width:100%;min-width:340px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--ink);}
@@ -1167,8 +1172,9 @@ html[data-preload-shop] body { visibility:hidden; }
   <!-- ===== 휴대폰 — 주문관리 ===== -->
   <section class="adm-panel" data-panel="ph-orders" hidden>
     <p class="adm-panel-hint">고객이 작성한 <strong>휴대폰 신청서</strong>를 확인하고 상태를 관리합니다. 행을 클릭하면 상세·수정 창이 열려요. 미성년자 정보는 상세 모달에서만 확인됩니다.</p>
-    <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-      <button type="button" class="ph-pcol-btn" id="pho-reload" style="margin-left:auto;">새로고침</button>
+    <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+      <button type="button" class="pho-nav-btn" id="pho-nav-left" aria-label="왼쪽으로">◀</button>
+      <button type="button" class="pho-nav-btn" id="pho-nav-right" aria-label="오른쪽으로">▶</button>
     </div>
     <div id="pho-list"><p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p></div>
   </section>
@@ -2414,8 +2420,8 @@ html[data-preload-shop] body { visibility:hidden; }
     var wrap=phEl('pho-list');if(!wrap)return;
     var rows=_phoData||[];
     if(!rows.length){wrap.innerHTML='<p style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px;">주문 내역이 없습니다.</p>';return;}
-    var html='<div style="overflow-x:auto"><table class="ph-prod-table pho-table" style="width:100%;"><thead><tr>'
-      +'<th>접수일</th><th>상태</th><th>고객명</th><th>생년월일</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>약정</th><th>결제</th><th>추가지원금</th><th>판매가</th><th class="pho-c-addr">택배주소</th><th class="pho-c-memo">메모</th></tr></thead><tbody>';
+    var html='<div class="pho-scroll" id="pho-scroll"><table class="ph-prod-table pho-table"><thead><tr>'
+      +'<th>접수일</th><th>상태</th><th class="pho-c-name">고객명</th><th>생년월일</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>약정</th><th>결제</th><th>추가지원금</th><th>판매가</th><th class="pho-c-addr">택배주소</th><th class="pho-c-memo">메모</th></tr></thead><tbody>';
     rows.forEach(function(r){
       var st=phoStatusOf(r);var p=phoProd(r);
       var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm='<b style="color:var(--accent)">(미)</b> '+nm;
@@ -2425,7 +2431,7 @@ html[data-preload-shop] body { visibility:hidden; }
       html+='<tr class="pho-row pho-row-'+st+'" data-pho-id="'+phEsc(r.id)+'" style="cursor:pointer">'
         +'<td style="white-space:nowrap;color:var(--ink-3)">'+phEsc(dt)+'</td>'
         +'<td><select class="pho-status-sel pho-st-'+st+'" data-pho-id="'+phEsc(r.id)+'">'+stOpts+'</select></td>'
-        +'<td style="white-space:nowrap">'+nm+'</td>'
+        +'<td class="pho-c-name">'+nm+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.rrn||p.birth||r.customer_birth||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(phoFmtPhone(r.customer_phone||''))+'</td>'
         +'<td style="white-space:nowrap">'+(model||'-')+'</td>'
@@ -2443,7 +2449,8 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   function phoBindUI(){
     if(_phoBound)return;_phoBound=true;
-    var reload=phEl('pho-reload');if(reload)reload.addEventListener('click',phRenderOrders);
+    var nl=phEl('pho-nav-left');if(nl)nl.addEventListener('click',function(){var s=phEl('pho-scroll');if(s)s.scrollBy({left:-340,behavior:'smooth'});});
+    var nr=phEl('pho-nav-right');if(nr)nr.addEventListener('click',function(){var s=phEl('pho-scroll');if(s)s.scrollBy({left:340,behavior:'smooth'});});
     var list=phEl('pho-list');
     if(list){
       var _phoMdField=false;
