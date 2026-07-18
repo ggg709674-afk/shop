@@ -161,6 +161,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-memo{width:100%;min-width:130px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--ink);}
 .pho-memo:focus{outline:none;border-color:var(--primary,#DE4F41);}
 .pho-saved-flag{display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#1E8E3E;background:#E6F4EA;border-radius:20px;padding:5px 12px;}
+.pho-saved-flag[hidden]{display:none;}
 /* 상태별 행 배경 */
 .pho-row-new td{background:#F1F6FE;}
 .pho-row-confirmed td{background:#EEFAF7;}
@@ -2397,7 +2398,7 @@ html[data-preload-shop] body { visibility:hidden; }
       list.addEventListener('change',function(e){var sel=e.target.closest('.pho-status-sel');if(sel){phoSaveStatus(sel.getAttribute('data-pho-id'),sel.value);return;}var mm=e.target.closest('.pho-memo');if(mm){phoSaveMemo(mm.getAttribute('data-pho-id'),mm.value);}});
     }
   }
-  function phoSavedFlash(){var el=phEl('pho-saved');if(!el)return;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(function(){el.hidden=true;},1800);}
+  function phoSavedFlash(){var el=phEl('pho-saved');if(!el)return;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(function(){el.hidden=true;},1000);}
   async function phoUpdate(id,patch){
     if(typeof window.skmUpdateConsultation==='function')return await window.skmUpdateConsultation(id,patch);
     return await sb().from('mobileshop_rental_consultations').update(patch).eq('id',id);
