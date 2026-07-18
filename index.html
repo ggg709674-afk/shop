@@ -513,6 +513,20 @@
     display:block; width:100%; padding:16px; border:none; border-radius:14px;
     background:var(--accent); color:#fff; font:700 16px/1 inherit; text-align:center; cursor:pointer;
   }
+  /* 휴대폰 신청서 모달 — 렌탈 .cm-* 재사용 + 폰 전용 보강 */
+  #ph-apply-modal .cm-field textarea { width:100%; border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; font-size:15px; font-family:inherit; color:var(--ink); box-sizing:border-box; resize:vertical; }
+  #ph-apply-modal .cm-field textarea:focus { outline:none; border-color:var(--accent); }
+  #ph-apply-modal .cm-field input:disabled { background:var(--bg-soft); color:var(--g2); }
+  .pha-inline { display:flex; align-items:center; gap:8px; margin-top:8px; font-size:13px; color:var(--g1); cursor:pointer; }
+  .pha-inline input { width:16px; height:16px; accent-color:var(--accent); }
+  .pha-rrn { display:flex; align-items:center; gap:8px; }
+  .pha-rrn input { flex:1; min-width:0; }
+  .pha-rrn i { color:var(--g2); font-style:normal; }
+  .pha-hint { font-style:normal; font-weight:400; font-size:11px; color:var(--g2); margin-left:4px; }
+  .pha-age { display:flex; gap:10px; margin-top:16px; }
+  .pha-age label { position:relative; flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:11px; border:1.5px solid var(--line); border-radius:10px; cursor:pointer; font-size:14px; font-weight:600; color:var(--g1); }
+  .pha-age label:has(input:checked) { border-color:var(--accent); color:var(--accent); background:rgba(222,79,65,.05); }
+  .pha-age input { position:absolute; opacity:0; width:0; height:0; }
   /* 옵션 칩 — 라벨 왼쪽 가로배치(렌탈 .option-row 패턴). 우측은 견적서 영역으로 확장 예정 */
   .ph-det-opts { margin-bottom:14px; display:flex; flex-direction:column; gap:10px; }
   .ph-det-opt-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
@@ -3193,6 +3207,109 @@ if(location.search.indexOf('ph=')!==-1){
     if (pb) { _phDetPay = pb.getAttribute('data-pay'); phDetSyncOptionChips(); renderPhDetPriceBox(); return; }
   });
 
+  // ───── 휴대폰 신청서 모달 ─────
+  function phaField(name){ var f = document.getElementById('pha-form'); return f ? f.elements[name] : null; }
+  function phaVal(name){ var el = phaField(name); return (el && typeof el.value === 'string') ? el.value.trim() : ''; }
+  function phaCurField(){ return _phDetCtype === 'common' ? (_phDetJoin === 'mnp' ? 'mnpCommon' : 'changeCommon') : (_phDetJoin === 'mnp' ? 'mnpContract' : 'changeContract'); }
+  function phaSummaryHtml(){
+    var m = _phDetModel; if (!m) return '';
+    var pr = m.prices || {};
+    var plan = pr[phaCurField() + 'PlanLabel'] || '';
+    var color = (_phDetColors[_phDetColorIdx] || {}).name || '';
+    var carrier = CARRIER_LABEL[m.carrier] || m.carrier || _phDetCarrier || '';
+    var opts = [carrier, _phDetJoin === 'mnp' ? '번호이동' : '기기변경', _phDetCtype === 'common' ? '공통지원금' : '선택약정', _phDetPay === 'installment' ? '할부' : '현금완납'];
+    if (plan) opts.push(plan);
+    return '<strong>' + escapeHtml(m.name) + (color ? (' ' + escapeHtml(color)) : '') + '</strong><span class="cm-product-opt">' + escapeHtml(opts.join(' · ')) + '</span>';
+  }
+  function openPhApply(){
+    var modal = document.getElementById('ph-apply-modal'); if (!modal || !_phDetModel) return;
+    var sum = document.getElementById('pha-summary'); if (sum) sum.innerHTML = phaSummaryHtml();
+    var isMnp = _phDetJoin === 'mnp';
+    var rf = document.getElementById('pha-rrn-field'), bf = document.getElementById('pha-birth-field');
+    if (rf) rf.hidden = !isMnp;
+    if (bf) bf.hidden = isMnp;
+    var form = document.getElementById('pha-form'), done = document.getElementById('pha-done');
+    if (form) { form.hidden = false; form.reset(); }
+    if (done) done.hidden = true;
+    var g = document.getElementById('pha-guardian'); if (g) g.hidden = true;
+    var alt = phaField('altphone'); if (alt) alt.disabled = false;
+    var err = document.getElementById('pha-err'); if (err) { err.hidden = true; err.textContent = ''; }
+    modal.hidden = false; document.body.style.overflow = 'hidden';
+  }
+  function closePhApply(){
+    var modal = document.getElementById('ph-apply-modal'); if (modal) modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('click', function(e){
+    if (!e.target.closest) return;
+    if (e.target.closest('.ph-det-cta')) { e.preventDefault(); openPhApply(); return; }
+    if (e.target.closest('[data-pha-close]')) { closePhApply(); return; }
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') { var m = document.getElementById('ph-apply-modal'); if (m && !m.hidden) closePhApply(); }
+  });
+  document.addEventListener('change', function(e){
+    if (e.target.id === 'pha-same') {
+      var alt = phaField('altphone'); if (!alt) return;
+      if (e.target.checked) { alt.value = phaVal('phone'); alt.disabled = true; } else { alt.disabled = false; }
+      return;
+    }
+    if (e.target.name === 'age' && e.target.form && e.target.form.id === 'pha-form') {
+      var g = document.getElementById('pha-guardian'); if (g) g.hidden = (e.target.value !== 'minor');
+    }
+  });
+  document.addEventListener('input', function(e){
+    if (e.target.name === 'phone' && e.target.form && e.target.form.id === 'pha-form') {
+      var same = document.getElementById('pha-same'), alt = phaField('altphone');
+      if (same && same.checked && alt) alt.value = e.target.value;
+    }
+  });
+  document.addEventListener('submit', async function(e){
+    if (e.target.id !== 'pha-form') return;
+    e.preventDefault();
+    var form = e.target;
+    var err = document.getElementById('pha-err');
+    function fail(msg){ if (err) { err.textContent = msg; err.hidden = false; } }
+    var m = _phDetModel; if (!m) { fail('상품 정보를 불러오지 못했습니다.'); return; }
+    var isMnp = _phDetJoin === 'mnp';
+    var name = phaVal('name'), phone = phaVal('phone'), altphone = phaVal('altphone');
+    var address = phaVal('address'), memo = phaVal('memo');
+    var age = (form.querySelector('input[name="age"]:checked') || {}).value || 'adult';
+    var rrn1 = phaVal('rrn1'), rrn2 = phaVal('rrn2'), birth = phaVal('birth');
+    var gname = phaVal('gname'), gphone = phaVal('gphone');
+    var agree = !!(phaField('agree') && phaField('agree').checked);
+    if (!name) return fail('고객명을 입력해주세요.');
+    if (!phone) return fail('개통할 번호를 입력해주세요.');
+    if (isMnp) { if (!/^\d{6}$/.test(rrn1) || !/^\d{7}$/.test(rrn2)) return fail('주민등록번호를 정확히 입력해주세요.'); }
+    else { if (!birth) return fail('생년월일을 입력해주세요.'); }
+    if (age === 'minor') { if (!gname || !gphone) return fail('법정대리인 성함과 연락처를 입력해주세요.'); }
+    if (!agree) return fail('개인정보 수집·이용에 동의해주세요.');
+    var pr = m.prices || {};
+    var submitBtn = document.getElementById('pha-submit'); if (submitBtn) submitBtn.disabled = true;
+    try {
+      if (typeof window.skmInsertConsultation !== 'function') throw new Error('제출 기능을 불러오지 못했습니다.');
+      var res = await window.skmInsertConsultation({
+        kind: 'order', name: name, phone: phone, email: null,
+        birth: (!isMnp ? birth : null), address: address, memo: memo,
+        products: [{
+          type: 'phone',
+          carrier: (CARRIER_LABEL[m.carrier] || m.carrier || ''), model: m.name,
+          color: (_phDetColors[_phDetColorIdx] || {}).name || '',
+          plan: pr[phaCurField() + 'PlanLabel'] || '',
+          join: _phDetJoin, joinLabel: (isMnp ? '번호이동' : '기기변경'),
+          ctype: _phDetCtype, ctypeLabel: (_phDetCtype === 'common' ? '공통지원금' : '선택약정'),
+          pay: _phDetPay, payLabel: (_phDetPay === 'installment' ? '할부' : '현금완납'),
+          altPhone: altphone, rrn: (isMnp ? (rrn1 + '-' + rrn2) : ''), birth: (!isMnp ? birth : ''),
+          age: age, guardianName: gname, guardianPhone: gphone
+        }]
+      });
+      if (res && res.error) throw res.error;
+      if (form) form.hidden = true;
+      var done = document.getElementById('pha-done'); if (done) done.hidden = false;
+    } catch (err2) { fail('접수 실패: ' + ((err2 && err2.message) || err2)); }
+    finally { if (submitBtn) submitBtn.disabled = false; }
+  });
+
   function openPhDetail(card) {
     var name    = card.getAttribute('data-card-name') || '';
     var carrier = card.getAttribute('data-card-carrier') || '';
@@ -3576,6 +3693,45 @@ if(location.search.indexOf('ph=')!==-1){
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/rental-assets/supabase.js"></script>
 <script src="/rental-assets/app.js"></script>
+
+<!-- ===== 휴대폰 신청서 모달 ===== -->
+<div class="consult-modal" id="ph-apply-modal" hidden aria-hidden="true">
+  <div class="cm-backdrop" data-pha-close></div>
+  <div class="cm-panel" role="dialog" aria-modal="true" aria-labelledby="pha-title">
+    <button type="button" class="cm-x" data-pha-close aria-label="닫기"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h3 class="cm-title" id="pha-title">신청서 작성</h3>
+    <div class="cm-product" id="pha-summary"></div>
+    <form class="cm-step" id="pha-form" novalidate>
+      <label class="cm-field"><span>고객명</span><input type="text" name="name" autocomplete="name" required></label>
+      <label class="cm-field"><span>개통할 번호</span><input type="tel" name="phone" inputmode="tel" placeholder="010-0000-0000" required></label>
+      <label class="cm-field"><span>다른 연락처</span><input type="tel" name="altphone" inputmode="tel" placeholder="010-0000-0000"></label>
+      <label class="pha-inline"><input type="checkbox" id="pha-same"><span>개통할 번호와 동일</span></label>
+      <label class="cm-field" id="pha-rrn-field"><span>주민등록번호 <em class="pha-hint">번호이동 개통에 필요</em></span>
+        <span class="pha-rrn"><input type="text" name="rrn1" inputmode="numeric" maxlength="6" placeholder="앞 6자리"><i>-</i><input type="password" name="rrn2" inputmode="numeric" maxlength="7" placeholder="뒤 7자리" autocomplete="off"></span>
+      </label>
+      <label class="cm-field" id="pha-birth-field" hidden><span>생년월일</span><input type="text" name="birth" inputmode="numeric" placeholder="예: 1988-03-15"></label>
+      <label class="cm-field"><span>택배 주소</span><input type="text" name="address" autocomplete="street-address" placeholder="받으실 주소"></label>
+      <label class="cm-field"><span>남기실 말씀</span><textarea name="memo" rows="2" placeholder="요청사항이 있으면 적어주세요"></textarea></label>
+      <div class="pha-age">
+        <label><input type="radio" name="age" value="adult" checked><span>성인</span></label>
+        <label><input type="radio" name="age" value="minor"><span>미성년자</span></label>
+      </div>
+      <div id="pha-guardian" hidden>
+        <label class="cm-field"><span>법정대리인 성함</span><input type="text" name="gname"></label>
+        <label class="cm-field"><span>법정대리인 연락처</span><input type="tel" name="gphone" inputmode="tel" placeholder="010-0000-0000"></label>
+      </div>
+      <label class="cm-agree"><input type="checkbox" name="agree" required><span>개인정보 수집·이용에 동의합니다. 수집 정보는 개통 처리 목적에만 사용되며 개통 완료 후 파기됩니다. (<a href="/terms" target="_blank" rel="noopener">이용약관</a> · <a href="/privacy" target="_blank" rel="noopener">개인정보처리방침</a>)</span></label>
+      <p class="cm-err" id="pha-err" hidden></p>
+      <div class="cm-actions"><button type="submit" class="cm-submit" id="pha-submit">신청하기</button></div>
+    </form>
+    <div class="cm-step" id="pha-done" hidden style="text-align:center;padding:10px 0;">
+      <div class="cm-done-ic"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <h3 class="cm-title">신청이 접수됐어요</h3>
+      <p class="cm-sub">담당자가 곧 연락드릴게요. 감사합니다.</p>
+      <button type="button" class="cm-submit" data-pha-close>확인</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
