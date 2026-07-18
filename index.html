@@ -498,6 +498,7 @@
   .ph-det-note-sep { color:var(--g3); margin:0 8px; }
   .ph-det-price-row.dim .ph-det-price-label { color:var(--g2); font-size:13px; }
   .ph-det-price-row.dim .ph-det-price-val { font-weight:600; font-size:14px; color:var(--g1); }
+  .ph-det-price-row.minus .ph-det-price-val { color:var(--accent); }
   .ph-det-price-row.ph-det-price-final { border-top:2px solid var(--line); border-bottom:0; padding-top:12px; margin-top:2px; }
   .ph-det-price-row:has(+ .ph-det-price-final), .ph-det-price-row:has(+ .ph-det-price-sub) { border-bottom:0; } /* 총액 위 얇은 줄 제거(굵은 2px 한 줄만) */
   .ph-det-price-final .ph-det-price-label { font-weight:700; font-size:15px; color:var(--ink); }
@@ -3132,10 +3133,10 @@ if(location.search.indexOf('ph=')!==-1){
       var planId = pr[join === 'mnp' ? 'mnpCommonPlan' : 'changeCommonPlan'] || '';
       var sd = _phDetSupport[planId];
       support = sd ? (Number(join === 'mnp' ? sd.mnp : sd.change) || 0) : 0;
-      html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">공통지원금</span><span class="ph-det-price-val">- ' + phDetWon(support) + '</span></div>';
+      html += '<div class="ph-det-price-row dim minus"><span class="ph-det-price-label">공통지원금</span><span class="ph-det-price-val">- ' + phDetWon(support) + '</span></div>';
     }
     var discount = ct === 'common' ? (release - support - sale) : (release - sale);
-    html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
+    html += '<div class="ph-det-price-row dim minus"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
     // 기기값 총액 (할부원금/일시납가) — 월납부 섹션이 있으면 sub, 없으면 최종강조
     html += '<div class="ph-det-price-row ' + (hasMonthly ? 'ph-det-price-sub' : 'ph-det-price-final') + '"><span class="ph-det-price-label">' + finalLabel + '</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
     if (_phDetPay === 'installment') {
@@ -3149,7 +3150,7 @@ if(location.search.indexOf('ph=')!==-1){
       var planMonthly = baseFee - rateDiscount;
       var finalMonthly = mon + planMonthly;
       html += '<div class="ph-det-price-row dim ph-det-mo-top"><span class="ph-det-price-label">월 기본요금</span><span class="ph-det-price-val">' + phDetWon(baseFee) + '</span></div>';
-      if (ct === 'contract') html += '<div class="ph-det-price-row dim"><span class="ph-det-price-label">요금할인 <em style="font-style:normal;color:var(--g2)">(25%)</em></span><span class="ph-det-price-val">- ' + phDetWon(rateDiscount) + '</span></div>';
+      if (ct === 'contract') html += '<div class="ph-det-price-row dim minus"><span class="ph-det-price-label">요금할인 <em style="font-style:normal;color:var(--g2)">(25%)</em></span><span class="ph-det-price-val">- ' + phDetWon(rateDiscount) + '</span></div>';
       html += '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">최종 월 납부금</span><span class="ph-det-price-val">' + phDetWon(finalMonthly) + '</span></div>';
     }
     html += note;
