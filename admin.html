@@ -156,8 +156,8 @@ html[data-preload-shop] body { visibility:hidden; }
 .cat-sw input:checked + .cat-sw-tk{background:var(--primary,#DE4F41);}
 .cat-sw input:checked + .cat-sw-tk::before{transform:translateX(16px);}
 /* 휴대폰 주문관리 */
-.pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
-.pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;}
+.pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
+.pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;text-align:center;}
 .pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:nowrap;}
 .pho-addr-cell{max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pho-table td.pho-c-memo,.pho-table th.pho-c-memo{width:100%;}
@@ -2411,7 +2411,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var rows=_phoData||[];
     if(!rows.length){wrap.innerHTML='<p style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px;">주문 내역이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table pho-table" style="width:100%;"><thead><tr>'
-      +'<th>접수일</th><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>약정</th><th>결제</th><th style="text-align:right">판매가</th><th class="pho-c-addr">택배주소</th><th class="pho-c-memo">메모</th></tr></thead><tbody>';
+      +'<th>접수일</th><th>상태</th><th>고객명</th><th>생년월일</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>약정</th><th>결제</th><th>추가지원금</th><th>판매가</th><th class="pho-c-addr">택배주소</th><th class="pho-c-memo">메모</th></tr></thead><tbody>';
     rows.forEach(function(r){
       var st=phoStatusOf(r);var p=phoProd(r);
       var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm='<b style="color:var(--accent)">(미)</b> '+nm;
@@ -2422,13 +2422,15 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<td style="white-space:nowrap;color:var(--ink-3)">'+phEsc(dt)+'</td>'
         +'<td><select class="pho-status-sel pho-st-'+st+'" data-pho-id="'+phEsc(r.id)+'">'+stOpts+'</select></td>'
         +'<td style="white-space:nowrap">'+nm+'</td>'
+        +'<td style="white-space:nowrap">'+phEsc(p.rrn||p.birth||r.customer_birth||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(phoFmtPhone(r.customer_phone||''))+'</td>'
         +'<td style="white-space:nowrap">'+(model||'-')+'</td>'
         +'<td>'+phEsc(p.color||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.joinLabel||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.ctypeLabel||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.payLabel||'-')+'</td>'
-        +'<td style="white-space:nowrap;text-align:right">'+(p.salePrice!=null?phoWon(p.salePrice):'-')+'</td>'
+        +'<td style="white-space:nowrap">'+(p.extraSupport!=null?phoWon(p.extraSupport):'-')+'</td>'
+        +'<td style="white-space:nowrap">'+(p.salePrice!=null?phoWon(p.salePrice):'-')+'</td>'
         +'<td class="pho-c-addr" title="'+phEsc(r.customer_address||'')+'"><div class="pho-addr-cell">'+phEsc(r.customer_address||'-')+'</div></td>'
         +'<td class="pho-c-memo"><input class="pho-memo" data-pho-id="'+phEsc(r.id)+'" value="'+phEsc(r.memo||'')+'" placeholder="메모"></td></tr>';
     });
