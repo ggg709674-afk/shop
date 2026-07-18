@@ -160,6 +160,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .pho-table td{padding:11px 12px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle;}
 .pho-row:hover td{background:var(--bg-soft,#f7f7f7);}
 .pho-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
+.pho-status-sel{border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
 .pho-st-new{background:#E8F0FE;color:#1A73E8;}
 .pho-st-confirmed{background:#E0F7F4;color:#0A9E8F;}
 .pho-st-consulting{background:#FFF4E0;color:#C77700;}
@@ -1136,16 +1137,7 @@ html[data-preload-shop] body { visibility:hidden; }
   <!-- ===== 휴대폰 — 주문관리 ===== -->
   <section class="adm-panel" data-panel="ph-orders" hidden>
     <p class="adm-panel-hint">고객이 작성한 <strong>휴대폰 신청서</strong>를 확인하고 상태를 관리합니다. 행을 클릭하면 상세·수정 창이 열려요. 미성년자 정보는 상세 모달에서만 확인됩니다.</p>
-    <div class="adm-consult-bar" style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <div class="adm-chips" id="pho-filters" style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button type="button" class="adm-chip on" data-pho-filter="all">전체</button>
-        <button type="button" class="adm-chip" data-pho-filter="new">신규접수</button>
-        <button type="button" class="adm-chip" data-pho-filter="confirmed">접수확인</button>
-        <button type="button" class="adm-chip" data-pho-filter="consulting">상담중</button>
-        <button type="button" class="adm-chip" data-pho-filter="activated">개통완료</button>
-        <button type="button" class="adm-chip" data-pho-filter="hold">보류</button>
-        <button type="button" class="adm-chip" data-pho-filter="cancelled">취소</button>
-      </div>
+    <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;">
       <button type="button" class="ph-pcol-btn" id="pho-reload" style="margin-left:auto;">새로고침</button>
     </div>
     <div id="pho-list"><p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p></div>
@@ -2336,6 +2328,7 @@ html[data-preload-shop] body { visibility:hidden; }
   function phoProd(r){return (r&&Array.isArray(r.products)&&r.products[0])||{};}
   function phoStatusOf(r){var s=r&&r.status;return PHO_STATUS[s]?s:'new';}
   function phoIsMinor(r){return phoProd(r).age==='minor';}
+  function phoFmtPhone(v){var d=String(v||'').replace(/\D/g,'').slice(0,11);if(d.length<4)return d;if(d.length<7)return d.slice(0,3)+'-'+d.slice(3);if(d.length<11)return d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);return d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7);}
   async function phRenderOrders(){
     phoBindUI();
     var wrap=phEl('pho-list');if(wrap)wrap.innerHTML='<p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p>';
@@ -2350,30 +2343,46 @@ html[data-preload-shop] body { visibility:hidden; }
   function phoRenderList(){
     var wrap=phEl('pho-list');if(!wrap)return;
     var rows=_phoData||[];
-    if(_phoFilter!=='all')rows=rows.filter(function(r){return phoStatusOf(r)===_phoFilter;});
     if(!rows.length){wrap.innerHTML='<p style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px;">주문 내역이 없습니다.</p>';return;}
-    var html='<div style="overflow-x:auto"><table class="ph-prod-table pho-table" style="width:100%;"><thead><tr><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>가입유형</th><th>접수일</th></tr></thead><tbody>';
+    var html='<div style="overflow-x:auto"><table class="ph-prod-table pho-table" style="width:100%;"><thead><tr>'
+      +'<th>접수일</th><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th>택배주소</th></tr></thead><tbody>';
     rows.forEach(function(r){
       var st=phoStatusOf(r);var p=phoProd(r);
       var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm='<b style="color:var(--accent)">(미)</b> '+nm;
-      var dt=String(r.created_at||'').slice(0,16).replace('T',' ');
+      var dt=String(r.created_at||'').slice(5,16).replace('T',' ');
+      var stOpts=PHO_ORDER.map(function(s){return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+PHO_STATUS[s]+'</option>';}).join('');
       var model=phEsc([p.carrier,p.model].filter(Boolean).join(' '));
       html+='<tr class="pho-row" data-pho-id="'+phEsc(r.id)+'" style="cursor:pointer">'
-        +'<td><span class="pho-badge pho-st-'+st+'">'+PHO_STATUS[st]+'</span></td>'
-        +'<td>'+nm+'</td><td>'+phEsc(r.customer_phone||'')+'</td>'
-        +'<td>'+(model||'-')+'</td><td>'+phEsc(p.joinLabel||'')+'</td>'
-        +'<td style="white-space:nowrap;color:var(--ink-4)">'+phEsc(dt)+'</td></tr>';
+        +'<td style="white-space:nowrap;color:var(--ink-3)">'+phEsc(dt)+'</td>'
+        +'<td><select class="pho-status-sel pho-st-'+st+'" data-pho-id="'+phEsc(r.id)+'">'+stOpts+'</select></td>'
+        +'<td style="white-space:nowrap">'+nm+'</td>'
+        +'<td style="white-space:nowrap">'+phEsc(phoFmtPhone(r.customer_phone||''))+'</td>'
+        +'<td style="white-space:nowrap">'+(model||'-')+'</td>'
+        +'<td>'+phEsc(p.color||'-')+'</td>'
+        +'<td style="white-space:nowrap">'+phEsc(p.joinLabel||'-')+'</td>'
+        +'<td title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td></tr>';
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
   }
   function phoBindUI(){
     if(_phoBound)return;_phoBound=true;
-    var filters=phEl('pho-filters');
-    if(filters)filters.addEventListener('click',function(e){var b=e.target.closest('[data-pho-filter]');if(!b)return;_phoFilter=b.getAttribute('data-pho-filter');filters.querySelectorAll('.adm-chip').forEach(function(x){x.classList.toggle('on',x===b);});phoRenderList();});
     var reload=phEl('pho-reload');if(reload)reload.addEventListener('click',phRenderOrders);
     var list=phEl('pho-list');
-    if(list)list.addEventListener('click',function(e){var row=e.target.closest('.pho-row');if(!row)return;phoOpenModal(row.getAttribute('data-pho-id'));});
+    if(list){
+      list.addEventListener('click',function(e){if(e.target.closest('.pho-status-sel'))return;var row=e.target.closest('.pho-row');if(!row)return;phoOpenModal(row.getAttribute('data-pho-id'));});
+      list.addEventListener('change',function(e){var sel=e.target.closest('.pho-status-sel');if(!sel)return;phoSaveStatus(sel.getAttribute('data-pho-id'),sel.value);});
+    }
+  }
+  async function phoSaveStatus(id,status){
+    var r=(_phoData||[]).find(function(x){return String(x.id)===String(id);});if(!r)return;
+    try{
+      var res;
+      if(typeof window.skmUpdateConsultation==='function'){res=await window.skmUpdateConsultation(id,{status:status});}
+      else{res=await sb().from('mobileshop_rental_consultations').update({status:status}).eq('id',id);}
+      if(res&&res.error)throw res.error;
+      r.status=status;phoRenderList();phToast('상태 변경: '+(PHO_STATUS[status]||status));
+    }catch(err){alert('상태 변경 실패: '+((err&&err.message)||err));phoRenderList();}
   }
   function phoF(label,id,val){return '<label class="pho-f"><span>'+label+'</span><input type="text" id="'+id+'" value="'+phEsc(val)+'"></label>';}
   function phoFArea(label,id,val){return '<label class="pho-f"><span>'+label+'</span><textarea id="'+id+'" rows="2">'+phEsc(val)+'</textarea></label>';}
@@ -2388,12 +2397,12 @@ html[data-preload-shop] body { visibility:hidden; }
     h+='<div class="pho-m-sum">'+phEsc([p.carrier,p.model,p.color].filter(Boolean).join(' '))+'<br>'+phEsc([p.joinLabel,p.ctypeLabel,p.payLabel,p.plan].filter(Boolean).join(' · '))+' · 접수 '+phEsc(dt)+'</div>';
     h+='<label class="pho-f"><span>상태</span><select id="pho-f-status">'+stOpts+'</select></label>';
     h+=phoF('고객명','pho-f-name',r.customer_name||'');
-    h+=phoF('개통할 번호','pho-f-phone',r.customer_phone||'');
-    h+=phoF('다른 연락처','pho-f-alt',p.altPhone||'');
+    h+=phoF('개통할 번호','pho-f-phone',phoFmtPhone(r.customer_phone||''));
+    h+=phoF('다른 연락처','pho-f-alt',phoFmtPhone(p.altPhone||''));
     if(isMnp)h+=phoF('주민등록번호','pho-f-rrn',p.rrn||'');
     else h+=phoF('생년월일','pho-f-birth',p.birth||r.customer_birth||'');
     h+=phoF('택배 주소','pho-f-addr',r.customer_address||'');
-    h+='<div class="pho-m-minor"><label class="pho-m-check"><input type="checkbox" id="pho-f-minor"'+(p.age==='minor'?' checked':'')+'> 미성년자</label><div id="pho-f-guardian"'+(p.age==='minor'?'':' hidden')+'>'+phoF('법정대리인 성함','pho-f-gname',p.guardianName||'')+phoF('법정대리인 연락처','pho-f-gphone',p.guardianPhone||'')+'</div></div>';
+    h+='<div class="pho-m-minor"><label class="pho-m-check"><input type="checkbox" id="pho-f-minor"'+(p.age==='minor'?' checked':'')+'> 미성년자</label><div id="pho-f-guardian"'+(p.age==='minor'?'':' hidden')+'>'+phoF('법정대리인 성함','pho-f-gname',p.guardianName||'')+phoF('법정대리인 연락처','pho-f-gphone',phoFmtPhone(p.guardianPhone||''))+'</div></div>';
     if(p.customerMemo)h+='<label class="pho-f"><span>고객 남기실 말씀</span><textarea rows="2" readonly style="background:var(--bg-soft);color:var(--ink-3);">'+phEsc(p.customerMemo)+'</textarea></label>';
     h+=phoFArea('관리자 메모','pho-f-memo',r.memo||'');
     h+='<div class="pho-m-actions"><button type="button" class="pho-save" data-pho-save="'+phEsc(r.id)+'">저장</button></div>';
@@ -2407,12 +2416,12 @@ html[data-preload-shop] body { visibility:hidden; }
     var g=function(fid){var el=phEl(fid);return el?el.value.trim():'';};
     var isMnp=p.join==='mnp';
     var minor=!!(phEl('pho-f-minor')&&phEl('pho-f-minor').checked);
-    p.altPhone=g('pho-f-alt');
+    p.altPhone=phoFmtPhone(g('pho-f-alt'));
     if(isMnp)p.rrn=g('pho-f-rrn');else p.birth=g('pho-f-birth');
     p.age=minor?'minor':'adult';
     p.guardianName=minor?g('pho-f-gname'):'';
-    p.guardianPhone=minor?g('pho-f-gphone'):'';
-    var patch={status:g('pho-f-status'),memo:g('pho-f-memo'),customer_name:g('pho-f-name'),customer_phone:g('pho-f-phone'),customer_address:g('pho-f-addr'),customer_birth:(!isMnp?g('pho-f-birth'):(r.customer_birth||null)),products:[p].concat((r.products||[]).slice(1))};
+    p.guardianPhone=minor?phoFmtPhone(g('pho-f-gphone')):'';
+    var patch={status:g('pho-f-status'),memo:g('pho-f-memo'),customer_name:g('pho-f-name'),customer_phone:phoFmtPhone(g('pho-f-phone')),customer_address:g('pho-f-addr'),customer_birth:(!isMnp?g('pho-f-birth'):(r.customer_birth||null)),products:[p].concat((r.products||[]).slice(1))};
     var btn=document.querySelector('[data-pho-save]');if(btn)btn.disabled=true;
     try{
       var res;
@@ -2431,6 +2440,9 @@ html[data-preload-shop] body { visibility:hidden; }
   });
   document.addEventListener('change',function(e){
     if(e.target.id==='pho-f-minor'){var gd=phEl('pho-f-guardian');if(gd)gd.hidden=!e.target.checked;}
+  });
+  document.addEventListener('input',function(e){
+    if(e.target.id==='pho-f-phone'||e.target.id==='pho-f-alt'||e.target.id==='pho-f-gphone'){e.target.value=phoFmtPhone(e.target.value);}
   });
   window.showPhonePanel=async function(menuKey){
     var group=menuKey.replace('ph-','');

@@ -3260,10 +3260,22 @@ if(location.search.indexOf('ph=')!==-1){
       var g = document.getElementById('pha-guardian'); if (g) g.hidden = (e.target.value !== 'minor');
     }
   });
+  function phaFmtPhone(v){
+    var d = String(v || '').replace(/\D/g, '').slice(0, 11);
+    if (d.length < 4) return d;
+    if (d.length < 7) return d.slice(0,3) + '-' + d.slice(3);
+    if (d.length < 11) return d.slice(0,3) + '-' + d.slice(3,6) + '-' + d.slice(6);
+    return d.slice(0,3) + '-' + d.slice(3,7) + '-' + d.slice(7);
+  }
   document.addEventListener('input', function(e){
-    if (e.target.name === 'phone' && e.target.form && e.target.form.id === 'pha-form') {
+    var t = e.target;
+    if (!t.form || t.form.id !== 'pha-form') return;
+    if (t.name === 'phone' || t.name === 'altphone' || t.name === 'gphone') {
+      t.value = phaFmtPhone(t.value); // 자동 010-0000-0000
+    }
+    if (t.name === 'phone') {
       var same = document.getElementById('pha-same'), alt = phaField('altphone');
-      if (same && same.checked && alt) alt.value = e.target.value;
+      if (same && same.checked && alt) alt.value = t.value;
     }
   });
   document.addEventListener('submit', async function(e){
@@ -3274,11 +3286,11 @@ if(location.search.indexOf('ph=')!==-1){
     function fail(msg){ if (err) { err.textContent = msg; err.hidden = false; } }
     var m = _phDetModel; if (!m) { fail('상품 정보를 불러오지 못했습니다.'); return; }
     var isMnp = _phDetJoin === 'mnp';
-    var name = phaVal('name'), phone = phaVal('phone'), altphone = phaVal('altphone');
+    var name = phaVal('name'), phone = phaFmtPhone(phaVal('phone')), altphone = phaFmtPhone(phaVal('altphone'));
     var address = phaVal('address'), memo = phaVal('memo');
     var age = (form.querySelector('input[name="age"]:checked') || {}).value || 'adult';
     var rrn1 = phaVal('rrn1'), rrn2 = phaVal('rrn2'), birth = phaVal('birth');
-    var gname = phaVal('gname'), gphone = phaVal('gphone');
+    var gname = phaVal('gname'), gphone = phaFmtPhone(phaVal('gphone'));
     var agree = !!(phaField('agree') && phaField('agree').checked);
     if (!name) return fail('고객명을 입력해주세요.');
     if (!phone) return fail('개통할 번호를 입력해주세요.');
