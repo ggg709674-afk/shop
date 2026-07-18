@@ -2449,6 +2449,7 @@ html[data-preload-shop] body { visibility:hidden; }
     phoUpdateBadge();
     var panel=document.querySelector('.adm-panel[data-panel="ph-orders"]');
     if(panel&&!panel.hidden){
+      if(window._phoDragging)return; // 드래그 중엔 목록 재렌더 스킵(요소 교체 방지)
       var act=document.activeElement;
       if(act&&act.classList&&(act.classList.contains('pho-memo')||act.classList.contains('pho-status-sel')))return;
       var md=phEl('pho-modal');if(md&&!md.hidden)return;
@@ -2515,18 +2516,18 @@ html[data-preload-shop] body { visibility:hidden; }
     var thumb=phEl('pho-dragthumb'),track=phEl('pho-dragzone'),_td=null;
     if(thumb&&track){
       thumb.addEventListener('mousedown',function(e){
-        var sc=phEl('pho-scroll');if(!sc)return;
-        _td={x:e.clientX,left:parseFloat(thumb.style.left)||0,sc:sc,tw:track.clientWidth,thumbW:thumb.offsetWidth};
-        e.preventDefault();
+        _td={x:e.clientX,left:parseFloat(thumb.style.left)||0,thumbW:thumb.offsetWidth};
+        window._phoDragging=true;e.preventDefault();
       });
       document.addEventListener('mousemove',function(e){
         if(!_td)return;
-        var maxThumb=_td.tw-_td.thumbW,maxScroll=_td.sc.scrollWidth-_td.sc.clientWidth;
+        var sc=phEl('pho-scroll');if(!sc)return; // 항상 현재 스크롤 요소 참조(갱신으로 교체돼도 안전)
+        var maxThumb=track.clientWidth-_td.thumbW,maxScroll=sc.scrollWidth-sc.clientWidth;
         var nl=Math.max(0,Math.min(maxThumb,_td.left+(e.clientX-_td.x)));
         thumb.style.left=nl+'px';
-        _td.sc.scrollLeft=maxThumb>0?(nl/maxThumb*maxScroll):0;
+        sc.scrollLeft=maxThumb>0?(nl/maxThumb*maxScroll):0;
       });
-      document.addEventListener('mouseup',function(){_td=null;});
+      document.addEventListener('mouseup',function(){if(_td){_td=null;window._phoDragging=false;}});
       // 트랙 클릭 → 해당 위치로 점프
       track.addEventListener('mousedown',function(e){
         if(e.target===thumb)return;
@@ -2553,7 +2554,7 @@ html[data-preload-shop] body { visibility:hidden; }
       document.addEventListener('mousemove',function(e){
         if(!_pd)return;
         var dy=e.clientY-_pd.y;
-        if(!_pd.active){ if(Math.abs(dy)<4)return; _pd.active=true; _pd.row.classList.add('pho-dragging'); document.body.style.userSelect='none'; }
+        if(!_pd.active){ if(Math.abs(dy)<4)return; _pd.active=true; window._phoDragging=true; _pd.row.classList.add('pho-dragging'); document.body.style.userSelect='none'; }
         _pd.row.style.transform='translateY('+dy+'px)';
         var ni=Math.max(0,Math.min(_pd.rows.length-1,_pd.from+Math.round(dy/_pd.h)));
         if(ni!==_pd.cur){
@@ -2568,6 +2569,7 @@ html[data-preload-shop] body { visibility:hidden; }
       });
       document.addEventListener('mouseup',function(){
         if(!_pd)return;var pd=_pd;_pd=null;
+        window._phoDragging=false;
         if(!pd.active)return; // 이동 없었으면 클릭(모달)로 진행
         document.body.style.userSelect='';
         pd.rows.forEach(function(rw){rw.style.transform='';rw.classList.remove('pho-dragging');});
