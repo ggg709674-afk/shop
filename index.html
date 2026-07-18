@@ -3292,9 +3292,9 @@ if(location.search.indexOf('ph=')!==-1){
       if (typeof window.skmInsertConsultation !== 'function') throw new Error('제출 기능을 불러오지 못했습니다.');
       var res = await window.skmInsertConsultation({
         kind: 'order', name: name, phone: phone, email: null,
-        birth: (!isMnp ? birth : null), address: address, memo: memo,
+        birth: (!isMnp ? birth : null), address: address, memo: null,
         products: [{
-          type: 'phone',
+          type: 'phone', customerMemo: memo,
           carrier: (CARRIER_LABEL[m.carrier] || m.carrier || ''), model: m.name,
           color: (_phDetColors[_phDetColorIdx] || {}).name || '',
           plan: pr[phaCurField() + 'PlanLabel'] || '',
