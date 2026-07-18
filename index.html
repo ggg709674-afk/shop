@@ -3283,7 +3283,7 @@ if(location.search.indexOf('ph=')!==-1){
     if (!name) return fail('고객명을 입력해주세요.');
     if (!phone) return fail('개통할 번호를 입력해주세요.');
     if (isMnp) { if (!/^\d{6}$/.test(rrn1) || !/^\d{7}$/.test(rrn2)) return fail('주민등록번호를 정확히 입력해주세요.'); }
-    else { if (!birth) return fail('생년월일을 입력해주세요.'); }
+    else { if (!/^\d{6}$/.test(birth)) return fail('생년월일 6자리를 입력해주세요. (예: 880315)'); }
     if (age === 'minor') { if (!gname || !gphone) return fail('법정대리인 성함과 연락처를 입력해주세요.'); }
     if (!agree) return fail('개인정보 수집·이용에 동의해주세요.');
     var pr = m.prices || {};
@@ -3761,7 +3761,7 @@ if(location.search.indexOf('ph=')!==-1){
       <label class="cm-field" id="pha-rrn-field"><span>주민등록번호 <em class="pha-hint">번호이동 개통에 필요</em></span>
         <span class="pha-rrn"><input type="text" name="rrn1" inputmode="numeric" maxlength="6" placeholder="앞 6자리"><i>-</i><input type="password" name="rrn2" inputmode="numeric" maxlength="7" placeholder="뒤 7자리" autocomplete="off"></span>
       </label>
-      <label class="cm-field" id="pha-birth-field" hidden><span>생년월일</span><input type="text" name="birth" inputmode="numeric" placeholder="예: 1988-03-15"></label>
+      <label class="cm-field" id="pha-birth-field" hidden><span>생년월일</span><input type="text" name="birth" inputmode="numeric" maxlength="6" placeholder="예: 880315"></label>
       <label class="cm-field"><span>택배 주소</span><input type="text" name="address" autocomplete="street-address" placeholder="받으실 주소"></label>
       <label class="cm-field"><span>남기실 말씀</span><textarea name="memo" rows="2" placeholder="요청사항이 있으면 적어주세요"></textarea></label>
       <div class="pha-age">
