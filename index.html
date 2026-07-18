@@ -3303,6 +3303,13 @@ if(location.search.indexOf('ph=')!==-1){
     if (age === 'minor') { if (!gname || !gphone) return fail('법정대리인 성함과 연락처를 입력해주세요.'); }
     if (!agree) return fail('개인정보 수집·이용에 동의해주세요.');
     var pr = m.prices || {};
+    // 가격 스냅샷 (주문관리 표시용)
+    var _field = phaCurField();
+    var _saleP = pr[_field]; _saleP = (_saleP == null || _saleP === '') ? null : Number(_saleP);
+    var _releaseP = (m.release_price != null) ? Number(m.release_price) : null;
+    var _supportP = 0;
+    if (_phDetCtype === 'common') { var _pid = pr[isMnp ? 'mnpCommonPlan' : 'changeCommonPlan'] || ''; var _sd = _phDetSupport[_pid]; _supportP = _sd ? (Number(isMnp ? _sd.mnp : _sd.change) || 0) : 0; }
+    var _extraP = (_saleP != null && _releaseP != null) ? (_phDetCtype === 'common' ? (_releaseP - _supportP - _saleP) : (_releaseP - _saleP)) : null;
     var submitBtn = document.getElementById('pha-submit'); if (submitBtn) submitBtn.disabled = true;
     try {
       if (typeof window.skmInsertConsultation !== 'function') throw new Error('제출 기능을 불러오지 못했습니다.');
@@ -3317,6 +3324,7 @@ if(location.search.indexOf('ph=')!==-1){
           join: _phDetJoin, joinLabel: (isMnp ? '번호이동' : '기기변경'),
           ctype: _phDetCtype, ctypeLabel: (_phDetCtype === 'common' ? '공통지원금' : '선택약정'),
           pay: _phDetPay, payLabel: (_phDetPay === 'installment' ? '할부' : '현금완납'),
+          salePrice: _saleP, releasePrice: _releaseP, support: _supportP, extraSupport: _extraP,
           altPhone: altphone, rrn: (isMnp ? (rrn1 + '-' + rrn2) : ''), birth: (!isMnp ? birth : ''),
           age: age, guardianName: gname, guardianPhone: gphone
         }]
