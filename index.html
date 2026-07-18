@@ -3136,7 +3136,8 @@ if(location.search.indexOf('ph=')!==-1){
       html += '<div class="ph-det-price-row dim minus"><span class="ph-det-price-label">공통지원금</span><span class="ph-det-price-val">- ' + phDetWon(support) + '</span></div>';
     }
     var discount = ct === 'common' ? (release - support - sale) : (release - sale);
-    html += '<div class="ph-det-price-row dim minus"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">- ' + phDetWon(discount) + '</span></div>';
+    var discSign = discount < 0 ? '+ ' : (discount > 0 ? '- ' : '');
+    html += '<div class="ph-det-price-row dim minus"><span class="ph-det-price-label">' + escapeHtml(PH_STORE_NAME) + ' 할인</span><span class="ph-det-price-val">' + discSign + phDetWon(Math.abs(discount)) + '</span></div>';
     // 기기값 총액 (할부원금/일시납가) — 월납부 섹션이 있으면 sub, 없으면 최종강조
     html += '<div class="ph-det-price-row ' + (hasMonthly ? 'ph-det-price-sub' : 'ph-det-price-final') + '"><span class="ph-det-price-label">' + finalLabel + '</span><span class="ph-det-price-val">' + phDetWon(sale) + '</span></div>';
     if (_phDetPay === 'installment') {
@@ -3157,27 +3158,29 @@ if(location.search.indexOf('ph=')!==-1){
     box.innerHTML = html;
   }
   async function phDetFetchSupport(m){
-    _phDetSupport = {}; _phDetPlanFee = {};
-    if (!m || !m.prices) { renderPhDetPriceBox(); return; }
+    if (!m || !m.prices) { if (_phDetModel === m) renderPhDetPriceBox(); return; }
     var pr = m.prices;
     var supIds = [pr.mnpCommonPlan, pr.changeCommonPlan].filter(Boolean);
     supIds = supIds.filter(function(v, i){ return supIds.indexOf(v) === i; });
     var feeIds = ['mnpCommonPlan','changeCommonPlan','mnpContractPlan','changeContractPlan']
       .map(function(k){ return pr[k]; }).filter(Boolean);
     feeIds = feeIds.filter(function(v, i){ return feeIds.indexOf(v) === i; });
+    var sup = {}, fee = {};
     try {
       var sbc = window.supabaseClient;
       if (sbc) {
         if (supIds.length) {
           var res = await sbc.from('mobileshop_support').select('plan_id,amount,upgrade_amount').eq('model_id', m.id).in('plan_id', supIds);
-          (res.data || []).forEach(function(row){ _phDetSupport[row.plan_id] = { mnp: row.amount, change: row.upgrade_amount }; });
+          (res.data || []).forEach(function(row){ sup[row.plan_id] = { mnp: row.amount, change: row.upgrade_amount }; });
         }
         if (feeIds.length) {
           var res2 = await sbc.from('mobileshop_plans').select('id,monthly_fee').in('id', feeIds);
-          (res2.data || []).forEach(function(row){ _phDetPlanFee[row.id] = row.monthly_fee; });
+          (res2.data || []).forEach(function(row){ fee[row.id] = row.monthly_fee; });
         }
       }
     } catch(e){}
+    if (_phDetModel !== m) return;   // 그 사이 다른 상세로 넘어갔으면 이 결과는 폐기(오염·깜빡임 방지)
+    _phDetSupport = sup; _phDetPlanFee = fee;
     renderPhDetPriceBox();
   }
   document.addEventListener('click', function(e){
@@ -3228,6 +3231,7 @@ if(location.search.indexOf('ph=')!==-1){
 
     // 판매가 계산 셋업 (기본: 번호이동 · 공통지원금 · 할부)
     _phDetJoin = 'mnp'; _phDetCtype = 'common'; _phDetPay = 'installment';
+    _phDetSupport = {}; _phDetPlanFee = {};   // 이전 상세 값 초기화(레이스 방지)
     _phDetModel = (DataStore.load().models || []).find(function(x){ return x.id === (card.getAttribute('data-model-id') || ''); }) || null;
     phDetSyncOptionChips();
     renderPhDetPriceBox();
