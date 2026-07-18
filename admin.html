@@ -169,6 +169,8 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 가로 스크롤바 숨김 — 드래그존으로 좌우 이동 */
 .pho-scroll{overflow-x:hidden;}
 .pho-table{width:auto;}
+.pho-drag-hint{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-4,#999);margin-bottom:8px;}
+.pho-drag-hint svg{color:var(--primary,#DE4F41);}
 .pho-dragzone{position:relative;height:16px;background:var(--bg-soft,#f0f0f0);border:1px solid var(--line);border-radius:8px;margin-bottom:12px;user-select:none;}
 .pho-dragzone[hidden]{display:none;}
 .pho-dragthumb{position:absolute;top:2px;left:0;height:10px;min-width:44px;background:var(--ink-4,#bbb);border-radius:6px;cursor:grab;transition:background .12s;}
@@ -1186,6 +1188,7 @@ html[data-preload-shop] body { visibility:hidden; }
   <!-- ===== 휴대폰 — 주문관리 ===== -->
   <section class="adm-panel" data-panel="ph-orders" hidden>
     <p class="adm-panel-hint">고객이 작성한 <strong>휴대폰 신청서</strong>를 확인하고 상태를 관리합니다. 행을 클릭하면 상세·수정 창이 열려요. 미성년자 정보는 상세 모달에서만 확인됩니다.</p>
+    <div class="pho-drag-hint"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 7 12 3 16 7"/><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg> 접수건을 상하로 움직여 보세요</div>
     <div class="pho-dragzone" id="pho-dragzone" title="드래그해서 좌우 이동"><div class="pho-dragthumb" id="pho-dragthumb"></div></div>
     <div id="pho-list"><p style="padding:20px;color:var(--ink-4);font-size:13px;">불러오는 중…</p></div>
   </section>
