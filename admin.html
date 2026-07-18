@@ -677,6 +677,14 @@ html[data-preload-shop] body { visibility:hidden; }
   <!-- ===== 상담/주문 신청 패널 ===== -->
   <section class="adm-panel" data-panel="consult" hidden>
     <div class="adm-consult-bar">
+      <div class="adm-chips" id="cs-cat-filters">
+        <button type="button" class="adm-chip on" data-cs-cat="all">전체</button>
+        <button type="button" class="adm-chip" data-cs-cat="phone">휴대폰</button>
+        <button type="button" class="adm-chip" data-cs-cat="internet">인터넷</button>
+        <button type="button" class="adm-chip" data-cs-cat="rental">렌탈</button>
+      </div>
+    </div>
+    <div class="adm-consult-bar">
       <div class="adm-chips" id="cs-filters">
         <button type="button" class="adm-chip on" data-cs-filter="all">전체</button>
         <button type="button" class="adm-chip" data-cs-filter="consult">상담</button>

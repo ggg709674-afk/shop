@@ -876,7 +876,11 @@
     return h;
   }
   /* ===== 상담/주문 신청 목록 (consultations) ===== */
-  let _csData = null, _csFilter = 'all', _csBound = false;
+  let _csData = null, _csFilter = 'all', _csCatFilter = 'all', _csBound = false;
+  // 카테고리 구분자: products[0].type ('phone'|'internet') / 없으면 렌탈(레거시 포함)
+  const csCatOf = r => (Array.isArray(r.products) && r.products[0] && r.products[0].type) || 'rental';
+  // 주민번호 마스킹: 123456-1234567 → 123456-●●●●●●●
+  const csMaskRrn = v => { const s = String(v || ''); const p = s.split('-'); return (p[0] || s).slice(0, 6) + '-' + '●●●●●●●'; };
   const CS_STATUS = { new:'신규접수', confirmed:'주문확인', subscribed:'청약완료', activated:'개통완료', hold:'보류', cancelled:'취소' };
   const CS_ORDER = ['new','confirmed','subscribed','activated','hold','cancelled'];
   const CS_KIND = { consult:'상담', order:'주문', convert:'전환구매' };
@@ -887,6 +891,16 @@
   // products[0] → 옵션 요약 문자열 (관리유형·약정·사이즈·타사보상). 카드상담은 별도 컬럼.
   function csProdLine(prods){
     return (Array.isArray(prods) ? prods : []).map(p => {
+      if (p && p.type === 'phone') {
+        const head = [p.carrier, p.model, p.color].filter(Boolean).map(escape).join(' ');
+        const opt = [p.joinLabel, p.ctypeLabel, p.payLabel, p.plan].filter(Boolean).map(escape).join(' · ');
+        let extra = '';
+        if (p.rrn) extra += ` · 주민 <span class="cs-rrn-wrap"><span class="cs-rrn" data-rrn="${escape(p.rrn)}">${escape(csMaskRrn(p.rrn))}</span> <button type="button" class="cs-rrn-show" style="font-size:10px;padding:1px 6px;margin-left:2px;border:1px solid var(--line,#ccc);border-radius:4px;background:#fff;cursor:pointer;">보기</button></span>`;
+        else if (p.birth) extra += ` · 생년월일 ${escape(p.birth)}`;
+        if (p.altPhone) extra += ` · 연락처2 ${escape(p.altPhone)}`;
+        if (p.age === 'minor') extra += ` · <b>미성년</b>(법정대리인 ${escape(p.guardianName || '')} ${escape(p.guardianPhone || '')})`;
+        return head + (opt ? ` (${opt})` : '') + extra;
+      }
       const ps = [p.careType, p.contract, p.size].filter(Boolean);
       if (p.priceMode === 'compete') ps.push('타사보상');
       const opt = ps.join(' · ');
@@ -907,10 +921,25 @@
       filters.querySelectorAll('.adm-chip').forEach(x => x.classList.toggle('on', x === b));
       renderConsultList();
     });
+    const catFilters = document.getElementById('cs-cat-filters');
+    if (catFilters) catFilters.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-cs-cat]'); if (!b) return;
+      _csCatFilter = b.dataset.csCat;
+      catFilters.querySelectorAll('.adm-chip').forEach(x => x.classList.toggle('on', x === b));
+      renderConsultList();
+    });
     const reload = document.getElementById('cs-reload');
     if (reload) reload.addEventListener('click', loadConsult);
     const list = document.getElementById('cs-list');
     if (list){
+      // 주민번호 '보기' — 마스킹 해제(권한자 열람)
+      list.addEventListener('click', (e) => {
+        const b = e.target.closest('.cs-rrn-show'); if (!b) return;
+        const wrap = b.closest('.cs-rrn-wrap'); if (!wrap) return;
+        const span = wrap.querySelector('.cs-rrn');
+        if (span && span.dataset.rrn){ span.textContent = span.dataset.rrn; }
+        b.remove();
+      });
       // 상태 드롭다운 변경
       list.addEventListener('change', async (e) => {
         const sel = e.target.closest('.cs-status-sel'); if (!sel) return;
@@ -1051,6 +1080,7 @@
     const listEl = document.getElementById('cs-list');
     if (!listEl) return;
     let rows = _csData || [];
+    if (_csCatFilter !== 'all') rows = rows.filter(r => csCatOf(r) === _csCatFilter);
     if (_csFilter !== 'all') rows = rows.filter(r => (r.kind || 'consult') === _csFilter);
     if (!rows.length){ listEl.innerHTML = '<div class="adm-empty">신청 내역이 없어요.</div>'; return; }
     const body = rows.map(r => {
