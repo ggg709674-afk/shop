@@ -158,7 +158,8 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 휴대폰 주문관리 */
 .pho-table th{font-size:11.5px;font-weight:700;color:var(--ink-3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;background:#fafafa;}
 .pho-table td{padding:5px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle;white-space:nowrap;}
-.pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:normal;width:100%;min-width:180px;}
+.pho-table td.pho-c-addr,.pho-table th.pho-c-addr{white-space:normal;min-width:160px;}
+.pho-table td.pho-c-memo,.pho-table th.pho-c-memo{width:100%;}
 .pho-memo{width:100%;min-width:340px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--ink);}
 .pho-memo:focus{outline:none;border-color:var(--primary,#DE4F41);}
 .pho-saved-flag{display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#1E8E3E;background:#E6F4EA;border-radius:20px;padding:5px 12px;}
@@ -2369,7 +2370,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var rows=_phoData||[];
     if(!rows.length){wrap.innerHTML='<p style="padding:24px;text-align:center;color:var(--ink-4);font-size:13px;">주문 내역이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table pho-table" style="width:100%;"><thead><tr>'
-      +'<th>접수일</th><th>상태</th><th>고객명</th><th class="pho-c-memo">메모</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th class="pho-c-addr">택배주소</th></tr></thead><tbody>';
+      +'<th>접수일</th><th>상태</th><th>고객명</th><th>개통번호</th><th>모델</th><th>색상</th><th>가입유형</th><th class="pho-c-addr">택배주소</th><th class="pho-c-memo">메모</th></tr></thead><tbody>';
     rows.forEach(function(r){
       var st=phoStatusOf(r);var p=phoProd(r);
       var nm=phEsc(r.customer_name||'');if(phoIsMinor(r))nm='<b style="color:var(--accent)">(미)</b> '+nm;
@@ -2380,12 +2381,12 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<td style="white-space:nowrap;color:var(--ink-3)">'+phEsc(dt)+'</td>'
         +'<td><select class="pho-status-sel pho-st-'+st+'" data-pho-id="'+phEsc(r.id)+'">'+stOpts+'</select></td>'
         +'<td style="white-space:nowrap">'+nm+'</td>'
-        +'<td class="pho-c-memo"><input class="pho-memo" data-pho-id="'+phEsc(r.id)+'" value="'+phEsc(r.memo||'')+'" placeholder="메모"></td>'
         +'<td style="white-space:nowrap">'+phEsc(phoFmtPhone(r.customer_phone||''))+'</td>'
         +'<td style="white-space:nowrap">'+(model||'-')+'</td>'
         +'<td>'+phEsc(p.color||'-')+'</td>'
         +'<td style="white-space:nowrap">'+phEsc(p.joinLabel||'-')+'</td>'
-        +'<td class="pho-c-addr" title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td></tr>';
+        +'<td class="pho-c-addr" title="'+phEsc(r.customer_address||'')+'">'+phEsc(r.customer_address||'-')+'</td>'
+        +'<td class="pho-c-memo"><input class="pho-memo" data-pho-id="'+phEsc(r.id)+'" value="'+phEsc(r.memo||'')+'" placeholder="메모"></td></tr>';
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
