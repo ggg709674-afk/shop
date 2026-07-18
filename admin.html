@@ -2362,7 +2362,7 @@ html[data-preload-shop] body { visibility:hidden; }
   /* ─ 패널 진입 (shop controller → 호출) ─ */
   // ===== 휴대폰 주문관리 =====
   var PHO_STATUS={new:'신규접수',confirmed:'접수확인',consulting:'상담중',activated:'개통완료',hold:'보류',cancelled:'취소'};
-  var PHO_MINOR_ICON='<svg class="pho-minor-ic" viewBox="0 0 24 24" width="15" height="15"><title>미성년자</title><circle cx="12" cy="12" r="11" fill="#DE4F41"/><path d="M12 11.5a2.3 2.3 0 1 0-2.3-2.3 2.3 2.3 0 0 0 2.3 2.3zm0 1.2c-2.1 0-4.4 1.05-4.4 2.85V17h8.8v-1.45c0-1.8-2.3-2.85-4.4-2.85z" fill="#fff"/></svg>';
+  var PHO_MINOR_ICON='<svg class="pho-minor-ic" viewBox="0 0 20 20" width="17" height="17"><title>미성년자</title><rect x="0.5" y="0.5" width="19" height="19" rx="5.5" fill="#DE4F41"/><text x="10" y="14.4" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" font-family="\'Malgun Gothic\',AppleGothic,sans-serif">미</text></svg>';
   var PHO_ORDER=['new','confirmed','consulting','activated','hold','cancelled'];
   var _phoData=null,_phoFilter='all',_phoBound=false;
   function phoProd(r){return (r&&Array.isArray(r.products)&&r.products[0])||{};}
