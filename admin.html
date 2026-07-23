@@ -2067,7 +2067,7 @@ html[data-preload-shop] body { visibility:hidden; }
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr>'
       +'<th class="ph-prod-num">#</th>'
-      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th class="ph-prod-vis">노출</th>'
+      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th style="text-align:left;white-space:nowrap;">카드노출색</th><th class="ph-prod-vis">노출</th>'
       +'<th class="ph-prod-sort">정렬</th><th class="ph-prod-act">수정</th>'
       +'<th style="width:100%;"></th>'
       +'</tr></thead><tbody>';
@@ -2081,6 +2081,20 @@ html[data-preload-shop] body { visibility:hidden; }
           +'<span class="ph-prod-color-dot" style="'+dot+'"></span>'
           +phEsc(c.name)+'</label>';
       }).join('');
+      // 카드노출색(기본 색상) 드롭다운 — 이미지 있는 색상만 후보, 현재 def 반영
+      var rawCols=Array.isArray(m.colors)?m.colors:[];
+      var rawDef=-1;for(var rk=0;rk<rawCols.length;rk++){if(rawCols[rk]&&rawCols[rk].def===true){rawDef=rk;break;}}
+      var cand=[];colors.forEach(function(c,ci){if((c.images||[]).filter(Boolean).length)cand.push(ci);});
+      if(!cand.length)colors.forEach(function(c,ci){cand.push(ci);});
+      var effDef=(rawDef>=0&&cand.indexOf(rawDef)!==-1)?rawDef:cand[0];
+      var defCell;
+      if(!colors.length){defCell='<span style="color:var(--ink-4);font-size:12px;">색상 없음</span>';}
+      else{
+        var optHtml=cand.map(function(ci){return'<option value="'+ci+'"'+(ci===effDef?' selected':'')+'>'+phEsc(colors[ci].name)+'</option>';}).join('');
+        var defDot=phColorDot(colors[effDef]?colors[effDef].name:'');
+        defCell='<span class="ph-prod-color-dot" style="background:'+defDot+';margin-right:6px;vertical-align:middle;"></span>'
+          +'<select class="ph-prod-def-sel" data-ph-prod-def="'+m.id+'">'+optHtml+'</select>';
+      }
       var allIdx=all.findIndex(function(x){return x.id===m.id;});
       var upBtn=allIdx>0
         ?'<button class="ph-btn-sm adm-btn adm-btn-ghost" data-ph-prod-up="'+m.id+'" data-pcarrier="'+carrier+'">↑</button>'
@@ -2092,6 +2106,7 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<td class="ph-prod-num">'+(i+1)+'</td>'
         +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>'
         +'<td><div class="ph-prod-color-chips" style="justify-content:flex-start;">'+chipHtml+'</div></td>'
+        +'<td style="white-space:nowrap;">'+defCell+'</td>'
         +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-toggle="'+m.id+'"'+(m.visible?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
         +'<td class="ph-prod-sort">'+upBtn+' '+dnBtn+'</td>'
         +'<td class="ph-prod-act"><button class="ph-btn-sm adm-btn adm-btn-primary" data-ph-prod-edit="'+m.id+'">수정</button></td>'
@@ -2100,6 +2115,20 @@ html[data-preload-shop] body { visibility:hidden; }
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
+  }
+  async function phProdSetDefault(modelId,colorIdx){
+    var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
+    // 색상 배열에 def 플래그 재설정 + image_url = 기본 색상 첫 이미지
+    var colors=phNormColors(m.colors).map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,def:i===colorIdx};});
+    var cardImg=(colors[colorIdx]&&(colors[colorIdx].images||[]).filter(Boolean)[0])||null;
+    if(!cardImg){for(var k=0;k<colors.length;k++){var im=(colors[k].images||[]).filter(Boolean)[0];if(im){cardImg=im;break;}}}
+    try{
+      var res=await sb().from('mobileshop_models').update({colors:colors,image_url:cardImg}).eq('id',modelId);
+      if(res.error)throw res.error;
+      m.colors=colors;m.imageUrl=cardImg||'';
+      phRenderProducts(m.carrier);
+      phToast('카드노출색을 저장했습니다.');
+    }catch(err){phProdStatus('저장 실패: '+(err.message||err),true);}
   }
   async function phProdColorToggle(modelId,colorIdx,checked){
     var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
@@ -2847,6 +2876,10 @@ html[data-preload-shop] body { visibility:hidden; }
     if(e.target.hasAttribute('data-ph-prod-cvis')){
       var parts=e.target.getAttribute('data-ph-prod-cvis').split(':');
       phProdColorToggle(parts[0],parseInt(parts[1]),e.target.checked);return;
+    }
+    // 카드노출색(기본 색상) 드롭다운
+    if(e.target.hasAttribute('data-ph-prod-def')){
+      phProdSetDefault(e.target.getAttribute('data-ph-prod-def'),parseInt(e.target.value,10));return;
     }
     // 상품 노출 토글 스위치
     var pvt=e.target.closest('[data-ph-prod-toggle]');
