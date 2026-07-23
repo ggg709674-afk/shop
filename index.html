@@ -351,16 +351,13 @@
   .product-card .ph-cpl { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
   .product-card .ph-cpl-l { font-size:12.5px; color:var(--g2); }
   .product-card .ph-cpl-v { font-size:16px; font-weight:700; color:var(--ink); letter-spacing:-.3px; }
-  /* 카드 컬러칩 */
-  .product-card .ph-card-colors { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:3px; }
+  /* 카드 컬러칩 — 공통지원 판매가와 같은 줄, 우측정렬 */
+  .product-card .ph-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .product-card .ph-card-top .model { flex:0 0 auto; }
+  .product-card .ph-card-colors { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:7px; margin-left:auto; }
   .product-card .ph-card-chip { width:16px; height:16px; border-radius:50%; cursor:pointer; position:relative; box-shadow:inset 0 0 0 1px rgba(0,0,0,.16); transition:transform .12s, box-shadow .12s; }
   @media (hover:hover) { .product-card .ph-card-chip:hover { transform:scale(1.18); } }
   .product-card .ph-card-chip.on { box-shadow:0 0 0 2px #fff, 0 0 0 3.5px var(--accent), inset 0 0 0 1px rgba(0,0,0,.12); }
-  .product-card .ph-card-chip.on::after {
-    content:''; position:absolute; right:-3px; bottom:-3px; width:9px; height:9px; border-radius:50%;
-    background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4 10-10'/%3E%3C/svg%3E") center/6px 6px no-repeat;
-    box-shadow:0 0 0 1px #fff;
-  }
   @keyframes phImgFade { from { opacity:.4; } to { opacity:1; } }
   #panel-phone .product-card .thumb > img.ph-img-fade { animation:phImgFade .18s ease; }
   /* ───── 통신사별 인기단말 섹션 (전체 뷰) ───── */
@@ -2143,8 +2140,10 @@ if(location.search.indexOf('ph=')!==-1){
         + (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" alt="' + escapeHtml(it.name) + '">' : PH_GLYPH)
       + '</div>'
       + '<div class="body">'
-        + (Array.isArray(it.colors) && it.colors.length >= 2 ? phCardColorsHtml(it.colors) : '')
-        + '<div class="model">공통지원 판매가</div>'
+        + '<div class="ph-card-top">'
+          + '<div class="model">공통지원 판매가</div>'
+          + (Array.isArray(it.colors) && it.colors.length >= 2 ? phCardColorsHtml(it.colors) : '')
+        + '</div>'
         + '<div class="ph-card-prices">'
           + '<div class="ph-cpl"><span class="ph-cpl-l">번호이동</span><span class="ph-cpl-v">' + escapeHtml(fmtCardWon(it.mnpCommon)) + '</span></div>'
           + '<div class="ph-cpl"><span class="ph-cpl-l">기기변경</span><span class="ph-cpl-v">' + escapeHtml(fmtCardWon(it.changeCommon)) + '</span></div>'
@@ -2227,18 +2226,18 @@ if(location.search.indexOf('ph=')!==-1){
     };
     pre.onload = apply; pre.onerror = apply; pre.src = url;
   }
-  // 칩 미리보기(hover/터치): 이미지만 변경
+  // 칩 미리보기(hover/터치): 이미지 변경 + 동그란 테두리(선택 링)를 해당 칩으로 이동
   function phCardPreviewColor(card, idx) {
     var c = phCardColorAt(card, idx); if (!c || !Array.isArray(c.images)) return;
     phCardSetImg(card, c.images.filter(Boolean)[0] || '');
-  }
-  // 칩 선택(click/터치): 선택상태 저장 + 이미지 변경 + 칩 표시(상세페이지로 전달됨)
-  function phCardSelectColor(card, idx) {
-    card.setAttribute('data-sel-color', String(idx));
-    phCardPreviewColor(card, idx);
     card.querySelectorAll('.ph-card-chip').forEach(function(ch) {
       ch.classList.toggle('on', ch.getAttribute('data-ci') === String(idx));
     });
+  }
+  // 칩 선택(click/터치): 선택상태 저장(상세페이지로 전달) + 미리보기와 동일 표시
+  function phCardSelectColor(card, idx) {
+    card.setAttribute('data-sel-color', String(idx));
+    phCardPreviewColor(card, idx);
   }
   // 카드 아이템 목록 (DB 모델 우선, 없으면 샘플) — carrierId 포함
   function phoneCardItems() {
