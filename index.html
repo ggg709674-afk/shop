@@ -2123,7 +2123,20 @@ if(location.search.indexOf('ph=')!==-1){
   var PH_GLYPH = '<svg class="ph-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
   function shopCardHtml(it) {
     var imgs = Array.isArray(it.images) ? it.images.filter(Boolean).slice(0,6) : [];
+    var cols = Array.isArray(it.colors) ? it.colors : [];
+    var hasChips = cols.length >= 2;
     var thumbUrl = it.cardImg || imgs[0] || it.imageUrl || '';
+    // 기본 표시 색상: 히어로 이미지와 일치하는 색상칩을 기본 선택. 못 찾으면 첫 색상 이미지로
+    // 히어로를 맞춰 칩↔이미지↔상세가 항상 같은 색을 가리키게 한다.
+    var selIdx = 0;
+    if (hasChips) {
+      var mi = -1;
+      for (var ci = 0; ci < cols.length; ci++) {
+        if (Array.isArray(cols[ci].images) && cols[ci].images.indexOf(thumbUrl) !== -1) { mi = ci; break; }
+      }
+      if (mi >= 0) { selIdx = mi; }
+      else { var f0 = (cols[0].images || []).filter(Boolean)[0]; if (f0) thumbUrl = f0; selIdx = 0; }
+    }
     var dataAttrs = ' data-card-name="' + escapeHtml(it.name) + '"'
       + ' data-card-carrier="' + escapeHtml(it.tag || '') + '"'
       + ' data-card-price="' + escapeHtml(it.price || '') + '"'
@@ -2131,7 +2144,8 @@ if(location.search.indexOf('ph=')!==-1){
       + ' data-card-badge="' + escapeHtml(it.badge || '') + '"'
       + (it.id ? ' data-model-id="' + escapeHtml(String(it.id)) + '"' : '')
       + (imgs.length ? ' data-card-imgs="' + escapeHtml(JSON.stringify(imgs)) + '"' : '')
-      + (Array.isArray(it.colors) && it.colors.length ? ' data-card-colors="' + escapeHtml(JSON.stringify(it.colors)) + '"' : '');
+      + (cols.length ? ' data-card-colors="' + escapeHtml(JSON.stringify(cols)) + '"' : '')
+      + (hasChips ? ' data-sel-color="' + selIdx + '"' : '');
     return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
         + carrierBadge(it.tag)
@@ -2142,7 +2156,7 @@ if(location.search.indexOf('ph=')!==-1){
       + '<div class="body">'
         + '<div class="ph-card-top">'
           + '<div class="model">공통지원 판매가</div>'
-          + (Array.isArray(it.colors) && it.colors.length >= 2 ? phCardColorsHtml(it.colors) : '')
+          + (hasChips ? phCardColorsHtml(cols, selIdx) : '')
         + '</div>'
         + '<div class="ph-card-prices">'
           + '<div class="ph-cpl"><span class="ph-cpl-l">번호이동</span><span class="ph-cpl-v">' + escapeHtml(fmtCardWon(it.mnpCommon)) + '</span></div>'
@@ -2206,9 +2220,10 @@ if(location.search.indexOf('ph=')!==-1){
   // 카드 모델명: 끝의 용량(256G/512G/1T 등)만 얇게
   function nameWithLightCap(name) { return escapeHtml(name).replace(/(\d+\s?(?:GB|TB|G|T))\s*$/i, '<span class="cap-light">$1</span>'); }
   // ── 카드 컬러칩: hover=미리보기, click/터치=선택(상세로 전달). 첫 색상 기본 선택. ──
-  function phCardColorsHtml(cols) {
+  function phCardColorsHtml(cols, sel) {
+    sel = sel || 0;
     return '<div class="ph-card-colors">' + cols.slice(0, 6).map(function(c, i) {
-      return '<span class="ph-card-chip' + (i === 0 ? ' on' : '') + '" data-ci="' + i + '"'
+      return '<span class="ph-card-chip' + (i === sel ? ' on' : '') + '" data-ci="' + i + '"'
         + ' title="' + escapeHtml(c.name || '') + '" style="background:' + phColorHex(c.name) + '"></span>';
     }).join('') + '</div>';
   }
