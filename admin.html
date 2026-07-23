@@ -258,6 +258,12 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-vis{width:56px;text-align:center;}
 .ph-prod-act{width:76px;text-align:right;white-space:nowrap;}
 .ph-prod-sort{width:68px;text-align:center;white-space:nowrap;}
+/* 상품 목록 드래그 정렬 */
+.ph-prod-table tbody tr{transition:transform .32s cubic-bezier(.34,1.56,.64,1);}
+.ph-prod-table tbody tr.ph-prod-dragging{transition:none;position:relative;z-index:6;background:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14);}
+.ph-prod-grip{display:inline-flex;align-items:center;justify-content:center;color:var(--ink-4);cursor:grab;padding:5px;border-radius:7px;transition:color .15s,background-color .15s;}
+.ph-prod-grip:hover{color:var(--primary);background:rgba(222,79,65,.08);}
+.ph-prod-dragging .ph-prod-grip{cursor:grabbing;color:var(--primary);}
 /* 상품관리 필터 바 */
 .ph-prod-filter{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .ph-prod-search{flex:1;padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;}
@@ -2067,6 +2073,7 @@ html[data-preload-shop] body { visibility:hidden; }
   function phColorStr(arr){return phNormColors(arr).map(function(c){return c.name;}).filter(Boolean).join(', ');}
   function phProdStatus(msg,isErr){var el=phEl('ph-prod-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
   var _phProdShowHidden={skt:false,kt:false,lg:false};
+  var PH_PROD_GRIP='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
   function phRenderProducts(carrier){
     var wrap=document.querySelector('[data-ph-prod-list="'+carrier+'"]');if(!wrap)return;
     var all=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
@@ -2102,26 +2109,79 @@ html[data-preload-shop] body { visibility:hidden; }
         defCell='<span class="ph-prod-def-wrap"><span class="ph-prod-color-dot" style="background:'+defDot+';"></span>'
           +'<select class="ph-prod-def-sel" data-ph-prod-def="'+m.id+'">'+optHtml+'</select></span>';
       }
-      var allIdx=all.findIndex(function(x){return x.id===m.id;});
-      var upBtn=allIdx>0
-        ?'<button class="ph-btn-sm adm-btn adm-btn-ghost" data-ph-prod-up="'+m.id+'" data-pcarrier="'+carrier+'">↑</button>'
-        :'<span class="ph-btn-sm" style="opacity:.2">↑</span>';
-      var dnBtn=allIdx<all.length-1
-        ?'<button class="ph-btn-sm adm-btn adm-btn-ghost" data-ph-prod-dn="'+m.id+'" data-pcarrier="'+carrier+'">↓</button>'
-        :'<span class="ph-btn-sm" style="opacity:.2">↓</span>';
-      html+='<tr class="'+(m.visible?'':'is-hidden')+'">'
+      var grip='<span class="ph-prod-grip" data-ph-prod-grip="'+m.id+'" data-pcarrier="'+carrier+'" title="드래그해서 순서 변경">'+PH_PROD_GRIP+'</span>';
+      html+='<tr class="ph-prod-row '+(m.visible?'':'is-hidden')+'" data-prod-id="'+m.id+'">'
         +'<td class="ph-prod-num">'+(i+1)+'</td>'
         +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>'
         +'<td><div class="ph-prod-color-chips" style="justify-content:flex-start;">'+chipHtml+'</div></td>'
         +'<td style="white-space:nowrap;">'+defCell+'</td>'
         +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-toggle="'+m.id+'"'+(m.visible?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
-        +'<td class="ph-prod-sort">'+upBtn+' '+dnBtn+'</td>'
+        +'<td class="ph-prod-sort">'+grip+'</td>'
         +'<td class="ph-prod-act"><button class="ph-btn-sm adm-btn adm-btn-primary" data-ph-prod-edit="'+m.id+'">수정</button></td>'
         +'<td></td>'
         +'</tr>';
     });
     html+='</tbody></table></div>';
     wrap.innerHTML=html;
+    phProdBindDrag();
+  }
+  // 상품 목록 행 드래그 정렬(그립 핸들로만 시작) — 주문관리와 동일한 FLIP 방식
+  var _ppd=null, _phProdDragBound=false;
+  function phProdBindDrag(){
+    if(_phProdDragBound)return; _phProdDragBound=true;
+    document.addEventListener('mousedown',function(e){
+      var grip=e.target.closest('[data-ph-prod-grip]'); if(!grip)return;
+      var row=grip.closest('.ph-prod-row'); if(!row)return;
+      var tbody=row.parentNode, rows=Array.prototype.slice.call(tbody.children);
+      _ppd={row:row,rows:rows,carrier:grip.getAttribute('data-pcarrier'),from:rows.indexOf(row),cur:rows.indexOf(row),y:e.clientY,h:row.getBoundingClientRect().height,active:false};
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove',function(e){
+      if(!_ppd)return;
+      var dy=e.clientY-_ppd.y;
+      if(!_ppd.active){ if(Math.abs(dy)<4)return; _ppd.active=true; _ppd.row.classList.add('ph-prod-dragging'); document.body.style.userSelect='none'; }
+      _ppd.row.style.transform='translateY('+dy+'px)';
+      var ni=Math.max(0,Math.min(_ppd.rows.length-1,_ppd.from+Math.round(dy/_ppd.h)));
+      if(ni!==_ppd.cur){
+        _ppd.cur=ni;
+        _ppd.rows.forEach(function(rw,i){
+          if(rw===_ppd.row)return; var t=0;
+          if(_ppd.from<ni&&i>_ppd.from&&i<=ni)t=-_ppd.h;
+          else if(_ppd.from>ni&&i>=ni&&i<_ppd.from)t=_ppd.h;
+          rw.style.transform=t?('translateY('+t+'px)'):'';
+        });
+      }
+    });
+    document.addEventListener('mouseup',function(){
+      if(!_ppd)return; var pd=_ppd; _ppd=null;
+      if(!pd.active)return;
+      document.body.style.userSelect='';
+      pd.rows.forEach(function(rw){rw.style.transform='';rw.classList.remove('ph-prod-dragging');});
+      if(pd.cur!==pd.from)phProdApplyDrag(pd.carrier,pd.from,pd.cur);
+    });
+  }
+  async function phProdApplyDrag(carrier,from,to){
+    var all=phData.models.filter(function(x){return x.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    var list=_phProdShowHidden[carrier]?all.slice():all.filter(function(m){return m.visible;});
+    if(from<0||from>=list.length||to<0||to>=list.length||from===to){phRenderProducts(carrier);return;}
+    var dragged=list[from], target=list[to];
+    var arr=all.slice(), di=arr.indexOf(dragged);
+    if(di<0){phRenderProducts(carrier);return;}
+    arr.splice(di,1);
+    var ti=arr.indexOf(target);
+    if(to>from)arr.splice(ti+1,0,dragged); else arr.splice(ti,0,dragged);
+    var prev={}; all.forEach(function(m){prev[m.id]=m.sortOrder;});
+    var changed=[]; arr.forEach(function(m,i){if(m.sortOrder!==i){m.sortOrder=i;changed.push(m);}});
+    phRenderProducts(carrier);   // 즉시 반영
+    if(!changed.length)return;
+    try{
+      await Promise.all(changed.map(function(m){return sb().from('mobileshop_models').update({sort_order:m.sortOrder}).eq('id',m.id);}));
+      phToast('순서를 저장했습니다.');
+    }catch(err){
+      Object.keys(prev).forEach(function(pid){var m=phData.models.find(function(x){return x.id===pid;});if(m)m.sortOrder=prev[pid];});
+      phRenderProducts(carrier);
+      phProdStatus('정렬 저장 실패: '+(err.message||err),true);
+    }
   }
   async function phProdSetDefault(modelId,colorIdx){
     var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
