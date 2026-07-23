@@ -2125,18 +2125,9 @@ if(location.search.indexOf('ph=')!==-1){
     var imgs = Array.isArray(it.images) ? it.images.filter(Boolean).slice(0,6) : [];
     var cols = Array.isArray(it.colors) ? it.colors : [];
     var hasChips = cols.length >= 2;
-    var thumbUrl = it.cardImg || imgs[0] || it.imageUrl || '';
-    // 기본 표시 색상: 히어로 이미지와 일치하는 색상칩을 기본 선택. 못 찾으면 첫 색상 이미지로
-    // 히어로를 맞춰 칩↔이미지↔상세가 항상 같은 색을 가리키게 한다.
-    var selIdx = 0;
-    if (hasChips) {
-      var mi = -1;
-      for (var ci = 0; ci < cols.length; ci++) {
-        if (Array.isArray(cols[ci].images) && cols[ci].images.indexOf(thumbUrl) !== -1) { mi = ci; break; }
-      }
-      if (mi >= 0) { selIdx = mi; }
-      else { var f0 = (cols[0].images || []).filter(Boolean)[0]; if (f0) thumbUrl = f0; selIdx = 0; }
-    }
+    // 기본(대표) 색상 = 관리자가 지정한 색. 카드 이미지·선택 칩·상세 진입이 모두 이 색으로 일치.
+    var selIdx = (typeof it.defColor === 'number' && it.defColor >= 0 && it.defColor < cols.length) ? it.defColor : 0;
+    var thumbUrl = it.cardImg || (cols[selIdx] && (cols[selIdx].images || []).filter(Boolean)[0]) || imgs[0] || it.imageUrl || '';
     var dataAttrs = ' data-card-name="' + escapeHtml(it.name) + '"'
       + ' data-card-carrier="' + escapeHtml(it.tag || '') + '"'
       + ' data-card-price="' + escapeHtml(it.price || '') + '"'
@@ -2203,16 +2194,18 @@ if(location.search.indexOf('ph=')!==-1){
   }
   function _modelToCardItem(m) {
     var cols = (m.colors || []).filter(function(c) { return c.visible !== false && Array.isArray(c.images) && c.images.some(Boolean); })
-      .map(function(c) { return { name: c.name || '', images: c.images.filter(Boolean).slice(0,6) }; });
-    var images = cols.length ? cols[0].images : [];
+      .map(function(c) { return { name: c.name || '', images: c.images.filter(Boolean).slice(0,6), def: c.def === true }; });
+    // 관리자 지정 기본 색상(없으면 첫 색상)
+    var defIdx = 0; for (var i = 0; i < cols.length; i++) { if (cols[i].def) { defIdx = i; break; } }
+    var images = cols.length ? cols[defIdx].images : [];
     var pr = (m.prices && typeof m.prices === 'object' && !Array.isArray(m.prices)) ? m.prices : {};
     return {
       id: m.id, name: normModelName(m.name), carrierId: m.carrier,
       tag: CARRIER_LABEL[m.carrier] || m.carrier,
       badge: '', del: '', label: '번호이동', price: '상담',
       mnpCommon: pr.mnpCommon, changeCommon: pr.changeCommon,
-      cardImg: m.image_url || '',
-      images: images, imageUrl: images[0] || '', colors: cols
+      cardImg: '',   // 휴대폰: 색상 이미지로 통일(별도 카드 이미지 미사용)
+      images: images, imageUrl: images[0] || '', colors: cols, defColor: defIdx
     };
   }
   // 카드 판매가 표기: 값 있으면 "200,000원", 없으면 "0원"

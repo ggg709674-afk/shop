@@ -275,6 +275,11 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-pm-ctab{padding:5px 13px;border-radius:20px;border:1px solid var(--line);background:#fff;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
 .ph-pm-ctab.on{background:var(--primary);color:#fff;border-color:var(--primary);}
 .ph-pm-ctab-add{border-style:dashed;color:var(--primary);background:#fff;}
+.ph-pm-ctab.is-default{border-color:var(--primary);}
+.ph-pm-ctab.is-default.on{border-color:var(--primary);}
+.ph-pm-def-star{color:#f5a623;font-size:12px;line-height:1;}
+.ph-pm-ctab.on .ph-pm-def-star{color:#ffe08a;}
+.ph-pm-def-badge{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--primary);background:rgba(222,79,65,.08);border:1px solid rgba(222,79,65,.25);border-radius:8px;padding:6px 11px;}
 /* 이미지 그리드 */
 .ph-pm-img-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
 .ph-pm-card-row{display:flex;align-items:flex-start;gap:14px;}
@@ -1439,22 +1444,10 @@ html[data-preload-shop] body { visibility:hidden; }
         </div>
       </div>
       <div class="ph-pm-section">
-        <div class="ph-pm-section-title">카드 노출 이미지</div>
-        <div class="ph-pm-card-row">
-          <div class="ph-pm-card-preview" id="ph-pm-card-preview"></div>
-          <div class="ph-pm-card-ctrl">
-            <div class="ph-pm-card-hint" id="ph-pm-card-hint"></div>
-            <div style="display:flex;gap:6px;margin-top:8px;">
-              <button type="button" class="adm-btn adm-btn-secondary ph-btn-sm" id="ph-pm-card-upload">이미지 업로드</button>
-              <button type="button" class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-pm-card-reset">기본값(첫 이미지)</button>
-            </div>
-          </div>
-        </div>
-        <input type="file" id="ph-pm-card-file" accept="image/*" hidden>
-      </div>
-      <div class="ph-pm-section">
-        <div class="ph-pm-section-title">색상별 이미지</div>
+        <div class="ph-pm-section-title">색상별 이미지 · 기본 색상</div>
+        <p class="ph-pm-card-hint" style="margin:0 0 10px;">카드에 처음 보여줄 <b>기본 색상</b>을 지정하세요. 손님 화면의 카드 이미지 · 선택 칩 · 상세 진입이 모두 이 색상으로 표시됩니다.</p>
         <div id="ph-pm-ctabs" class="ph-pm-ctabs"></div>
+        <div id="ph-pm-default-row" style="margin:8px 0 12px;"></div>
         <div id="ph-pm-img-grid" class="ph-pm-img-grid"></div>
       </div>
     </div>
@@ -2127,12 +2120,15 @@ html[data-preload-shop] body { visibility:hidden; }
   var _phProdColors=[];
   var _phProdActiveTab=0;
   var _phProdUploadSlot=-1;
-  var _phProdCardImg='';   // 카드 노출 이미지(별도 등록). '' = 기본(첫 색상 첫 이미지)
+  var _phProdCardImg='';   // (미사용) 구 카드 이미지 변수 — 잔존 코드 호환용
+  var _phProdDefault=0;    // 기본(대표) 색상 인덱스 — 색상 배열의 def:true 위치
   function phOpenProductModal(id){
     var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
     _phProdColors=phNormColors(m.colors).map(function(c){return{name:c.name,visible:c.visible,images:c.images.slice()};});
     _phProdActiveTab=0;
-    _phProdCardImg=m.imageUrl||'';
+    _phProdDefault=0;
+    var _rc=(m.colors||[]);for(var _i=0;_i<_rc.length;_i++){if(_rc[_i]&&_rc[_i].def===true){_phProdDefault=_i;break;}}
+    if(_phProdDefault>=_phProdColors.length)_phProdDefault=0;
     phEl('ph-pm-id').value=id;
     phEl('ph-pm-name').value=m.name;
     var vis=phEl('ph-pm-visible');vis.checked=m.visible;
@@ -2148,13 +2144,23 @@ html[data-preload-shop] body { visibility:hidden; }
     if(tabsWrap){
       var tabHtml=_phProdColors.map(function(c,i){
         var dot='display:inline-block;width:9px;height:9px;border-radius:50%;background:'+phColorDot(c.name)+';border:1px solid rgba(0,0,0,.15);';
-        return'<button class="ph-pm-ctab'+(i===_phProdActiveTab?' on':'')+'" type="button" data-ctab="'+i+'"><span style="'+dot+'"></span>'+phEsc(c.name)+'</button>';
+        return'<button class="ph-pm-ctab'+(i===_phProdActiveTab?' on':'')+(i===_phProdDefault?' is-default':'')+'" type="button" data-ctab="'+i+'">'+(i===_phProdDefault?'<span class="ph-pm-def-star">★</span>':'')+'<span style="'+dot+'"></span>'+phEsc(c.name)+'</button>';
       }).join('');
       tabHtml+='<button class="ph-pm-ctab ph-pm-ctab-add" type="button" data-ctab-add="1">+ 색상 추가</button>';
       tabsWrap.innerHTML=tabHtml;
     }
+    /* 기본 색상 지정 컨트롤 */
+    var defRow=phEl('ph-pm-default-row');
+    if(defRow){
+      var ac=_phProdColors[_phProdActiveTab];
+      if(!ac){defRow.innerHTML='';}
+      else if(_phProdActiveTab===_phProdDefault){
+        defRow.innerHTML='<span class="ph-pm-def-badge">★ 현재 «'+phEsc(ac.name)+'» 이(가) 카드 기본 색상입니다</span>';
+      }else{
+        defRow.innerHTML='<button type="button" class="adm-btn adm-btn-secondary ph-btn-sm" id="ph-pm-set-default">★ «'+phEsc(ac.name)+'» 을(를) 기본 색상으로 지정</button>';
+      }
+    }
     phRenderProductImgGrid();
-    phRenderCardImg();
   }
   // 카드 노출 이미지 — 첫 색상 첫 이미지(기본) 또는 별도 등록
   function _phFirstColorImg(){
@@ -2330,10 +2336,14 @@ html[data-preload-shop] body { visibility:hidden; }
     var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
     var name=phEl('ph-pm-name').value.trim();if(!name){alert('모델명을 입력하세요.');return;}
     var visible=phEl('ph-pm-visible').checked;
-    var colors=_phProdColors.slice();
+    if(_phProdDefault>=_phProdColors.length)_phProdDefault=0;
+    // 색상 배열에 기본 색상 표시(def:true) — 손님 화면 카드/칩/상세가 이 색으로 통일
+    var colors=_phProdColors.map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,def:i===_phProdDefault};});
     phEl('ph-pm-saving').textContent='저장 중…';
     try{
-      var cardImg=_phProdCardImg||null;
+      // image_url = 기본 색상 첫 이미지(자기설명적·구버전 호환). 없으면 첫 색상 이미지.
+      var _dc=_phProdColors[_phProdDefault];
+      var cardImg=(_dc&&(_dc.images||[]).filter(Boolean)[0])||_phFirstColorImg()||null;
       var res=await sb().from('mobileshop_models').update({name:name,visible:visible,colors:colors,image_url:cardImg}).eq('id',id);
       if(res.error)throw res.error;
       m.name=name;m.visible=visible;m.colors=colors;m.imageUrl=cardImg||'';
@@ -2803,9 +2813,9 @@ html[data-preload-shop] body { visibility:hidden; }
     // 이미지 삭제
     var sdel=t.closest('[data-slot-del]');
     if(sdel){var si=parseInt(sdel.getAttribute('data-slot-del'));if(_phProdColors[_phProdActiveTab])_phProdColors[_phProdActiveTab].images.splice(si,1);phRenderProductImgGrid();return;}
+    // 기본(대표) 색상 지정
+    if(t.closest('#ph-pm-set-default')){_phProdDefault=_phProdActiveTab;phRenderProductModal();return;}
     // 상품모달 닫기
-    if(t.closest('#ph-pm-card-upload')){var cf=phEl('ph-pm-card-file');cf.value='';cf.click();return;}
-    if(t.closest('#ph-pm-card-reset')){_phProdCardImg='';phRenderCardImg();return;}
     if(t.id==='ph-pm-close'||t.id==='ph-pm-cancel'){phCloseProductModal();return;}
     if(t.id==='ph-pm-modal'&&e.target===phEl('ph-pm-modal')){phCloseProductModal();return;}
     // KT 이미지 자동등록
