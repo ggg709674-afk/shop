@@ -248,6 +248,13 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-color-chip{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;border-radius:12px;border:1px solid var(--line);color:var(--ink-3);background:#fff;white-space:nowrap;}
 .ph-prod-color-chip.hidden-chip{opacity:.45;text-decoration:line-through;}
 .ph-prod-color-dot{width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,0,0,.12);flex-shrink:0;}
+/* 카드노출색 드롭다운 */
+.ph-prod-def-wrap{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;transition:border-color .15s,box-shadow .15s,background-color .15s;}
+.ph-prod-def-wrap:hover{border-color:var(--primary);background:#fff8f7;}
+.ph-prod-def-wrap:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(222,79,65,.13);}
+.ph-prod-def-wrap .ph-prod-color-dot{width:12px;height:12px;box-shadow:0 0 0 1px rgba(0,0,0,.05);}
+.ph-prod-def-sel{appearance:none;-webkit-appearance:none;-moz-appearance:none;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-1);border:0;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23999' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right center/11px 11px;padding:2px 20px 2px 0;cursor:pointer;line-height:1.3;outline:none;max-width:140px;}
+.ph-prod-def-sel::-ms-expand{display:none;}
 .ph-prod-vis{width:56px;text-align:center;}
 .ph-prod-act{width:76px;text-align:right;white-space:nowrap;}
 .ph-prod-sort{width:68px;text-align:center;white-space:nowrap;}
@@ -2092,8 +2099,8 @@ html[data-preload-shop] body { visibility:hidden; }
       else{
         var optHtml=cand.map(function(ci){return'<option value="'+ci+'"'+(ci===effDef?' selected':'')+'>'+phEsc(colors[ci].name)+'</option>';}).join('');
         var defDot=phColorDot(colors[effDef]?colors[effDef].name:'');
-        defCell='<span class="ph-prod-color-dot" style="background:'+defDot+';margin-right:6px;vertical-align:middle;"></span>'
-          +'<select class="ph-prod-def-sel" data-ph-prod-def="'+m.id+'">'+optHtml+'</select>';
+        defCell='<span class="ph-prod-def-wrap"><span class="ph-prod-color-dot" style="background:'+defDot+';"></span>'
+          +'<select class="ph-prod-def-sel" data-ph-prod-def="'+m.id+'">'+optHtml+'</select></span>';
       }
       var allIdx=all.findIndex(function(x){return x.id===m.id;});
       var upBtn=allIdx>0
