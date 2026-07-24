@@ -377,7 +377,8 @@
   .inet-logo-img { height:29px; width:auto; max-width:88px; object-fit:contain; display:block; }
   /* KT 로고는 글자가 캔버스를 꽉 채우는 가로형이라 같은 높이면 혼자 커 보임 → 낮춰서 시각적 균형 */
   .inet-opt-carrier[data-carrier="kt"] .inet-logo-img { height:21px; }
-  .inet-logo-sky { font-weight:800; font-style:italic; font-size:20px; letter-spacing:-.5px; color:#0A6EC1; }
+  .inet-logo-sky { display:inline-flex; align-items:center; gap:5px; }
+  .inet-sky-word { font-weight:800; font-size:23px; letter-spacing:-.8px; color:#E60012; }
   .inet-opt-cname { font-size:14px; font-weight:700; color:var(--g1); }
   .inet-opt.on .inet-opt-cname { color:var(--sel); }
   .inet-opt-top { display:flex; align-items:baseline; gap:4px; }
@@ -2249,7 +2250,7 @@ if(location.search.indexOf('ph=')!==-1){
     { id:'kt', name:'KT',        logo:'<img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT">' },
     { id:'sk', name:'SK',        logo:'<img class="inet-logo-img" src="assets/carrier-sk.png" alt="SK">' },
     { id:'lg', name:'LG',        logo:'<img class="inet-logo-img" src="assets/carrier-lg.png" alt="LG U+">' },
-    { id:'skylife', name:'스카이라이프', logo:'<span class="inet-logo-sky">skylife</span>' }
+    { id:'skylife', name:'스카이라이프', logo:'<span class="inet-logo-sky"><img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT"><span class="inet-sky-word">skylife</span></span>' }
   ];
   var INET_SPEEDS = [
     { id:'100', big:'100', unit:'Mbps', label:'광랜',    price:22000 },
