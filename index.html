@@ -373,7 +373,9 @@
   .inet-opt:hover { border-color:var(--g3); }
   .inet-opt.on { border-color:var(--sel); box-shadow:0 0 0 1px var(--sel); background:color-mix(in srgb, var(--sel) 7%, #fff); }
   .inet-opt-carrier { align-items:center; text-align:center; justify-content:center; gap:9px; flex-basis:150px; }
-  .inet-opt-logo { font-size:23px; min-height:28px; display:flex; align-items:center; }
+  .inet-opt-logo { font-size:23px; min-height:32px; display:flex; align-items:center; justify-content:center; }
+  .inet-logo-img { height:29px; width:auto; max-width:88px; object-fit:contain; display:block; }
+  .inet-logo-sky { font-weight:800; font-style:italic; font-size:20px; letter-spacing:-.5px; color:#0A6EC1; }
   .inet-opt-cname { font-size:14px; font-weight:700; color:var(--g1); }
   .inet-opt.on .inet-opt-cname { color:var(--sel); }
   .inet-opt-top { display:flex; align-items:baseline; gap:4px; }
@@ -2242,10 +2244,10 @@ if(location.search.indexOf('ph=')!==-1){
   // ───── 인터넷: 옵션 선택형 구성기(통신사→속도→결합할인→요금요약) ─────
   var INET_SEL = { kt:'#2563EB', sk:'#EA002C', lg:'#E6007E', skylife:'#0284C7' };
   var INET_CARRIERS = [
-    { id:'kt', name:'KT',        logo:'<span style="font-weight:900;letter-spacing:-1px;color:#111">kt</span>' },
-    { id:'sk', name:'SK',        logo:'<span style="font-weight:900;color:#EA002C">SK</span>' },
-    { id:'lg', name:'LG',        logo:'<span style="font-weight:900;color:#E6007E">LG</span>' },
-    { id:'skylife', name:'스카이라이프', logo:'<span style="font-weight:800;font-style:italic;color:#0284C7">skylife</span>' }
+    { id:'kt', name:'KT',        logo:'<img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT">' },
+    { id:'sk', name:'SK',        logo:'<img class="inet-logo-img" src="assets/carrier-skt.png" alt="SK">' },
+    { id:'lg', name:'LG',        logo:'<img class="inet-logo-img" src="assets/carrier-lg.png" alt="LG U+">' },
+    { id:'skylife', name:'스카이라이프', logo:'<span class="inet-logo-sky">skylife</span>' }
   ];
   var INET_SPEEDS = [
     { id:'100', big:'100', unit:'Mbps', label:'광랜',    price:22000 },
