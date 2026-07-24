@@ -2234,10 +2234,11 @@ if(location.search.indexOf('ph=')!==-1){
     };
     pre.onload = apply; pre.onerror = apply; pre.src = url;
   }
-  // 칩 미리보기(hover/터치): 이미지 변경 + 동그란 테두리(선택 링)를 해당 칩으로 이동
+  // 칩 미리보기(hover/터치): 이미지 변경 + 선택 링 이동 + 마지막 색상을 상세로 전달(data-sel-color)
   function phCardPreviewColor(card, idx) {
     var c = phCardColorAt(card, idx); if (!c || !Array.isArray(c.images)) return;
     phCardSetImg(card, c.images.filter(Boolean)[0] || '');
+    card.setAttribute('data-sel-color', String(idx));   // 마우스 온 마지막 색상이 상세페이지에 적용됨
     card.querySelectorAll('.ph-card-chip').forEach(function(ch) {
       ch.classList.toggle('on', ch.getAttribute('data-ci') === String(idx));
     });
