@@ -264,7 +264,11 @@
     aspect-ratio:2 / 1;  /* 모바일에서 2.88:1은 너무 납작 → 2:1로 도톰하게 (메인 배너 톤). 등록 이미지·샘플도 2:1 기준 */
   }
   .banner-wide[hidden] { display:none; }
-  @media (max-width:640px) { .banner-wide { border-radius:10px; } }
+  .bn-wrap { margin-top:14px; }   /* 배너 윗부분 살짝 띄우기 */
+  @media (max-width:640px) {
+    .banner-wide { border-radius:10px; }
+    .bn-wrap { margin-top:10px; }
+  }
   .banner-wide .banner-img {
     display:block; width:100%; height:100%;
     object-fit:cover; object-position:center;
