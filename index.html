@@ -360,6 +360,26 @@
   .product-card .ph-card-chip.on { box-shadow:0 0 0 2px #fff, 0 0 0 3.5px var(--accent), inset 0 0 0 1px rgba(0,0,0,.12); }
   @keyframes phImgFade { from { opacity:.4; } to { opacity:1; } }
   #panel-phone .product-card .thumb > img.ph-img-fade { animation:phImgFade .18s ease; }
+  /* ── 인터넷: 통신사별 리치 카드 ── */
+  .inet-sec-head { margin:6px 0 20px; }
+  .inet-sec-title { font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-.6px; line-height:1.25; }
+  .inet-sec-sub { margin-top:8px; font-size:15px; color:var(--g2); }
+  #internet-cards { grid-template-columns:1fr; gap:16px; }
+  @media (min-width:720px) { #internet-cards { grid-template-columns:repeat(3,1fr); gap:22px; } }
+  .inet-card { --ia:#EA002C; background:#fff; border:1px solid var(--line); border-radius:20px; padding:28px 22px 22px; display:flex; flex-direction:column; align-items:center; text-align:center; transition:box-shadow .2s, border-color .2s, transform .2s; }
+  .inet-card:hover { box-shadow:0 14px 34px rgba(0,0,0,.09); border-color:#dcdcdc; transform:translateY(-2px); }
+  .inet-brand { display:inline-flex; align-items:baseline; gap:5px; min-height:34px; font-size:22px; font-weight:800; color:var(--ink); letter-spacing:-.5px; }
+  .inet-brand-sub { font-size:.72em; font-weight:600; color:#444; }
+  .inet-name { margin-top:14px; font-size:23px; font-weight:800; color:var(--ink); letter-spacing:-.6px; }
+  .inet-speed { margin-top:13px; display:inline-block; font-size:14px; font-weight:800; padding:5px 17px; border-radius:20px; border:1.5px solid var(--ia); color:var(--ia); letter-spacing:.2px; }
+  .inet-illust { width:72%; max-width:210px; height:auto; margin:20px auto 18px; }
+  .inet-table { width:100%; border-top:1px solid var(--line); }
+  .inet-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 4px; border-bottom:1px solid var(--line); }
+  .inet-row .k { font-size:14px; color:var(--g1); white-space:nowrap; }
+  .inet-row .v { font-size:17px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
+  .inet-row .v.hl { color:var(--accent); }
+  .inet-btn { margin-top:20px; width:100%; padding:15px; border-radius:12px; border:1.5px solid var(--ia); background:#fff; color:var(--ia); font-size:16px; font-weight:800; font-family:inherit; cursor:pointer; transition:background .15s, color .15s; }
+  .inet-btn:hover { background:var(--ia); color:#fff; }
   /* ───── 통신사별 인기단말 섹션 (전체 뷰) ───── */
   .ph-sec { padding:4px 0 26px; }
   .ph-sec-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:18px 4px 13px; }
@@ -1442,6 +1462,10 @@ if(location.search.indexOf('ph=')!==-1){
 
     <!-- 상품 카드 그리드 (렌탈 레이아웃) -->
     <div class="shop-cards-wrap">
+      <div class="inet-sec-head">
+        <h2 class="inet-sec-title">통신사별 인기 인터넷</h2>
+        <p class="inet-sec-sub">요금과 혜택을 비교하고 나에게 맞는 상품을 선택하세요</p>
+      </div>
       <div class="product-grid shop-cards" id="internet-cards"></div>
     </div>
 
@@ -2115,9 +2139,9 @@ if(location.search.indexOf('ph=')!==-1){
       { name:'갤럭시 A36',        tag:'알뜰유심', badge:'가성비', del:'',            label:'번호이동', price:'9,900' }
     ],
     internet: [
-      { name:'SK 기가 인터넷 1G',  tag:'SK브로드밴드', badge:'결합', del:'월 33,000원', label:'결합가', price:'22,000' },
-      { name:'KT 인터넷 + IoTV',   tag:'KT',           badge:'',     del:'월 41,800원', label:'결합가', price:'29,700' },
-      { name:'LG U+ 인터넷 500M',  tag:'LG U+',        badge:'',     del:'',            label:'월',     price:'27,500' }
+      { name:'B tv All',      tag:'SK브로드밴드', speed:'500M', monthly:'33,000원', bundle:'최대 11,000원', install:'설치비 면제' },
+      { name:'인터넷 베이직',  tag:'KT',           speed:'500M', monthly:'33,000원', bundle:'최대 11,000원', install:'설치비 면제' },
+      { name:'프리미엄 안심',  tag:'LG U+',        speed:'500M', monthly:'33,000원', bundle:'최대 11,000원', install:'설치비 면제' }
     ]
   };
   var PH_GLYPH = '<svg class="ph-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>';
@@ -2155,6 +2179,54 @@ if(location.search.indexOf('ph=')!==-1){
         + '</div>'
       + '</div>'
     + '</a>';
+  }
+  // ───── 인터넷: 통신사별 리치 카드(로고·속도·라우터TV 일러스트·요금표) ─────
+  var INET_ACCENT = { 'SK브로드밴드':'#EA002C', 'KT':'#1A1A1A', 'LG U+':'#E6007E' };
+  function inetAccent(tag) { return INET_ACCENT[tag] || '#EA002C'; }
+  function inetBrandHtml(tag) {
+    if (tag === 'SK브로드밴드') return '<span class="inet-brand"><span style="color:#EA002C;font-weight:900">SK</span><span class="inet-brand-sub">브로드밴드</span></span>';
+    if (tag === 'KT') return '<span class="inet-brand" style="font-weight:900;letter-spacing:-1.5px;font-size:28px">kt</span>';
+    if (tag === 'LG U+') return '<span class="inet-brand"><span style="color:#E6007E;font-weight:900">LG U<sup style="font-size:.55em;top:-.5em">+</sup></span></span>';
+    return '<span class="inet-brand">' + escapeHtml(tag) + '</span>';
+  }
+  function inetIllustHtml(accent) {
+    return '<svg class="inet-illust" viewBox="0 0 220 118" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+      + '<line x1="42" y1="76" x2="34" y2="52" stroke="#C7CCD4" stroke-width="3" stroke-linecap="round"/>'
+      + '<line x1="70" y1="76" x2="78" y2="52" stroke="#C7CCD4" stroke-width="3" stroke-linecap="round"/>'
+      + '<circle cx="34" cy="51" r="3.5" fill="#C7CCD4"/><circle cx="78" cy="51" r="3.5" fill="#C7CCD4"/>'
+      + '<rect x="22" y="76" width="68" height="26" rx="8" fill="#EEF1F5" stroke="#D3D8E0" stroke-width="2"/>'
+      + '<circle cx="34" cy="89" r="2.6" fill="#B7BEC9"/><circle cx="44" cy="89" r="2.6" fill="#B7BEC9"/><circle cx="54" cy="89" r="2.6" fill="#B7BEC9"/>'
+      + '<rect x="108" y="30" width="94" height="62" rx="9" fill="#F5F6F9" stroke="#D3D8E0" stroke-width="2"/>'
+      + '<rect x="150" y="92" width="10" height="9" fill="#D3D8E0"/>'
+      + '<rect x="138" y="101" width="34" height="4" rx="2" fill="#D3D8E0"/>'
+      + '<path d="M140 62 Q155 46 170 62" stroke="' + accent + '" stroke-width="4.5" stroke-linecap="round"/>'
+      + '<path d="M147 68 Q155 58 163 68" stroke="' + accent + '" stroke-width="4.5" stroke-linecap="round"/>'
+      + '<circle cx="155" cy="73" r="3.6" fill="' + accent + '"/>'
+      + '</svg>';
+  }
+  function internetCardHtml(it) {
+    var ac = inetAccent(it.tag);
+    return '<div class="inet-card" style="--ia:' + ac + '">'
+      + inetBrandHtml(it.tag)
+      + '<div class="inet-name">' + escapeHtml(it.name) + '</div>'
+      + (it.speed ? '<span class="inet-speed">' + escapeHtml(it.speed) + '</span>' : '')
+      + inetIllustHtml(ac)
+      + '<div class="inet-table">'
+        + '<div class="inet-row"><span class="k">월 이용료</span><span class="v">' + escapeHtml(it.monthly || '') + '</span></div>'
+        + (it.bundle ? '<div class="inet-row"><span class="k">결합 할인</span><span class="v hl">' + escapeHtml(it.bundle) + '</span></div>' : '')
+        + (it.install ? '<div class="inet-row"><span class="k">설치 혜택</span><span class="v">' + escapeHtml(it.install) + '</span></div>' : '')
+      + '</div>'
+      + '<button type="button" class="inet-btn">상세보기</button>'
+    + '</div>';
+  }
+  // 인터넷 상세보기 → 상담 모달(consult-modal) 열기(선택 단계부터)
+  function openInternetConsult() {
+    var modal = document.getElementById('consult-modal'); if (!modal) return;
+    var sc = document.getElementById('cm-step-choice'), sf = document.getElementById('cm-step-form'), sd = document.getElementById('cm-step-done');
+    var pb = document.getElementById('cm-product'); if (pb) pb.hidden = true;
+    if (sf) sf.hidden = true; if (sd) sd.hidden = true; if (sc) sc.hidden = false;
+    modal.hidden = false; modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
   }
   var CARRIER_LABEL = { skt:'SKT', kt:'KT', lg:'LG U+', mvno:'알뜰유심' };
   // 통신사 로고 이미지 (SKT/KT/LG U+ 적용, 알뜰유심은 로고 없음)
@@ -2340,7 +2412,11 @@ if(location.search.indexOf('ph=')!==-1){
     var inEl = document.getElementById('internet-cards');
     if (inEl) {
       var inList = SHOP_CARD_SAMPLES.internet;
-      inEl.innerHTML = inList.length ? inList.map(shopCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+      inEl.innerHTML = inList.length ? inList.map(internetCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
+      if (!inEl.dataset.bound) {
+        inEl.dataset.bound = '1';
+        inEl.addEventListener('click', function(e) { if (e.target.closest('.inet-btn')) openInternetConsult(); });
+      }
     }
   }
 
