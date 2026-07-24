@@ -375,6 +375,8 @@
   .inet-opt-carrier { align-items:center; text-align:center; justify-content:center; gap:9px; flex-basis:150px; }
   .inet-opt-logo { font-size:23px; min-height:32px; display:flex; align-items:center; justify-content:center; }
   .inet-logo-img { height:29px; width:auto; max-width:88px; object-fit:contain; display:block; }
+  /* KT 로고는 글자가 캔버스를 꽉 채우는 가로형이라 같은 높이면 혼자 커 보임 → 낮춰서 시각적 균형 */
+  .inet-opt-carrier[data-carrier="kt"] .inet-logo-img { height:21px; }
   .inet-logo-sky { font-weight:800; font-style:italic; font-size:20px; letter-spacing:-.5px; color:#0A6EC1; }
   .inet-opt-cname { font-size:14px; font-weight:700; color:var(--g1); }
   .inet-opt.on .inet-opt-cname { color:var(--sel); }
@@ -2245,7 +2247,7 @@ if(location.search.indexOf('ph=')!==-1){
   var INET_SEL = { kt:'#2563EB', sk:'#EA002C', lg:'#E6007E', skylife:'#0284C7' };
   var INET_CARRIERS = [
     { id:'kt', name:'KT',        logo:'<img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT">' },
-    { id:'sk', name:'SK',        logo:'<img class="inet-logo-img" src="assets/carrier-skt.png" alt="SK">' },
+    { id:'sk', name:'SK',        logo:'<img class="inet-logo-img" src="assets/carrier-sk.png" alt="SK">' },
     { id:'lg', name:'LG',        logo:'<img class="inet-logo-img" src="assets/carrier-lg.png" alt="LG U+">' },
     { id:'skylife', name:'스카이라이프', logo:'<span class="inet-logo-sky">skylife</span>' }
   ];
