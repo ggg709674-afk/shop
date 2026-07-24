@@ -360,26 +360,52 @@
   .product-card .ph-card-chip.on { box-shadow:0 0 0 2px #fff, 0 0 0 3.5px var(--accent), inset 0 0 0 1px rgba(0,0,0,.12); }
   @keyframes phImgFade { from { opacity:.4; } to { opacity:1; } }
   #panel-phone .product-card .thumb > img.ph-img-fade { animation:phImgFade .18s ease; }
-  /* ── 인터넷: 통신사별 리치 카드 ── */
-  .inet-sec-head { margin:6px 0 20px; }
-  .inet-sec-title { font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-.6px; line-height:1.25; }
-  .inet-sec-sub { margin-top:8px; font-size:15px; color:var(--g2); }
-  #internet-cards { grid-template-columns:1fr; gap:16px; }
-  @media (min-width:720px) { #internet-cards { grid-template-columns:repeat(3,1fr); gap:22px; } }
-  .inet-card { --ia:#EA002C; background:#fff; border:1px solid var(--line); border-radius:20px; padding:28px 22px 22px; display:flex; flex-direction:column; align-items:center; text-align:center; transition:box-shadow .2s, border-color .2s, transform .2s; }
-  .inet-card:hover { box-shadow:0 14px 34px rgba(0,0,0,.09); border-color:#dcdcdc; transform:translateY(-2px); }
-  .inet-brand { display:inline-flex; align-items:baseline; gap:5px; min-height:34px; font-size:22px; font-weight:800; color:var(--ink); letter-spacing:-.5px; }
-  .inet-brand-sub { font-size:.72em; font-weight:600; color:#444; }
-  .inet-name { margin-top:14px; font-size:23px; font-weight:800; color:var(--ink); letter-spacing:-.6px; }
-  .inet-speed { margin-top:13px; display:inline-block; font-size:14px; font-weight:800; padding:5px 17px; border-radius:20px; border:1.5px solid var(--ia); color:var(--ia); letter-spacing:.2px; }
-  .inet-illust { width:72%; max-width:210px; height:auto; margin:20px auto 18px; }
-  .inet-table { width:100%; border-top:1px solid var(--line); }
-  .inet-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 4px; border-bottom:1px solid var(--line); }
-  .inet-row .k { font-size:14px; color:var(--g1); white-space:nowrap; }
-  .inet-row .v { font-size:17px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
-  .inet-row .v.hl { color:var(--accent); }
-  .inet-btn { margin-top:20px; width:100%; padding:15px; border-radius:12px; border:1.5px solid var(--ia); background:#fff; color:var(--ia); font-size:16px; font-weight:800; font-family:inherit; cursor:pointer; transition:background .15s, color .15s; }
-  .inet-btn:hover { background:var(--ia); color:#fff; }
+  /* ── 인터넷: 옵션 선택형 구성기 ── */
+  .inet-config { --sel:#EA002C; max-width:1160px; margin:0 auto; }
+  .inet-cfg-title { font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-.6px; margin-bottom:22px; }
+  .inet-cfg-title b { color:var(--sel); }
+  .inet-cfg-row { display:grid; grid-template-columns:88px 1fr; gap:22px; align-items:start; padding:24px 0; border-top:1px solid var(--line); }
+  .inet-cfg-label { font-size:16px; font-weight:700; color:var(--ink); padding-top:12px; }
+  .inet-chooser-wrap { position:relative; min-width:0; }
+  .inet-chooser { display:flex; gap:12px; overflow-x:auto; scroll-behavior:smooth; scrollbar-width:none; padding:3px; }
+  .inet-chooser::-webkit-scrollbar { display:none; }
+  .inet-opt { flex:1 0 150px; min-width:150px; background:#fff; border:1.6px solid var(--line); border-radius:14px; padding:18px 16px; cursor:pointer; font-family:inherit; text-align:left; display:flex; flex-direction:column; gap:5px; transition:border-color .15s, box-shadow .15s, background .15s; }
+  .inet-opt:hover { border-color:var(--g3); }
+  .inet-opt.on { border-color:var(--sel); box-shadow:0 0 0 1px var(--sel); background:color-mix(in srgb, var(--sel) 7%, #fff); }
+  .inet-opt-carrier { align-items:center; text-align:center; justify-content:center; gap:9px; flex-basis:150px; }
+  .inet-opt-logo { font-size:23px; min-height:28px; display:flex; align-items:center; }
+  .inet-opt-cname { font-size:14px; font-weight:700; color:var(--g1); }
+  .inet-opt.on .inet-opt-cname { color:var(--sel); }
+  .inet-opt-top { display:flex; align-items:baseline; gap:4px; }
+  .inet-opt-big { font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-1px; }
+  .inet-opt.on .inet-opt-big { color:var(--sel); }
+  .inet-opt-unit { font-size:14px; font-weight:700; color:var(--g1); }
+  .inet-opt-bname { font-size:16px; font-weight:800; color:var(--ink); }
+  .inet-opt.on .inet-opt-bname { color:var(--sel); }
+  .inet-opt-desc { font-size:13px; color:var(--g2); }
+  .inet-opt-price { margin-top:6px; font-size:16px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
+  .inet-opt.on .inet-opt-price { color:var(--sel); }
+  .inet-opt-price.minus { color:var(--sel); }
+  .inet-arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:3; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.12); cursor:pointer; font-size:20px; line-height:1; color:var(--g1); display:none; align-items:center; justify-content:center; padding:0; }
+  .inet-arrow:hover { color:var(--ink); }
+  .inet-chooser-wrap.has-overflow .inet-arrow { display:flex; }
+  .inet-arrow[data-dir="-1"] { left:-8px; }
+  .inet-arrow[data-dir="1"] { right:-8px; }
+  .inet-summary { display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-top:26px; padding:22px 24px; border:1px solid var(--line); border-radius:16px; background:#FAFAFB; }
+  .inet-sum-lines { display:flex; flex-direction:column; gap:9px; }
+  .inet-sum-line { display:flex; align-items:center; gap:18px; font-size:15px; }
+  .inet-sum-line span { color:var(--g1); min-width:76px; }
+  .inet-sum-line b { font-size:19px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
+  .inet-sum-line b.hl { color:var(--sel); }
+  .inet-consult-btn { padding:16px 44px; border:0; border-radius:12px; background:var(--sel); color:#fff; font-size:17px; font-weight:800; cursor:pointer; font-family:inherit; transition:filter .15s; }
+  .inet-consult-btn:hover { filter:brightness(.94); }
+  @media (max-width:640px) {
+    .inet-cfg-row { grid-template-columns:1fr; gap:10px; padding:18px 0; }
+    .inet-cfg-label { padding-top:0; }
+    .inet-opt { flex-basis:142px; min-width:142px; padding:15px 14px; }
+    .inet-summary { flex-direction:column; align-items:stretch; }
+    .inet-consult-btn { width:100%; }
+  }
   /* ───── 통신사별 인기단말 섹션 (전체 뷰) ───── */
   .ph-sec { padding:4px 0 26px; }
   .ph-sec-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:18px 4px 13px; }
@@ -1450,7 +1476,7 @@ if(location.search.indexOf('ph=')!==-1){
 
     <!-- 인터넷 소분류 (스크롤 시 head 슬롯으로 이동) -->
     <!-- 인터넷 소분류 (sticky) -->
-    <nav class="sub-nav" id="internet-sub-nav">
+    <nav class="sub-nav" id="internet-sub-nav" hidden>
       <button class="on" data-sub="all">전체</button>
       <span class="sub-dot"></span>
       <button data-sub="sk"><span class="swatch sk"></span>SK</button>
@@ -1460,13 +1486,46 @@ if(location.search.indexOf('ph=')!==-1){
       <button data-sub="lg"><span class="swatch lg"></span>LG U+</button>
     </nav>
 
-    <!-- 상품 카드 그리드 (렌탈 레이아웃) -->
+    <!-- 인터넷: 옵션 선택형 구성기 -->
     <div class="shop-cards-wrap">
-      <div class="inet-sec-head">
-        <h2 class="inet-sec-title">통신사별 인기 인터넷</h2>
-        <p class="inet-sec-sub">요금과 혜택을 비교하고 나에게 맞는 상품을 선택하세요</p>
+      <div class="inet-config" id="inet-config">
+        <h2 class="inet-cfg-title">원하시는 <b>옵션</b>을 선택해주세요.</h2>
+
+        <div class="inet-cfg-row">
+          <div class="inet-cfg-label">통신사</div>
+          <div class="inet-chooser-wrap">
+            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
+            <div class="inet-chooser" id="inet-carriers"></div>
+            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+          </div>
+        </div>
+
+        <div class="inet-cfg-row">
+          <div class="inet-cfg-label">인터넷</div>
+          <div class="inet-chooser-wrap">
+            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
+            <div class="inet-chooser" id="inet-speeds"></div>
+            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+          </div>
+        </div>
+
+        <div class="inet-cfg-row">
+          <div class="inet-cfg-label">결합 할인</div>
+          <div class="inet-chooser-wrap">
+            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
+            <div class="inet-chooser" id="inet-bundles"></div>
+            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+          </div>
+        </div>
+
+        <div class="inet-summary">
+          <div class="inet-sum-lines">
+            <div class="inet-sum-line"><span>인터넷 요금</span><b id="inet-sum-fee">월 0원</b></div>
+            <div class="inet-sum-line"><span>결합 할인</span><b id="inet-sum-disc" class="hl">0원</b></div>
+          </div>
+          <button type="button" class="inet-consult-btn" id="inet-consult">상담신청</button>
+        </div>
       </div>
-      <div class="product-grid shop-cards" id="internet-cards"></div>
     </div>
 
     <!-- 이하 옛 섹션은 숨김 (배너+카드 그리드 레이아웃으로 전환) -->
@@ -2180,44 +2239,73 @@ if(location.search.indexOf('ph=')!==-1){
       + '</div>'
     + '</a>';
   }
-  // ───── 인터넷: 통신사별 리치 카드(로고·속도·라우터TV 일러스트·요금표) ─────
-  var INET_ACCENT = { 'SK브로드밴드':'#EA002C', 'KT':'#1A1A1A', 'LG U+':'#E6007E' };
-  function inetAccent(tag) { return INET_ACCENT[tag] || '#EA002C'; }
-  function inetBrandHtml(tag) {
-    if (tag === 'SK브로드밴드') return '<span class="inet-brand"><span style="color:#EA002C;font-weight:900">SK</span><span class="inet-brand-sub">브로드밴드</span></span>';
-    if (tag === 'KT') return '<span class="inet-brand" style="font-weight:900;letter-spacing:-1.5px;font-size:28px">kt</span>';
-    if (tag === 'LG U+') return '<span class="inet-brand"><span style="color:#E6007E;font-weight:900">LG U<sup style="font-size:.55em;top:-.5em">+</sup></span></span>';
-    return '<span class="inet-brand">' + escapeHtml(tag) + '</span>';
+  // ───── 인터넷: 옵션 선택형 구성기(통신사→속도→결합할인→요금요약) ─────
+  var INET_SEL = { kt:'#2563EB', sk:'#EA002C', lg:'#E6007E', skylife:'#0284C7' };
+  var INET_CARRIERS = [
+    { id:'kt', name:'KT',        logo:'<span style="font-weight:900;letter-spacing:-1px;color:#111">kt</span>' },
+    { id:'sk', name:'SK',        logo:'<span style="font-weight:900;color:#EA002C">SK</span>' },
+    { id:'lg', name:'LG',        logo:'<span style="font-weight:900;color:#E6007E">LG</span>' },
+    { id:'skylife', name:'스카이라이프', logo:'<span style="font-weight:800;font-style:italic;color:#0284C7">skylife</span>' }
+  ];
+  var INET_SPEEDS = [
+    { id:'100', big:'100', unit:'Mbps', label:'광랜',    price:22000 },
+    { id:'500', big:'500', unit:'Mbps', label:'기가슬림', price:33000 },
+    { id:'1g',  big:'1',   unit:'Gbps', label:'기가',    price:38500 }
+  ];
+  var INET_BUNDLES = [
+    { id:'none',   name:'미결합',      desc:'결합 없는 기본형', discount:0 },
+    { id:'phone',  name:'휴대폰 결합',  desc:'휴대폰과 결합',   discount:5500 },
+    { id:'family', name:'패밀리 결합',  desc:'인터넷과 결합',   discount:5500 }
+  ];
+  var _inetState = { carrier:'kt', speed:'500', bundle:'none' };
+  function inetWon(n) { return (n || 0).toLocaleString() + '원'; }
+  function inetConfigClick(e) {
+    var a = e.target.closest('.inet-arrow');
+    if (a) { var wrap = a.closest('.inet-chooser-wrap'); var ch = wrap && wrap.querySelector('.inet-chooser');
+      if (ch) ch.scrollBy({ left: parseInt(a.getAttribute('data-dir'), 10) * ch.clientWidth * 0.8, behavior:'smooth' }); return; }
+    var c = e.target.closest('[data-carrier]'); if (c) { _inetState.carrier = c.getAttribute('data-carrier'); renderInternetConfig(); return; }
+    var s = e.target.closest('[data-speed]');   if (s) { _inetState.speed = s.getAttribute('data-speed'); renderInternetConfig(); return; }
+    var b = e.target.closest('[data-bundle]');  if (b) { _inetState.bundle = b.getAttribute('data-bundle'); renderInternetConfig(); return; }
+    if (e.target.closest('#inet-consult')) { openInternetConsult(); return; }
   }
-  function inetIllustHtml(accent) {
-    return '<svg class="inet-illust" viewBox="0 0 220 118" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
-      + '<line x1="42" y1="76" x2="34" y2="52" stroke="#C7CCD4" stroke-width="3" stroke-linecap="round"/>'
-      + '<line x1="70" y1="76" x2="78" y2="52" stroke="#C7CCD4" stroke-width="3" stroke-linecap="round"/>'
-      + '<circle cx="34" cy="51" r="3.5" fill="#C7CCD4"/><circle cx="78" cy="51" r="3.5" fill="#C7CCD4"/>'
-      + '<rect x="22" y="76" width="68" height="26" rx="8" fill="#EEF1F5" stroke="#D3D8E0" stroke-width="2"/>'
-      + '<circle cx="34" cy="89" r="2.6" fill="#B7BEC9"/><circle cx="44" cy="89" r="2.6" fill="#B7BEC9"/><circle cx="54" cy="89" r="2.6" fill="#B7BEC9"/>'
-      + '<rect x="108" y="30" width="94" height="62" rx="9" fill="#F5F6F9" stroke="#D3D8E0" stroke-width="2"/>'
-      + '<rect x="150" y="92" width="10" height="9" fill="#D3D8E0"/>'
-      + '<rect x="138" y="101" width="34" height="4" rx="2" fill="#D3D8E0"/>'
-      + '<path d="M140 62 Q155 46 170 62" stroke="' + accent + '" stroke-width="4.5" stroke-linecap="round"/>'
-      + '<path d="M147 68 Q155 58 163 68" stroke="' + accent + '" stroke-width="4.5" stroke-linecap="round"/>'
-      + '<circle cx="155" cy="73" r="3.6" fill="' + accent + '"/>'
-      + '</svg>';
+  function inetUpdateArrows() {
+    document.querySelectorAll('#inet-config .inet-chooser-wrap').forEach(function(wrap) {
+      var ch = wrap.querySelector('.inet-chooser'); if (!ch) return;
+      wrap.classList.toggle('has-overflow', ch.scrollWidth - ch.clientWidth > 2);
+    });
   }
-  function internetCardHtml(it) {
-    var ac = inetAccent(it.tag);
-    return '<div class="inet-card" style="--ia:' + ac + '">'
-      + inetBrandHtml(it.tag)
-      + '<div class="inet-name">' + escapeHtml(it.name) + '</div>'
-      + (it.speed ? '<span class="inet-speed">' + escapeHtml(it.speed) + '</span>' : '')
-      + inetIllustHtml(ac)
-      + '<div class="inet-table">'
-        + '<div class="inet-row"><span class="k">월 이용료</span><span class="v">' + escapeHtml(it.monthly || '') + '</span></div>'
-        + (it.bundle ? '<div class="inet-row"><span class="k">결합 할인</span><span class="v hl">' + escapeHtml(it.bundle) + '</span></div>' : '')
-        + (it.install ? '<div class="inet-row"><span class="k">설치 혜택</span><span class="v">' + escapeHtml(it.install) + '</span></div>' : '')
-      + '</div>'
-      + '<button type="button" class="inet-btn">상세보기</button>'
-    + '</div>';
+  function renderInternetConfig() {
+    var root = document.getElementById('inet-config'); if (!root) return;
+    if (!root.dataset.bound) {
+      root.dataset.bound = '1';
+      root.addEventListener('click', inetConfigClick);
+      root.querySelectorAll('.inet-chooser').forEach(function(ch) { ch.addEventListener('scroll', inetUpdateArrows, { passive:true }); });
+      window.addEventListener('resize', inetUpdateArrows);
+    }
+    var sel = INET_SEL[_inetState.carrier] || '#EA002C';
+    root.style.setProperty('--sel', sel);
+    document.getElementById('inet-carriers').innerHTML = INET_CARRIERS.map(function(c) {
+      return '<button type="button" class="inet-opt inet-opt-carrier' + (c.id === _inetState.carrier ? ' on' : '') + '" data-carrier="' + c.id + '">'
+        + '<span class="inet-opt-logo">' + c.logo + '</span><span class="inet-opt-cname">' + escapeHtml(c.name) + '</span></button>';
+    }).join('');
+    document.getElementById('inet-speeds').innerHTML = INET_SPEEDS.map(function(s) {
+      return '<button type="button" class="inet-opt inet-opt-speed' + (s.id === _inetState.speed ? ' on' : '') + '" data-speed="' + s.id + '">'
+        + '<span class="inet-opt-top"><b class="inet-opt-big">' + s.big + '</b><span class="inet-opt-unit">' + s.unit + '</span></span>'
+        + '<span class="inet-opt-desc">' + escapeHtml(s.label) + '</span>'
+        + '<span class="inet-opt-price">월 ' + inetWon(s.price) + '</span></button>';
+    }).join('');
+    document.getElementById('inet-bundles').innerHTML = INET_BUNDLES.map(function(b) {
+      return '<button type="button" class="inet-opt inet-opt-bundle' + (b.id === _inetState.bundle ? ' on' : '') + '" data-bundle="' + b.id + '">'
+        + '<span class="inet-opt-bname">' + escapeHtml(b.name) + '</span>'
+        + '<span class="inet-opt-desc">' + escapeHtml(b.desc) + '</span>'
+        + '<span class="inet-opt-price' + (b.discount ? ' minus' : '') + '">' + (b.discount ? '- ' + inetWon(b.discount) + ' 할인' : '0원') + '</span></button>';
+    }).join('');
+    var sp = INET_SPEEDS.filter(function(x){return x.id===_inetState.speed;})[0] || INET_SPEEDS[0];
+    var bd = INET_BUNDLES.filter(function(x){return x.id===_inetState.bundle;})[0] || INET_BUNDLES[0];
+    var fe = document.getElementById('inet-sum-fee'), di = document.getElementById('inet-sum-disc');
+    if (fe) fe.textContent = '월 ' + inetWon(sp.price);
+    if (di) di.textContent = bd.discount ? ('- ' + inetWon(bd.discount)) : '0원';
+    inetUpdateArrows();
   }
   // 인터넷 상세보기 → 상담 모달(consult-modal) 열기(선택 단계부터)
   function openInternetConsult() {
@@ -2409,15 +2497,7 @@ if(location.search.indexOf('ph=')!==-1){
     // 휴대폰 — 현재 통신사 선택 상태에 맞춰 렌더 (전체=섹션 / 통신사=그리드)
     if (document.getElementById('phone-home')) selectPhoneCarrier(_phCarrier);
     // 인터넷 — 샘플 고정
-    var inEl = document.getElementById('internet-cards');
-    if (inEl) {
-      var inList = SHOP_CARD_SAMPLES.internet;
-      inEl.innerHTML = inList.length ? inList.map(internetCardHtml).join('') : '<div class="empty-cards">등록된 상품이 없습니다.</div>';
-      if (!inEl.dataset.bound) {
-        inEl.dataset.bound = '1';
-        inEl.addEventListener('click', function(e) { if (e.target.closest('.inet-btn')) openInternetConsult(); });
-      }
-    }
+    if (document.getElementById('inet-config')) renderInternetConfig();
   }
 
   function renderPhoneProducts(products, categories) {
