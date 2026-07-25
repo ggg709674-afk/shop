@@ -377,15 +377,19 @@
   .inet-opt { flex:1 0 150px; min-width:150px; background:#fff; border:1.6px solid var(--line); border-radius:14px; padding:18px 16px; cursor:pointer; font-family:inherit; text-align:left; display:flex; flex-direction:column; gap:5px; transition:border-color .15s, box-shadow .15s, background .15s; }
   .inet-opt:hover { border-color:var(--g3); }
   .inet-opt.on { border-color:var(--sel); box-shadow:0 0 0 1px var(--sel); background:color-mix(in srgb, var(--sel) 7%, #fff); }
-  .inet-opt-carrier { align-items:center; text-align:center; justify-content:center; gap:9px; flex-basis:150px; }
-  .inet-opt-logo { font-size:23px; min-height:32px; display:flex; align-items:center; justify-content:center; }
-  .inet-logo-img { height:29px; width:auto; max-width:88px; object-fit:contain; display:block; }
+  .inet-logo-img { height:24px; width:auto; max-width:100px; object-fit:contain; display:block; }
   /* KT 로고는 글자가 캔버스를 꽉 채우는 가로형이라 같은 높이면 혼자 커 보임 → 낮춰서 시각적 균형 */
-  .inet-opt-carrier[data-carrier="kt"] .inet-logo-img { height:21px; }
+  .inet-opt-carrier[data-carrier="kt"] .inet-logo-img { height:18px; }
   .inet-logo-sky { display:inline-flex; align-items:center; gap:5px; }
-  .inet-sky-word { font-weight:800; font-size:23px; letter-spacing:-.8px; color:#E60012; }
-  .inet-opt-cname { font-size:14px; font-weight:700; color:var(--g1); }
-  .inet-opt.on .inet-opt-cname { color:var(--sel); }
+  .inet-sky-word { font-weight:800; font-size:19px; letter-spacing:-.6px; color:#E60012; }
+  /* 통신사 카드: 상단 컬러바 + 로고 + 이름 + 설명 + → 화살표 (좌측정렬) */
+  .inet-opt-carrier { position:relative; flex-basis:214px; min-width:198px; flex-direction:row; align-items:stretch; justify-content:space-between; text-align:left; gap:10px; padding:20px 16px 18px; overflow:hidden; }
+  .inet-opt-carrier .ic-bar { position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--oc), color-mix(in srgb, var(--oc) 45%, #ff9a6b)); }
+  .inet-opt-carrier .ic-body { display:flex; flex-direction:column; gap:9px; min-width:0; }
+  .inet-opt-carrier .ic-logo { min-height:24px; display:flex; align-items:center; }
+  .inet-opt-carrier .ic-name { font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
+  .inet-opt-carrier .ic-desc { font-size:12px; color:var(--g2); white-space:nowrap; }
+  .inet-opt-carrier .ic-arrow { align-self:center; flex-shrink:0; color:var(--oc); font-size:18px; font-weight:700; line-height:1; }
   .inet-opt-top { display:flex; align-items:baseline; gap:4px; }
   .inet-opt-big { font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-1px; }
   .inet-opt.on .inet-opt-big { color:var(--sel); }
@@ -2260,12 +2264,13 @@ if(location.search.indexOf('ph=')!==-1){
     + '</a>';
   }
   // ───── 인터넷: 옵션 선택형 구성기(통신사→속도→결합할인→요금요약) ─────
-  var INET_SEL = { kt:'#2563EB', sk:'#EA002C', lg:'#E6007E', skylife:'#0284C7' };
+  var INET_SEL = { sk:'#EA002C', kt:'#2563EB', lg:'#E6007E', skylife:'#E60012', hello:'#E6007E' };
   var INET_CARRIERS = [
-    { id:'sk', name:'SK',        logo:'<img class="inet-logo-img" src="assets/carrier-sk.png" alt="SK">' },
-    { id:'kt', name:'KT',        logo:'<img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT">' },
-    { id:'lg', name:'LG',        logo:'<img class="inet-logo-img" src="assets/carrier-lg.png" alt="LG U+">' },
-    { id:'skylife', name:'스카이라이프', logo:'<span class="inet-logo-sky"><img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT"><span class="inet-sky-word">skylife</span></span>' }
+    { id:'sk',      name:'SK',         desc:'B tv · 초고속 인터넷',   logo:'<img class="inet-logo-img" src="assets/carrier-sk.png" alt="SK">' },
+    { id:'kt',      name:'KT',         desc:'지니 TV · 초고속 인터넷', logo:'<img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT">' },
+    { id:'lg',      name:'LG U+',      desc:'U+tv · 초고속 인터넷',   logo:'<img class="inet-logo-img" src="assets/carrier-lg.png" alt="LG U+">' },
+    { id:'skylife', name:'KT 스카이라이프', desc:'위성방송 결합',       logo:'<span class="inet-logo-sky"><img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT"><span class="inet-sky-word">skylife</span></span>' },
+    { id:'hello',   name:'LG헬로비전',  desc:'헬로tv · 지역 인터넷',   logo:'<img class="inet-logo-img" src="assets/carrier-lg.png" alt="LG헬로비전">' }
   ];
   var INET_SPEEDS = [
     { id:'100', big:'100', unit:'Mbps', label:'광랜',    price:22000 },
@@ -2312,8 +2317,13 @@ if(location.search.indexOf('ph=')!==-1){
     var sel = INET_SEL[_inetState.carrier] || '#EA002C';
     root.style.setProperty('--sel', sel);
     document.getElementById('inet-carriers').innerHTML = INET_CARRIERS.map(function(c) {
-      return '<button type="button" class="inet-opt inet-opt-carrier' + (c.id === _inetState.carrier ? ' on' : '') + '" data-carrier="' + c.id + '">'
-        + '<span class="inet-opt-logo">' + c.logo + '</span><span class="inet-opt-cname">' + escapeHtml(c.name) + '</span></button>';
+      var oc = INET_SEL[c.id] || '#EA002C';
+      return '<button type="button" class="inet-opt inet-opt-carrier' + (c.id === _inetState.carrier ? ' on' : '') + '" data-carrier="' + c.id + '" style="--oc:' + oc + '">'
+        + '<span class="ic-bar"></span>'
+        + '<span class="ic-body"><span class="ic-logo">' + c.logo + '</span>'
+          + '<span class="ic-name">' + escapeHtml(c.name) + '</span>'
+          + '<span class="ic-desc">' + escapeHtml(c.desc || '') + '</span></span>'
+        + '<span class="ic-arrow">→</span></button>';
     }).join('');
     document.getElementById('inet-speeds').innerHTML = INET_SPEEDS.map(function(s) {
       return '<button type="button" class="inet-opt inet-opt-speed' + (s.id === _inetState.speed ? ' on' : '') + '" data-speed="' + s.id + '">'
