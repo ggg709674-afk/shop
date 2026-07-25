@@ -420,6 +420,94 @@
     .inet-summary { flex-direction:column; align-items:stretch; }
     .inet-consult-btn { width:100%; }
   }
+  /* ═══════ 인터넷 시안 B 랜딩 ═══════ */
+  .itb { padding-bottom:90px; }
+  .itb-in { max-width:1160px; margin:0 auto; padding:0 20px; }
+  .itb-sec { padding:52px 0; }
+  .itb-sec.itb-alt { background:#F7F8FA; }
+  .itb-h2 { font-size:26px; font-weight:800; letter-spacing:-.6px; text-align:center; margin:0 0 8px; }
+  .itb-sub { text-align:center; color:var(--g2); font-size:15px; margin:0 0 30px; }
+  /* hero */
+  .itb-hero { background:radial-gradient(120% 140% at 80% 0%, #ff7a5c 0%, #DE4F41 45%, #c23b30 100%); color:#fff; }
+  .itb-hero .itb-in { padding:44px 20px 52px; text-align:center; }
+  .itb-eyebrow { display:inline-block; font-size:13px; font-weight:800; background:rgba(255,255,255,.18); border-radius:20px; padding:7px 15px; letter-spacing:.3px; }
+  .itb-h1 { font-size:38px; font-weight:800; letter-spacing:-1px; line-height:1.25; margin:18px 0 12px; }
+  .itb-h1 u { text-decoration:none; background:linear-gradient(transparent 60%, rgba(255,255,255,.32) 0); padding:0 4px; }
+  .itb-lead { font-size:17px; opacity:.95; margin:0 0 26px; }
+  .itb-hbtns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .itb-btn-w { background:#fff; color:var(--accent); border:0; border-radius:12px; padding:15px 30px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-block; }
+  .itb-btn-o { background:rgba(255,255,255,.14); color:#fff; border:1.5px solid rgba(255,255,255,.7); border-radius:12px; padding:15px 30px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .itb-hstat { display:flex; justify-content:center; gap:34px; flex-wrap:wrap; margin-top:34px; }
+  .itb-hstat div { text-align:center; }
+  .itb-hstat b { display:block; font-size:26px; font-weight:800; }
+  .itb-hstat span { font-size:12.5px; opacity:.9; }
+  /* carrier grid */
+  .itb-carriers { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+  .itb-cc { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:14px; background:#fff; padding:20px 16px 18px; display:flex; align-items:stretch; justify-content:space-between; gap:10px; text-align:left; cursor:pointer; transition:box-shadow .2s, transform .2s; }
+  .itb-cc:hover { box-shadow:0 10px 26px rgba(0,0,0,.07); transform:translateY(-2px); }
+  .itb-cbar { position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--oc), color-mix(in srgb, var(--oc) 45%, #ff9a6b)); }
+  .itb-cbody { display:flex; flex-direction:column; gap:9px; min-width:0; }
+  .itb-clogo { min-height:24px; display:flex; align-items:center; }
+  .itb-clogo img { height:22px; width:auto; max-width:96px; object-fit:contain; }
+  .itb-cc[data-c="kt"] .itb-clogo img { height:17px; }
+  .itb-cname { font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
+  .itb-cdesc { font-size:12px; color:var(--g2); white-space:nowrap; }
+  .itb-carrow { align-self:center; color:var(--oc); font-size:18px; font-weight:700; flex-shrink:0; line-height:1; }
+  /* product cards */
+  .itb-prods { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .itb-pc { position:relative; border:1px solid var(--line); border-radius:18px; background:#fff; padding:26px 22px; transition:box-shadow .2s, transform .2s; }
+  .itb-pc:hover { box-shadow:0 16px 36px rgba(0,0,0,.08); transform:translateY(-2px); }
+  .itb-pc.best { border-color:var(--accent); box-shadow:0 12px 30px rgba(222,79,65,.14); }
+  .itb-best { position:absolute; top:-12px; left:22px; background:var(--accent); color:#fff; font-size:12px; font-weight:800; padding:5px 12px; border-radius:20px; }
+  .itb-plogo { height:26px; margin-bottom:16px; display:flex; align-items:center; }
+  .itb-plogo img { height:26px; width:auto; }
+  .itb-plogo img.kt { height:20px; }
+  .itb-pc h3 { font-size:20px; font-weight:800; margin:0 0 4px; letter-spacing:-.4px; }
+  .itb-pspd { font-size:13px; color:var(--g2); margin-bottom:16px; }
+  .itb-prow { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-top:1px solid var(--line); font-size:14px; }
+  .itb-prow .k { color:var(--g1); }
+  .itb-prow .v { font-weight:800; }
+  .itb-prow .v.red { color:var(--accent); }
+  .itb-gifttag { margin-top:14px; background:#fdecea; color:var(--accent); border-radius:10px; padding:11px 14px; font-size:13.5px; font-weight:800; text-align:center; }
+  .itb-pbtn { margin-top:16px; width:100%; border:1.5px solid var(--accent); background:#fff; color:var(--accent); border-radius:12px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit; transition:background .15s, color .15s; }
+  .itb-pbtn:hover { background:var(--accent); color:#fff; }
+  /* gift banner */
+  .itb-gift { background:linear-gradient(135deg, #23262F, #3a3f4d); color:#fff; border-radius:20px; padding:34px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .itb-gift-big { font-size:28px; font-weight:800; letter-spacing:-.6px; }
+  .itb-gift-big em { color:#ffd166; font-style:normal; }
+  .itb-gift p { margin:6px 0 0; opacity:.85; font-size:14px; }
+  /* reviews */
+  .itb-revs { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .itb-rev { border:1px solid var(--line); border-radius:14px; background:#fff; padding:20px; }
+  .itb-stars { color:#f5a623; font-size:15px; letter-spacing:2px; }
+  .itb-rev p { font-size:14px; color:var(--ink); line-height:1.6; margin:10px 0; }
+  .itb-who { font-size:12.5px; color:var(--g2); }
+  /* faq */
+  .itb-faq-item { border-top:1px solid var(--line); }
+  .itb-faq-item:last-child { border-bottom:1px solid var(--line); }
+  .itb-q { width:100%; text-align:left; background:none; border:0; font-family:inherit; font-size:16px; font-weight:700; color:var(--ink); padding:18px 4px; cursor:pointer; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+  .itb-mk { color:var(--g3); transition:transform .2s; }
+  .itb-faq-item.open .itb-mk { transform:rotate(45deg); color:var(--accent); }
+  .itb-a { display:none; padding:0 4px 18px; font-size:14px; color:var(--g1); line-height:1.7; }
+  .itb-faq-item.open .itb-a { display:block; }
+  /* 하단 고정 상담바 — 인터넷 탭 활성 시에만 */
+  .itb-consultbar { display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; background:#23262F; color:#fff; }
+  body:has(#cat-nav button[data-cat="internet"].on) .itb-consultbar { display:block; }
+  .itb-cb-in { max-width:1160px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:16px; }
+  .itb-cb-tel { display:flex; align-items:center; gap:10px; }
+  .itb-cb-dot { width:38px; height:38px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .itb-cb-tel b { font-size:20px; font-weight:800; letter-spacing:.5px; }
+  .itb-cb-tel small { display:block; font-size:11px; color:#aeb2bd; }
+  .itb-cb-input { flex:1; min-width:120px; height:44px; border-radius:10px; border:0; padding:0 14px; font-family:inherit; font-size:14px; }
+  .itb-cb-go { height:44px; padding:0 26px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap; }
+  @media (max-width:820px) { .itb-prods, .itb-revs { grid-template-columns:1fr; } }
+  @media (max-width:760px) { .itb-carriers { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:720px) {
+    .itb-h1 { font-size:28px; }
+    .itb-sec { padding:40px 0; }
+    .itb-cb-tel small, .itb-cb-input { display:none; }
+    .itb-cb-go { flex:1; }
+  }
   /* ───── 통신사별 인기단말 섹션 (전체 뷰) ───── */
   .ph-sec { padding:4px 0 26px; }
   .ph-sec-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:18px 4px 13px; }
@@ -1500,56 +1588,101 @@ if(location.search.indexOf('ph=')!==-1){
       <button data-sub="lg"><span class="swatch lg"></span>LG U+</button>
     </nav>
 
-    <!-- 인터넷: 옵션 선택형 구성기 -->
-    <div class="shop-cards-wrap">
-      <div class="inet-config" id="inet-config">
-        <h2 class="inet-cfg-title">원하시는 <b>옵션</b>을 선택해주세요.</h2>
-
-        <div class="inet-cfg-row">
-          <div class="inet-cfg-label">통신사</div>
-          <div class="inet-chooser-wrap">
-            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
-            <div class="inet-chooser" id="inet-carriers"></div>
-            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+    <!-- 인터넷: 시안 B 랜딩 -->
+    <div class="itb">
+      <section class="itb-hero">
+        <div class="itb-in">
+          <span class="itb-eyebrow">SK · KT · LG · 스카이라이프 공식 파트너</span>
+          <h1 class="itb-h1">인터넷 가입,<br><u>현금 지원 + 사은품</u>까지 한 번에</h1>
+          <p class="itb-lead">통신사 요금·혜택을 비교하고 가장 유리한 상품으로 신청하세요.</p>
+          <div class="itb-hbtns">
+            <a class="itb-btn-w" href="#itb-prods">상품 비교하기</a>
+            <button type="button" class="itb-btn-o" data-inet-consult>상담 신청</button>
+          </div>
+          <div class="itb-hstat">
+            <div><b>당일</b><span>현금 지급</span></div>
+            <div><b>4사+</b><span>요금 비교</span></div>
+            <div><b>0원</b><span>설치·가입비</span></div>
           </div>
         </div>
+      </section>
 
-        <div class="inet-cfg-row">
-          <div class="inet-cfg-label">인터넷</div>
-          <div class="inet-chooser-wrap">
-            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
-            <div class="inet-chooser" id="inet-speeds"></div>
-            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+      <section class="itb-sec">
+        <div class="itb-in">
+          <h2 class="itb-h2">어느 통신사든 가능합니다</h2>
+          <p class="itb-sub">원하는 통신사를 고르면 맞춤 상품과 혜택을 안내해 드립니다</p>
+          <div class="itb-carriers">
+            <div class="itb-cc" data-c="sk" style="--oc:#EA002C"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><img src="assets/carrier-sk.png" alt="SK"></span><span class="itb-cname">SK</span><span class="itb-cdesc">B tv · 초고속 인터넷</span></span><span class="itb-carrow">→</span></div>
+            <div class="itb-cc" data-c="kt" style="--oc:#2563EB"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><img src="assets/carrier-kt.png" alt="KT"></span><span class="itb-cname">KT</span><span class="itb-cdesc">지니 TV · 초고속 인터넷</span></span><span class="itb-carrow">→</span></div>
+            <div class="itb-cc" data-c="lg" style="--oc:#E6007E"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><img src="assets/carrier-lg.png" alt="LG U+"></span><span class="itb-cname">LG U+</span><span class="itb-cdesc">U+tv · 초고속 인터넷</span></span><span class="itb-carrow">→</span></div>
+            <div class="itb-cc" data-c="skylife" style="--oc:#E60012"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><span class="inet-logo-sky"><img src="assets/carrier-kt.png" alt="KT"><span class="inet-sky-word">skylife</span></span></span><span class="itb-cname">스카이라이프</span><span class="itb-cdesc">위성방송 결합</span></span><span class="itb-carrow">→</span></div>
+            <div class="itb-cc" data-c="hello" style="--oc:#E6007E"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><img src="assets/carrier-lg.png" alt="LG헬로비전"></span><span class="itb-cname">LG헬로비전</span><span class="itb-cdesc">헬로tv · 지역 인터넷</span></span><span class="itb-carrow">→</span></div>
           </div>
         </div>
+      </section>
 
-        <div class="inet-cfg-row">
-          <div class="inet-cfg-label">IPTV</div>
-          <div class="inet-chooser-wrap">
-            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
-            <div class="inet-chooser" id="inet-iptv"></div>
-            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+      <section class="itb-sec itb-alt" id="itb-prods">
+        <div class="itb-in">
+          <h2 class="itb-h2">통신사별 인기 상품</h2>
+          <p class="itb-sub">요금·결합할인·사은품을 한눈에 비교하세요</p>
+          <div class="itb-prods">
+            <div class="itb-pc"><div class="itb-plogo"><img src="assets/carrier-sk.png" alt="SK"></div>
+              <h3>B tv All</h3><div class="itb-pspd">기가슬림 500M · TV 포함</div>
+              <div class="itb-prow"><span class="k">월 이용료</span><span class="v">33,000원</span></div>
+              <div class="itb-prow"><span class="k">결합 할인</span><span class="v red">- 11,000원</span></div>
+              <div class="itb-prow"><span class="k">설치 혜택</span><span class="v">설치비 면제</span></div>
+              <div class="itb-gifttag">🎁 현금 지원 + 사은품</div>
+              <button type="button" class="itb-pbtn" data-inet-consult>상담 신청</button></div>
+            <div class="itb-pc best"><div class="itb-best">추천</div><div class="itb-plogo"><img src="assets/carrier-kt.png" alt="KT" class="kt"></div>
+              <h3>인터넷 베이직</h3><div class="itb-pspd">기가 500M · 지니 TV 포함</div>
+              <div class="itb-prow"><span class="k">월 이용료</span><span class="v">33,000원</span></div>
+              <div class="itb-prow"><span class="k">결합 할인</span><span class="v red">- 11,000원</span></div>
+              <div class="itb-prow"><span class="k">설치 혜택</span><span class="v">설치비 면제</span></div>
+              <div class="itb-gifttag">🎁 현금 지원 최대</div>
+              <button type="button" class="itb-pbtn" data-inet-consult>상담 신청</button></div>
+            <div class="itb-pc"><div class="itb-plogo"><img src="assets/carrier-lg.png" alt="LG U+"></div>
+              <h3>프리미엄 안심</h3><div class="itb-pspd">기가 500M · U+tv 포함</div>
+              <div class="itb-prow"><span class="k">월 이용료</span><span class="v">33,000원</span></div>
+              <div class="itb-prow"><span class="k">결합 할인</span><span class="v red">- 11,000원</span></div>
+              <div class="itb-prow"><span class="k">설치 혜택</span><span class="v">설치비 면제</span></div>
+              <div class="itb-gifttag">🎁 현금 지원 + 상품권</div>
+              <button type="button" class="itb-pbtn" data-inet-consult>상담 신청</button></div>
           </div>
         </div>
+      </section>
 
-        <div class="inet-cfg-row">
-          <div class="inet-cfg-label">결합 할인</div>
-          <div class="inet-chooser-wrap">
-            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
-            <div class="inet-chooser" id="inet-bundles"></div>
-            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+      <section class="itb-sec">
+        <div class="itb-in">
+          <div class="itb-gift">
+            <div><div class="itb-gift-big">지금 가입하면 <em>현금 지원 + 사은품</em></div><p>설치 당일 지급 · 상품과 결합에 따라 혜택이 커집니다</p></div>
+            <button type="button" class="itb-btn-w" data-inet-consult>내 혜택 확인하기</button>
           </div>
         </div>
+      </section>
 
-        <div class="inet-summary">
-          <div class="inet-sum-lines">
-            <div class="inet-sum-line"><span>인터넷 요금</span><b id="inet-sum-fee">월 0원</b></div>
-            <div class="inet-sum-line"><span>IPTV</span><b id="inet-sum-iptv">월 0원</b></div>
-            <div class="inet-sum-line"><span>결합 할인</span><b id="inet-sum-disc" class="hl">0원</b></div>
+      <section class="itb-sec itb-alt">
+        <div class="itb-in">
+          <h2 class="itb-h2">설치 후기</h2>
+          <p class="itb-sub">누적 설치 <b style="color:var(--accent)">1,200+</b> · 평균 별점 <b style="color:var(--accent)">4.9</b></p>
+          <div class="itb-revs">
+            <div class="itb-rev"><div class="itb-stars">★★★★★</div><p>상담부터 설치까지 하루 만에 끝났어요. 현금 지원도 바로 받았습니다.</p><div class="itb-who">· 수원 / 500M + TV</div></div>
+            <div class="itb-rev"><div class="itb-stars">★★★★★</div><p>휴대폰이랑 결합하니 매달 요금이 확 줄었네요. 친절했어요.</p><div class="itb-who">· 용인 / 기가 + 결합</div></div>
+            <div class="itb-rev"><div class="itb-stars">★★★★★</div><p>여러 곳 비교했는데 여기가 혜택이 제일 컸습니다. 추천!</p><div class="itb-who">· 성남 / 1G + TV</div></div>
           </div>
-          <button type="button" class="inet-consult-btn" id="inet-consult">상담신청</button>
         </div>
-      </div>
+      </section>
+
+      <section class="itb-sec">
+        <div class="itb-in" style="max-width:820px">
+          <h2 class="itb-h2">자주 묻는 질문</h2>
+          <div class="itb-faq" id="itb-faq">
+            <div class="itb-faq-item"><button type="button" class="itb-q">가입은 어떻게 진행되나요?<span class="itb-mk">＋</span></button><div class="itb-a">연락처를 남기시면 상담원이 확인 후 설치 일정을 안내드립니다. 방문 설치까지 보통 당일~수일 내 완료됩니다.</div></div>
+            <div class="itb-faq-item"><button type="button" class="itb-q">현금 지원은 언제 받나요?<span class="itb-mk">＋</span></button><div class="itb-a">설치·개통이 확인되면 안내된 조건에 따라 지급됩니다. 시간대에 따라 당일 지급도 가능합니다.</div></div>
+            <div class="itb-faq-item"><button type="button" class="itb-q">약정과 위약금이 궁금해요.<span class="itb-mk">＋</span></button><div class="itb-a">보통 3년 약정 기준이며 결합·상품에 따라 조건이 다릅니다. 상담 시 정확히 안내드립니다.</div></div>
+            <div class="itb-faq-item"><button type="button" class="itb-q">기존 인터넷에서 옮겨도 되나요?<span class="itb-mk">＋</span></button><div class="itb-a">네, 타사 이동(전환) 시 혜택이 더 큰 경우가 많습니다. 현재 상품을 알려주시면 비교해 드립니다.</div></div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- 이하 옛 섹션은 숨김 (배너+카드 그리드 레이아웃으로 전환) -->
@@ -1826,6 +1959,15 @@ if(location.search.indexOf('ph=')!==-1){
   </div><!-- /panel-rental -->
 
   </div><!-- /panels -->
+
+  <!-- 인터넷 시안 B: 하단 고정 상담바 (인터넷 탭에서만 표시) -->
+  <div class="itb-consultbar" id="inet-bar">
+    <div class="itb-cb-in">
+      <div class="itb-cb-tel"><span class="itb-cb-dot">📞</span><div><b>1800-0000</b><small>빠르고 간편한 상담신청</small></div></div>
+      <input class="itb-cb-input" placeholder="연락처를 입력해주세요">
+      <button type="button" class="itb-cb-go" data-inet-consult>상담신청</button>
+    </div>
+  </div>
 
 </div><!-- /scroll -->
 
@@ -2362,6 +2504,12 @@ if(location.search.indexOf('ph=')!==-1){
     modal.hidden = false; modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
   }
+  // 인터넷 시안 B: FAQ 아코디언 + 상담 버튼(위임)
+  (function() {
+    var faq = document.getElementById('itb-faq');
+    if (faq) faq.addEventListener('click', function(e) { var q = e.target.closest('.itb-q'); if (q) q.parentNode.classList.toggle('open'); });
+    document.addEventListener('click', function(e) { if (e.target.closest('[data-inet-consult]')) { e.preventDefault(); openInternetConsult(); } });
+  })();
   var CARRIER_LABEL = { skt:'SKT', kt:'KT', lg:'LG U+', mvno:'알뜰유심' };
   // 통신사 로고 이미지 (SKT/KT/LG U+ 적용, 알뜰유심은 로고 없음)
   var CARRIER_LOGOS = {
