@@ -1520,6 +1520,15 @@ if(location.search.indexOf('ph=')!==-1){
         </div>
 
         <div class="inet-cfg-row">
+          <div class="inet-cfg-label">IPTV</div>
+          <div class="inet-chooser-wrap">
+            <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
+            <div class="inet-chooser" id="inet-iptv"></div>
+            <button type="button" class="inet-arrow" data-dir="1" aria-label="다음">›</button>
+          </div>
+        </div>
+
+        <div class="inet-cfg-row">
           <div class="inet-cfg-label">결합 할인</div>
           <div class="inet-chooser-wrap">
             <button type="button" class="inet-arrow" data-dir="-1" aria-label="이전">‹</button>
@@ -1531,6 +1540,7 @@ if(location.search.indexOf('ph=')!==-1){
         <div class="inet-summary">
           <div class="inet-sum-lines">
             <div class="inet-sum-line"><span>인터넷 요금</span><b id="inet-sum-fee">월 0원</b></div>
+            <div class="inet-sum-line"><span>IPTV</span><b id="inet-sum-iptv">월 0원</b></div>
             <div class="inet-sum-line"><span>결합 할인</span><b id="inet-sum-disc" class="hl">0원</b></div>
           </div>
           <button type="button" class="inet-consult-btn" id="inet-consult">상담신청</button>
@@ -2252,8 +2262,8 @@ if(location.search.indexOf('ph=')!==-1){
   // ───── 인터넷: 옵션 선택형 구성기(통신사→속도→결합할인→요금요약) ─────
   var INET_SEL = { kt:'#2563EB', sk:'#EA002C', lg:'#E6007E', skylife:'#0284C7' };
   var INET_CARRIERS = [
-    { id:'kt', name:'KT',        logo:'<img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT">' },
     { id:'sk', name:'SK',        logo:'<img class="inet-logo-img" src="assets/carrier-sk.png" alt="SK">' },
+    { id:'kt', name:'KT',        logo:'<img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT">' },
     { id:'lg', name:'LG',        logo:'<img class="inet-logo-img" src="assets/carrier-lg.png" alt="LG U+">' },
     { id:'skylife', name:'스카이라이프', logo:'<span class="inet-logo-sky"><img class="inet-logo-img" src="assets/carrier-kt.png" alt="KT"><span class="inet-sky-word">skylife</span></span>' }
   ];
@@ -2262,12 +2272,17 @@ if(location.search.indexOf('ph=')!==-1){
     { id:'500', big:'500', unit:'Mbps', label:'기가슬림', price:33000 },
     { id:'1g',  big:'1',   unit:'Gbps', label:'기가',    price:38500 }
   ];
+  var INET_IPTV = [
+    { id:'eco', name:'B tv 이코노미', desc:'기본 채널 구성', price:11000 },
+    { id:'std', name:'B tv 스탠다드', desc:'인기 채널 구성', price:13200 },
+    { id:'all', name:'B tv ALL',    desc:'전 채널 구성',   price:16500 }
+  ];
   var INET_BUNDLES = [
     { id:'none',   name:'미결합',      desc:'결합 없는 기본형', discount:0 },
     { id:'phone',  name:'휴대폰 결합',  desc:'휴대폰과 결합',   discount:5500 },
     { id:'family', name:'패밀리 결합',  desc:'인터넷과 결합',   discount:5500 }
   ];
-  var _inetState = { carrier:'kt', speed:'500', bundle:'none' };
+  var _inetState = { carrier:'sk', speed:'500', iptv:'eco', bundle:'none' };
   function inetWon(n) { return (n || 0).toLocaleString() + '원'; }
   function inetConfigClick(e) {
     var a = e.target.closest('.inet-arrow');
@@ -2275,6 +2290,7 @@ if(location.search.indexOf('ph=')!==-1){
       if (ch) ch.scrollBy({ left: parseInt(a.getAttribute('data-dir'), 10) * ch.clientWidth * 0.8, behavior:'smooth' }); return; }
     var c = e.target.closest('[data-carrier]'); if (c) { _inetState.carrier = c.getAttribute('data-carrier'); renderInternetConfig(); return; }
     var s = e.target.closest('[data-speed]');   if (s) { _inetState.speed = s.getAttribute('data-speed'); renderInternetConfig(); return; }
+    var t = e.target.closest('[data-iptv]');    if (t) { _inetState.iptv = t.getAttribute('data-iptv'); renderInternetConfig(); return; }
     var b = e.target.closest('[data-bundle]');  if (b) { _inetState.bundle = b.getAttribute('data-bundle'); renderInternetConfig(); return; }
     if (e.target.closest('#inet-consult')) { openInternetConsult(); return; }
   }
@@ -2304,6 +2320,13 @@ if(location.search.indexOf('ph=')!==-1){
         + '<span class="inet-opt-desc">' + escapeHtml(s.label) + '</span>'
         + '<span class="inet-opt-price">월 ' + inetWon(s.price) + '</span></button>';
     }).join('');
+    var iptvEl = document.getElementById('inet-iptv');
+    if (iptvEl) iptvEl.innerHTML = INET_IPTV.map(function(t) {
+      return '<button type="button" class="inet-opt inet-opt-iptv' + (t.id === _inetState.iptv ? ' on' : '') + '" data-iptv="' + t.id + '">'
+        + '<span class="inet-opt-bname">' + escapeHtml(t.name) + '</span>'
+        + '<span class="inet-opt-desc">' + escapeHtml(t.desc) + '</span>'
+        + '<span class="inet-opt-price">월 ' + inetWon(t.price) + '</span></button>';
+    }).join('');
     document.getElementById('inet-bundles').innerHTML = INET_BUNDLES.map(function(b) {
       return '<button type="button" class="inet-opt inet-opt-bundle' + (b.id === _inetState.bundle ? ' on' : '') + '" data-bundle="' + b.id + '">'
         + '<span class="inet-opt-bname">' + escapeHtml(b.name) + '</span>'
@@ -2311,9 +2334,11 @@ if(location.search.indexOf('ph=')!==-1){
         + '<span class="inet-opt-price' + (b.discount ? ' minus' : '') + '">' + (b.discount ? '- ' + inetWon(b.discount) + ' 할인' : '0원') + '</span></button>';
     }).join('');
     var sp = INET_SPEEDS.filter(function(x){return x.id===_inetState.speed;})[0] || INET_SPEEDS[0];
+    var tv = INET_IPTV.filter(function(x){return x.id===_inetState.iptv;})[0] || INET_IPTV[0];
     var bd = INET_BUNDLES.filter(function(x){return x.id===_inetState.bundle;})[0] || INET_BUNDLES[0];
-    var fe = document.getElementById('inet-sum-fee'), di = document.getElementById('inet-sum-disc');
+    var fe = document.getElementById('inet-sum-fee'), tf = document.getElementById('inet-sum-iptv'), di = document.getElementById('inet-sum-disc');
     if (fe) fe.textContent = '월 ' + inetWon(sp.price);
+    if (tf) tf.textContent = '월 ' + inetWon(tv.price);
     if (di) di.textContent = bd.discount ? ('- ' + inetWon(bd.discount)) : '0원';
     inetUpdateArrows();
   }
