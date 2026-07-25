@@ -2531,9 +2531,7 @@ if(location.search.indexOf('ph=')!==-1){
       var cc = e.target.closest('.itb-cc');
       if (cc && cc.getAttribute('data-itb-carrier')) {
         _itbCarrier = cc.getAttribute('data-itb-carrier');
-        renderItbProducts();
-        var sec = document.getElementById('itb-prods');
-        if (sec) sec.scrollIntoView({ behavior:'smooth', block:'start' });
+        renderItbProducts();   // 자동 스크롤 안 함 — 통신사 카드가 계속 보이도록
       }
     });
     renderItbProducts();
