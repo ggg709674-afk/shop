@@ -447,7 +447,7 @@
   .itb-cc:hover { box-shadow:0 10px 26px rgba(0,0,0,.07); transform:translateY(-2px); }
   .itb-cc.on { border-color:var(--oc); box-shadow:0 0 0 1.5px var(--oc); background:color-mix(in srgb, var(--oc) 6%, #fff); }
   .itb-cc.on .itb-cname { color:var(--oc); }
-  #itb-prods { scroll-margin-top:88px; }
+  #itb-carriers { scroll-margin-top:128px; }   /* 헤더+서브내비 아래로 통신사 카드가 오게 */
   .itb-cbar { position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--oc), color-mix(in srgb, var(--oc) 45%, #ff9a6b)); }
   .itb-cbody { display:flex; flex-direction:column; gap:9px; min-width:0; }
   .itb-clogo { min-height:24px; display:flex; align-items:center; }
@@ -1597,7 +1597,7 @@ if(location.search.indexOf('ph=')!==-1){
         <div class="itb-in">
           <h2 class="itb-h2">어느 통신사든 가능합니다</h2>
           <p class="itb-sub">원하는 통신사를 고르면 맞춤 상품과 혜택을 안내해 드립니다</p>
-          <div class="itb-carriers">
+          <div class="itb-carriers" id="itb-carriers">
             <div class="itb-cc" data-c="sk" data-itb-carrier="sk" style="--oc:#EA002C"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><img src="assets/carrier-sk.png" alt="SK"></span><span class="itb-cname">SK</span><span class="itb-cdesc">B tv · 초고속 인터넷</span></span><span class="itb-carrow">→</span></div>
             <div class="itb-cc" data-c="kt" data-itb-carrier="kt" style="--oc:#2563EB"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><img src="assets/carrier-kt.png" alt="KT"></span><span class="itb-cname">KT</span><span class="itb-cdesc">지니 TV · 초고속 인터넷</span></span><span class="itb-carrow">→</span></div>
             <div class="itb-cc" data-c="lg" data-itb-carrier="lg" style="--oc:#E6007E"><span class="itb-cbar"></span><span class="itb-cbody"><span class="itb-clogo"><img src="assets/carrier-lg.png" alt="LG U+"></span><span class="itb-cname">LG U+</span><span class="itb-cdesc">U+tv · 초고속 인터넷</span></span><span class="itb-carrow">→</span></div>
@@ -2531,7 +2531,10 @@ if(location.search.indexOf('ph=')!==-1){
       var cc = e.target.closest('.itb-cc');
       if (cc && cc.getAttribute('data-itb-carrier')) {
         _itbCarrier = cc.getAttribute('data-itb-carrier');
-        renderItbProducts();   // 자동 스크롤 안 함 — 통신사 카드가 계속 보이도록
+        renderItbProducts();
+        // 통신사 카드 줄을 서브내비 바로 아래로 올려 상품까지 함께 보이게
+        var carr = document.getElementById('itb-carriers');
+        if (carr) carr.scrollIntoView({ behavior:'smooth', block:'start' });
       }
     });
     renderItbProducts();
