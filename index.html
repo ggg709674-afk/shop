@@ -2649,7 +2649,7 @@ if(location.search.indexOf('ph=')!==-1){
   }
   function _modelToCardItem(m) {
     var cols = (m.colors || []).filter(function(c) { return c.visible !== false && Array.isArray(c.images) && c.images.some(Boolean); })
-      .map(function(c) { return { name: c.name || '', images: c.images.filter(Boolean).slice(0,6), def: c.def === true }; });
+      .map(function(c) { return { name: c.name || '', images: c.images.filter(Boolean).slice(0,6), def: c.def === true, hex: c.hex || '' }; });
     // 관리자 지정 기본 색상(없으면 첫 색상)
     var defIdx = 0; for (var i = 0; i < cols.length; i++) { if (cols[i].def) { defIdx = i; break; } }
     var images = cols.length ? cols[defIdx].images : [];
@@ -2672,7 +2672,7 @@ if(location.search.indexOf('ph=')!==-1){
     sel = sel || 0;
     return '<div class="ph-card-colors">' + cols.slice(0, 6).map(function(c, i) {
       return '<span class="ph-card-chip' + (i === sel ? ' on' : '') + '" data-ci="' + i + '"'
-        + ' title="' + escapeHtml(c.name || '') + '" style="background:' + phColorHex(c.name) + '"></span>';
+        + ' title="' + escapeHtml(c.name || '') + '" style="background:' + (c.hex || phColorHex(c.name)) + '"></span>';
     }).join('') + '</div>';
   }
   function phCardColorAt(card, idx) {
@@ -3265,7 +3265,7 @@ if(location.search.indexOf('ph=')!==-1){
     row.hidden = false;
     chips.innerHTML = _phDetColors.map(function(c, i) {
       return '<button type="button" class="ph-det-color' + (i === _phDetColorIdx ? ' on' : '') + '" data-ci="' + i + '"'
-        + ' title="' + escapeHtml(c.name || '') + '"><span class="ph-det-dot" style="background:' + phColorHex(c.name) + '"></span></button>';
+        + ' title="' + escapeHtml(c.name || '') + '"><span class="ph-det-dot" style="background:' + (c.hex || phColorHex(c.name)) + '"></span></button>';
     }).join('');
     if (!chips.dataset.bound) {
       chips.dataset.bound = '1';
