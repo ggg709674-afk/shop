@@ -257,6 +257,13 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-def-sel::-ms-expand{display:none;}
 .ph-prod-basis-sel{padding-left:12px;min-width:96px;}
 .ph-prod-basis-sel.is-contract{color:#5088cf;border-color:#5088cf;}
+/* 모델 모달 색상(이름+색상코드) 편집기 */
+.ph-mm-crow{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.ph-mm-cpick{width:34px;height:30px;padding:0;border:1px solid var(--line);border-radius:7px;background:#fff;cursor:pointer;flex-shrink:0;}
+.ph-mm-cname{flex:1;min-width:0;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;}
+.ph-mm-chex{width:100px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12px;}
+.ph-mm-cdel{width:28px;height:28px;border:0;background:#f2f2f2;border-radius:7px;color:#888;font-size:16px;cursor:pointer;flex-shrink:0;line-height:1;}
+.ph-mm-cdel:hover{background:#e6e6e6;color:#333;}
 .ph-prod-vis{width:56px;text-align:center;}
 .ph-prod-act{width:76px;text-align:right;white-space:nowrap;}
 .ph-prod-sort{width:68px;text-align:center;white-space:nowrap;}
@@ -1402,8 +1409,9 @@ html[data-preload-shop] body { visibility:hidden; }
       <input type="text" id="ph-mm-price" placeholder="예: 1550000">
     </div>
     <div class="ph-mfield">
-      <label>색상 (최대 5개, 쉼표 구분)</label>
-      <input type="text" id="ph-mm-colors" placeholder="예: 화이트, 블랙, 그린">
+      <label>색상 (이름 + 색상코드) <span style="font-weight:400;color:var(--ink-4);font-size:11px;">— 색상코드 비우면 이름 기준 자동색</span></label>
+      <div id="ph-mm-color-rows"></div>
+      <button type="button" class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-mm-add-color" style="margin-top:6px;">+ 색상 추가</button>
     </div>
     <div class="ph-modal-foot">
       <button class="adm-btn adm-btn-danger ph-btn-sm" id="ph-mm-delete" style="margin-right:auto;display:none">삭제</button>
@@ -1673,6 +1681,39 @@ html[data-preload-shop] body { visibility:hidden; }
     }).join('');
     wrap.innerHTML=tabBar+'<div class="ms-table-scroll"><table class="ms-table"><thead><tr><th class="ms-corner">모델 / 요금제</th><th class="ms-notice-hd">공시일</th>'+headCols+'</tr></thead><tbody>'+bodyRows+'</tbody></table></div>';
   }
+  /* ─ 모델 모달: 색상(이름+색상코드) 편집기 ─ */
+  var _phMmColors=[];
+  function phRenderMmColors(){
+    var wrap=phEl('ph-mm-color-rows'); if(!wrap)return;
+    wrap.innerHTML=_phMmColors.map(function(c,i){
+      var hex=(c.hex||'').trim();
+      var pick=/^#[0-9a-fA-F]{6}$/.test(hex)?hex:(phColorDot(c.name)||'#cccccc');
+      return '<div class="ph-mm-crow" data-i="'+i+'">'
+        +'<input type="color" class="ph-mm-cpick" value="'+pick+'" title="색상 선택">'
+        +'<input type="text" class="ph-mm-cname" placeholder="색상명 (예: 크림)" value="'+phEsc(c.name)+'">'
+        +'<input type="text" class="ph-mm-chex" placeholder="#RRGGBB (비우면 자동)" value="'+phEsc(hex)+'" maxlength="7">'
+        +'<button type="button" class="ph-mm-cdel" title="삭제">×</button>'
+        +'</div>';
+    }).join('');
+    if(!wrap.dataset.bound){
+      wrap.dataset.bound='1';
+      wrap.addEventListener('input',function(e){
+        var row=e.target.closest('.ph-mm-crow'); if(!row)return; var i=+row.getAttribute('data-i');
+        if(!_phMmColors[i])return;
+        if(e.target.classList.contains('ph-mm-cname')){_phMmColors[i].name=e.target.value;}
+        else if(e.target.classList.contains('ph-mm-chex')){var v=e.target.value.trim();_phMmColors[i].hex=v; if(/^#[0-9a-fA-F]{6}$/.test(v)){var p=row.querySelector('.ph-mm-cpick');if(p)p.value=v;}}
+        else if(e.target.classList.contains('ph-mm-cpick')){_phMmColors[i].hex=e.target.value; var t=row.querySelector('.ph-mm-chex');if(t)t.value=e.target.value;}
+      });
+      wrap.addEventListener('click',function(e){
+        var del=e.target.closest('.ph-mm-cdel'); if(!del)return;
+        var row=del.closest('.ph-mm-crow'); var i=+row.getAttribute('data-i');
+        _phMmColors.splice(i,1); if(!_phMmColors.length)_phMmColors=[{name:'',hex:''}]; phRenderMmColors();
+      });
+    }
+  }
+  document.addEventListener('click',function(e){
+    if(e.target&&e.target.id==='ph-mm-add-color'){_phMmColors.push({name:'',hex:''});phRenderMmColors();var rows=phEl('ph-mm-color-rows');if(rows){var last=rows.querySelector('.ph-mm-crow:last-child .ph-mm-cname');if(last)last.focus();}}
+  });
   /* ─ 모델 모달 ─ */
   function phOpenModelModal(id,carrier){
     var m=id?phData.models.find(function(x){return x.id===id;}):null;
@@ -1681,7 +1722,9 @@ html[data-preload-shop] body { visibility:hidden; }
     phEl('ph-mm-carrier').value=m?m.carrier:carrier;
     phEl('ph-mm-name').value=m?m.name:'';
     phEl('ph-mm-price').value=m&&m.releasePrice!==''?phFmt(m.releasePrice):'';
-    phEl('ph-mm-colors').value=m?phColorStr(m.colors):'';
+    _phMmColors=m?phNormColors(m.colors).map(function(c){return{name:c.name,hex:c.hex||''};}):[];
+    if(!_phMmColors.length)_phMmColors=[{name:'',hex:''}];
+    phRenderMmColors();
     phEl('ph-mm-delete').style.display=m?'':'none';
     phEl('ph-model-modal').classList.add('on');
     setTimeout(function(){phEl('ph-mm-name').focus();},50);
@@ -1696,12 +1739,14 @@ html[data-preload-shop] body { visibility:hidden; }
     var priceNum=price?phInt(price):null;
     var isNew=!id;if(isNew)id=phNewId('m_');
     var existing=isNew?null:phData.models.find(function(x){return x.id===id;});
-    // 색상: 입력 이름 → 기존 색상 객체의 이미지 보존(이름 매칭). 문자열로만 저장하면 고객카드 이미지 유실되므로 객체 유지.
+    // 색상: 편집기(이름+색상코드) → 기존 색상의 이미지·노출·기본색 보존(이름 매칭), hex는 편집기 값 사용.
     var prevColors=existing?phNormColors(existing.colors):[];
-    var colors=phEl('ph-mm-colors').value.trim().split(',').map(function(c){return c.trim();}).filter(Boolean).map(function(nm){
-      var pv=prevColors.find(function(pc){return pc.name===nm;});
-      return pv?{name:nm,visible:pv.visible,images:pv.images}:{name:nm,visible:true,images:[]};
-    });
+    var colors=_phMmColors.map(function(c){return{name:(c.name||'').trim(),hex:(c.hex||'').trim()};})
+      .filter(function(c){return c.name;})
+      .map(function(c){
+        var pv=prevColors.find(function(pc){return pc.name===c.name;});
+        return {name:c.name, hex:c.hex, visible:pv?pv.visible:true, images:pv?pv.images:[], def:pv?pv.def:false};
+      });
     var sortOrder=isNew?phData.models.filter(function(m){return m.carrier===carrier;}).length:(existing?phData.models.indexOf(existing):0);
     var row={id:id,name:name,carrier:carrier,colors:colors,release_price:(price===''||priceNum===0&&price!=='0')?null:priceNum,sort_order:sortOrder,visible:existing?existing.visible:true};
     phStatus('저장 중…');
@@ -2066,9 +2111,9 @@ html[data-preload-shop] body { visibility:hidden; }
   function phEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function phNormColors(arr){
     return(arr||[]).map(function(c){
-      if(typeof c==='string')return{name:c,visible:true,images:[]};
+      if(typeof c==='string')return{name:c,visible:true,images:[],hex:'',def:false};
       var imgs=Array.isArray(c.images)?c.images.slice():(c.imageUrl?[c.imageUrl]:[]);
-      return{name:c.name||'',visible:c.visible!==false,images:imgs};
+      return{name:c.name||'',visible:c.visible!==false,images:imgs,hex:c.hex||'',def:c.def===true};
     });
   }
   /* 색상 이름만 추출해 ", "로 — colors가 문자열/객체({name}) 혼재라 join하면 [object Object] 나옴 */
@@ -2083,14 +2128,14 @@ html[data-preload-shop] body { visibility:hidden; }
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr>'
       +'<th class="ph-prod-num">#</th>'
-      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th style="text-align:left;white-space:nowrap;">카드노출색</th><th style="text-align:left;white-space:nowrap;">판매가기준</th><th class="ph-prod-vis">노출</th>'
+      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th style="text-align:left;white-space:nowrap;">상품노출 대표색상</th><th style="text-align:left;white-space:nowrap;">판매가기준</th><th class="ph-prod-vis">노출</th>'
       +'<th class="ph-prod-sort">정렬</th><th class="ph-prod-act">수정</th>'
       +'<th style="width:100%;"></th>'
       +'</tr></thead><tbody>';
     list.forEach(function(m,i){
       var colors=phNormColors(m.colors);
       var chipHtml=colors.map(function(c,ci){
-        var dot='background:'+phColorDot(c.name)+';';
+        var dot='background:'+(c.hex||phColorDot(c.name))+';';
         return'<label class="ph-prod-color-chip" style="cursor:pointer;">'
           +'<input type="checkbox" data-ph-prod-cvis="'+m.id+':'+ci+'"'+(c.visible?' checked':'')
           +' style="margin:0 3px 0 0;vertical-align:middle;">'
@@ -2107,7 +2152,7 @@ html[data-preload-shop] body { visibility:hidden; }
       if(!colors.length){defCell='<span style="color:var(--ink-4);font-size:12px;">색상 없음</span>';}
       else{
         var optHtml=cand.map(function(ci){return'<option value="'+ci+'"'+(ci===effDef?' selected':'')+'>'+phEsc(colors[ci].name)+'</option>';}).join('');
-        var defDot=phColorDot(colors[effDef]?colors[effDef].name:'');
+        var defDot=(colors[effDef]&&colors[effDef].hex)||phColorDot(colors[effDef]?colors[effDef].name:'');
         defCell='<span class="ph-prod-def-wrap"><span class="ph-prod-color-dot" style="background:'+defDot+';"></span>'
           +'<select class="ph-prod-def-sel" data-ph-prod-def="'+m.id+'">'+optHtml+'</select></span>';
       }
@@ -2195,7 +2240,7 @@ html[data-preload-shop] body { visibility:hidden; }
   async function phProdSetDefault(modelId,colorIdx){
     var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
     // 색상 배열에 def 플래그 재설정 + image_url = 기본 색상 첫 이미지
-    var colors=phNormColors(m.colors).map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,def:i===colorIdx};});
+    var colors=phNormColors(m.colors).map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,hex:c.hex||'',def:i===colorIdx};});
     var cardImg=(colors[colorIdx]&&(colors[colorIdx].images||[]).filter(Boolean)[0])||null;
     if(!cardImg){for(var k=0;k<colors.length;k++){var im=(colors[k].images||[]).filter(Boolean)[0];if(im){cardImg=im;break;}}}
     try{
@@ -2239,7 +2284,7 @@ html[data-preload-shop] body { visibility:hidden; }
   var _phProdDefault=0;    // 기본(대표) 색상 인덱스 — 색상 배열의 def:true 위치
   function phOpenProductModal(id){
     var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
-    _phProdColors=phNormColors(m.colors).map(function(c){return{name:c.name,visible:c.visible,images:c.images.slice()};});
+    _phProdColors=phNormColors(m.colors).map(function(c){return{name:c.name,visible:c.visible,images:c.images.slice(),hex:c.hex||''};});
     _phProdActiveTab=0;
     _phProdDefault=0;
     var _rc=(m.colors||[]);for(var _i=0;_i<_rc.length;_i++){if(_rc[_i]&&_rc[_i].def===true){_phProdDefault=_i;break;}}
@@ -2442,7 +2487,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var visible=phEl('ph-pm-visible').checked;
     if(_phProdDefault>=_phProdColors.length)_phProdDefault=0;
     // 색상 배열에 기본 색상 표시(def:true) — 손님 화면 카드/칩/상세가 이 색으로 통일
-    var colors=_phProdColors.map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,def:i===_phProdDefault};});
+    var colors=_phProdColors.map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,hex:c.hex||'',def:i===_phProdDefault};});
     phEl('ph-pm-saving').textContent='저장 중…';
     try{
       // image_url = 기본 색상 첫 이미지(자기설명적·구버전 호환). 없으면 첫 색상 이미지.
