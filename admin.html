@@ -257,13 +257,13 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-def-sel::-ms-expand{display:none;}
 .ph-prod-basis-sel{padding-left:12px;min-width:96px;}
 .ph-prod-basis-sel.is-contract{color:#5088cf;border-color:#5088cf;}
-/* 모델 모달 색상(이름+색상코드) 편집기 */
-.ph-mm-crow{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.ph-mm-cpick{width:34px;height:30px;padding:0;border:1px solid var(--line);border-radius:7px;background:#fff;cursor:pointer;flex-shrink:0;}
-.ph-mm-cname{flex:1;min-width:0;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;}
-.ph-mm-chex{width:100px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12px;}
-.ph-mm-cdel{width:28px;height:28px;border:0;background:#f2f2f2;border-radius:7px;color:#888;font-size:16px;cursor:pointer;flex-shrink:0;line-height:1;}
-.ph-mm-cdel:hover{background:#e6e6e6;color:#333;}
+/* 모델 모달 색상(이름+색상코드) 편집기 — id 스코프로 .ph-mfield input{width:100%} 이김 */
+#ph-mm-color-rows .ph-mm-crow{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:nowrap;}
+#ph-mm-color-rows .ph-mm-cpick{flex:0 0 38px;width:38px;height:34px;padding:2px;border:1px solid var(--line);border-radius:7px;background:#fff;cursor:pointer;box-sizing:border-box;}
+#ph-mm-color-rows .ph-mm-cname{flex:1 1 auto;min-width:0;width:auto;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;box-sizing:border-box;}
+#ph-mm-color-rows .ph-mm-chex{flex:0 0 108px;width:108px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12px;box-sizing:border-box;}
+#ph-mm-color-rows .ph-mm-cdel{flex:0 0 28px;width:28px;height:28px;padding:0;border:0;background:#f2f2f2;border-radius:7px;color:#888;font-size:16px;cursor:pointer;line-height:1;}
+#ph-mm-color-rows .ph-mm-cdel:hover{background:#e6e6e6;color:#333;}
 .ph-prod-vis{width:56px;text-align:center;}
 .ph-prod-act{width:76px;text-align:right;white-space:nowrap;}
 .ph-prod-sort{width:68px;text-align:center;white-space:nowrap;}
