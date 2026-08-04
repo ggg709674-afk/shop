@@ -256,6 +256,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-def-sel:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(222,79,65,.13);}
 .ph-prod-def-sel::-ms-expand{display:none;}
 .ph-prod-basis-sel{padding-left:12px;min-width:96px;}
+.ph-prod-basis-sel.is-contract{color:var(--primary);border-color:var(--primary);}
 .ph-prod-vis{width:56px;text-align:center;}
 .ph-prod-act{width:76px;text-align:right;white-space:nowrap;}
 .ph-prod-sort{width:68px;text-align:center;white-space:nowrap;}
@@ -2112,7 +2113,7 @@ html[data-preload-shop] body { visibility:hidden; }
       }
       // 카드노출 판매가기준(공통지원/선택약정) 드롭다운 — prices.basis 반영
       var _basis=(m.prices&&m.prices.basis==='contract')?'contract':'common';
-      var basisCell='<select class="ph-prod-def-sel ph-prod-basis-sel" data-ph-prod-basis="'+m.id+'">'
+      var basisCell='<select class="ph-prod-def-sel ph-prod-basis-sel'+(_basis==='contract'?' is-contract':'')+'" data-ph-prod-basis="'+m.id+'">'
         +'<option value="common"'+(_basis==='common'?' selected':'')+'>공통지원</option>'
         +'<option value="contract"'+(_basis==='contract'?' selected':'')+'>선택약정</option>'
         +'</select>';
@@ -2212,7 +2213,7 @@ html[data-preload-shop] body { visibility:hidden; }
     try{
       var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',modelId);
       if(res.error)throw res.error;
-      m.prices=prices;phoSavedFlash();
+      m.prices=prices;phRenderProducts(m.carrier);phoSavedFlash();
     }catch(err){phProdStatus('저장 실패: '+(err.message||err),true);}
   }
   async function phProdColorToggle(modelId,colorIdx,checked){

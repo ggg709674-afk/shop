@@ -356,6 +356,9 @@
   .product-card .ph-cpl { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
   .product-card .ph-cpl-l { font-size:12.5px; color:var(--g2); }
   .product-card .ph-cpl-v { font-size:16px; font-weight:700; color:var(--ink); letter-spacing:-.3px; }
+  /* 선택약정 기준 = 빨간색 강조 */
+  .product-card .model.is-contract { color:var(--accent); }
+  .product-card .ph-card-prices.is-contract .ph-cpl-v { color:var(--accent); }
   /* 카드 컬러칩 — 공통지원 판매가와 같은 줄, 우측정렬 */
   .product-card .ph-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .product-card .ph-card-top .model { flex:0 0 auto; }
@@ -2421,10 +2424,10 @@ if(location.search.indexOf('ph=')!==-1){
       + '</div>'
       + '<div class="body">'
         + '<div class="ph-card-top">'
-          + '<div class="model">' + escapeHtml(it.priceLabel || '공통지원 판매가') + '</div>'
+          + '<div class="model' + (it.priceContract ? ' is-contract' : '') + '">' + escapeHtml(it.priceLabel || '공통지원 판매가') + '</div>'
           + (hasChips ? phCardColorsHtml(cols, selIdx) : '')
         + '</div>'
-        + '<div class="ph-card-prices">'
+        + '<div class="ph-card-prices' + (it.priceContract ? ' is-contract' : '') + '">'
           + '<div class="ph-cpl"><span class="ph-cpl-l">번호이동</span><span class="ph-cpl-v">' + escapeHtml(fmtCardWon(it.mnpCommon)) + '</span></div>'
           + '<div class="ph-cpl"><span class="ph-cpl-l">기기변경</span><span class="ph-cpl-v">' + escapeHtml(fmtCardWon(it.changeCommon)) + '</span></div>'
         + '</div>'
@@ -2661,6 +2664,7 @@ if(location.search.indexOf('ph=')!==-1){
       tag: CARRIER_LABEL[m.carrier] || m.carrier,
       badge: '', del: '', label: '번호이동', price: '상담',
       priceLabel: isContract ? '선택약정 판매가' : '공통지원 판매가',
+      priceContract: isContract,
       mnpCommon: isContract ? pr.mnpContract : pr.mnpCommon,
       changeCommon: isContract ? pr.changeContract : pr.changeCommon,
       cardImg: '',   // 휴대폰: 색상 이미지로 통일(별도 카드 이미지 미사용)
