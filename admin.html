@@ -1103,6 +1103,7 @@ html[data-preload-shop] body { visibility:hidden; }
             <button class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-fill-colors-btn">KT/LG 동기화 (이름·순서·색상)</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="skt">엑셀 다운</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="skt">엑셀 업로드</button>
+            <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="skt"> 숨김 포함</label>
             <button class="adm-btn adm-btn-primary ph-btn-sm" data-ph-add-model="skt">+ 모델 추가</button>
           </div>
         </div>
@@ -1115,6 +1116,7 @@ html[data-preload-shop] body { visibility:hidden; }
           <div class="ph-card-actions">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="kt">엑셀 다운</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="kt">엑셀 업로드</button>
+            <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="kt"> 숨김 포함</label>
             <button class="adm-btn adm-btn-primary ph-btn-sm" data-ph-add-model="kt">+ 모델 추가</button>
           </div>
         </div>
@@ -1127,6 +1129,7 @@ html[data-preload-shop] body { visibility:hidden; }
           <div class="ph-card-actions">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="lg">엑셀 다운</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="lg">엑셀 업로드</button>
+            <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="lg"> 숨김 포함</label>
             <button class="adm-btn adm-btn-primary ph-btn-sm" data-ph-add-model="lg">+ 모델 추가</button>
           </div>
         </div>
@@ -1598,10 +1601,13 @@ html[data-preload-shop] body { visibility:hidden; }
     phStatus('✅ 완료 — '+ok+'개 동기화'+(fail?', 실패 '+fail+'개':''));
   }
   /* ─ 렌더: 모델 ─ */
+  var _phModelShowHidden={skt:false,kt:false,lg:false};
   function phRenderModels(carrier){
     var wrap=document.querySelector('[data-ph-model-list="'+carrier+'"]');if(!wrap)return;
-    var list=phData.models.filter(function(m){return m.carrier===carrier;});
-    if(!list.length){wrap.innerHTML='<p class="ph-hint">등록된 모델이 없습니다.</p>';return;}
+    var all=phData.models.filter(function(m){return m.carrier===carrier;});
+    var list=_phModelShowHidden[carrier]?all:all.filter(function(m){return m.visible;});
+    var hiddenN=all.length-list.length;
+    if(!list.length){wrap.innerHTML='<p class="ph-hint">'+(hiddenN?('노출 중인 모델이 없습니다. (숨김 '+hiddenN+'개 — "숨김 포함" 체크)'):'등록된 모델이 없습니다.')+'</p>';return;}
     var rows=list.map(function(m,i){
       var cstr=phColorStr(m.colors);
       return '<tr class="'+(m.visible?'':'is-hidden')+'">'+'<td class="m-num">'+(i+1)+'</td>'
@@ -2915,9 +2921,12 @@ html[data-preload-shop] body { visibility:hidden; }
     // 이미지 파일 선택 → 업로드
     if(e.target.id==='ph-pm-img-file'&&e.target.files[0]&&_phProdUploadSlot>=0)phProdUploadImage(e.target.files[0],_phProdUploadSlot);
     if(e.target.id==='ph-pm-card-file'&&e.target.files[0])phCardUploadImage(e.target.files[0]);
-    // 숨김 포함 체크박스
+    // 숨김 포함 체크박스 (상품관리)
     var sh=e.target.closest('[data-ph-prod-show-hidden]');
     if(sh){var c=sh.getAttribute('data-ph-prod-show-hidden');_phProdShowHidden[c]=e.target.checked;phRenderProducts(c);return;}
+    // 숨김 포함 체크박스 (모델관리)
+    var shm=e.target.closest('[data-ph-model-show-hidden]');
+    if(shm){var cm=shm.getAttribute('data-ph-model-show-hidden');_phModelShowHidden[cm]=e.target.checked;phRenderModels(cm);return;}
     // 색상별 노출 인라인 체크박스
     if(e.target.hasAttribute('data-ph-prod-cvis')){
       var parts=e.target.getAttribute('data-ph-prod-cvis').split(':');
