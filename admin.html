@@ -255,6 +255,7 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-def-sel:hover{border-color:var(--primary);background-color:#fff8f7;}
 .ph-prod-def-sel:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(222,79,65,.13);}
 .ph-prod-def-sel::-ms-expand{display:none;}
+.ph-prod-basis-sel{padding-left:12px;min-width:96px;}
 .ph-prod-vis{width:56px;text-align:center;}
 .ph-prod-act{width:76px;text-align:right;white-space:nowrap;}
 .ph-prod-sort{width:68px;text-align:center;white-space:nowrap;}
@@ -2081,7 +2082,7 @@ html[data-preload-shop] body { visibility:hidden; }
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr>'
       +'<th class="ph-prod-num">#</th>'
-      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th style="text-align:left;white-space:nowrap;">카드노출색</th><th class="ph-prod-vis">노출</th>'
+      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th style="text-align:left;white-space:nowrap;">카드노출색</th><th style="text-align:left;white-space:nowrap;">판매가기준</th><th class="ph-prod-vis">노출</th>'
       +'<th class="ph-prod-sort">정렬</th><th class="ph-prod-act">수정</th>'
       +'<th style="width:100%;"></th>'
       +'</tr></thead><tbody>';
@@ -2109,12 +2110,19 @@ html[data-preload-shop] body { visibility:hidden; }
         defCell='<span class="ph-prod-def-wrap"><span class="ph-prod-color-dot" style="background:'+defDot+';"></span>'
           +'<select class="ph-prod-def-sel" data-ph-prod-def="'+m.id+'">'+optHtml+'</select></span>';
       }
+      // 카드노출 판매가기준(공통지원/선택약정) 드롭다운 — prices.basis 반영
+      var _basis=(m.prices&&m.prices.basis==='contract')?'contract':'common';
+      var basisCell='<select class="ph-prod-def-sel ph-prod-basis-sel" data-ph-prod-basis="'+m.id+'">'
+        +'<option value="common"'+(_basis==='common'?' selected':'')+'>공통지원</option>'
+        +'<option value="contract"'+(_basis==='contract'?' selected':'')+'>선택약정</option>'
+        +'</select>';
       var grip='<span class="ph-prod-grip" data-ph-prod-grip="'+m.id+'" data-pcarrier="'+carrier+'" title="드래그해서 순서 변경">'+PH_PROD_GRIP+'</span>';
       html+='<tr class="ph-prod-row '+(m.visible?'':'is-hidden')+'" data-prod-id="'+m.id+'">'
         +'<td class="ph-prod-num">'+(i+1)+'</td>'
         +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>'
         +'<td><div class="ph-prod-color-chips" style="justify-content:flex-start;">'+chipHtml+'</div></td>'
         +'<td style="white-space:nowrap;">'+defCell+'</td>'
+        +'<td style="white-space:nowrap;">'+basisCell+'</td>'
         +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-toggle="'+m.id+'"'+(m.visible?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
         +'<td class="ph-prod-sort">'+grip+'</td>'
         +'<td class="ph-prod-act"><button class="ph-btn-sm adm-btn adm-btn-primary" data-ph-prod-edit="'+m.id+'">수정</button></td>'
@@ -2195,6 +2203,16 @@ html[data-preload-shop] body { visibility:hidden; }
       m.colors=colors;m.imageUrl=cardImg||'';
       phRenderProducts(m.carrier);
       phoSavedFlash();
+    }catch(err){phProdStatus('저장 실패: '+(err.message||err),true);}
+  }
+  async function phProdSetBasis(modelId,basis){
+    var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
+    var prices=Object.assign({},(m.prices&&typeof m.prices==='object'&&!Array.isArray(m.prices))?m.prices:{});
+    prices.basis=(basis==='contract')?'contract':'common';
+    try{
+      var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',modelId);
+      if(res.error)throw res.error;
+      m.prices=prices;phoSavedFlash();
     }catch(err){phProdStatus('저장 실패: '+(err.message||err),true);}
   }
   async function phProdColorToggle(modelId,colorIdx,checked){
@@ -2935,6 +2953,10 @@ html[data-preload-shop] body { visibility:hidden; }
     // 카드노출색(기본 색상) 드롭다운
     if(e.target.hasAttribute('data-ph-prod-def')){
       phProdSetDefault(e.target.getAttribute('data-ph-prod-def'),parseInt(e.target.value,10));return;
+    }
+    // 카드노출 판매가기준(공통지원/선택약정) 드롭다운
+    if(e.target.hasAttribute('data-ph-prod-basis')){
+      phProdSetBasis(e.target.getAttribute('data-ph-prod-basis'),e.target.value);return;
     }
     // 상품 노출 토글 스위치
     var pvt=e.target.closest('[data-ph-prod-toggle]');

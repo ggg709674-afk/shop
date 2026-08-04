@@ -2421,7 +2421,7 @@ if(location.search.indexOf('ph=')!==-1){
       + '</div>'
       + '<div class="body">'
         + '<div class="ph-card-top">'
-          + '<div class="model">공통지원 판매가</div>'
+          + '<div class="model">' + escapeHtml(it.priceLabel || '공통지원 판매가') + '</div>'
           + (hasChips ? phCardColorsHtml(cols, selIdx) : '')
         + '</div>'
         + '<div class="ph-card-prices">'
@@ -2654,11 +2654,15 @@ if(location.search.indexOf('ph=')!==-1){
     var defIdx = 0; for (var i = 0; i < cols.length; i++) { if (cols[i].def) { defIdx = i; break; } }
     var images = cols.length ? cols[defIdx].images : [];
     var pr = (m.prices && typeof m.prices === 'object' && !Array.isArray(m.prices)) ? m.prices : {};
+    // 카드노출 판매가기준: 'contract'=선택약정, 그 외=공통지원
+    var isContract = pr.basis === 'contract';
     return {
       id: m.id, name: normModelName(m.name), carrierId: m.carrier,
       tag: CARRIER_LABEL[m.carrier] || m.carrier,
       badge: '', del: '', label: '번호이동', price: '상담',
-      mnpCommon: pr.mnpCommon, changeCommon: pr.changeCommon,
+      priceLabel: isContract ? '선택약정 판매가' : '공통지원 판매가',
+      mnpCommon: isContract ? pr.mnpContract : pr.mnpCommon,
+      changeCommon: isContract ? pr.changeContract : pr.changeCommon,
       cardImg: '',   // 휴대폰: 색상 이미지로 통일(별도 카드 이미지 미사용)
       images: images, imageUrl: images[0] || '', colors: cols, defColor: defIdx
     };
