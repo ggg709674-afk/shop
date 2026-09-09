@@ -1403,6 +1403,17 @@
     } catch (e) { /* 무시 */ }
   })();
 </script>
+<!-- ── 휴대폰 전용 사이트 모드 (?only=phone) — 같은 코드/데이터, 화면만 휴대폰. 첫 페인트 전 클래스 지정(탭·타패널 깜빡임 방지) ── -->
+<script>try{ if(/[?&]only=phone(?:&|=|$)/.test(location.search)) document.documentElement.classList.add('phone-only'); }catch(e){}</script>
+<style>
+  /* 대탭 줄은 유지(헤더 높이·sub-nav sticky top:83·compact 로직 보존) — 인터넷/렌탈 버튼만 숨김 */
+  html.phone-only .cat-nav button[data-cat="internet"],
+  html.phone-only .cat-nav button[data-cat="rental"]{ display:none; }
+  html.phone-only #panel-internet, html.phone-only #panel-rental{ display:none !important; }
+  html.phone-only #inet-bar{ display:none !important; }
+  html.phone-only .panels{ width:100% !important; left:0 !important; transition:none !important; }
+  html.phone-only #panel-phone{ width:100% !important; }
+</style>
 </head>
 <body>
 <script>
@@ -2712,7 +2723,10 @@ if(location.search.indexOf('ph=')!==-1){
   }
   // 카드 아이템 목록 (DB 모델 우선, 없으면 샘플) — carrierId 포함
   function phoneCardItems() {
-    var models = (DataStore.load().models || []).filter(function(m) { return m.visible !== false; });
+    var _ov = DataStore.load().modelOverrides || {};   // 이 매장 노출 override (없으면 전부 노출)
+    var models = (DataStore.load().models || []).filter(function(m) {
+      return m.visible !== false && _ov[m.id] !== false;   // 본부 게이트 AND 이 매장 노출
+    });
     if (models.length > 0) return models.map(_modelToCardItem);
     return SHOP_CARD_SAMPLES.phone.map(function(s) {
       var it = {}; for (var k in s) it[k] = s[k];
@@ -2916,10 +2930,17 @@ if(location.search.indexOf('ph=')!==-1){
     try { window.parent.postMessage({ type: 'mobileshop:preview-ready' }, '*'); } catch(e) {}
   }
 
+  // ── 휴대폰 전용 사이트 모드 (?only=phone) ──
+  //   같은 index.html/데이터로 휴대폰만 노출하는 별도 배포용. 코드·Supabase 동일 → 합본과 자동 커플링.
+  var PHONE_ONLY = document.documentElement.classList.contains('phone-only');
+  //   ★ 독립 휴대폰샵 브랜딩 — 상호 바꾸려면 여기만 수정 (로고 이미지 쓰려면 html 에 <img>)
+  var PHONE_BRAND_HTML = '<svg class="brand-spark" viewBox="0 0 16 16" style="color:var(--accent)"><path fill="currentColor" d="M8 1C7.3 7.3 7.3 7.3 1 8C7.3 8.7 7.3 8.7 8 15C8.7 8.7 8.7 8.7 15 8C8.7 7.3 8.7 7.3 8 1Z"/></svg>우주<span>커넥트</span>';
+  var PHONE_BRAND_TITLE = '우주커넥트 · 휴대폰';
+
   var catNav = document.getElementById('cat-nav');
   var scrollEl = document.querySelector('.scroll');
   var panelsEl = document.getElementById('panels');
-  var catOrder = ['phone', 'internet', 'rental'];
+  var catOrder = PHONE_ONLY ? ['phone'] : ['phone', 'internet', 'rental'];
   var currentIdx = 0;
 
   var headEl = document.querySelector('.head');
@@ -4067,6 +4088,13 @@ if(location.search.indexOf('ph=')!==-1){
     }
   });
   // 배너는 DataStore(상품/카테고리)와 독립 — settings 테이블에서 직접 마운트 (PC·모바일 SET + 슬라이드)
+  // 휴대폰 전용 모드: 헤더 브랜드/타이틀 교체 (독립 휴대폰샵 상호)
+  if (PHONE_ONLY) {
+    var _pbrand = document.querySelector('.head .brand');
+    if (_pbrand) _pbrand.innerHTML = PHONE_BRAND_HTML;
+    if (PHONE_BRAND_TITLE) document.title = PHONE_BRAND_TITLE;
+  }
+
   initShopBanners();
   renderShopCards();
 
@@ -4082,6 +4110,7 @@ if(location.search.indexOf('ph=')!==-1){
 
   // ?cat= 딥링크 — /?cat=rental&cls=/&id= 등으로 진입 시 해당 패널 즉시 표시 (애니메이션 없음)
   (function() {
+    if (PHONE_ONLY) return;   // 휴대폰 전용: 렌탈/인터넷 딥링크 무시(휴대폰만)
     var qcat = '';
     try { qcat = new URLSearchParams(location.search).get('cat') || ''; } catch (e) {}
     if (qcat && qcat !== catOrder[currentIdx] && catOrder.indexOf(qcat) !== -1) {
@@ -4100,6 +4129,7 @@ if(location.search.indexOf('ph=')!==-1){
   function _siteShopPanel(k){ return document.getElementById('panel-' + k); }
   function _siteShopBtn(k){ return catNav.querySelector('button[data-cat="' + k + '"]'); }
   function applySiteMenuConfig(cfg){
+    if (PHONE_ONLY) return;   // 휴대폰 전용 모드에선 샵 구성(탭 노출/순서) 무시 — 항상 휴대폰만
     try {
       cfg = cfg || {};
       var shops = (Array.isArray(cfg.shops) && cfg.shops.length) ? cfg.shops
