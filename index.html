@@ -1404,7 +1404,7 @@
   })();
 </script>
 <!-- ── 휴대폰 전용 사이트 모드 (?only=phone) — 같은 코드/데이터, 화면만 휴대폰. 첫 페인트 전 클래스 지정(탭·타패널 깜빡임 방지) ── -->
-<script>try{ if(/[?&]only=phone(?:&|=|$)/.test(location.search)) document.documentElement.classList.add('phone-only'); }catch(e){}</script>
+<script>try{ if(/[?&]only=phone(?:&|=|$)/.test(location.search) || /sameun/i.test(location.hostname)) document.documentElement.classList.add('phone-only'); }catch(e){}</script>
 <style>
   /* 대탭 줄은 유지(헤더 높이·sub-nav sticky top:83·compact 로직 보존) — 인터넷/렌탈 버튼만 숨김 */
   html.phone-only .cat-nav button[data-cat="internet"],
