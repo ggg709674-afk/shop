@@ -1783,20 +1783,13 @@
       x.classList.toggle('on', x.dataset.menu === menu);
     });
 
-    // 패널 전환
-    document.querySelector('[data-panel="products"]').hidden   = (meta.kind !== 'products');
-    document.querySelector('[data-panel="commission"]').hidden = (meta.kind !== 'commission');
-    document.querySelector('[data-panel="carddiscount"]').hidden = (meta.kind !== 'carddiscount');
-    document.querySelector('[data-panel="cards"]').hidden      = (meta.kind !== 'cards');
-    document.querySelector('[data-panel="iconlab"]').hidden    = (meta.kind !== 'iconlab');
-    document.querySelector('[data-panel="faq"]').hidden        = (meta.kind !== 'faq');
-    document.querySelector('[data-panel="banner"]').hidden     = (meta.kind !== 'banner');
-    document.querySelector('[data-panel="store"]').hidden      = (meta.kind !== 'store');
-    document.querySelector('[data-panel="soon"]').hidden       = (meta.kind !== 'soon');
-    document.querySelector('[data-panel="consult"]').hidden    = (meta.kind !== 'consult');
-    document.querySelector('[data-panel="margin"]').hidden     = (meta.kind !== 'margin');
-    document.querySelector('[data-panel="support"]').hidden    = (meta.kind !== 'support');
-    document.querySelector('[data-panel="deploy"]').hidden     = (meta.kind !== 'deploy');
+    // 패널 전환 — 활성 패널 하나만 표시(전체 훑어 나머지 숨김).
+    //   하드코딩 목록이 아니라 .adm-panel 전체를 대상으로 해야, 나중에 추가된 패널
+    //   (category·ph-* 등 합본 신규)도 확실히 숨겨짐 → '정책표 위에 카테고리설정 겹쳐 보임' 버그 수정.
+    var _activeKind = meta ? meta.kind : '';
+    document.querySelectorAll('.adm-panel').forEach(function(p){
+      p.hidden = (p.getAttribute('data-panel') !== _activeKind);
+    });
 
     // 수수료표 업로드 드롭존은 수수료 메뉴에서만 헤더에 노출
     const comUp = document.getElementById('com-upload');
