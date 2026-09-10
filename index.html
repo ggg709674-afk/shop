@@ -1199,6 +1199,8 @@
   }
   .ft-row a { color:var(--g1); font-weight:500; font-size:12px; }
   .ft-c { color:var(--g3); }
+  .ft-badge { margin:0 0 14px; }
+  .ft-badge img { display:block; }
 
   /* ───── 플로팅 액션 버튼 (FAB, 클릭 시 펼침) ───── */
   .fab {
@@ -4429,13 +4431,19 @@ if(location.search.indexOf('ph=')!==-1){
   function buildInfo(s){
     s = s || {};
     var yr = new Date().getFullYear();
+    var phoneOnly = document.documentElement.classList.contains('phone-only');
     // 상호 기본값: 삼은정보(phone-only) / 우주커넥트(합본). 저장값은 skmFetchStore가
     // 사이트별 키(store_sameun/store)로 이미 분기해 내려주므로 그대로 렌더한다.
-    var name = s.name || (document.documentElement.classList.contains('phone-only') ? '삼은정보' : '우주커넥트');
+    var name = s.name || (phoneOnly ? '삼은정보' : '우주커넥트');
+    // 삼은정보(sameun) 전용 — 정보보호(ICT마켓) 인증 배지. 인증 아이콘은 발급기관에서
+    // 실시간 로드해야 검증되는 종류라 self-host 예외(핫링크 유지). 클릭 시 인증 확인 팝업.
+    var badge = phoneOnly
+      ? '<div class="ft-badge"><a href="https://ictmarket.or.kr:8443/precon/pop_CertIcon.do?PRECON_REQ_ID=PRE0000123687" target="_blank" rel="noopener"><img src="https://ictmarket.or.kr:8443/getCertIcon.do?cert_icon=KP19101711608I002" alt="정보보호 준비도 인증" style="cursor:pointer;height:60px;width:auto;"></a></div>'
+      : '';
     var l1 = joinDot(['<b>'+esc(name)+'</b>', s.biz_owner?('대표 '+esc(s.biz_owner)):'', s.phone?esc(s.phone):'']);
     var l2 = joinDot([s.address?esc(s.address):'', s.biz_hours?esc(s.biz_hours):'']);
     var l3 = joinDot([s.biz_no?('사업자번호 '+esc(s.biz_no)):'', s.mail_order_no?('통신판매업신고 '+esc(s.mail_order_no)):'']);
-    var h = '';
+    var h = badge;
     if (l1) h += l1 + '<br>';
     if (l2) h += l2 + '<br>';
     if (l3) h += l3 + '<br>';
