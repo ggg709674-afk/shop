@@ -4467,6 +4467,12 @@ if(location.search.indexOf('ph=')!==-1){
   }
   async function run(){
     inject();
+    // 삼은정보(phone-only)는 푸터 링크에서 '판매자 정보'·'고객센터' 제거(이용약관·개인정보처리방침만).
+    if (document.documentElement.classList.contains('phone-only')){
+      document.querySelectorAll('.ft .ft-row').forEach(function(row){
+        row.innerHTML = '<a>이용약관</a>·<a>개인정보처리방침</a>';
+      });
+    }
     try{
       if (window.skmFetchStore){ var s = await window.skmFetchStore(); fill(s); }
     }catch(e){}
