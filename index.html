@@ -4405,7 +4405,7 @@ if(location.search.indexOf('ph=')!==-1){
   </div>
 </div>
 
-<!-- 푸터: 상세 외 모든 뷰(휴대폰/인터넷/렌탈 홈·카테고리)에도 동일 푸터 노출 — 상세 푸터를 템플릿으로 복제 주입 -->
+<!-- 푸터: (1) 상세 외 모든 뷰에도 동일 푸터 복제 주입  (2) 관리자 기본정보(사업자·연락처)를 읽어 채움 -->
 <script>
 (function(){
   function inject(){
@@ -4422,8 +4422,44 @@ if(location.search.indexOf('ph=')!==-1){
       });
     }catch(e){}
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', inject);
-  else inject();
+  // 관리자 기본정보(mobileshop_rental_settings key='store')로 모든 푸터의 사업자/연락처 라인을 채운다.
+  // 값이 비면 해당 항목은 생략(가짜 placeholder 대신 실제 저장값만 노출).
+  function esc(s){ return String(s==null?'':s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+  function joinDot(a){ return a.filter(Boolean).join(' · '); }
+  function buildInfo(s){
+    s = s || {};
+    var phoneOnly = document.documentElement.classList.contains('phone-only');
+    var yr = new Date().getFullYear();
+    // 삼은정보(phone-only)는 우주커넥트와 사업자정보가 다르고 DB를 공유하므로,
+    // 저장값(우주커넥트 등록정보)을 그대로 붙이면 오정보가 된다 → 상호+저작권만 노출.
+    if (phoneOnly){
+      return '<b>삼은정보</b><br><span class="ft-c">© '+yr+' 삼은정보. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>';
+    }
+    var name = s.name || '우주커넥트';
+    var l1 = joinDot(['<b>'+esc(name)+'</b>', s.biz_owner?('대표 '+esc(s.biz_owner)):'', s.phone?esc(s.phone):'']);
+    var l2 = joinDot([s.address?esc(s.address):'', s.biz_hours?esc(s.biz_hours):'']);
+    var l3 = joinDot([s.biz_no?('사업자번호 '+esc(s.biz_no)):'', s.mail_order_no?('통신판매업신고 '+esc(s.mail_order_no)):'']);
+    var h = '';
+    if (l1) h += l1 + '<br>';
+    if (l2) h += l2 + '<br>';
+    if (l3) h += l3 + '<br>';
+    h += '<span class="ft-c">© '+yr+' '+esc(name)+'. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>';
+    return h;
+  }
+  function fill(s){
+    document.querySelectorAll('.ft').forEach(function(ft){
+      var info = ft.querySelector(':scope > div:not(.ft-row)');
+      if (info) info.innerHTML = buildInfo(s);
+    });
+  }
+  async function run(){
+    inject();
+    try{
+      if (window.skmFetchStore){ var s = await window.skmFetchStore(); fill(s); }
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
 })();
 </script>
 

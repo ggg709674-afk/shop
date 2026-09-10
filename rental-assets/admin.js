@@ -3042,6 +3042,8 @@
     setStoreStatus('저장됐어요. 사이트에 바로 반영됩니다.', 'ok');
     toast('기본 정보 저장 완료');
   }
+  // 공통메뉴(기본 정보)에서 admin.html 인라인 스크립트가 폼을 채울 수 있도록 노출
+  window.admPopulateStore = populateStoreForm;
   function bindStoreForm(){
     const btn = document.getElementById('store-save');
     if (btn) btn.addEventListener('click', saveStoreInfo);

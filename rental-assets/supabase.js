@@ -182,11 +182,25 @@
     phone: null, email: null, biz_hours: null, kakao_url: null,
     theme_color: null, logo_url: null, margins: {}, customer_support: {}
   };
-  window.skmFetchStore = async function(){ return _COMBINED_STORE; };
+  // 합본 단일샵: 기본정보(상호·사업자·연락처)는 stores 테이블 대신 settings(key='store')에 저장.
+  // 저장값을 기본 스텁 위에 병합해 반환 → 관리자 폼/사이트 푸터가 저장값을 읽는다.
+  window.skmFetchStore = async function(){
+    try {
+      const row = await _msrGetSetting('store');
+      if (row && row.payload) return { ..._COMBINED_STORE, ...row.payload };
+    } catch (_) {}
+    return _COMBINED_STORE;
+  };
 
   /* ─── 합본 단일샵 — 분양/매장 관리 미사용 → 무해 스텁 ─────
      (분양관리·본부전용 메뉴는 합본 사이드바에서 숨김. 혹시 호출돼도 stores 미존재로 깨지지 않게.) */
-  window.skmUpdateStore = async function(){ return { data: _COMBINED_STORE, error: null }; };
+  // 기본정보 저장 = settings(key='store')에 병합 upsert. (id 인자는 합본에서 무시)
+  window.skmUpdateStore = async function(id, patch){
+    const cur = await _msrGetSetting('store');
+    const merged = { ...((cur && cur.payload) || {}), ...(patch || {}) };
+    const { error } = await _msrSaveSetting('store', merged);
+    return { data: { ..._COMBINED_STORE, ...merged }, error };
+  };
   window.skmSaveMargins = async function(){ return { data: null, error: null }; };
   window.skmSaveCustomerSupport = async function(){ return { data: null, error: null }; };
   window.skmFetchChildStores = async function(){ return []; };
