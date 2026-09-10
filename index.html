@@ -3316,7 +3316,7 @@ if(location.search.indexOf('ph=')!==-1){
   }
   // 상세 인포그래픽 스트립 — 모델명 → 슬러그 → /phone-images/<slug>/detail_NN.jpg (KT 크롤·선별본)
   var PH_DETAIL_COUNTS = {
-    'galaxy-s26-ultra': 24, 'galaxy-s26-plus': 20, 'galaxy-s26': 20,
+    'galaxy-s26-ultra': 24, 'galaxy-s26-plus': 20, 'galaxy-s26-fe': 30, 'galaxy-s26': 20,
     'galaxy-s25-ultra': 19, 'galaxy-s25-edge': 9, 'galaxy-s25-fe': 28, 'galaxy-s25': 20,
     'galaxy-quantum7': 22, 'galaxy-quantum6': 21, 'galaxy-wide8': 12, 'galaxy-wide9': 14, 'galaxy-z-flip6': 18, 'galaxy-z-fold6': 6, 'galaxy-z-flip7': 20,
     'galaxy-z-flip7-fe': 13, 'galaxy-z-fold7': 24,
@@ -3325,7 +3325,7 @@ if(location.search.indexOf('ph=')!==-1){
     'iphone-16': 12, 'iphone-16-pro': 8, 'iphone-16-pro-max': 8
   };
   // 상세 이미지 확장자 — 기본 jpg. tworld 원본이 투명 png 인 모델만 png 명시.
-  var PH_DETAIL_EXT = { 'galaxy-quantum7': 'png' };
+  var PH_DETAIL_EXT = { 'galaxy-quantum7': 'png', 'galaxy-s26-fe': 'png' };
   // 구체적인 것부터 먼저 매칭 (s26+ 가 s26 보다, 17promax 가 17pro 보다 앞)
   var PH_DETAIL_SLUG_RULES = [
     [/퀀텀7|quantum7/, 'galaxy-quantum7'], [/퀀텀6|quantum6/, 'galaxy-quantum6'], [/와이드9|wide9/, 'galaxy-wide9'], [/와이드8|wide8/, 'galaxy-wide8'],
@@ -3336,7 +3336,7 @@ if(location.search.indexOf('ph=')!==-1){
     [/z폴드8|폴드8|zfold8|fold8/, 'galaxy-z-fold8'],
     [/플립7fe|flip7fe/, 'galaxy-z-flip7-fe'], [/z플립7|플립7|zflip7|flip7/, 'galaxy-z-flip7'],
     [/z폴드7|폴드7|zfold7|fold7/, 'galaxy-z-fold7'],
-    [/s26(ultra|울트라)/, 'galaxy-s26-ultra'], [/s26(\+|plus|플러스)/, 'galaxy-s26-plus'], [/s26/, 'galaxy-s26'],
+    [/s26fe/, 'galaxy-s26-fe'], [/s26(ultra|울트라)/, 'galaxy-s26-ultra'], [/s26(\+|plus|플러스)/, 'galaxy-s26-plus'], [/s26/, 'galaxy-s26'],
     [/s25(ultra|울트라)/, 'galaxy-s25-ultra'], [/s25(edge|엣지)/, 'galaxy-s25-edge'], [/s25fe/, 'galaxy-s25-fe'], [/s25/, 'galaxy-s25'],
     [/iphone17promax/, 'iphone-17-pro-max'], [/iphone17pro/, 'iphone-17-pro'], [/iphoneair/, 'iphone-air'],
     [/iphone17e/, 'iphone-17e'], [/iphone17/, 'iphone-17'],
