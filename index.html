@@ -4428,14 +4428,10 @@ if(location.search.indexOf('ph=')!==-1){
   function joinDot(a){ return a.filter(Boolean).join(' · '); }
   function buildInfo(s){
     s = s || {};
-    var phoneOnly = document.documentElement.classList.contains('phone-only');
     var yr = new Date().getFullYear();
-    // 삼은정보(phone-only)는 우주커넥트와 사업자정보가 다르고 DB를 공유하므로,
-    // 저장값(우주커넥트 등록정보)을 그대로 붙이면 오정보가 된다 → 상호+저작권만 노출.
-    if (phoneOnly){
-      return '<b>삼은정보</b><br><span class="ft-c">© '+yr+' 삼은정보. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>';
-    }
-    var name = s.name || '우주커넥트';
+    // 상호 기본값: 삼은정보(phone-only) / 우주커넥트(합본). 저장값은 skmFetchStore가
+    // 사이트별 키(store_sameun/store)로 이미 분기해 내려주므로 그대로 렌더한다.
+    var name = s.name || (document.documentElement.classList.contains('phone-only') ? '삼은정보' : '우주커넥트');
     var l1 = joinDot(['<b>'+esc(name)+'</b>', s.biz_owner?('대표 '+esc(s.biz_owner)):'', s.phone?esc(s.phone):'']);
     var l2 = joinDot([s.address?esc(s.address):'', s.biz_hours?esc(s.biz_hours):'']);
     var l3 = joinDot([s.biz_no?('사업자번호 '+esc(s.biz_no)):'', s.mail_order_no?('통신판매업신고 '+esc(s.mail_order_no)):'']);

@@ -182,24 +182,41 @@
     phone: null, email: null, biz_hours: null, kakao_url: null,
     theme_color: null, logo_url: null, margins: {}, customer_support: {}
   };
-  // 합본 단일샵: 기본정보(상호·사업자·연락처)는 stores 테이블 대신 settings(key='store')에 저장.
-  // 저장값을 기본 스텁 위에 병합해 반환 → 관리자 폼/사이트 푸터가 저장값을 읽는다.
-  window.skmFetchStore = async function(){
+  // 합본 단일샵: 기본정보(상호·사업자·연락처)는 stores 테이블 대신 settings(key)에 저장.
+  //  ─ 우주커넥트(합본) = key 'store'
+  //  ─ 삼은정보(휴대폰 전용 sameun) = key 'store_sameun'
+  //  두 사이트가 같은 코드·같은 DB(커플링)라, hostname/파라미터로 사이트를 구분해 각자 정보를 저장·표시.
+  //  (관리자도 sameun.vercel.app/admin 에서 열면 삼은정보 정보를 편집)
+  function _isSameunSite(){
     try {
-      const row = await _msrGetSetting('store');
-      if (row && row.payload) return { ..._COMBINED_STORE, ...row.payload };
+      if (/sameun/i.test(location.hostname)) return true;
+      if (/[?&]only=phone(?:&|=|$)/.test(location.search)) return true;
     } catch (_) {}
-    return _COMBINED_STORE;
+    return false;
+  }
+  function _storeKey(){ return _isSameunSite() ? 'store_sameun' : 'store'; }
+  function _storeDefaults(){
+    return { ..._COMBINED_STORE, name: _isSameunSite() ? '삼은정보' : '우주커넥트' };
+  }
+  // 저장값을 기본값 위에 병합해 반환 → 관리자 폼/사이트 푸터가 저장값을 읽는다.
+  window.skmFetchStore = async function(){
+    const base = _storeDefaults();
+    try {
+      const row = await _msrGetSetting(_storeKey());
+      if (row && row.payload) return { ...base, ...row.payload };
+    } catch (_) {}
+    return base;
   };
 
   /* ─── 합본 단일샵 — 분양/매장 관리 미사용 → 무해 스텁 ─────
      (분양관리·본부전용 메뉴는 합본 사이드바에서 숨김. 혹시 호출돼도 stores 미존재로 깨지지 않게.) */
-  // 기본정보 저장 = settings(key='store')에 병합 upsert. (id 인자는 합본에서 무시)
+  // 기본정보 저장 = 사이트별 settings 키에 병합 upsert. (id 인자는 합본에서 무시)
   window.skmUpdateStore = async function(id, patch){
-    const cur = await _msrGetSetting('store');
+    const key = _storeKey();
+    const cur = await _msrGetSetting(key);
     const merged = { ...((cur && cur.payload) || {}), ...(patch || {}) };
-    const { error } = await _msrSaveSetting('store', merged);
-    return { data: { ..._COMBINED_STORE, ...merged }, error };
+    const { error } = await _msrSaveSetting(key, merged);
+    return { data: { ..._storeDefaults(), ...merged }, error };
   };
   window.skmSaveMargins = async function(){ return { data: null, error: null }; };
   window.skmSaveCustomerSupport = async function(){ return { data: null, error: null }; };
