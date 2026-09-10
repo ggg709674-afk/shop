@@ -1201,6 +1201,10 @@
   .ft-c { color:var(--g3); }
   .ft-badge { margin:0 0 14px; }
   .ft-badge img { display:block; }
+  /* 인증 배지 = 회사정보 우측 배치 (sameun) */
+  .ft-biz-row { display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+  .ft-biz-main { flex:1 1 240px; min-width:0; }
+  .ft-biz-row .ft-badge { margin:0; flex:0 0 auto; }
 
   /* ───── 플로팅 액션 버튼 (FAB, 클릭 시 펼침) ───── */
   .fab {
@@ -4438,17 +4442,19 @@ if(location.search.indexOf('ph=')!==-1){
     // 삼은정보(sameun) 전용 — 정보보호(ICT마켓) 인증 배지. 인증 아이콘은 발급기관에서
     // 실시간 로드해야 검증되는 종류라 self-host 예외(핫링크 유지). 클릭 시 인증 확인 팝업.
     var badge = phoneOnly
-      ? '<div class="ft-badge"><a href="https://ictmarket.or.kr:8443/precon/pop_CertIcon.do?PRECON_REQ_ID=PRE0000123687" target="_blank" rel="noopener"><img src="https://ictmarket.or.kr:8443/getCertIcon.do?cert_icon=KP19101711608I002" alt="정보보호 준비도 인증" style="cursor:pointer;height:60px;width:auto;"></a></div>'
+      ? '<div class="ft-badge"><a href="https://ictmarket.or.kr:8443/precon/pop_CertIcon.do?PRECON_REQ_ID=PRE0000123687" target="_blank" rel="noopener"><img src="https://ictmarket.or.kr:8443/getCertIcon.do?cert_icon=KP19101711608I002" alt="정보보호 준비도 인증" style="cursor:pointer;height:88px;width:auto;"></a></div>'
       : '';
     var l1 = joinDot(['<b>'+esc(name)+'</b>', s.biz_owner?('대표 '+esc(s.biz_owner)):'', s.phone?esc(s.phone):'']);
     var l2 = joinDot([s.address?esc(s.address):'', s.biz_hours?esc(s.biz_hours):'']);
     var l3 = joinDot([s.biz_no?('사업자번호 '+esc(s.biz_no)):'', s.mail_order_no?('통신판매업신고 '+esc(s.mail_order_no)):'']);
-    var h = badge;
-    if (l1) h += l1 + '<br>';
-    if (l2) h += l2 + '<br>';
-    if (l3) h += l3 + '<br>';
-    h += '<span class="ft-c">© '+yr+' '+esc(name)+'. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>';
-    return h;
+    var text = '';
+    if (l1) text += l1 + '<br>';
+    if (l2) text += l2 + '<br>';
+    if (l3) text += l3 + '<br>';
+    text += '<span class="ft-c">© '+yr+' '+esc(name)+'. 본 사이트의 모든 단말은 정품이며, 제조사 보증을 그대로 받습니다.</span>';
+    // 인증 배지가 있으면(=sameun) 회사정보 우측에 배치
+    if (badge) return '<div class="ft-biz-row"><div class="ft-biz-main">'+text+'</div>'+badge+'</div>';
+    return text;
   }
   function fill(s){
     document.querySelectorAll('.ft').forEach(function(ft){
