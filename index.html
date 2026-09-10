@@ -3872,12 +3872,12 @@ if(location.search.indexOf('ph=')!==-1){
     var name = phaVal('name'), phone = phaFmtPhone(phaVal('phone')), altphone = phaFmtPhone(phaVal('altphone'));
     var address = phaVal('address'), memo = phaVal('memo');
     var age = (form.querySelector('input[name="age"]:checked') || {}).value || 'adult';
-    var rrn1 = phaVal('rrn1'), rrn2 = phaVal('rrn2'), birth = phaVal('birth');
+    var rrn1 = phaVal('rrn1'), birth = phaVal('birth');  // 주민번호 뒷자리 미수집 — 생년월일 6자리만
     var gname = phaVal('gname'), gphone = phaFmtPhone(phaVal('gphone'));
     var agree = !!(phaField('agree') && phaField('agree').checked);
     if (!name) return fail('고객명을 입력해주세요.');
     if (!phone) return fail('개통할 번호를 입력해주세요.');
-    if (isMnp) { if (!/^\d{6}$/.test(rrn1) || !/^\d{7}$/.test(rrn2)) return fail('생년월일을 정확히 입력해주세요.'); }
+    if (isMnp) { if (!/^\d{6}$/.test(rrn1)) return fail('생년월일 6자리를 입력해주세요. (예: 880315)'); }
     else { if (!/^\d{6}$/.test(birth)) return fail('생년월일 6자리를 입력해주세요. (예: 880315)'); }
     if (age === 'minor') { if (!gname || !gphone) return fail('법정대리인 성함과 연락처를 입력해주세요.'); }
     if (!agree) return fail('개인정보 수집·이용에 동의해주세요.');
@@ -3894,7 +3894,7 @@ if(location.search.indexOf('ph=')!==-1){
       if (typeof window.skmInsertConsultation !== 'function') throw new Error('제출 기능을 불러오지 못했습니다.');
       var res = await window.skmInsertConsultation({
         kind: 'order', name: name, phone: phone, email: null,
-        birth: (!isMnp ? birth : null), address: address, memo: null,
+        birth: (isMnp ? rrn1 : birth), address: address, memo: null,
         products: [{
           type: 'phone', customerMemo: memo,
           carrier: (CARRIER_LABEL[m.carrier] || m.carrier || ''), model: m.name,
@@ -3904,7 +3904,7 @@ if(location.search.indexOf('ph=')!==-1){
           ctype: _phDetCtype, ctypeLabel: (_phDetCtype === 'common' ? '공통지원금' : '선택약정'),
           pay: _phDetPay, payLabel: (_phDetPay === 'installment' ? '할부' : '현금완납'),
           salePrice: _saleP, releasePrice: _releaseP, support: _supportP, extraSupport: _extraP,
-          altPhone: altphone, rrn: (isMnp ? (rrn1 + '-' + rrn2) : ''), birth: (!isMnp ? birth : ''),
+          altPhone: altphone, rrn: '', birth: (isMnp ? rrn1 : birth),
           age: age, guardianName: gname, guardianPhone: gphone
         }]
       });
@@ -4388,7 +4388,7 @@ if(location.search.indexOf('ph=')!==-1){
       <label class="cm-field"><span>다른 연락처</span><input type="tel" name="altphone" inputmode="tel" placeholder="010-0000-0000"></label>
       <label class="pha-inline"><input type="checkbox" id="pha-same"><span>개통할 번호와 동일</span></label>
       <label class="cm-field" id="pha-rrn-field"><span>생년월일 <em class="pha-hint">번호이동 개통에 필요</em></span>
-        <span class="pha-rrn"><input type="text" name="rrn1" inputmode="numeric" maxlength="6" placeholder="앞 6자리" autocomplete="off" data-lpignore="true" data-form-type="other"><i>-</i><input type="password" name="rrn2" inputmode="numeric" maxlength="7" placeholder="뒤 7자리" autocomplete="new-password" data-lpignore="true" data-form-type="other"></span>
+        <input type="text" name="rrn1" inputmode="numeric" maxlength="6" placeholder="6자리 (예: 880315)" autocomplete="off" data-lpignore="true" data-form-type="other">
       </label>
       <label class="cm-field" id="pha-birth-field" hidden><span>생년월일</span><input type="text" name="birth" inputmode="numeric" maxlength="6" placeholder="예: 880315"></label>
       <label class="cm-field"><span>택배 주소</span><input type="text" name="address" autocomplete="street-address" placeholder="받으실 주소"></label>
