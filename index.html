@@ -740,7 +740,7 @@
   .ph-det-info:empty { display:none; }
   .ph-det-info img { width:100%; height:auto; display:block; }
   .ph-det-info img + img { margin-top:0; }
-  #ph-detail .ft, #rental-det .ft { max-width:1200px; margin-left:auto; margin-right:auto; }  /* 상세 푸터 — 본문폭에 맞춰 중앙 */
+  #ph-detail .ft, #rental-det .ft, .ft-global { max-width:1200px; margin-left:auto; margin-right:auto; }  /* 상세 푸터 — 본문폭에 맞춰 중앙 */
   /* 상세 탭(상품 상세 / 제품 사양) — 렌탈 .detail-tabs 재사용 + 폭 통일 */
   #ph-detail .ph-det-tabs { max-width:1200px; margin-left:auto; margin-right:auto; margin-top:8px; }  /* 썸네일 1줄 고정 → 탭 위 여백 축소(렌탈 60 → 8) */
   #rental-det .detail-tabs { margin-top:31px; }  /* 썸네일↔탭 실측 간격을 휴대폰(32px)과 동일하게 */
@@ -4404,6 +4404,28 @@ if(location.search.indexOf('ph=')!==-1){
     </div>
   </div>
 </div>
+
+<!-- 푸터: 상세 외 모든 뷰(휴대폰/인터넷/렌탈 홈·카테고리)에도 동일 푸터 노출 — 상세 푸터를 템플릿으로 복제 주입 -->
+<script>
+(function(){
+  function inject(){
+    try{
+      var tpl = document.querySelector('#ph-detail .ft');
+      if(!tpl) return;
+      ['#panel-phone','#panel-internet','#rental-home','#rental-category'].forEach(function(sel){
+        var el = document.querySelector(sel);
+        if(!el || el.querySelector(':scope > .ft-global')) return;
+        var ft = tpl.cloneNode(true);
+        ft.classList.add('ft-global');
+        ft.removeAttribute('hidden');
+        el.appendChild(ft);
+      });
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', inject);
+  else inject();
+})();
+</script>
 
 </body>
 </html>
