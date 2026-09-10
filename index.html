@@ -312,6 +312,9 @@
   /* 통신사 하위탭 전환 시 페이드인 */
   @keyframes phCarrierFade { from { opacity:0.85; transform:scale(0.98); } to { opacity:1; transform:none; } }
   #phone-home.ph-carrier-anim, #phone-cards.ph-carrier-anim { animation: phCarrierFade .24s cubic-bezier(.32,.72,0,1); transform-origin:center top; }
+  /* 전역 hidden — display 지정 클래스(.product-grid 등)가 브라우저 기본 [hidden]을 이겨
+     hidden 처리한 요소가 안 숨겨지던 문제 근본 수정. (예: '전체'로 복귀 시 #phone-cards 잔여 카드) */
+  [hidden] { display:none !important; }
   .product-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
   .product-grid .empty-cards { grid-column:1/-1; text-align:center; color:var(--g2); padding:48px 0; font-size:14px; }
   .product-card {
