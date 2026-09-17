@@ -1668,6 +1668,16 @@ html[data-preload-shop] body { visibility:hidden; }
   function phRenderSupport(carrier){
     var wrap=document.querySelector('[data-ph-support-wrap="'+carrier+'"]');if(!wrap)return;
     var models=phData.models.filter(function(m){return m.carrier===carrier&&m.visible!==false;});
+    // 정렬: 공시일 최신순(신형 위로) → 동일모델 용량 낮은순(256<512<1T<2T)
+    var _capR=function(n){var t=String(n).match(/(\d+)\s*T\b/i);if(t)return 1000+(+t[1]);var g=String(n).match(/(\d+)\s*GB?\b/i);return g?+g[1]:0;};
+    var _baseN=function(n){return String(n).replace(/\s*\d+\s*[GT]B?\b/gi,'').trim();};
+    models.sort(function(a,b){
+      var da=a.noticeDate||'',db=b.noticeDate||'';
+      if(da!==db)return db.localeCompare(da);
+      var ba=_baseN(a.name),bb=_baseN(b.name);
+      if(ba!==bb)return ba.localeCompare(bb);
+      return _capR(a.name)-_capR(b.name);
+    });
     var plans=phData.plans.filter(function(p){return p.carrier===carrier;})
       .sort(function(a,b){return (b.monthlyFee!==''?+b.monthlyFee:0)-(a.monthlyFee!==''?+a.monthlyFee:0);});
     var _tabMnp=phSupportSubTab==='mnp';
