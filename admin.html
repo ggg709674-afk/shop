@@ -2339,7 +2339,6 @@ html[data-preload-shop] body { visibility:hidden; }
         var dot='display:inline-block;width:9px;height:9px;border-radius:50%;background:'+phColorDot(c.name)+';border:1px solid rgba(0,0,0,.15);';
         return'<button class="ph-pm-ctab'+(i===_phProdActiveTab?' on':'')+'" type="button" data-ctab="'+i+'"><span style="'+dot+'"></span>'+phEsc(c.name)+'</button>';
       }).join('');
-      tabHtml+='<button class="ph-pm-ctab ph-pm-ctab-add" type="button" data-ctab-add="1">+ 색상 추가</button>';
       tabsWrap.innerHTML=tabHtml;
     }
     phRenderProductImgGrid();
@@ -2992,12 +2991,6 @@ html[data-preload-shop] body { visibility:hidden; }
     // 색상 탭 전환
     var ctab=t.closest('[data-ctab]');
     if(ctab&&!ctab.hasAttribute('data-ctab-add')){_phProdActiveTab=parseInt(ctab.getAttribute('data-ctab'));phRenderProductModal();return;}
-    // 색상 추가
-    if(t.closest('[data-ctab-add]')){
-      var n=prompt('색상 이름을 입력하세요 (예: 블랙, 화이트)');
-      if(n&&n.trim()){_phProdColors.push({name:n.trim(),visible:true,images:[]});_phProdActiveTab=_phProdColors.length-1;phRenderProductModal();}
-      return;
-    }
     // 이미지 슬롯 클릭 → 업로드
     var pus=t.closest('[data-pm-upload-slot]');
     if(pus){_phProdUploadSlot=parseInt(pus.getAttribute('data-pm-upload-slot'));var fi=phEl('ph-pm-img-file');fi.value='';fi.click();return;}
