@@ -267,6 +267,8 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-vis{width:56px;text-align:center;}
 .ph-prod-act{width:76px;text-align:right;white-space:nowrap;}
 .ph-prod-sort{width:68px;text-align:center;white-space:nowrap;}
+.ph-prod-table tbody tr.ph-prod-row{cursor:grab;}   /* 행 아무 데나 잡고 순서 변경 */
+.ph-prod-table tbody tr.ph-prod-row :is(input,select,button,a,label){cursor:pointer;}
 /* 상품 목록 드래그 정렬 */
 .ph-prod-table tbody tr{transition:transform .32s cubic-bezier(.34,1.56,.64,1);}
 .ph-prod-table tbody tr.ph-prod-dragging{transition:none;position:relative;z-index:6;background:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14);}
@@ -2216,16 +2218,35 @@ html[data-preload-shop] body { visibility:hidden; }
   function phProdBindDrag(){
     if(_phProdDragBound)return; _phProdDragBound=true;
     document.addEventListener('mousedown',function(e){
-      var grip=e.target.closest('[data-ph-prod-grip]'); if(!grip)return;
-      var row=grip.closest('.ph-prod-row'); if(!row)return;
+      // 행 아무 데나 잡고 드래그(체크박스·드롭다운·버튼 등 조작 칸은 제외)
+      if(e.button!==0||e.target.closest('input,select,button,a,label,textarea'))return;
+      var row=e.target.closest('.ph-prod-row'); if(!row)return;
+      var grip=row.querySelector('[data-ph-prod-grip]'); if(!grip)return;
       var tbody=row.parentNode, rows=Array.prototype.slice.call(tbody.children);
-      _ppd={row:row,rows:rows,carrier:grip.getAttribute('data-pcarrier'),from:rows.indexOf(row),cur:rows.indexOf(row),y:e.clientY,h:row.getBoundingClientRect().height,active:false};
+      var sc=_ppdScroller(row);
+      _ppd={row:row,rows:rows,carrier:grip.getAttribute('data-pcarrier'),from:rows.indexOf(row),cur:rows.indexOf(row),y:e.clientY,lastY:e.clientY,h:row.getBoundingClientRect().height,active:false,sc:sc,s0:_ppdTop(sc),raf:0};
       e.preventDefault();
     });
     document.addEventListener('mousemove',function(e){
       if(!_ppd)return;
-      var dy=e.clientY-_ppd.y;
-      if(!_ppd.active){ if(Math.abs(dy)<4)return; _ppd.active=true; _ppd.row.classList.add('ph-prod-dragging'); document.body.style.userSelect='none'; }
+      _ppd.lastY=e.clientY;
+      if(!_ppd.active){ if(Math.abs(e.clientY-_ppd.y)<4)return; _ppd.active=true; _ppd.row.classList.add('ph-prod-dragging'); document.body.style.userSelect='none'; _ppd.raf=requestAnimationFrame(_ppdAuto); }
+      _ppdMove();
+    });
+    // 드래그 중 화면(또는 목록 스크롤 칸) 끝에 닿으면 계속 스크롤 — woozoo 모델관리와 같은 방식
+    function _ppdScroller(el){for(var p=el.parentElement;p&&p!==document.body;p=p.parentElement){var o=getComputedStyle(p).overflowY;if((o==='auto'||o==='scroll')&&p.scrollHeight>p.clientHeight+4)return p;}return null;}
+    function _ppdTop(sc){return sc?sc.scrollTop:window.scrollY;}
+    function _ppdAuto(){
+      if(!_ppd)return;
+      var EDGE=90,MAX=30,top=0,bot=window.innerHeight,y=_ppd.lastY,v=0;
+      if(_ppd.sc){var r=_ppd.sc.getBoundingClientRect();top=Math.max(0,r.top);bot=Math.min(bot,r.bottom);}
+      if(y<top+EDGE)v=-Math.ceil(Math.min(1,(top+EDGE-y)/EDGE)*MAX);
+      else if(y>bot-EDGE)v=Math.ceil(Math.min(1,(y-(bot-EDGE))/EDGE)*MAX);
+      if(v){var b=_ppdTop(_ppd.sc);if(_ppd.sc)_ppd.sc.scrollTop+=v;else window.scrollBy(0,v);if(_ppdTop(_ppd.sc)!==b)_ppdMove();}
+      _ppd.raf=requestAnimationFrame(_ppdAuto);
+    }
+    function _ppdMove(){
+      var dy=_ppd.lastY-_ppd.y+_ppdTop(_ppd.sc)-_ppd.s0;   // 스크롤된 만큼 더함
       _ppd.row.style.transform='translateY('+dy+'px)';
       var ni=Math.max(0,Math.min(_ppd.rows.length-1,_ppd.from+Math.round(dy/_ppd.h)));
       if(ni!==_ppd.cur){
@@ -2237,9 +2258,9 @@ html[data-preload-shop] body { visibility:hidden; }
           rw.style.transform=t?('translateY('+t+'px)'):'';
         });
       }
-    });
+    }
     document.addEventListener('mouseup',function(){
-      if(!_ppd)return; var pd=_ppd; _ppd=null;
+      if(!_ppd)return; var pd=_ppd; _ppd=null; cancelAnimationFrame(pd.raf);
       if(!pd.active)return;
       document.body.style.userSelect='';
       pd.rows.forEach(function(rw){rw.style.transform='';rw.classList.remove('ph-prod-dragging');});
