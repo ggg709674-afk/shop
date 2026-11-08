@@ -1,0 +1,38 @@
+[
+  {
+    "name": "검정",
+    "hex": "#28282B",
+    "images": [
+      "/phone-images/galaxy-a18/28282b/01.png",
+      "/phone-images/galaxy-a18/28282b/02.png",
+      "/phone-images/galaxy-a18/28282b/03.png",
+      "/phone-images/galaxy-a18/28282b/04.png"
+    ],
+    "def": true,
+    "visible": true
+  },
+  {
+    "name": "실버",
+    "hex": "#CFD3D7",
+    "images": [
+      "/phone-images/galaxy-a18/cfd3d7/01.png",
+      "/phone-images/galaxy-a18/cfd3d7/02.png",
+      "/phone-images/galaxy-a18/cfd3d7/03.png",
+      "/phone-images/galaxy-a18/cfd3d7/04.png"
+    ],
+    "def": false,
+    "visible": true
+  },
+  {
+    "name": "라이트 블루",
+    "hex": "#C3E1F2",
+    "images": [
+      "/phone-images/galaxy-a18/c3e1f2/01.png",
+      "/phone-images/galaxy-a18/c3e1f2/02.png",
+      "/phone-images/galaxy-a18/c3e1f2/03.png",
+      "/phone-images/galaxy-a18/c3e1f2/04.png"
+    ],
+    "def": false,
+    "visible": true
+  }
+]

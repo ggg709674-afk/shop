@@ -3335,8 +3335,15 @@ if(location.search.indexOf('ph=')!==-1){
   };
   // 상세 이미지 확장자 — 기본 jpg. tworld 원본이 투명 png 인 모델만 png 명시.
   var PH_DETAIL_EXT = { 'galaxy-quantum7': 'png', 'galaxy-s26-fe': 'png' };
+  // 2026-11-08: 폴더의 상세 이미지 목록(phone-images/detail-manifest.json — 배포 때 scripts/build_detail_manifest.mjs 가 만듦)으로 위 두 목록을 덮어씀 → 파일만 넣으면 자동으로 나옴
+  fetch('/phone-images/detail-manifest.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
+    if (!m) return; Object.keys(m).forEach(function (s) { PH_DETAIL_COUNTS[s] = m[s].n; if (m[s].ext && m[s].ext !== 'jpg') PH_DETAIL_EXT[s] = m[s].ext; else delete PH_DETAIL_EXT[s]; });
+  }).catch(function () {});
   // 구체적인 것부터 먼저 매칭 (s26+ 가 s26 보다, 17promax 가 17pro 보다 앞)
   var PH_DETAIL_SLUG_RULES = [
+    [/iphone18promax/, 'iphone-18-pro-max'], [/iphone18pro/, 'iphone-18-pro'], [/iphoneduo/, 'iphone-duo'],   /* 2026-11-08 새 폰 */
+    [/galaxya17|^a17/, 'galaxy-a17'], [/galaxya18|^a18/, 'galaxy-a18'], [/galaxya36|^a36/, 'galaxy-a36'], [/galaxya37|^a37/, 'galaxy-a37'],
+    [/motog86|g86power/, 'moto-g86-power'], [/s25(\+|plus|플러스)/, 'galaxy-s25-plus'],
     [/퀀텀7|quantum7/, 'galaxy-quantum7'], [/퀀텀6|quantum6/, 'galaxy-quantum6'], [/와이드9|wide9/, 'galaxy-wide9'], [/와이드8|wide8/, 'galaxy-wide8'],
     [/z플립6|플립6|zflip6|flip6/, 'galaxy-z-flip6'],
     [/z폴드6|폴드6|zfold6|fold6/, 'galaxy-z-fold6'],
@@ -3355,7 +3362,8 @@ if(location.search.indexOf('ph=')!==-1){
   ];
   function phDetailSlug(name) {
     // 끝 용량 토큰 제거(공백 제거 전에!) — "Plus 256G"가 붙으면 s+25가 /s25/에 오매칭됨
-    var n = (name || '').toLowerCase().replace(/\s+\d+\s*(gb|tb|g|t)$/, '').replace(/\s/g, '');
+    var n = (name || '').toLowerCase().replace(/\s+\d+\s*(gb|tb|g|t)$/, '').replace(/\s/g, '')
+      .replace(/아이폰/g, 'iphone').replace(/갤럭시/g, 'galaxy').replace(/듀오/g, 'duo').replace(/프로/g, 'pro').replace(/맥스/g, 'max').replace(/모토/g, 'moto');   /* 2026-11-08: KT 한글 이름(아이폰 18 PRO 등)도 같은 규칙으로 */
     for (var i = 0; i < PH_DETAIL_SLUG_RULES.length; i++) {
       if (PH_DETAIL_SLUG_RULES[i][0].test(n)) return PH_DETAIL_SLUG_RULES[i][1];
     }

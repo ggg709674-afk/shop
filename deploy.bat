@@ -5,6 +5,7 @@ echo ======================================
 echo  mobile-shop-rental 배포 시작
 echo ======================================
 echo.
+node scripts\build_detail_manifest.mjs
 vercel --prod
 echo.
 echo ======================================

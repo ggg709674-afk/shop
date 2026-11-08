@@ -1,0 +1,26 @@
+[
+  {
+    "name": "PANTONE 스펠바운드",
+    "hex": "#333B4C",
+    "images": [
+      "/phone-images/moto-g86-power/333b4c/01.png",
+      "/phone-images/moto-g86-power/333b4c/02.png",
+      "/phone-images/moto-g86-power/333b4c/03.png",
+      "/phone-images/moto-g86-power/333b4c/04.png"
+    ],
+    "def": true,
+    "visible": true
+  },
+  {
+    "name": "PANTONE 코스믹 스카이",
+    "hex": "#A5A8C4",
+    "images": [
+      "/phone-images/moto-g86-power/a5a8c4/01.png",
+      "/phone-images/moto-g86-power/a5a8c4/02.png",
+      "/phone-images/moto-g86-power/a5a8c4/03.png",
+      "/phone-images/moto-g86-power/a5a8c4/04.png"
+    ],
+    "def": false,
+    "visible": true
+  }
+]

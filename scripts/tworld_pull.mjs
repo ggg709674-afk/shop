@@ -16,7 +16,7 @@ const arg = k => { const m = process.argv.find(a => a.startsWith('--' + k + '=')
 const GRP = arg('grp'), CAT = arg('cat'), SLUG = arg('slug');
 const SUB = arg('sub') || 'NA00008685', ENTRY = arg('entry') || '31';
 if (!GRP || !CAT || !SLUG) { console.error('필수: --grp --cat --slug'); process.exit(1); }
-const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/125';
+const UA = 'crawler-bot/1.0 (product image self-host)';   // 2026-11-08: 브라우저 위장 안 함(T월드는 그대로 응답)
 const CDN = 'https://cdnw.shop.tworld.co.kr/pimg';
 const URL = `https://shop.tworld.co.kr/buyproc/prod-detail?stepSeq=1&categoryId=${CAT}&productGrpId=${GRP}&subscriptionId=${SUB}&subcommDcMthd=30&addServiceId=&addServiceNm=&usingSubscriptionExYn=Y&entryCd=${ENTRY}`;
 

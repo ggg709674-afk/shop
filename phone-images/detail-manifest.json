@@ -1,0 +1,162 @@
+{
+ "galaxy-a17": {
+  "n": 15,
+  "ext": "jpg"
+ },
+ "galaxy-a18": {
+  "n": 13,
+  "ext": "jpg"
+ },
+ "galaxy-a36": {
+  "n": 20,
+  "ext": "jpg"
+ },
+ "galaxy-a37": {
+  "n": 23,
+  "ext": "jpg"
+ },
+ "galaxy-quantum6": {
+  "n": 21,
+  "ext": "jpg"
+ },
+ "galaxy-quantum7": {
+  "n": 22,
+  "ext": "png"
+ },
+ "galaxy-s25": {
+  "n": 20,
+  "ext": "jpg"
+ },
+ "galaxy-s25-edge": {
+  "n": 9,
+  "ext": "jpg"
+ },
+ "galaxy-s25-fe": {
+  "n": 28,
+  "ext": "jpg"
+ },
+ "galaxy-s25-plus": {
+  "n": 19,
+  "ext": "jpg"
+ },
+ "galaxy-s25-ultra": {
+  "n": 19,
+  "ext": "jpg"
+ },
+ "galaxy-s26": {
+  "n": 20,
+  "ext": "jpg"
+ },
+ "galaxy-s26-fe": {
+  "n": 30,
+  "ext": "png"
+ },
+ "galaxy-s26-plus": {
+  "n": 20,
+  "ext": "jpg"
+ },
+ "galaxy-s26-ultra": {
+  "n": 24,
+  "ext": "jpg"
+ },
+ "galaxy-wide8": {
+  "n": 12,
+  "ext": "jpg"
+ },
+ "galaxy-wide9": {
+  "n": 14,
+  "ext": "jpg"
+ },
+ "galaxy-z-flip6": {
+  "n": 18,
+  "ext": "jpg"
+ },
+ "galaxy-z-flip7": {
+  "n": 20,
+  "ext": "jpg"
+ },
+ "galaxy-z-flip7-fe": {
+  "n": 13,
+  "ext": "jpg"
+ },
+ "galaxy-z-flip8": {
+  "n": 30,
+  "ext": "jpg"
+ },
+ "galaxy-z-fold6": {
+  "n": 6,
+  "ext": "jpg"
+ },
+ "galaxy-z-fold7": {
+  "n": 24,
+  "ext": "jpg"
+ },
+ "galaxy-z-fold8": {
+  "n": 28,
+  "ext": "jpg"
+ },
+ "galaxy-z-fold8-ultra": {
+  "n": 31,
+  "ext": "jpg"
+ },
+ "iphone-15": {
+  "n": 3,
+  "ext": "jpg"
+ },
+ "iphone-15-plus": {
+  "n": 3,
+  "ext": "jpg"
+ },
+ "iphone-16": {
+  "n": 12,
+  "ext": "jpg"
+ },
+ "iphone-16-pro": {
+  "n": 8,
+  "ext": "jpg"
+ },
+ "iphone-16-pro-max": {
+  "n": 8,
+  "ext": "jpg"
+ },
+ "iphone-16e": {
+  "n": 6,
+  "ext": "jpg"
+ },
+ "iphone-17": {
+  "n": 4,
+  "ext": "jpg"
+ },
+ "iphone-17-pro": {
+  "n": 4,
+  "ext": "jpg"
+ },
+ "iphone-17-pro-max": {
+  "n": 4,
+  "ext": "jpg"
+ },
+ "iphone-17e": {
+  "n": 10,
+  "ext": "jpg"
+ },
+ "iphone-18-pro": {
+  "n": 13,
+  "ext": "jpg"
+ },
+ "iphone-18-pro-max": {
+  "n": 13,
+  "ext": "jpg"
+ },
+ "iphone-air": {
+  "n": 4,
+  "ext": "jpg"
+ },
+ "iphone-duo": {
+  "n": 6,
+  "ext": "jpg"
+ },
+ "moto-g86-power": {
+  "n": 10,
+  "ext": "jpg"
+ }
+}

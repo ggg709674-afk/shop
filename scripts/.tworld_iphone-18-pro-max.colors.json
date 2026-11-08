@@ -1,0 +1,50 @@
+[
+  {
+    "name": "버건디",
+    "hex": "#4D1821",
+    "images": [
+      "/phone-images/iphone-18-pro-max/4d1821/01.png",
+      "/phone-images/iphone-18-pro-max/4d1821/02.png",
+      "/phone-images/iphone-18-pro-max/4d1821/03.png",
+      "/phone-images/iphone-18-pro-max/4d1821/04.png"
+    ],
+    "def": true,
+    "visible": true
+  },
+  {
+    "name": "글레이셔",
+    "hex": "#DCE6FE",
+    "images": [
+      "/phone-images/iphone-18-pro-max/dce6fe/01.png",
+      "/phone-images/iphone-18-pro-max/dce6fe/02.png",
+      "/phone-images/iphone-18-pro-max/dce6fe/03.png",
+      "/phone-images/iphone-18-pro-max/dce6fe/04.png"
+    ],
+    "def": false,
+    "visible": true
+  },
+  {
+    "name": "실버",
+    "hex": "#E6E6E6",
+    "images": [
+      "/phone-images/iphone-18-pro-max/e6e6e6/01.png",
+      "/phone-images/iphone-18-pro-max/e6e6e6/02.png",
+      "/phone-images/iphone-18-pro-max/e6e6e6/03.png",
+      "/phone-images/iphone-18-pro-max/e6e6e6/04.png"
+    ],
+    "def": false,
+    "visible": true
+  },
+  {
+    "name": "블랙",
+    "hex": "#454545",
+    "images": [
+      "/phone-images/iphone-18-pro-max/454545/01.png",
+      "/phone-images/iphone-18-pro-max/454545/02.png",
+      "/phone-images/iphone-18-pro-max/454545/03.png",
+      "/phone-images/iphone-18-pro-max/454545/04.png"
+    ],
+    "def": false,
+    "visible": true
+  }
+]

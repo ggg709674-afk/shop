@@ -1,0 +1,26 @@
+[
+  {
+    "name": "나이트 스카이",
+    "hex": "#323A45",
+    "images": [
+      "/phone-images/iphone-duo/323a45/01.png",
+      "/phone-images/iphone-duo/323a45/02.png",
+      "/phone-images/iphone-duo/323a45/03.png",
+      "/phone-images/iphone-duo/323a45/04.png"
+    ],
+    "def": true,
+    "visible": true
+  },
+  {
+    "name": "스타 화이트",
+    "hex": "#F2F1EF",
+    "images": [
+      "/phone-images/iphone-duo/f2f1ef/01.png",
+      "/phone-images/iphone-duo/f2f1ef/02.png",
+      "/phone-images/iphone-duo/f2f1ef/03.png",
+      "/phone-images/iphone-duo/f2f1ef/04.png"
+    ],
+    "def": false,
+    "visible": true
+  }
+]
