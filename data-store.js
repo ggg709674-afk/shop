@@ -140,7 +140,15 @@ const DataStore = {
           }
         }
 
-        this._cache = { banners, productsPhone, categories, models, plans, support };
+        // 이 매장의 상품 노출 override (본부 모델 visible 게이트와 분리)
+        let modelOverrides = {};
+        try {
+          const _sid = window.RENTAL_STORE_SLUG || 'woozoo_shop';
+          const ovRes = await sb.from('mobileshop_model_overrides').select('model_id,shop_visible').eq('store_id', _sid);
+          if (!ovRes.error) (ovRes.data || []).forEach(r => { if (r && r.model_id) modelOverrides[r.model_id] = r.shop_visible !== false; });
+        } catch (e) { /* 무시 — 없으면 전부 노출 */ }
+
+        this._cache = { banners, productsPhone, categories, models, plans, support, modelOverrides };
         // 다음 방문용 캐시 저장
         this._persistCache();
       } catch (e) {

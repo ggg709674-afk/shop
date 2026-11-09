@@ -245,6 +245,10 @@ html[data-preload-shop] body { visibility:hidden; }
 .ph-prod-thumb-empty{width:48px;height:48px;border-radius:6px;border:1px dashed var(--line);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-4);}
 .ph-prod-name{font-weight:700;color:var(--ink-1);font-size:13px;}
 .ph-prod-color-chips{display:flex;flex-wrap:nowrap;gap:5px;margin-top:4px;white-space:nowrap;}
+/* 용량 노출 버튼(2026-11-09): 켜짐=빨간 라인, 꺼짐=회색 취소선 */
+.ph-prod-caps{display:flex;flex-wrap:nowrap;gap:5px;margin-top:4px;white-space:nowrap;}
+.ph-prod-cap{font:600 11px/1 inherit;padding:5px 9px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink-4);cursor:pointer;text-decoration:line-through;}
+.ph-prod-cap.on{border-color:#DE4F41;color:#DE4F41;background:rgba(222,79,65,.06);text-decoration:none;}
 .ph-prod-color-chip{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;border-radius:12px;border:1px solid var(--line);color:var(--ink-3);background:#fff;white-space:nowrap;}
 .ph-prod-color-chip.hidden-chip{opacity:.45;text-decoration:line-through;}
 .ph-prod-color-dot{width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,0,0,.12);flex-shrink:0;}
@@ -2152,20 +2156,67 @@ html[data-preload-shop] body { visibility:hidden; }
   function phProdStatus(msg,isErr){var el=phEl('ph-prod-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
   var _phProdShowHidden={skt:false,kt:false,lg:false};
   var PH_PROD_GRIP='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+  // ── 용량 묶음 (2026-11-09): 같은 폰의 용량별 줄을 한 줄로. 용량 버튼 = 그 용량의 이 매장 노출, 사진·색상·판매가기준은 모든 용량에 같이 ──
+  function phCapOf(name){var m=String(name||'').replace(/(\d+)\s*GB\b/gi,'$1G').replace(/(\d+)\s*TB\b/gi,'$1T').match(/(\d+)\s*(G|T)\s*$/i);return m?m[1]+m[2].toUpperCase():'';}
+  function phCapGb(cap){var m=String(cap||'').match(/^(\d+)(G|T)$/);return m?Number(m[1])*(m[2]==='T'?1024:1):0;}
+  function phFamName(name){return String(name||'').replace(/(\d+)\s*GB\b/gi,'$1G').replace(/(\d+)\s*TB\b/gi,'$1T').replace(/\s*\d+\s*(G|T)\s*$/i,'').trim();}
+  function phFamKey(m){return m.carrier+'|'+phFamName(m.name).toLowerCase().replace(/\s+/g,'');}
+  // 상품관리 풀(본부 노출 모델)을 폰 단위로 — 순서는 묶음 안 가장 앞 줄 기준, 용량은 작은 순
+  // 폰 목록 = 본부 노출 용량이 하나라도 있는 폰. 용량 버튼에는 본부 숨김 용량도 꺼진 상태로 나옴
+  function phProdFamilies(carrier){
+    var all=phData.models.filter(function(m){return m.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    var order=[],by={};
+    all.forEach(function(m){var k=phFamKey(m);if(!by[k]){by[k]=[];}by[k].push(m);if(m.visible!==false&&order.indexOf(k)<0)order.push(k);});
+    return order.map(function(k){
+      var mem=by[k].slice().sort(function(a,b){return phCapGb(phCapOf(a.name))-phCapGb(phCapOf(b.name));});
+      var rep=mem.find(function(m){return phCapOn(m);})||mem.find(function(m){return m.visible!==false;});   // 대표 = 켜진 가장 작은 용량
+      return{key:k,name:phFamName(mem[0].name),members:mem,rep:rep};
+    });
+  }
+  function phCapOn(m){return m.visible!==false&&phShopVisible(m.id);}   // 손님 화면에 실제로 나오는 용량
+  function phFamOf(id){var m=phData.models.find(function(x){return x.id===id;});if(!m)return[];var k=phFamKey(m);return phData.models.filter(function(x){return x.carrier===m.carrier&&phFamKey(x)===k;});}
+  function phFamShown(f){return f.members.some(phCapOn);}
+  // 용량 버튼: 켜기 = 본부 숨김이면 본부 노출도 켬(모델관리 숨김 해제) + 이 매장 노출 / 끄기 = 이 매장 노출만 끔
+  async function phProdCapToggle(id){
+    var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
+    if(phCapOn(m)){phProdToggleVis(id);return;}
+    var prevVis=m.visible,prevOv=phData.overrides[id];
+    m.visible=true;phData.overrides[id]=true;
+    try{
+      if(prevVis===false){var r1=await sb().from('mobileshop_models').update({visible:true}).eq('id',id);if(r1.error)throw r1.error;}
+      if(prevOv===false){var _sid=await phStoreId();var r2=await sb().from('mobileshop_model_overrides').upsert({store_id:_sid,model_id:id,shop_visible:true,updated_at:new Date().toISOString()},{onConflict:'store_id,model_id'});if(r2.error)throw r2.error;}
+      phRenderProducts(m.carrier);phoSavedFlash();
+    }catch(err){m.visible=prevVis;if(prevOv===undefined)delete phData.overrides[id];else phData.overrides[id]=prevOv;phRenderProducts(m.carrier);phProdStatus('저장 실패: '+(err.message||err),true);}
+  }
+  // 한 폰 노출 켜기/끄기 — 끄기=모든 용량, 켜기=본부 노출 중인 용량만(본부 숨김 용량은 용량 버튼으로 따로)
+  async function phProdFamToggle(repId){
+    var all=phFamOf(repId);if(!all.length)return;
+    var next=!all.some(phCapOn);
+    var mem=next?all.filter(function(m){return m.visible!==false;}):all;
+    var prev={};mem.forEach(function(m){prev[m.id]=phData.overrides[m.id];phData.overrides[m.id]=next;});
+    try{
+      var _sid=await phStoreId();
+      var res=await sb().from('mobileshop_model_overrides').upsert(mem.map(function(m){return{store_id:_sid,model_id:m.id,shop_visible:next,updated_at:new Date().toISOString()};}),{onConflict:'store_id,model_id'});
+      if(res.error)throw res.error;
+      phRenderProducts(mem[0].carrier);phoSavedFlash();
+    }catch(err){Object.keys(prev).forEach(function(id){if(prev[id]===undefined)delete phData.overrides[id];else phData.overrides[id]=prev[id];});phRenderProducts(mem[0].carrier);phProdStatus('저장 실패: '+(err.message||err),true);}
+  }
   function phRenderProducts(carrier){
     var wrap=document.querySelector('[data-ph-prod-list="'+carrier+'"]');if(!wrap)return;
     // 상품관리 풀 = 본부 visible(게이트) 통과 모델만. 단종(본부 숨김)은 모델관리에서만 보임.
-    var all=phData.models.filter(function(m){return m.carrier===carrier&&m.visible!==false;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
-    // '노출' = 이 매장 개별값(shopVisible). 숨김보기 켜면 노출 끈 것도 표시.
-    var list=_phProdShowHidden[carrier]?all:all.filter(function(m){return phShopVisible(m.id);});
+    var fams=phProdFamilies(carrier);
+    // '노출' = 이 매장 개별값(shopVisible) — 용량 하나라도 켜져 있으면 노출. 숨김보기 켜면 다 꺼진 폰도 표시.
+    var list=_phProdShowHidden[carrier]?fams:fams.filter(phFamShown);
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">등록된 상품이 없습니다.</p>';return;}
     var html='<div style="overflow-x:auto"><table class="ph-prod-table" style="width:auto;"><thead><tr>'
       +'<th class="ph-prod-num">#</th>'
-      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;">색상 노출</th><th style="text-align:left;white-space:nowrap;">상품노출 대표색상</th><th style="text-align:left;white-space:nowrap;">판매가기준</th><th class="ph-prod-vis">노출</th>'
+      +'<th style="white-space:nowrap;">모델명</th><th style="text-align:left;white-space:nowrap;">용량 노출</th><th style="text-align:left;">색상 노출</th><th style="text-align:left;white-space:nowrap;">상품노출 대표색상</th><th style="text-align:left;white-space:nowrap;">판매가기준</th><th class="ph-prod-vis">노출</th>'
       +'<th class="ph-prod-sort">정렬</th><th class="ph-prod-act">수정</th>'
       +'<th style="width:100%;"></th>'
       +'</tr></thead><tbody>';
-    list.forEach(function(m,i){
+    list.forEach(function(f,i){
+      var m=f.rep;
+      var capHtml=f.members.map(function(x){var on=phCapOn(x);return'<button type="button" class="ph-prod-cap'+(on?' on':'')+'" data-ph-prod-cap="'+phEsc(x.id)+'" title="'+phEsc(x.name)+(on?' — 노출 중(누르면 숨김)':' — 숨김(누르면 노출)')+'">'+phEsc(phCapOf(x.name)||'기본')+'</button>';}).join('');
       var colors=phNormColors(m.colors);
       var chipHtml=colors.map(function(c,ci){
         var dot='background:'+(c.hex||phColorDot(c.name))+';';
@@ -2196,14 +2247,15 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<option value="contract"'+(_basis==='contract'?' selected':'')+'>선택약정</option>'
         +'</select>';
       var grip='<span class="ph-prod-grip" data-ph-prod-grip="'+m.id+'" data-pcarrier="'+carrier+'" title="드래그해서 순서 변경">'+PH_PROD_GRIP+'</span>';
-      var _sv=phShopVisible(m.id);
+      var _sv=phFamShown(f);
       html+='<tr class="ph-prod-row '+(_sv?'':'is-hidden')+'" data-prod-id="'+m.id+'">'
         +'<td class="ph-prod-num">'+(i+1)+'</td>'
-        +'<td><div class="ph-prod-name">'+phEsc(m.name)+'</div></td>'
+        +'<td><div class="ph-prod-name">'+phEsc(f.members.length>1?f.name:m.name)+'</div></td>'
+        +'<td><div class="ph-prod-caps">'+capHtml+'</div></td>'
         +'<td><div class="ph-prod-color-chips" style="justify-content:flex-start;">'+chipHtml+'</div></td>'
         +'<td style="white-space:nowrap;">'+defCell+'</td>'
         +'<td style="white-space:nowrap;">'+basisCell+'</td>'
-        +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-toggle="'+m.id+'"'+(_sv?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
+        +'<td class="ph-prod-vis"><label class="ph-vis-toggle"><input type="checkbox" data-ph-prod-famtoggle="'+m.id+'"'+(_sv?' checked':'')+'><span class="ph-vis-slider"></span></label></td>'
         +'<td class="ph-prod-sort">'+grip+'</td>'
         +'<td class="ph-prod-act"><button class="ph-btn-sm adm-btn adm-btn-primary" data-ph-prod-edit="'+m.id+'">수정</button></td>'
         +'<td></td>'
@@ -2268,15 +2320,22 @@ html[data-preload-shop] body { visibility:hidden; }
     });
   }
   async function phProdApplyDrag(carrier,from,to){
+    // 폰(용량 묶음) 단위로 이동 — 화면 줄 = phProdFamilies. 본부 숨김 모델은 제자리 유지
     var all=phData.models.filter(function(x){return x.carrier===carrier;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
-    var list=_phProdShowHidden[carrier]?all.slice():all.filter(function(m){return m.visible;});
+    var fams=phProdFamilies(carrier);
+    var list=_phProdShowHidden[carrier]?fams.slice():fams.filter(phFamShown);
     if(from<0||from>=list.length||to<0||to>=list.length||from===to){phRenderProducts(carrier);return;}
     var dragged=list[from], target=list[to];
-    var arr=all.slice(), di=arr.indexOf(dragged);
+    var famOf={}; fams.forEach(function(f){f.members.forEach(function(m){famOf[m.id]=f;});});
+    var slots=[], seen={};   // 정렬 칸: 폰 묶음(처음 나온 자리) 또는 본부 숨김 모델 하나
+    // 폰 자리 = 본부 노출 용량이 처음 나온 자리(화면 순서와 같은 기준). 그 앞의 숨김 용량도 폰과 같이 움직임
+    all.forEach(function(m){var f=famOf[m.id];if(f){if(m.visible!==false&&!seen[f.key]){seen[f.key]=1;slots.push(f);}}else slots.push(m);});
+    var di=slots.indexOf(dragged);
     if(di<0){phRenderProducts(carrier);return;}
-    arr.splice(di,1);
-    var ti=arr.indexOf(target);
-    if(to>from)arr.splice(ti+1,0,dragged); else arr.splice(ti,0,dragged);
+    slots.splice(di,1);
+    var ti=slots.indexOf(target);
+    if(to>from)slots.splice(ti+1,0,dragged); else slots.splice(ti,0,dragged);
+    var arr=[]; slots.forEach(function(s){if(s.members)arr.push.apply(arr,s.members);else arr.push(s);});
     var prev={}; all.forEach(function(m){prev[m.id]=m.sortOrder;});
     var changed=[]; arr.forEach(function(m,i){if(m.sortOrder!==i){m.sortOrder=i;changed.push(m);}});
     phRenderProducts(carrier);   // 즉시 반영
@@ -2290,44 +2349,55 @@ html[data-preload-shop] body { visibility:hidden; }
       phProdStatus('정렬 저장 실패: '+(err.message||err),true);
     }
   }
+  // 대표색상·판매가기준·색상 노출은 같은 폰의 모든 용량에 같이 적용 (색은 이름으로 맞춤)
   async function phProdSetDefault(modelId,colorIdx){
     var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
-    // 색상 배열에 def 플래그 재설정 + image_url = 기본 색상 첫 이미지
-    var colors=phNormColors(m.colors).map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,hex:c.hex||'',def:i===colorIdx};});
-    var cardImg=(colors[colorIdx]&&(colors[colorIdx].images||[]).filter(Boolean)[0])||null;
-    if(!cardImg){for(var k=0;k<colors.length;k++){var im=(colors[k].images||[]).filter(Boolean)[0];if(im){cardImg=im;break;}}}
+    var want=(phNormColors(m.colors)[colorIdx]||{}).name;if(!want)return;
     try{
-      var res=await sb().from('mobileshop_models').update({colors:colors,image_url:cardImg}).eq('id',modelId);
-      if(res.error)throw res.error;
-      m.colors=colors;m.imageUrl=cardImg||'';
+      for(var _f=phFamOf(modelId),j=0;j<_f.length;j++){
+        var x=_f[j];
+        var colors=phNormColors(x.colors);
+        var di=colors.findIndex(function(c){return c.name===want;});if(di<0)continue;
+        colors=colors.map(function(c,i){return{name:c.name,visible:c.visible,images:c.images,hex:c.hex||'',def:i===di};});
+        var cardImg=(colors[di].images||[]).filter(Boolean)[0]||null;
+        if(!cardImg){for(var k=0;k<colors.length;k++){var im=(colors[k].images||[]).filter(Boolean)[0];if(im){cardImg=im;break;}}}
+        var res=await sb().from('mobileshop_models').update({colors:colors,image_url:cardImg}).eq('id',x.id);
+        if(res.error)throw res.error;
+        x.colors=colors;x.imageUrl=cardImg||'';
+      }
       phRenderProducts(m.carrier);
       phoSavedFlash();
-    }catch(err){phProdStatus('저장 실패: '+(err.message||err),true);}
+    }catch(err){phRenderProducts(m.carrier);phProdStatus('저장 실패: '+(err.message||err),true);}
   }
   async function phProdSetBasis(modelId,basis){
     var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
-    var prices=Object.assign({},(m.prices&&typeof m.prices==='object'&&!Array.isArray(m.prices))?m.prices:{});
-    prices.basis=(basis==='contract')?'contract':'common';
     try{
-      var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',modelId);
-      if(res.error)throw res.error;
-      m.prices=prices;phRenderProducts(m.carrier);phoSavedFlash();
-    }catch(err){phProdStatus('저장 실패: '+(err.message||err),true);}
+      for(var _f=phFamOf(modelId),j=0;j<_f.length;j++){
+        var x=_f[j];
+        var prices=Object.assign({},(x.prices&&typeof x.prices==='object'&&!Array.isArray(x.prices))?x.prices:{});
+        prices.basis=(basis==='contract')?'contract':'common';
+        var res=await sb().from('mobileshop_models').update({prices:prices}).eq('id',x.id);
+        if(res.error)throw res.error;
+        x.prices=prices;
+      }
+      phRenderProducts(m.carrier);phoSavedFlash();
+    }catch(err){phRenderProducts(m.carrier);phProdStatus('저장 실패: '+(err.message||err),true);}
   }
   async function phProdColorToggle(modelId,colorIdx,checked){
     var m=phData.models.find(function(x){return x.id===modelId;});if(!m)return;
-    var colors=phNormColors(m.colors);
-    if(!colors[colorIdx])return;
-    colors[colorIdx].visible=checked;
+    var want=(phNormColors(m.colors)[colorIdx]||{}).name;if(!want)return;
     try{
-      var res=await sb().from('mobileshop_models').update({colors:colors}).eq('id',modelId);
-      if(res.error)throw res.error;
-      m.colors=colors;phoSavedFlash();
-    }catch(err){
-      colors[colorIdx].visible=!checked;
-      m.colors=colors;
-      phProdStatus('저장 실패: '+(err.message||err),true);
-    }
+      for(var _f=phFamOf(modelId),j=0;j<_f.length;j++){
+        var x=_f[j];
+        var colors=phNormColors(x.colors);
+        var ci=colors.findIndex(function(c){return c.name===want;});if(ci<0)continue;
+        colors[ci].visible=checked;
+        var res=await sb().from('mobileshop_models').update({colors:colors}).eq('id',x.id);
+        if(res.error)throw res.error;
+        x.colors=colors;
+      }
+      phoSavedFlash();
+    }catch(err){phRenderProducts(m.carrier);phProdStatus('저장 실패: '+(err.message||err),true);}
   }
   /* ─ 상품 모달 ─ */
   var _phProdColors=[];
@@ -2555,6 +2625,13 @@ html[data-preload-shop] body { visibility:hidden; }
       if(ovr.error)throw ovr.error;
       phData.overrides[id]=visible;
       m.name=name;m.colors=colors;m.imageUrl=cardImg||'';
+      // 사진·색상은 같은 폰의 다른 용량에도 같이 (2026-11-09 용량 묶음) — 이름·가격·노출은 용량별 그대로
+      var _others=phFamOf(id).filter(function(x){return x.id!==id;});
+      for(var _o=0;_o<_others.length;_o++){
+        var _r2=await sb().from('mobileshop_models').update({colors:colors,image_url:cardImg}).eq('id',_others[_o].id);
+        if(_r2.error)throw _r2.error;
+        _others[_o].colors=colors;_others[_o].imageUrl=cardImg||'';
+      }
       phCloseProductModal();
       phRenderProducts(m.carrier);
       phoSavedFlash();
@@ -3005,6 +3082,8 @@ html[data-preload-shop] body { visibility:hidden; }
     // ── 상품관리 ──
     // 상품 수정 버튼
     var pe=t.closest('[data-ph-prod-edit]');if(pe){phOpenProductModal(pe.getAttribute('data-ph-prod-edit'));return;}
+    // 용량 버튼 = 그 용량의 이 매장 노출 켜기/끄기
+    var pcap=t.closest('[data-ph-prod-cap]');if(pcap){phProdCapToggle(pcap.getAttribute('data-ph-prod-cap'));return;}
     // 상품 정렬 ↑
     var pu=t.closest('[data-ph-prod-up]');if(pu){phProdSort(pu.getAttribute('data-ph-prod-up'),pu.getAttribute('data-pcarrier'),'up');return;}
     // 상품 정렬 ↓
@@ -3063,6 +3142,8 @@ html[data-preload-shop] body { visibility:hidden; }
     // 상품 노출 토글 스위치
     var pvt=e.target.closest('[data-ph-prod-toggle]');
     if(pvt){phProdToggleVis(pvt.getAttribute('data-ph-prod-toggle'));return;}
+    var pft=e.target.closest('[data-ph-prod-famtoggle]');   // 폰 전체(모든 용량) 노출
+    if(pft){phProdFamToggle(pft.getAttribute('data-ph-prod-famtoggle'));return;}
     // 상품모달 전체노출 토글 레이블 업데이트
     if(e.target.id==='ph-pm-visible'){var vl=phEl('ph-pm-vis-label');if(vl)vl.textContent=e.target.checked?'노출 중':'숨김';return;}
   });

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
@@ -732,6 +732,11 @@
   #ph-det-join .ph-det-chip, #ph-det-ctype .ph-det-chip, #ph-det-pay .ph-det-chip { flex:1; padding:9px 8px; border-radius:9px; font:600 13px/1 inherit; }
   /* 선택 = 라인(외곽선)만 빨강, 채우지 않음 */
   #ph-det-join .ph-det-chip.on, #ph-det-ctype .ph-det-chip.on, #ph-det-pay .ph-det-chip.on { background:rgba(222,79,65,.06); color:var(--accent); border-color:var(--accent); }
+  /* 용량 선택(2026-11-09) — 가입유형 버튼과 같은 라인 스타일 */
+  #ph-det-cap { flex:1; flex-wrap:wrap; gap:8px; }
+  #ph-det-cap .ph-det-chip { flex:1; min-width:64px; padding:9px 8px; border-radius:9px; font:600 13px/1 inherit; }
+  #ph-det-cap .ph-det-chip.on { background:rgba(222,79,65,.06); color:var(--accent); border-color:var(--accent); }
+  .product-card .cap-basis { font-weight:500; opacity:.7; margin-left:2px; }
   /* 색상 스와치 — 렌탈 .cp-chip/.cp-dot 통일(34px 링 + 22px 점, 선택 시 --accent 링) */
   .ph-det-colors { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
   .ph-det-color { display:inline-grid; place-items:center; width:34px; height:34px; border-radius:50%; border:2px solid transparent; background:transparent; padding:0; cursor:pointer; transition:border-color .15s; }
@@ -2182,6 +2187,10 @@ if(location.search.indexOf('ph=')!==-1){
       </div>
       <script>(function(){var p=window._phPreload;if(!p)return;var c=document.getElementById('ph-det-carrier');var n=document.getElementById('ph-det-name');var t=document.getElementById('ph-det-bar-title');var pr=document.getElementById('ph-det-prices');if(c)c.textContent=p.c||'';if(n)n.textContent=p.n||'';if(t&&(p.c||p.n))t.innerHTML=(p.c?'<span class="ph-det-bar-prefix">'+p.c+'</span> ':'')+p.n;var cb=document.getElementById('ph-det-crumb');if(cb&&(p.c||p.n)){var esc=function(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};cb.innerHTML='<a href="/?cat=phone">휴대폰</a> &nbsp;›&nbsp; '+(p.c?esc(p.c)+' &nbsp;›&nbsp; ':'')+'<span>'+esc(p.n)+'</span>';}try{var pid=new URLSearchParams(location.search).get('ph');if(pr&&p.prices&&p.id&&p.id===pid)pr.innerHTML=p.prices;}catch(e){}})();</script>
       <div class="ph-det-opts">
+        <div class="ph-det-opt-row" id="ph-det-cap-row" hidden>
+          <div class="ph-det-opt-label">용량 선택</div>
+          <div class="ph-det-opt-chips" id="ph-det-cap"></div>
+        </div>
         <div class="ph-det-opt-row" id="ph-det-color-row" hidden>
           <div class="ph-det-opt-label">색상 선택</div>
           <div class="ph-det-colors" id="ph-det-color-chips"></div>
@@ -2241,7 +2250,7 @@ if(location.search.indexOf('ph=')!==-1){
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
-<script src="data-store.js"></script>
+<script src="data-store.js?v=20261109"></script>
 <script>
   // ───── admin 연동: 데이터 → DOM 렌더 ─────
   function escapeHtml(s) {
@@ -2433,17 +2442,20 @@ if(location.search.indexOf('ph=')!==-1){
       + (it.id ? ' data-model-id="' + escapeHtml(String(it.id)) + '"' : '')
       + (imgs.length ? ' data-card-imgs="' + escapeHtml(JSON.stringify(imgs)) + '"' : '')
       + (cols.length ? ' data-card-colors="' + escapeHtml(JSON.stringify(cols)) + '"' : '')
-      + (hasChips ? ' data-sel-color="' + selIdx + '"' : '');
+      + (hasChips ? ' data-sel-color="' + selIdx + '"' : '')
+      + (it.caps ? ' data-caps="' + escapeHtml(JSON.stringify(it.caps)) + '"' : '');
+    // 용량 여러 개면 "갤럭시 S26 256G/512G" (가격은 가장 작은 용량 기준)
+    var nameHtml = it.famName ? escapeHtml(it.famName) + ' <span class="cap-light">' + escapeHtml(it.capList) + '</span>' : nameWithLightCap(it.name);
     return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
         + carrierBadge(it.tag)
-        + '<div class="thumb-name">' + nameWithLightCap(it.name) + '</div>'
+        + '<div class="thumb-name">' + nameHtml + '</div>'
         + (it.badge ? '<div class="badges"><span class="badge">' + escapeHtml(it.badge) + '</span></div>' : '')
         + (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" alt="' + escapeHtml(it.name) + '">' : PH_GLYPH)
       + '</div>'
       + '<div class="body">'
         + '<div class="ph-card-top">'
-          + '<div class="model' + (it.priceContract ? ' is-contract' : '') + '">' + escapeHtml(it.priceLabel || '공통지원 판매가') + '</div>'
+          + '<div class="model' + (it.priceContract ? ' is-contract' : '') + '">' + escapeHtml(it.priceLabel || '공통지원 판매가') + (it.caps && it.caps[0].cap ? ' <span class="cap-basis">' + escapeHtml(it.caps[0].cap) + ' 기준</span>' : '') + '</div>'
           + (hasChips ? phCardColorsHtml(cols, selIdx) : '')
         + '</div>'
         + '<div class="ph-card-prices' + (it.priceContract ? ' is-contract' : '') + '">'
@@ -2730,13 +2742,71 @@ if(location.search.indexOf('ph=')!==-1){
     card.setAttribute('data-sel-color', String(idx));
     phCardPreviewColor(card, idx);
   }
+  // ── 용량 묶음 (2026-11-09): 같은 통신사·같은 폰의 용량별 줄을 카드 하나로. 대표=가장 작은 용량, 상세에서 용량 선택 ──
+  function phCapOf(name) { var m = normModelName(name).match(/(\d+)\s*(G|T)\s*$/i); return m ? m[1] + m[2].toUpperCase() : ''; }
+  function phCapGb(cap) { var m = String(cap || '').match(/^(\d+)(G|T)$/); return m ? Number(m[1]) * (m[2] === 'T' ? 1024 : 1) : 0; }
+  function phFamName(name) { return normModelName(name).replace(/\s*\d+\s*(G|T)\s*$/i, '').trim(); }
+  function phFamKey(m) { return m.carrier + '|' + phFamName(m.name).toLowerCase().replace(/\s+/g, ''); }
+  function phGroupByCap(models) {
+    var order = [], byKey = {};
+    models.forEach(function(m) {
+      var k = phFamKey(m);
+      if (!byKey[k]) { byKey[k] = []; order.push(k); }
+      byKey[k].push(m);
+    });
+    return order.map(function(k) {
+      var g = byKey[k].slice().sort(function(a, b) { return phCapGb(phCapOf(a.name)) - phCapGb(phCapOf(b.name)); });
+      return phCardItemFor(g[0], g);
+    });
+  }
+  // 모델 한 줄 → 카드 아이템 (+ 같은 폰 용량 목록)
+  function phCardItemFor(m, group) {
+    var it = _modelToCardItem(m);
+    var caps = (group || [m]).map(function(x) { return { id: x.id, cap: phCapOf(x.name) }; });
+    if (caps.length > 1) {
+      it.caps = caps;
+      it.famName = phFamName(m.name);
+      it.capList = caps.map(function(c) { return c.cap; }).filter(Boolean).join('/');
+    }
+    return it;
+  }
+  // 같은 폰의 노출 중인 용량 줄들 (상세 복원·용량 전환용)
+  function phCapGroupOf(modelId) {
+    var _ov = DataStore.load().modelOverrides || {};
+    var all = (DataStore.load().models || []).filter(function(m) { return m.visible !== false && _ov[m.id] !== false; });
+    var me = all.find(function(m) { return m.id === modelId; });
+    if (!me) return null;
+    var k = phFamKey(me);
+    var g = all.filter(function(m) { return phFamKey(m) === k; })
+      .sort(function(a, b) { return phCapGb(phCapOf(a.name)) - phCapGb(phCapOf(b.name)); });
+    return { me: me, group: g };
+  }
+  // 특정 용량 줄의 (화면에 안 붙는) 카드 요소 — openPhDetail 에 그대로 넘김
+  function phCardElFor(modelId, colorName) {
+    var r = phCapGroupOf(modelId); if (!r) return null;
+    var it = phCardItemFor(r.me, r.group);
+    var box = document.createElement('div'); box.innerHTML = shopCardHtml(it);
+    var el = box.firstChild;
+    if (colorName) {
+      var ci = (it.colors || []).findIndex(function(c) { return c.name === colorName; });
+      if (ci >= 0) el.setAttribute('data-sel-color', String(ci));
+    }
+    return el;
+  }
+  // 모델 id 로 목록 카드 찾기 — 대표 용량이 아닌 id 면 그 용량으로 만든 카드
+  function phFindCard(modelId) {
+    var esc = (window.CSS && CSS.escape) ? CSS.escape(modelId) : modelId;
+    var card = document.querySelector('#panel-phone .product-card[data-model-id="' + esc + '"]');
+    if (card) return card;
+    return phCardElFor(modelId, '');
+  }
   // 카드 아이템 목록 (DB 모델 우선, 없으면 샘플) — carrierId 포함
   function phoneCardItems() {
     var _ov = DataStore.load().modelOverrides || {};   // 이 매장 노출 override (없으면 전부 노출)
     var models = (DataStore.load().models || []).filter(function(m) {
       return m.visible !== false && _ov[m.id] !== false;   // 본부 게이트 AND 이 매장 노출
     });
-    if (models.length > 0) return models.map(_modelToCardItem);
+    if (models.length > 0) return phGroupByCap(models);
     return SHOP_CARD_SAMPLES.phone.map(function(s) {
       var it = {}; for (var k in s) it[k] = s[k];
       it.carrierId = SAMPLE_LABEL_TO_ID[s.tag] || 'mvno';
@@ -3131,8 +3201,7 @@ if(location.search.indexOf('ph=')!==-1){
         var pdet = document.getElementById('ph-detail');
         if (ph) {
           if (!pdet.classList.contains('on') || _phDetOpenId !== ph) {
-            var esc = (window.CSS && CSS.escape) ? CSS.escape(ph) : ph;
-            var card = document.querySelector('#panel-phone .product-card[data-model-id="' + esc + '"]');
+            var card = phFindCard(ph);   // 대표 아닌 용량 id 도 찾음
             if (card) openPhDetail(card);
           }
         } else if (pdet.classList.contains('on')) { pdet.classList.remove('on'); _phDetOpenId = ''; }
@@ -3923,7 +3992,28 @@ if(location.search.indexOf('ph=')!==-1){
     finally { if (submitBtn) submitBtn.disabled = false; }
   });
 
-  function openPhDetail(card) {
+  // 상세 용량 칩: 카드의 data-caps([{id,cap}]) 로 그림. 하나뿐이면 숨김(이름에 용량이 이미 있음)
+  function renderPhDetCaps(card) {
+    var row = document.getElementById('ph-det-cap-row'), box = document.getElementById('ph-det-cap');
+    if (!row || !box) return;
+    var caps = []; try { caps = JSON.parse(card.getAttribute('data-caps') || '[]'); } catch (e) { caps = []; }
+    var cur = card.getAttribute('data-model-id') || '';
+    if (!Array.isArray(caps) || caps.length < 2) { row.hidden = true; box.innerHTML = ''; return; }
+    box.innerHTML = caps.map(function(c) {
+      return '<button type="button" class="ph-det-chip' + (c.id === cur ? ' on' : '') + '" data-cap-id="' + escapeHtml(c.id) + '">' + escapeHtml(c.cap || '기본') + '</button>';
+    }).join('');
+    row.hidden = false;
+  }
+  document.getElementById('ph-det-cap').addEventListener('click', function(e) {
+    var b = e.target.closest('[data-cap-id]'); if (!b || b.classList.contains('on')) return;
+    var colorName = (_phDetColors[_phDetColorIdx] || {}).name || '';   // 고른 색 유지(같은 이름 있으면)
+    var el = phCardElFor(b.getAttribute('data-cap-id'), colorName);
+    if (el) openPhDetail(el, { capSwitch: true });
+  });
+
+  function openPhDetail(card, opt) {
+    opt = opt || {};
+    renderPhDetCaps(card);
     var name    = card.getAttribute('data-card-name') || '';
     var carrier = card.getAttribute('data-card-carrier') || '';
     _phDetCarrier = carrier;
@@ -3971,7 +4061,7 @@ if(location.search.indexOf('ph=')!==-1){
     phDetFetchSupport(_phDetModel);
 
     var det = document.getElementById('ph-detail');
-    det.scrollTop = 0;
+    if (!opt.capSwitch) det.scrollTop = 0;   // 용량만 바꿀 땐 보던 위치 유지
     det.classList.add('on');
     document.body.classList.remove('restoring-ph');
     if (window.refreshTopBtn) window.refreshTopBtn();
@@ -3983,7 +4073,10 @@ if(location.search.indexOf('ph=')!==-1){
       var sp; try { sp = new URLSearchParams(location.search); } catch (e) { sp = new URLSearchParams(); }
       sp.delete('cls'); sp.delete('id'); sp.set('ph', modelId);
       var url = location.pathname + '?' + sp.toString();
-      if (location.pathname + location.search !== url) history.pushState({ ph: modelId }, '', url);
+      if (location.pathname + location.search !== url) {
+        if (opt.capSwitch) history.replaceState({ ph: modelId }, '', url);   // 용량 전환은 뒤로가기 기록 안 쌓음
+        else history.pushState({ ph: modelId }, '', url);
+      }
     }
     try { sessionStorage.setItem('ph_last', JSON.stringify({c:carrier, n:name, id:modelId, prices:document.getElementById('ph-det-prices').innerHTML})); } catch(e) {}
   }
@@ -4035,7 +4128,7 @@ if(location.search.indexOf('ph=')!==-1){
   // 옵션 칩 토글
   document.getElementById('ph-detail').addEventListener('click', function(e) {
     var chip = e.target.closest('.ph-det-chip');
-    if (!chip) return;
+    if (!chip || chip.hasAttribute('data-cap-id')) return;   // 용량 칩은 자체 처리(상세를 다시 그림)
     chip.closest('.ph-det-opt-chips').querySelectorAll('.ph-det-chip').forEach(function(c) { c.classList.remove('on'); });
     chip.classList.add('on');
   });
@@ -4103,7 +4196,7 @@ if(location.search.indexOf('ph=')!==-1){
     // URL에 ?ph=ID 있으면 해당 상세 자동 복원
     var phId = new URLSearchParams(location.search).get('ph');
     if (phId) {
-      var card = document.querySelector('#panel-phone .product-card[data-model-id="' + CSS.escape(phId) + '"]');
+      var card = phFindCard(phId);
       if (card) { openPhDetail(card); history.replaceState({ ph: phId }, '', location.href); }
     }
   });
