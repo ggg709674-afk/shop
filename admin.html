@@ -1528,7 +1528,7 @@ html[data-preload-shop] body { visibility:hidden; }
   function phToast(msg){var el=phEl('adm-toast');if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(function(){el.hidden=true;},2500);}
   /* ─ 데이터 ─ */
   var phData={loaded:false,loading:false,models:[],plans:[],support:[],overrides:{}};
-  function sb(){return window.supabaseClient||window.sb||null;}
+  function sb(){return window.sb||window.supabaseClient||null;}   // 로그인한 연결(window.sb) 우선 — 같은 프로젝트지만 로그인 토큰은 이쪽에 있음(2026-11-09)
   /* ─ 분양점(매장) 컨텍스트 ─
      상품관리 '노출'은 본부 모델 visible(게이트)과 분리 — 이 매장(store_id)의 개별 노출값.
      store_id = 로그인 계정의 app_metadata.mobileshop_store_id (없으면 단일샵 fallback). */
@@ -2153,7 +2153,15 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   /* 색상 이름만 추출해 ", "로 — colors가 문자열/객체({name}) 혼재라 join하면 [object Object] 나옴 */
   function phColorStr(arr){return phNormColors(arr).map(function(c){return c.name;}).filter(Boolean).join(', ');}
-  function phProdStatus(msg,isErr){var el=phEl('ph-prod-status');if(!el)return;el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');}
+  function phProdStatus(msg,isErr){
+    var el=phEl('ph-prod-status');if(!el)return;
+    // 매장 노출 표 권한 오류면 원인을 쉬운 말로 (계정에 매장 번호 없음)
+    if(isErr&&/row-level security/.test(msg||'')&&/mobileshop_model_overrides/.test(msg||'')){
+      msg='저장 실패: 로그인 계정에 매장 번호(mobileshop_store_id)가 없습니다 — 계정 설정 후 다시 로그인하세요';
+      try{sb().auth.getUser().then(function(r){var u=r&&r.data&&r.data.user;el.textContent=msg+' (지금 계정: '+((u&&u.email)||'로그인 안 됨')+', 매장 번호: '+((u&&u.app_metadata&&u.app_metadata.mobileshop_store_id)||'없음')+')';});}catch(e){}
+    }
+    el.textContent=msg||'';el.className='ph-status'+(isErr?' err':'');
+  }
   var _phProdShowHidden={skt:false,kt:false,lg:false};
   var PH_PROD_GRIP='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
   // ── 용량 묶음 (2026-11-09): 같은 폰의 용량별 줄을 한 줄로. 용량 버튼 = 그 용량의 이 매장 노출, 사진·색상·판매가기준은 모든 용량에 같이 ──
