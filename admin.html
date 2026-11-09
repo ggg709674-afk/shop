@@ -143,7 +143,7 @@ html[data-preload-shop] body { visibility:hidden; }
 [data-ph-price-list] .ms-baseplan{width:150px!important;font-size:11px!important;}
 [data-ph-price-list] .ms-bplabel{width:117px!important;font-size:11px!important;}
 /* 판매가 표: 화면 높이 안에서 스크롤 → 가로 스크롤바가 항상 보임, 머리줄·모델명 고정 */
-.ph-price-scroll{overflow:auto;max-height:calc(100vh - 230px);min-height:240px;border:1px solid var(--line);border-radius:8px;}
+.ph-price-scroll{overflow:auto;max-height:calc(100vh - 230px);min-height:260px;border:1px solid var(--line);border-radius:8px;}
 .ph-price-scroll thead{position:sticky;top:0;z-index:3;}
 .ph-price-scroll thead th{background:var(--surface,#F7F8FA);}
 .ph-price-scroll tbody td:nth-child(2),.ph-price-scroll thead tr:first-child th:nth-child(2){position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 var(--line);}
@@ -2139,7 +2139,17 @@ html[data-preload-shop] body { visibility:hidden; }
     });
     html+='</tbody></table></div>'+dl;
     wrap.innerHTML=html;
+    requestAnimationFrame(phFitPriceScroll);
   }
+  // 판매가 표 높이 = 표 시작 위치부터 화면 바닥까지 → 가로 스크롤바가 항상 화면 안에 보임
+  function phFitPriceScroll(){
+    document.querySelectorAll('.ph-price-scroll').forEach(function(el){
+      if(!el.offsetParent)return;
+      var top=el.getBoundingClientRect().top;
+      el.style.maxHeight=Math.max(260,Math.floor(window.innerHeight-top-20))+'px';
+    });
+  }
+  window.addEventListener('resize',function(){clearTimeout(window._phFitT);window._phFitT=setTimeout(phFitPriceScroll,120);});
   // 판매가는 있는데 손님 화면이 '상담'이 되는 원인(요금제 미선택·없어진 요금제·그 요금제 공시 없음) — 없으면 ''
   function phPlansSorted(carrier){
     return phData.plans.filter(function(p){return p.carrier===carrier;})
