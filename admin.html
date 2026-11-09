@@ -78,7 +78,8 @@ html[data-preload-shop] body { visibility:hidden; }
 .m-num{width:28px;text-align:center;color:var(--ink-4);font-size:12px;white-space:nowrap;}
 .m-name{width:1%;font-weight:600;color:var(--ink-1);white-space:nowrap;}
 .m-price{width:108px;text-align:right;color:var(--ink-2);font-size:12px;white-space:nowrap;}
-.m-colors{font-size:12px;color:var(--ink-3);white-space:normal;padding-left:18px;}
+.m-colors{width:340px;min-width:200px;font-size:12px;color:var(--ink-3);white-space:normal;padding-left:18px;}
+.m-fill{width:auto;padding:0!important;}
 .m-vis{width:56px;text-align:center;font-size:12px;}
 .m-act{width:108px;text-align:right;white-space:nowrap;}
 .m-act .adm-btn+.adm-btn{margin-left:4px;}
@@ -1652,9 +1653,9 @@ html[data-preload-shop] body { visibility:hidden; }
         +'<td class="m-act">'
           +'<button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-toggle-model="'+m.id+'">'+(m.visible?'숨김':'표시')+'</button>'
           +' <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-edit-model="'+m.id+'">편집</button>'
-        +'</td></tr>';
+        +'</td><td class="m-fill"></td></tr>';
     }).join('');
-    wrap.innerHTML='<table class="m-table"><thead><tr><th class="m-num">#</th><th class="m-name">모델명</th><th class="m-colors">색상</th><th class="m-price">출고가</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+    wrap.innerHTML='<table class="m-table"><thead><tr><th class="m-num">#</th><th class="m-name">모델명</th><th class="m-colors">색상</th><th class="m-price">출고가</th><th></th><th class="m-fill"></th></tr></thead><tbody>'+rows+'</tbody></table>';
   }
   /* ─ 렌더: 요금제 ─ */
   function phRenderPlans(carrier){
@@ -1666,7 +1667,6 @@ html[data-preload-shop] body { visibility:hidden; }
       return '<div class="ph-plan-item">'
         +'<span class="ph-pi-name">'+p.name+'</span>'
         +'<span class="ph-pi-meta">'+(p.monthlyFee!==''?phFmt(p.monthlyFee)+'원/월':'요금 미입력')+'</span>'
-        +'<div class="ph-pi-actions"><button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-edit-plan="'+p.id+'">편집</button></div>'
         +'</div>';
     }).join('');
   }
