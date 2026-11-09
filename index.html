@@ -2763,7 +2763,7 @@ if(location.search.indexOf('ph=')!==-1){
   function phCardItemFor(m, group) {
     var it = _modelToCardItem(m);
     var caps = (group || [m]).map(function(x) { return { id: x.id, cap: phCapOf(x.name) }; });
-    if (caps.length > 1) {
+    if (caps.length > 1 || caps.some(function(c) { return c.cap; })) {   // 용량 하나여도 상세에 칩(선택된 상태)으로 보여줌 (2026-11-09)
       it.caps = caps;
       it.famName = phFamName(m.name);
       it.capList = caps.map(function(c) { return c.cap; }).filter(Boolean).join('/');
@@ -3992,13 +3992,13 @@ if(location.search.indexOf('ph=')!==-1){
     finally { if (submitBtn) submitBtn.disabled = false; }
   });
 
-  // 상세 용량 칩: 카드의 data-caps([{id,cap}]) 로 그림. 하나뿐이면 숨김(이름에 용량이 이미 있음)
+  // 상세 용량 칩: 카드의 data-caps([{id,cap}]) 로 그림. 하나뿐이어도 선택된 칩으로 표시(용량 없는 이름만 숨김)
   function renderPhDetCaps(card) {
     var row = document.getElementById('ph-det-cap-row'), box = document.getElementById('ph-det-cap');
     if (!row || !box) return;
     var caps = []; try { caps = JSON.parse(card.getAttribute('data-caps') || '[]'); } catch (e) { caps = []; }
     var cur = card.getAttribute('data-model-id') || '';
-    if (!Array.isArray(caps) || caps.length < 2) { row.hidden = true; box.innerHTML = ''; return; }
+    if (!Array.isArray(caps) || !caps.length || (caps.length < 2 && !caps[0].cap)) { row.hidden = true; box.innerHTML = ''; return; }   // 용량 하나면 그 칩만 선택된 채로
     box.innerHTML = caps.map(function(c) {
       return '<button type="button" class="ph-det-chip' + (c.id === cur ? ' on' : '') + '" data-cap-id="' + escapeHtml(c.id) + '">' + escapeHtml(c.cap || '기본') + '</button>';
     }).join('');
