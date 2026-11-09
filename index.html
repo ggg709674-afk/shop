@@ -2444,8 +2444,8 @@ if(location.search.indexOf('ph=')!==-1){
       + (cols.length ? ' data-card-colors="' + escapeHtml(JSON.stringify(cols)) + '"' : '')
       + (hasChips ? ' data-sel-color="' + selIdx + '"' : '')
       + (it.caps ? ' data-caps="' + escapeHtml(JSON.stringify(it.caps)) + '"' : '');
-    // 용량 여러 개면 "갤럭시 S26 256G/512G" (가격은 가장 작은 용량 기준)
-    var nameHtml = it.famName ? escapeHtml(it.famName) + ' <span class="cap-light">' + escapeHtml(it.capList) + '</span>' : nameWithLightCap(it.name);
+    // 카드엔 용량 표시 안 함(2026-11-09 사용자) — 폰 이름만. 용량은 상세에서 선택
+    var nameHtml = escapeHtml(phFamName(it.name));
     return '<a class="product-card" href="javascript:void(0)"' + dataAttrs + '>'
       + '<div class="thumb">'
         + carrierBadge(it.tag)
@@ -2455,7 +2455,7 @@ if(location.search.indexOf('ph=')!==-1){
       + '</div>'
       + '<div class="body">'
         + '<div class="ph-card-top">'
-          + '<div class="model' + (it.priceContract ? ' is-contract' : '') + '">' + escapeHtml(it.priceLabel || '공통지원 판매가') + (it.caps && it.caps[0].cap ? ' <span class="cap-basis">' + escapeHtml(it.caps[0].cap) + ' 기준</span>' : '') + '</div>'
+          + '<div class="model' + (it.priceContract ? ' is-contract' : '') + '">' + escapeHtml(it.priceLabel || '공통지원 판매가') + '</div>'
           + (hasChips ? phCardColorsHtml(cols, selIdx) : '')
         + '</div>'
         + '<div class="ph-card-prices' + (it.priceContract ? ' is-contract' : '') + '">'
