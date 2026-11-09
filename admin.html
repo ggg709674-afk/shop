@@ -142,6 +142,12 @@ html[data-preload-shop] body { visibility:hidden; }
 [data-ph-price-list] .ms-price{width:72px!important;}
 [data-ph-price-list] .ms-baseplan{width:150px!important;font-size:11px!important;}
 [data-ph-price-list] .ms-bplabel{width:117px!important;font-size:11px!important;}
+/* 판매가 표: 화면 높이 안에서 스크롤 → 가로 스크롤바가 항상 보임, 머리줄·모델명 고정 */
+.ph-price-scroll{overflow:auto;max-height:calc(100vh - 230px);min-height:240px;border:1px solid var(--line);border-radius:8px;}
+.ph-price-scroll thead{position:sticky;top:0;z-index:3;}
+.ph-price-scroll thead th{background:var(--surface,#F7F8FA);}
+.ph-price-scroll tbody td:nth-child(2),.ph-price-scroll thead tr:first-child th:nth-child(2){position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 var(--line);}
+.ph-price-scroll thead tr:first-child th:nth-child(2){z-index:4;background:var(--surface,#F7F8FA);}
 [data-ph-price-list] .ms-baseplan.ph-bp-bad{border-color:#E5484D!important;background:#FFF1F1;}
 .ph-bp-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 4px 12px;font-size:12px;font-weight:600;color:var(--ink-2);}
 .ph-bp-bulk input[data-bulk-plan]{padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;width:220px;}
@@ -2100,7 +2106,7 @@ html[data-preload-shop] body { visibility:hidden; }
       +'<input type="text" data-bulk-plan="'+carrier+'" list="'+dlId+'" placeholder="요금제 검색" autocomplete="off">'
       +'<button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-bp-bulk="'+carrier+'">노출 중 '+list.length+'개에 적용</button>'
       +'<span class="ph-bp-hint">요금제를 안 고르거나 그 요금제 공시가 없으면 손님 화면은 \'상담\'으로 나옵니다 (빨간 칸)</span></div>';
-    html+='<div style="overflow-x:auto"><table class="ph-prod-table ph-price-table" style="width:auto;"><thead>';
+    html+='<div class="ph-price-scroll"><table class="ph-prod-table ph-price-table" style="width:auto;"><thead>';
     // 그룹 헤더
     html+='<tr><th class="ph-prod-num" rowspan="2">#</th><th style="white-space:nowrap;" rowspan="2">모델명</th>'
       +(_phPCollapsed
