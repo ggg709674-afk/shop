@@ -80,6 +80,15 @@ html[data-preload-shop] body { visibility:hidden; }
 .m-price{width:108px;text-align:right;color:var(--ink-2);font-size:12px;white-space:nowrap;}
 .m-colors{width:340px;min-width:200px;font-size:12px;color:var(--ink-3);white-space:normal;padding-left:18px;}
 .m-fill{width:auto;padding:0!important;}
+.m-sel{width:28px;text-align:center;}
+.m-sel input{cursor:pointer;}
+.ph-blk-ov{position:fixed;inset:0;background:rgba(15,20,30,.45);z-index:9000;display:flex;align-items:flex-start;justify-content:center;padding:60px 16px;}
+.ph-blk-box{background:#fff;border-radius:12px;width:min(560px,100%);max-height:80vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+.ph-blk-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;}
+.ph-blk-b{overflow:auto;padding:6px 18px 14px;}
+.ph-blk-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.ph-blk-row span{flex:1;min-width:0;}
+.ph-blk-row small{color:var(--ink-4);font-size:11px;}
 .m-vis{width:56px;text-align:center;font-size:12px;}
 .m-act{width:108px;text-align:right;white-space:nowrap;}
 .m-act .adm-btn+.adm-btn{margin-left:4px;}
@@ -1120,6 +1129,8 @@ html[data-preload-shop] body { visibility:hidden; }
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="skt">엑셀 다운</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="skt">엑셀 업로드</button>
             <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="skt"> 숨김 포함</label>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-sel="skt" disabled>선택 차단</button>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-list="skt">차단 목록</button>
           </div>
         </div>
         <div class="ph-card-body"><div data-ph-model-list="skt"></div></div>
@@ -1132,6 +1143,8 @@ html[data-preload-shop] body { visibility:hidden; }
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="kt">엑셀 다운</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="kt">엑셀 업로드</button>
             <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="kt"> 숨김 포함</label>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-sel="kt" disabled>선택 차단</button>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-list="kt">차단 목록</button>
           </div>
         </div>
         <div class="ph-card-body"><div data-ph-model-list="kt"></div></div>
@@ -1144,6 +1157,8 @@ html[data-preload-shop] body { visibility:hidden; }
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="lg">엑셀 다운</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="lg">엑셀 업로드</button>
             <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="lg"> 숨김 포함</label>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-sel="lg" disabled>선택 차단</button>
+            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-list="lg">차단 목록</button>
           </div>
         </div>
         <div class="ph-card-body"><div data-ph-model-list="lg"></div></div>
@@ -1632,15 +1647,23 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   /* ─ 렌더: 모델 ─ */
   var _phModelShowHidden={skt:false,kt:false,lg:false};
+  var _phSel={skt:new Set(),kt:new Set(),lg:new Set()};   // 차단할 모델 선택
+  function phSelBtn(carrier){
+    var b=document.querySelector('[data-ph-block-sel="'+carrier+'"]');if(!b)return;
+    var n=_phSel[carrier].size;b.disabled=!n;b.textContent=n?('선택 차단 ('+n+')'):'선택 차단';
+  }
   function phRenderModels(carrier){
     var wrap=document.querySelector('[data-ph-model-list="'+carrier+'"]');if(!wrap)return;
+    var _ids=new Set(phData.models.map(function(m){return m.id;}));
+    _phSel[carrier].forEach(function(id){if(!_ids.has(id))_phSel[carrier].delete(id);});
+    setTimeout(function(){phSelBtn(carrier);},0);
     var all=phData.models.filter(function(m){return m.carrier===carrier;});
     var list=_phModelShowHidden[carrier]?all:all.filter(function(m){return m.visible;});
     var hiddenN=all.length-list.length;
     if(!list.length){wrap.innerHTML='<p class="ph-hint">'+(hiddenN?('노출 중인 모델이 없습니다. (숨김 '+hiddenN+'개 — "숨김 포함" 체크)'):'등록된 모델이 없습니다.')+'</p>';return;}
     var rows=list.map(function(m,i){
       var cstr=phColorStr(m.colors);
-      return '<tr class="'+(m.visible?'':'is-hidden')+'">'+'<td class="m-num">'+(i+1)+'</td>'
+      return '<tr class="'+(m.visible?'':'is-hidden')+'">'+'<td class="m-sel"><input type="checkbox" data-ph-sel="'+carrier+'" value="'+m.id+'"'+(_phSel[carrier].has(m.id)?' checked':'')+'></td><td class="m-num">'+(i+1)+'</td>'
         +'<td class="m-name">'+m.name+(m.visible?'':' <span class="m-hidden-tag">숨김</span>')+'</td>'
         +'<td class="m-colors">'+(cstr||'—')+'</td>'
         +'<td class="m-price">'+(m.releasePrice!==''?phFmt(m.releasePrice)+'원':'—')+'</td>'
@@ -1649,7 +1672,7 @@ html[data-preload-shop] body { visibility:hidden; }
           +' <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-edit-model="'+m.id+'">편집</button>'
         +'</td><td class="m-fill"></td></tr>';
     }).join('');
-    wrap.innerHTML='<table class="m-table"><thead><tr><th class="m-num">#</th><th class="m-name">모델명</th><th class="m-colors">색상</th><th class="m-price">출고가</th><th></th><th class="m-fill"></th></tr></thead><tbody>'+rows+'</tbody></table>';
+    wrap.innerHTML='<table class="m-table"><thead><tr><th class="m-sel"><input type="checkbox" data-ph-sel-all="'+carrier+'" title="전체 선택"></th><th class="m-num">#</th><th class="m-name">모델명</th><th class="m-colors">색상</th><th class="m-price">출고가</th><th></th><th class="m-fill"></th></tr></thead><tbody>'+rows+'</tbody></table>';
   }
   /* ─ 렌더: 요금제 ─ */
   function phRenderPlans(carrier){
@@ -1742,6 +1765,76 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   document.addEventListener('click',function(e){
     if(e.target&&e.target.id==='ph-mm-add-color'){_phMmColors.push({name:'',hex:''});phRenderMmColors();var rows=phEl('ph-mm-color-rows');if(rows){var last=rows.querySelector('.ph-mm-crow:last-child .ph-mm-cname');if(last)last.focus();}}
+  });
+  /* ─ 모델 모달 ─ */
+  /* ─ 모델 차단 (2026-11-09) ─
+     차단 = 설정 'blocked_models' 목록에 올리고 모델·공시 줄 삭제. 매일 크롤(crawler-bot mshop_db)이 이 목록의 id를 다시 안 넣음.
+     차단 풀기 = 목록에서만 빼기 → 다음 새벽 크롤 때 다시 들어옴. */
+  var _phBlocked=null;
+  async function phLoadBlocked(force){
+    if(_phBlocked&&!force)return _phBlocked;
+    var r=await sb().from('mobileshop_rental_settings').select('payload').eq('key','blocked_models').maybeSingle();
+    if(r.error)throw r.error;
+    _phBlocked=(r.data&&r.data.payload&&Array.isArray(r.data.payload.items))?r.data.payload.items:[];
+    return _phBlocked;
+  }
+  async function phSaveBlocked(){
+    var r=await sb().from('mobileshop_rental_settings').upsert({key:'blocked_models',payload:{items:_phBlocked}},{onConflict:'key'});
+    if(r.error)throw r.error;
+  }
+  async function phBlockModels(carrier){
+    var ids=Array.from(_phSel[carrier]);if(!ids.length)return;
+    var ms=ids.map(function(id){return phData.models.find(function(x){return x.id===id;});}).filter(Boolean);
+    var names=ms.slice(0,8).map(function(m){return '- '+m.name;}).join('\n')+(ms.length>8?'\n… 외 '+(ms.length-8)+'개':'');
+    if(!confirm(ms.length+'개 모델을 차단할까요?\n\n'+names+'\n\n목록·공통지원금에서 지우고, 매일 크롤에서도 다시 안 불러옵니다.\n(차단 목록에서 풀 수 있어요)'))return;
+    phStatus('차단 중…');
+    try{
+      await phLoadBlocked(true);
+      var today=new Date().toISOString().slice(0,10);
+      ms.forEach(function(m){if(!_phBlocked.some(function(b){return b.id===m.id;}))_phBlocked.push({id:m.id,name:m.name,carrier:m.carrier,at:today});});
+      await phSaveBlocked();   // 목록 먼저 저장 — 삭제가 중간에 실패해도 다음 크롤이 걸러냄
+      for(var i=0;i<ids.length;i+=100){
+        var part=ids.slice(i,i+100);
+        var r1=await sb().from('mobileshop_support').delete().in('model_id',part);if(r1.error)throw r1.error;
+        var r2=await sb().from('mobileshop_models').delete().in('id',part);if(r2.error)throw r2.error;
+      }
+      var set=new Set(ids);
+      phData.models=phData.models.filter(function(m){return !set.has(m.id);});
+      phData.support=phData.support.filter(function(x){return !set.has(x.modelId);});
+      _phSel[carrier].clear();
+      phRenderModels(carrier);phRenderSupport(carrier);phStatus('');phToast(ms.length+'개 모델을 차단했습니다.');
+    }catch(err){phStatus('차단 실패: '+(err.message||err),true);}
+  }
+  async function phShowBlocked(carrier){
+    var ov=document.createElement('div');ov.className='ph-blk-ov';
+    ov.innerHTML='<div class="ph-blk-box"><div class="ph-blk-h"><span>차단 목록 ('+carrier.toUpperCase()+')</span><button class="adm-btn adm-btn-ghost ph-btn-sm" data-blk-close>닫기</button></div><div class="ph-blk-b">불러오는 중…</div></div>';
+    document.body.appendChild(ov);
+    function close(){ov.remove();document.removeEventListener('keydown',onKey);}
+    function onKey(e){if(e.key==='Escape')close();}
+    document.addEventListener('keydown',onKey);
+    var body=ov.querySelector('.ph-blk-b');
+    function draw(){
+      var list=_phBlocked.filter(function(b){return b.carrier===carrier;});
+      body.innerHTML=list.length?list.map(function(b){
+        return '<div class="ph-blk-row"><span>'+escHtml(b.name)+' <small>'+escHtml(b.id)+' · '+escHtml(b.at||'')+'</small></span><button class="adm-btn adm-btn-ghost ph-btn-sm" data-blk-un="'+escHtml(b.id)+'">차단 풀기</button></div>';
+      }).join('')+'<p class="ph-hint" style="margin-top:10px">차단을 풀면 다음 새벽 크롤 때 다시 들어옵니다.</p>':'<p class="ph-hint">차단한 모델이 없습니다.</p>';
+    }
+    try{await phLoadBlocked(true);draw();}catch(err){body.textContent='불러오기 실패: '+(err.message||err);}
+    ov.addEventListener('click',async function(e){
+      if(e.target.closest('[data-blk-close]')){close();return;}
+      var u=e.target.closest('[data-blk-un]');if(!u)return;
+      var id=u.getAttribute('data-blk-un');u.disabled=true;
+      try{_phBlocked=_phBlocked.filter(function(b){return b.id!==id;});await phSaveBlocked();draw();phToast('차단을 풀었습니다. 다음 크롤 때 다시 들어옵니다.');}
+      catch(err){u.disabled=false;phToast('실패: '+(err.message||err));}
+    });
+  }
+  function escHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  document.addEventListener('change',function(e){
+    var t=e.target;
+    var sa=t.closest&&t.closest('[data-ph-sel-all]');
+    if(sa){var c=sa.getAttribute('data-ph-sel-all');document.querySelectorAll('[data-ph-sel="'+c+'"]').forEach(function(cb){cb.checked=sa.checked;if(sa.checked)_phSel[c].add(cb.value);else _phSel[c].delete(cb.value);});phSelBtn(c);return;}
+    var sc=t.closest&&t.closest('[data-ph-sel]');
+    if(sc){var c2=sc.getAttribute('data-ph-sel');if(sc.checked)_phSel[c2].add(sc.value);else _phSel[c2].delete(sc.value);phSelBtn(c2);}
   });
   /* ─ 모델 모달 ─ */
   function phOpenModelModal(id,carrier){
@@ -3059,6 +3152,9 @@ html[data-preload-shop] body { visibility:hidden; }
     if(t.id==='ph-fill-colors-btn'){phFillSktColors();return;}
     // 모델 추가
     var am=t.closest('[data-ph-add-model]');if(am){phOpenModelModal(null,am.getAttribute('data-ph-add-model'));return;}
+    // 모델 차단
+    var bs=t.closest('[data-ph-block-sel]');if(bs){phBlockModels(bs.getAttribute('data-ph-block-sel'));return;}
+    var bl=t.closest('[data-ph-block-list]');if(bl){phShowBlocked(bl.getAttribute('data-ph-block-list'));return;}
     // 모델 편집
     var em=t.closest('[data-ph-edit-model]');if(em){phOpenModelModal(em.getAttribute('data-ph-edit-model'),null);return;}
     // 모델 토글
