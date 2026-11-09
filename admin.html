@@ -140,10 +140,11 @@ html[data-preload-shop] body { visibility:hidden; }
 /* 판매가 표(칼럼 많음) — 여백 축소 */
 [data-ph-price-list] .ph-prod-table th,[data-ph-price-list] .ph-prod-table td{padding-left:6px;padding-right:6px;}
 [data-ph-price-list] .ms-price{width:72px!important;}
-[data-ph-price-list] .ms-baseplan{max-width:112px!important;font-size:11px!important;}
+[data-ph-price-list] .ms-baseplan{width:150px!important;font-size:11px!important;}
 [data-ph-price-list] .ms-bplabel{width:117px!important;font-size:11px!important;}
 [data-ph-price-list] .ms-baseplan.ph-bp-bad{border-color:#E5484D!important;background:#FFF1F1;}
 .ph-bp-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 4px 12px;font-size:12px;font-weight:600;color:var(--ink-2);}
+.ph-bp-bulk input[data-bulk-plan]{padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;width:220px;}
 .ph-bp-bulk select{padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;max-width:220px;}
 .ph-bp-hint{font-weight:400;color:var(--ink-4);font-size:11px;}
 .ph-prod-table tr:last-child td{border-bottom:0;}
@@ -2089,11 +2090,14 @@ html[data-preload-shop] body { visibility:hidden; }
     var list=phPriceList(carrier);
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">노출 중인 상품이 없습니다.</p>';return;}
     var plans=phData.plans.filter(function(p){return p.carrier===carrier;});
-    function planOpts(selId){var o='<option value="">— 선택 —</option>';plans.forEach(function(p){o+='<option value="'+phEsc(p.id)+'"'+(selId===p.id?' selected':'')+'>'+phEsc(p.name)+'</option>';});return o;}
+    plans=phPlansSorted(carrier);   // 요금제관리와 같은 순서(월정액 높은 순)
+    var dlId='ph-pl-dl-'+carrier;
+    var dl='<datalist id="'+dlId+'">'+plans.map(function(p){return '<option value="'+phEsc(p.name)+'" label="'+(p.monthlyFee!==''?phFmt(p.monthlyFee)+'원/월':'')+'"></option>';}).join('')+'</datalist>';
+    function planName(id){var p=plans.find(function(x){return x.id===id;});return p?p.name:'';}
     var BL='border-left:2px solid var(--line);';
     var html='<div class="ph-bp-bulk">기준요금제 일괄 적용'
       +'<select data-bulk-field="'+carrier+'"><option value="all">4칸 모두</option>'+PH_PRICE_FIELDS.map(function(f){return '<option value="'+f[0]+'">'+f[1]+'</option>';}).join('')+'</select>'
-      +'<select data-bulk-plan="'+carrier+'">'+planOpts('')+'</select>'
+      +'<input type="text" data-bulk-plan="'+carrier+'" list="'+dlId+'" placeholder="요금제 검색" autocomplete="off">'
       +'<button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-bp-bulk="'+carrier+'">노출 중 '+list.length+'개에 적용</button>'
       +'<span class="ph-bp-hint">요금제를 안 고르거나 그 요금제 공시가 없으면 손님 화면은 \'상담\'으로 나옵니다 (빨간 칸)</span></div>';
     html+='<div style="overflow-x:auto"><table class="ph-prod-table ph-price-table" style="width:auto;"><thead>';
@@ -2121,16 +2125,24 @@ html[data-preload-shop] body { visibility:hidden; }
       PH_PRICE_FIELDS.forEach(function(f,fi){
         var planId=pr[f[0]+'Plan']||'';var label=pr[f[0]+'PlanLabel']||'';
         var bad=phBpMissing(m,f[0]);
-        html+='<td style="text-align:center;'+(fi===0?BL:'')+'"><select class="ms-baseplan'+(bad?' ph-bp-bad':'')+'" title="'+(bad?phEsc(bad):'')+'" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" style="max-width:150px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;">'+planOpts(planId)+'</select></td>';
+        html+='<td style="text-align:center;'+(fi===0?BL:'')+'"><input type="text" class="ms-baseplan'+(bad?' ph-bp-bad':'')+'" title="'+(bad?phEsc(bad):'')+'" list="'+dlId+'" autocomplete="off" placeholder="요금제 검색" value="'+phEsc(planName(planId))+'" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" style="width:150px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
         html+='<td style="text-align:center;"><input class="ms-bplabel" type="text" data-ph-bp-id="'+phEsc(m.id)+'" data-ph-bp-field="'+f[0]+'" value="'+phEsc(label)+'" placeholder="노출문구" style="width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
       });
       html+='<td style="text-align:center;'+BL+'"><input class="ms-addon" type="text" data-ph-addon-id="'+phEsc(m.id)+'" value="'+phEsc(pr.addon||'')+'" placeholder="부가서비스 입력" style="width:180px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:inherit;"></td>';
       html+='<td></td></tr>';
     });
-    html+='</tbody></table></div>';
+    html+='</tbody></table></div>'+dl;
     wrap.innerHTML=html;
   }
   // 판매가는 있는데 손님 화면이 '상담'이 되는 원인(요금제 미선택·없어진 요금제·그 요금제 공시 없음) — 없으면 ''
+  function phPlansSorted(carrier){
+    return phData.plans.filter(function(p){return p.carrier===carrier;})
+      .sort(function(a,b){return (b.monthlyFee!==''?+b.monthlyFee:0)-(a.monthlyFee!==''?+a.monthlyFee:0);});
+  }
+  function phPlanByName(carrier,name){
+    var n=String(name||'').replace(/\s+/g,'').toLowerCase();if(!n)return null;
+    return phData.plans.find(function(p){return p.carrier===carrier&&p.name.replace(/\s+/g,'').toLowerCase()===n;})||null;
+  }
   function phBpMissing(m,field){
     var pr=m.prices||{};var v=pr[field];if(v==null||v==='')return '';
     if(field==='mnpContract'||field==='changeContract')return '';   // 선택약정은 공시 필요 없음
@@ -2142,9 +2154,9 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   async function phBulkBasePlan(carrier){
     var fsel=document.querySelector('[data-bulk-field="'+carrier+'"]'),psel=document.querySelector('[data-bulk-plan="'+carrier+'"]');
-    var field=fsel?fsel.value:'all',planId=psel?psel.value:'';
-    var plan=phData.plans.find(function(p){return p.id===planId;});
-    if(!plan){alert('적용할 요금제를 골라주세요.');return;}
+    var field=fsel?fsel.value:'all';
+    var plan=phPlanByName(carrier,psel?psel.value:'');
+    if(!plan){alert('적용할 요금제를 목록에서 골라주세요.');return;}
     var fields=field==='all'?PH_PRICE_FIELDS.map(function(f){return f[0];}):[field];
     var list=phData.models.filter(function(m){return m.carrier===carrier&&m.visible;});
     var fname=field==='all'?'4칸 모두':(PH_PRICE_FIELDS.find(function(f){return f[0]===field;})||['',''])[1];
@@ -2181,7 +2193,9 @@ html[data-preload-shop] body { visibility:hidden; }
   async function phSaveBasePlan(sel){
     var id=sel.getAttribute('data-ph-bp-id');var field=sel.getAttribute('data-ph-bp-field');
     var m=phData.models.find(function(x){return x.id===id;});if(!m)return;
-    var planId=sel.value||'';var plan=phData.plans.find(function(p){return p.id===planId;});
+    var typed=sel.value.trim();var plan=typed?phPlanByName(m.carrier,typed):null;
+    if(typed&&!plan){sel.classList.add('ph-bp-bad');sel.title='목록에 없는 요금제입니다 — 목록에서 골라주세요';phPriceStatus('목록에 없는 요금제: '+typed,true);return;}
+    var planId=plan?plan.id:'';phPriceStatus('');
     var prices=Object.assign({},m.prices||{});
     if(planId){prices[field+'Plan']=planId;prices[field+'PlanLabel']=plan?plan.name:'';}
     else{delete prices[field+'Plan'];delete prices[field+'PlanLabel'];}
