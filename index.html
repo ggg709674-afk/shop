@@ -665,7 +665,7 @@
   .ph-det-thumb:hover { border-color:var(--g2); }  /* 렌탈 .thumbs .t:hover 와 동일 톤 */
   .ph-det-thumb.on { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
   .ph-det-thumb img { width:auto; height:82%; max-width:88%; object-fit:contain; }  /* 높이 고정·가로 비율대로 */
-  .ph-det-thumb.empty { opacity:.22; cursor:default; }
+  .ph-det-thumb.empty { display:none; }   /* 사진 없는 빈 칸은 안 보임(반투명 네모로 겹쳐 보였음, 2026-11-09) */
   .ph-det-body { padding:20px 16px 48px; }
   .ph-det-carrier-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:13px; font-weight:600; letter-spacing:0.3px; color:var(--g2); min-height:20px; }  /* 렌탈 .detail-info .model 과 동일 */
   .ph-det-name { font-size:32px; font-weight:700; line-height:1.3; letter-spacing:-0.5px; word-break:keep-all; min-height:28px; }  /* 렌탈 .name-row h1 과 동일 */
