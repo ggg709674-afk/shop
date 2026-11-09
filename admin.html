@@ -81,6 +81,13 @@ html[data-preload-shop] body { visibility:hidden; }
 .m-colors{width:340px;min-width:200px;font-size:12px;color:var(--ink-3);white-space:normal;padding-left:18px;}
 .m-fill{width:auto;padding:0!important;}
 .m-sel{width:28px;text-align:center;}
+.m-rel{width:128px;white-space:nowrap;}
+.m-rel-in{font:inherit;font-size:12px;padding:3px 5px;border:1px solid var(--line);border-radius:6px;color:var(--ink-2);background:#fff;}
+.m-maker{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap;}
+.m-maker button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;font-family:inherit;}
+.m-maker button span{font-weight:500;color:var(--ink-4);margin-left:2px;}
+.m-maker button.on{background:var(--ink-1,#222);border-color:var(--ink-1,#222);color:#fff;}
+.m-maker button.on span{color:rgba(255,255,255,.7);}
 .m-sel input{cursor:pointer;}
 .ph-blk-ov{position:fixed;inset:0;background:rgba(15,20,30,.45);z-index:9000;display:flex;align-items:flex-start;justify-content:center;padding:60px 16px;}
 .ph-blk-box{background:#fff;border-radius:12px;width:min(560px,100%);max-height:80vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.25);}
@@ -1127,11 +1134,10 @@ html[data-preload-shop] body { visibility:hidden; }
     </nav>
     <div class="ph-cpane on" data-ph-group="models" data-pcarrier="skt">
       <div class="ph-card">
-        <div class="ph-card-h">SKT 모델 <span class="ph-card-sub">엑셀 행 순서 = 표시 순서</span>
+        <div class="ph-card-h">SKT 모델 <span class="ph-card-sub">출시일 최신순 · 순서 이동은 상품관리에서</span>
           <div class="ph-card-actions">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" id="ph-fill-colors-btn">KT/LG 동기화 (이름·순서·색상)</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="skt">엑셀 다운</button>
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="skt">엑셀 업로드</button>
             <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="skt"> 숨김 포함</label>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-sel="skt" disabled>선택 차단</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-list="skt">차단 목록</button>
@@ -1142,10 +1148,9 @@ html[data-preload-shop] body { visibility:hidden; }
     </div>
     <div class="ph-cpane" data-ph-group="models" data-pcarrier="kt">
       <div class="ph-card">
-        <div class="ph-card-h">KT 모델 <span class="ph-card-sub">엑셀 행 순서 = 표시 순서</span>
+        <div class="ph-card-h">KT 모델 <span class="ph-card-sub">출시일 최신순 · 순서 이동은 상품관리에서</span>
           <div class="ph-card-actions">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="kt">엑셀 다운</button>
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="kt">엑셀 업로드</button>
             <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="kt"> 숨김 포함</label>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-sel="kt" disabled>선택 차단</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-list="kt">차단 목록</button>
@@ -1156,10 +1161,9 @@ html[data-preload-shop] body { visibility:hidden; }
     </div>
     <div class="ph-cpane" data-ph-group="models" data-pcarrier="lg">
       <div class="ph-card">
-        <div class="ph-card-h">LG U+ 모델 <span class="ph-card-sub">엑셀 행 순서 = 표시 순서</span>
+        <div class="ph-card-h">LG U+ 모델 <span class="ph-card-sub">출시일 최신순 · 순서 이동은 상품관리에서</span>
           <div class="ph-card-actions">
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-down="lg">엑셀 다운</button>
-            <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-xls-up="lg">엑셀 업로드</button>
             <label class="ph-show-hidden-label"><input type="checkbox" data-ph-model-show-hidden="lg"> 숨김 포함</label>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-sel="lg" disabled>선택 차단</button>
             <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-block-list="lg">차단 목록</button>
@@ -1661,14 +1665,28 @@ html[data-preload-shop] body { visibility:hidden; }
     var _ids=new Set(phData.models.map(function(m){return m.id;}));
     _phSel[carrier].forEach(function(id){if(!_ids.has(id))_phSel[carrier].delete(id);});
     setTimeout(function(){phSelBtn(carrier);},0);
+    if(!_phRel){phLoadRel().then(function(){phRenderModels(carrier);});}
     var all=phData.models.filter(function(m){return m.carrier===carrier;});
     var list=_phModelShowHidden[carrier]?all:all.filter(function(m){return m.visible;});
     var hiddenN=all.length-list.length;
-    if(!list.length){wrap.innerHTML='<p class="ph-hint">'+(hiddenN?('노출 중인 모델이 없습니다. (숨김 '+hiddenN+'개 — "숨김 포함" 체크)'):'등록된 모델이 없습니다.')+'</p>';return;}
+    // 제조사 탭(삼성·애플·기타) + 출시일 최신순 → 같은 폰은 용량 작은 순 (순서값 sort_order 는 상품관리 전용, 여기선 안 씀)
+    var mk=_phMaker[carrier]||'all',cnt={all:list.length,samsung:0,apple:0,etc:0};
+    list.forEach(function(m){cnt[phMakerOf(m.name)]++;});
+    var tabs='<div class="m-maker">'+[['all','전체'],['samsung','삼성'],['apple','애플'],['etc','기타']].map(function(t){
+      return '<button type="button" class="'+(mk===t[0]?'on':'')+'" data-ph-maker="'+carrier+'|'+t[0]+'">'+t[1]+' <span>'+cnt[t[0]]+'</span></button>';}).join('')+'</div>';
+    if(mk!=='all')list=list.filter(function(m){return phMakerOf(m.name)===mk;});
+    list=list.slice().sort(function(a,b){
+      var da=phRelOf(a),db=phRelOf(b);if(da!==db)return db.localeCompare(da);
+      var fa=phFamName(a.name),fb=phFamName(b.name);if(fa!==fb)return fa.localeCompare(fb);
+      return phCapGb(phCapOf(a.name))-phCapGb(phCapOf(b.name));
+    });
+    if(!list.length){wrap.innerHTML=tabs+'<p class="ph-hint">'+(hiddenN?('노출 중인 모델이 없습니다. (숨김 '+hiddenN+'개 — "숨김 포함" 체크)'):'등록된 모델이 없습니다.')+'</p>';return;}
     var rows=list.map(function(m,i){
+      var rk=phRelKey(m.name),rd=(_phRel&&_phRel[rk])||'';
       var cstr=phColorStr(m.colors);
       return '<tr class="'+(m.visible?'':'is-hidden')+'">'+'<td class="m-sel"><input type="checkbox" data-ph-sel="'+carrier+'" value="'+m.id+'"'+(_phSel[carrier].has(m.id)?' checked':'')+'></td><td class="m-num">'+(i+1)+'</td>'
         +'<td class="m-name">'+m.name+(m.visible?'':' <span class="m-hidden-tag">숨김</span>')+'</td>'
+        +'<td class="m-rel"><input type="date" class="m-rel-in" data-rel-key="'+phEsc(rk)+'" value="'+phEsc(rd)+'" title="출시일 — 같은 폰(용량 무관) 전체에 적용"></td>'
         +'<td class="m-colors">'+(cstr||'—')+'</td>'
         +'<td class="m-price">'+(m.releasePrice!==''?phFmt(m.releasePrice)+'원':'—')+'</td>'
         +'<td class="m-act">'
@@ -1676,7 +1694,7 @@ html[data-preload-shop] body { visibility:hidden; }
           +' <button class="adm-btn adm-btn-ghost ph-btn-sm" data-ph-edit-model="'+m.id+'">편집</button>'
         +'</td><td class="m-fill"></td></tr>';
     }).join('');
-    wrap.innerHTML='<table class="m-table"><thead><tr><th class="m-sel"><input type="checkbox" data-ph-sel-all="'+carrier+'" title="전체 선택"></th><th class="m-num">#</th><th class="m-name">모델명</th><th class="m-colors">색상</th><th class="m-price">출고가</th><th></th><th class="m-fill"></th></tr></thead><tbody>'+rows+'</tbody></table>';
+    wrap.innerHTML=tabs+'<table class="m-table"><thead><tr><th class="m-sel"><input type="checkbox" data-ph-sel-all="'+carrier+'" title="전체 선택"></th><th class="m-num">#</th><th class="m-name">모델명</th><th class="m-rel">출시일</th><th class="m-colors">색상</th><th class="m-price">출고가</th><th></th><th class="m-fill"></th></tr></thead><tbody>'+rows+'</tbody></table>';
   }
   /* ─ 렌더: 요금제 ─ */
   function phRenderPlans(carrier){
@@ -1771,6 +1789,46 @@ html[data-preload-shop] body { visibility:hidden; }
     if(e.target&&e.target.id==='ph-mm-add-color'){_phMmColors.push({name:'',hex:''});phRenderMmColors();var rows=phEl('ph-mm-color-rows');if(rows){var last=rows.querySelector('.ph-mm-crow:last-child .ph-mm-cname');if(last)last.focus();}}
   });
   /* ─ 모델 모달 ─ */
+  /* ─ 출시일 (2026-11-09) ─ 설정 'release_dates' = {폰키: 'YYYY-MM-DD'}, 폰키 = 이름에서 용량 뺀 것(공백 제거·소문자).
+     처음 1회: 설정이 없으면 phone-images/release-seed.json(제로노트 출시일+공시일)으로 채움.
+     이후 새 폰: 목록에 없으면 그 폰의 가장 이른 공시일로 기록(관리자 열 때). 모델관리에서 직접 고칠 수 있음. */
+  var _phRel=null,_phRelLoading=null;
+  var _phMaker={skt:'all',kt:'all',lg:'all'};
+  function phRelKey(name){return phFamName(name).toLowerCase().replace(/\s+/g,'');}
+  function phRelOf(m){return (_phRel&&_phRel[phRelKey(m.name)])||m.noticeDate||'';}
+  function phMakerOf(name){
+    var n=String(name||'');
+    if(/iphone|아이폰|에어팟|airpods?|apple|애플|ipad|아이패드/i.test(n))return 'apple';
+    if(/갤럭시|galaxy|삼성|samsung|^\s*z\s*(플립|폴드)/i.test(n))return 'samsung';
+    return 'etc';
+  }
+  function phLoadRel(){
+    if(_phRelLoading)return _phRelLoading;
+    _phRelLoading=(async function(){
+      var d=null,dirty=false;
+      try{var r=await sb().from('mobileshop_rental_settings').select('payload').eq('key','release_dates').maybeSingle();d=(r.data&&r.data.payload&&r.data.payload.dates)||null;}catch(e){}
+      if(!d){try{var js=await (await fetch('/phone-images/release-seed.json',{cache:'no-store'})).json();d=(js&&js.dates)||{};dirty=true;}catch(e){d={};}}
+      var first={};
+      phData.models.forEach(function(m){var k=phRelKey(m.name);if(!k||!m.noticeDate)return;if(!first[k]||m.noticeDate<first[k])first[k]=m.noticeDate;});
+      Object.keys(first).forEach(function(k){if(!d[k]){d[k]=first[k];dirty=true;}});
+      _phRel=d;
+      if(dirty){try{await phSaveRel();}catch(e){console.warn('출시일 저장 실패',e);}}
+      return _phRel;
+    })();
+    return _phRelLoading;
+  }
+  async function phSaveRel(){
+    var r=await sb().from('mobileshop_rental_settings').upsert({key:'release_dates',payload:{dates:_phRel,updated:new Date().toISOString().slice(0,10)}},{onConflict:'key'});
+    if(r.error)throw r.error;
+  }
+  document.addEventListener('change',async function(e){
+    var t=e.target;if(!t.classList||!t.classList.contains('m-rel-in'))return;
+    var k=t.getAttribute('data-rel-key');if(!k||!_phRel)return;
+    var prev=_phRel[k];
+    if(t.value)_phRel[k]=t.value;else delete _phRel[k];
+    try{await phSaveRel();['skt','kt','lg'].forEach(phRenderModels);phToast('출시일을 저장했습니다.');}
+    catch(err){if(prev)_phRel[k]=prev;else delete _phRel[k];t.value=prev||'';phStatus('출시일 저장 실패: '+(err.message||err),true);}
+  });
   /* ─ 모델 차단 (2026-11-09) ─
      차단 = 설정 'blocked_models' 목록에 올리고 모델·공시 줄 삭제. 매일 크롤(crawler-bot mshop_db)이 이 목록의 id를 다시 안 넣음.
      차단 풀기 = 목록에서만 빼기 → 다음 새벽 크롤 때 다시 들어옴. */
@@ -2022,9 +2080,13 @@ html[data-preload-shop] body { visibility:hidden; }
     });
     document.querySelectorAll('.ph-pcol-btn').forEach(function(b){b.textContent=_phPCollapsed?'판매가보기':'판매가접기';});
   }
+  // 판매가 목록 순서 = 상품관리와 같게(폰 묶음 순서 → 묶음 안 용량 작은 순), 노출 중인 용량만
+  function phPriceList(carrier){
+    var out=[];phProdFamilies(carrier).forEach(function(f){f.members.forEach(function(m){if(m.visible)out.push(m);});});return out;
+  }
   function phRenderPricing(carrier){
     var wrap=document.querySelector('[data-ph-price-list="'+carrier+'"]');if(!wrap)return;
-    var list=phData.models.filter(function(m){return m.carrier===carrier&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    var list=phPriceList(carrier);
     if(!list.length){wrap.innerHTML='<p style="padding:20px;text-align:center;color:var(--ink-4);font-size:13px;">노출 중인 상품이 없습니다.</p>';return;}
     var plans=phData.plans.filter(function(p){return p.carrier===carrier;});
     function planOpts(selId){var o='<option value="">— 선택 —</option>';plans.forEach(function(p){o+='<option value="'+phEsc(p.id)+'"'+(selId===p.id?' selected':'')+'>'+phEsc(p.name)+'</option>';});return o;}
@@ -2179,7 +2241,7 @@ html[data-preload-shop] body { visibility:hidden; }
   }
   function phPriceExportXlsx(carrier){
     if(!window.XLSX){alert('XLSX 라이브러리가 로드되지 않았습니다.');return;}
-    var list=phData.models.filter(function(m){return m.carrier===carrier&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+    var list=phPriceList(carrier);
     var head=phPriceHead();
     var data=[head].concat(list.map(function(m){return phPriceRow(m,carrier.toUpperCase());}));
     var ws=XLSX.utils.aoa_to_sheet(data);_phStylePriceSheet(ws,data.length,head.length);
@@ -2248,7 +2310,7 @@ html[data-preload-shop] body { visibility:hidden; }
     var head=phPriceHead();
     var wb=XLSX.utils.book_new();
     PH_CARRIERS_XL.forEach(function(cr){
-      var list=phData.models.filter(function(m){return m.carrier===cr[0]&&m.visible;}).slice().sort(function(a,b){return(a.sortOrder||0)-(b.sortOrder||0);});
+      var list=phPriceList(cr[0]);
       var data=[head].concat(list.map(function(m){return phPriceRow(m,cr[1]);}));
       var ws=XLSX.utils.aoa_to_sheet(data);
       _phStylePriceSheet(ws,data.length,head.length);
@@ -3211,6 +3273,7 @@ html[data-preload-shop] body { visibility:hidden; }
     if(t.id==='ph-fill-colors-btn'){phFillSktColors();return;}
     // 모델 추가
     var am=t.closest('[data-ph-add-model]');if(am){phOpenModelModal(null,am.getAttribute('data-ph-add-model'));return;}
+    var mkb=t.closest('[data-ph-maker]');if(mkb){var mp=mkb.getAttribute('data-ph-maker').split('|');_phMaker[mp[0]]=mp[1];phRenderModels(mp[0]);return;}
     // 모델 차단
     var bs=t.closest('[data-ph-block-sel]');if(bs){phBlockModels(bs.getAttribute('data-ph-block-sel'));return;}
     var bl=t.closest('[data-ph-block-list]');if(bl){phShowBlocked(bl.getAttribute('data-ph-block-list'));return;}
