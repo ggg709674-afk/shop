@@ -3883,6 +3883,14 @@ if(location.search.indexOf('ph=')!==-1){
     var note = parts.length ? '<div class="ph-det-price-note">' + parts.join('<span class="ph-det-note-sep">ㅣ</span>') + '</div>' : '';
     var finalLabel = _phDetPay === 'cash' ? '일시납가' : '할부원금';
     var hasSale = sale != null && sale !== '' && !isNaN(Number(sale));
+    // 공통지원금 견적인데 기준요금제 공시를 못 찾으면(요금제 미선택·없어진 요금제·공시 없음) 0원으로 계산하면
+    // '우주커넥트 할인'이 부풀려 보이므로 숫자 대신 상담으로 (2026-11-09)
+    if (hasSale && ct === 'common') {
+      var _pid = pr[join === 'mnp' ? 'mnpCommonPlan' : 'changeCommonPlan'] || '';
+      var _sd = _pid ? _phDetSupport[_pid] : null;
+      var _amt = _sd ? (join === 'mnp' ? _sd.mnp : _sd.change) : null;
+      if (_amt == null || _amt === '' || isNaN(Number(_amt))) hasSale = false;
+    }
     if (!hasSale || release == null) {
       box.innerHTML = '<div class="ph-det-price-row ph-det-price-final"><span class="ph-det-price-label">' + finalLabel + '</span><span class="ph-det-price-val">상담</span></div>' + note;
       return;
